@@ -1,0 +1,67 @@
+# The Thug
+
+> **You are not the hero. You are not the hunter. You are the prey.**
+
+**The Thug** is a first-person survival horror / stealth game planned for Unreal Engine 5.
+
+The player controls a Gotham criminal trapped inside an abandoned hospital while a highly intelligent predator hunts, studies, and adapts to the player's behavior.
+
+## Project status
+
+**Pre-Production — M00**
+
+- Engine: Unreal Engine 5
+- Core: C++ + Blueprint
+- Genre: Survival Horror / Stealth
+- Perspective: First Person
+- Primary setting: Abandoned hospital
+- Target experience: tension, paranoia, vulnerability, emergent decisions and systemic pursuit
+
+## Design pillars
+
+1. **Predator, not boss** — the Hunter is a systemic threat, not a conventional enemy.
+2. **Information is a resource** — learning the hospital is as valuable as ammunition.
+3. **Survival above combat** — tools create opportunities; they do not grant dominance.
+4. **Tension above jumpscares** — uncertainty, sound and anticipation carry the horror.
+5. **Systems above scripts** — AI, companions, resources and level design should interact.
+
+## Repository structure
+
+```text
+01_PROJECT/       Production, roadmap, milestones and decisions
+02_GAME_DESIGN/   GDD, mechanics, systems, levels and difficulty
+03_NARRATIVE/     Story, characters, dialogue, endings and lore
+04_TECHNICAL/     Architecture, AI, C++, Blueprint and performance
+05_ART/           Visual direction and asset planning
+06_AUDIO/         Music, SFX, ambience and audio systems
+07_LEVELS/        Level-design documentation
+08_PROTOTYPES/    Prototype notes and experiments
+09_TESTING/       Test plans, QA and performance
+10_BUILD/         Build and release documentation
+Tools/            Project utilities
+UnrealProject/    Unreal Engine project root (created on Day 1)
+```
+
+## Development philosophy
+
+Build **10 excellent minutes first**. Prove that walking through a corridor while the Hunter searches for the player is already tense and fun. Only then expand the systems into the full hospital.
+
+## Milestones
+
+- M00 — Pre-Production
+- M01 — Core Prototype
+- M02 — Hunter
+- M03 — Stealth
+- M04 — Companions
+- M05 — Hospital Blockout
+- M06 — Vertical Slice
+- M07 — Alpha
+- M08 — Beta
+- M09 — Release
+
+## Current next step
+
+Create the Unreal Engine 5 project and begin **M01 — Core Prototype**.
+
+---
+**Working title:** The Thug
