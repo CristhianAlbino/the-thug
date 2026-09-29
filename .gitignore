@@ -1,0 +1,46 @@
+# Unreal Engine
+Binaries/
+DerivedDataCache/
+Intermediate/
+Saved/
+Build/
+
+# Generated project files
+*.sln
+*.suo
+*.opensdf
+*.sdf
+*.VC.db
+*.VC.opendb
+.vs/
+
+# IDEs
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Logs / temp
+*.log
+*.tmp
+*.temp
+
+# Unreal autosaves / crash data
+**/Saved/Autosaves/
+**/Saved/Crashes/
+**/Saved/Logs/
+
+# Compiled objects
+*.dll
+*.exe
+*.pdb
+*.obj
+*.pch
+
+# Local environment / secrets
+.env
+.env.*
+!.env.example
