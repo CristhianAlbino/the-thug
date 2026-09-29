@@ -61,7 +61,7 @@ Build **10 excellent minutes first**. Prove that walking through a corridor whil
 
 ## Current next step
 
-Create the Unreal Engine 5 project and begin **M01 — Core Prototype**.
+Follow the [Day 1 Unreal setup](01_PROJECT/Roadmap/DIA_1_UNREAL.md) to create `UnrealProject/TheThug.uproject`, then begin **M01 — Core Prototype**. The [complete master GDD](02_GAME_DESIGN/GDD/GDD_MASTER.md) is the design source of truth. GitHub updates require a commit and push; editor saves are local.
 
 ---
 **Working title:** The Thug
