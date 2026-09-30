@@ -12,6 +12,7 @@ Registro atual: [Decisões abertas](../Decisions/DECISOES_ABERTAS.md).
 - [x] HunterCore C++17: percepções, memória limitada, dificuldade e escolha falível de rota.
 - [x] RunRules C++17: quatro rotas convencionais, falhas parciais e regras de amanhecer.
 - [x] CompanionCore C++17: estado individual, consequências numéricas do GDD e objetivos condicionais.
+- [x] SurvivalCore C++17: ferimentos, sangramento, stamina e inventário com capacidade configurável (base inicial dos dias 03–04 adiantada).
 - [x] Testes locais e GitHub Actions para HunterCore, RunRules e CompanionCore.
 - [ ] Projeto `.uproject`, níveis e execução no editor: aguardam o computador/Unreal.
 

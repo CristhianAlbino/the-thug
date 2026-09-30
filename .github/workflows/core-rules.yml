@@ -5,12 +5,14 @@ on:
     paths:
       - 'Tools/HunterCore/**'
       - 'Tools/CompanionCore/**'
+      - 'Tools/SurvivalCore/**'
       - '.github/workflows/core-rules.yml'
   push:
     branches: [main]
     paths:
       - 'Tools/HunterCore/**'
       - 'Tools/CompanionCore/**'
+      - 'Tools/SurvivalCore/**'
       - '.github/workflows/core-rules.yml'
 
 permissions:
@@ -25,3 +27,11 @@ jobs:
         run: |
           bash Tools/HunterCore/run-tests.sh
           bash Tools/CompanionCore/run-tests.sh
+          bash Tools/SurvivalCore/run-tests.sh
+      - name: Validate CMake project files
+        run: |
+          for module in HunterCore CompanionCore SurvivalCore; do
+            cmake -S "Tools/$module" -B "Build/$module"
+            cmake --build "Build/$module"
+            ctest --test-dir "Build/$module" --output-on-failure
+          done
