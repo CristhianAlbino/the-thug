@@ -1,6 +1,7 @@
 #include "Inventory.h"
 
 #include <stdexcept>
+#include <utility>
 
 namespace thug::survival {
 
@@ -86,6 +87,39 @@ bool Inventory::TransferTo(Inventory& other, const std::string& itemId,
   // All preconditions were checked; both operations are expected to succeed.
   other.Add(itemId, quantity);
   Remove(itemId, quantity, RemovalReason::Transfer);
+  return true;
+}
+
+InventorySnapshot Inventory::CaptureSnapshot() const {
+  std::vector<ItemDefinition> definitions;
+  definitions.reserve(definitions_.size());
+  for (const auto& [id, definition] : definitions_) definitions.push_back(definition);
+  return {capacitySlots_, std::move(definitions), quantities_};
+}
+
+bool Inventory::RestoreSnapshot(const InventorySnapshot& snapshot) {
+  if (snapshot.capacitySlots != capacitySlots_ ||
+      snapshot.definitions.size() != definitions_.size()) return false;
+  auto it = definitions_.begin();
+  for (const auto& saved : snapshot.definitions) {
+    if (saved.id != it->first ||
+        saved.category != it->second.category ||
+        saved.slotCost != it->second.slotCost ||
+        saved.maxQuantity != it->second.maxQuantity ||
+        saved.droppable != it->second.droppable) return false;
+    ++it;
+  }
+
+  long long usedSlots = 0;
+  for (const auto& [id, count] : snapshot.contents) {
+    const auto definition = definitions_.find(id);
+    if (definition == definitions_.end() || count <= 0 ||
+        count > definition->second.maxQuantity) return false;
+    usedSlots += static_cast<long long>(count) * definition->second.slotCost;
+    if (usedSlots > capacitySlots_) return false;
+  }
+  auto quantities = snapshot.contents;
+  quantities_.swap(quantities);
   return true;
 }
 
