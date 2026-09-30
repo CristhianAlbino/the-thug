@@ -112,7 +112,8 @@ def route_flags(target):
     return needed
 
 
-def solve(route_name, failures=(), blocked_edges=()):
+def solve(route_name, failures=(), blocked_edges=(), start_node=None,
+          initial_flags=()):
     failures = set(failures)
     route = DATA["exits"][route_name]
     needed = route_flags(route["flag"])
@@ -143,8 +144,11 @@ def solve(route_name, failures=(), blocked_edges=()):
                 gained.append(action["id"])
         return frozenset(owned), gained
 
-    initial_flags, gained = collect(DATA["start"], frozenset())
-    start = (DATA["start"], initial_flags)
+    origin = start_node or DATA["start"]
+    require(origin in {node["id"] for node in DATA["nodes"]},
+            f"início inexistente: {origin}")
+    initial_flags, gained = collect(origin, frozenset(initial_flags))
+    start = (origin, initial_flags)
     queue = deque([start])
     previous = {start: None}
     effects = {start: gained}
