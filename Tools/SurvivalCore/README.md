@@ -32,4 +32,4 @@ cmake --build Build/SurvivalCore --config Release
 ctest --test-dir Build/SurvivalCore -C Release --output-on-failure
 ```
 
-O [contrato de integração](../../04_TECHNICAL/Architecture/CONTRATO_SOBREVIVENCIA.md) lista eventos entre inventário, companheiros, Hunter e regras de vitória. **Ainda não há transação única entre módulos, save/load ou validação no editor.**
+O [contrato de integração](../../04_TECHNICAL/Architecture/CONTRATO_SOBREVIVENCIA.md) lista eventos entre inventário, companheiros, Hunter e regras de vitória. A entrega de munição a um companheiro já tem um [coordenador](../IntegrationCore/README.md) para ambos os estados em memória. Save/load e validação no editor ainda faltam.

@@ -19,6 +19,25 @@ bool Finite(const Influence& value) {
          std::isfinite(value.relationship);
 }
 
+std::optional<Influence> ExperienceInfluence(Experience experience) {
+  Influence delta;
+  switch (experience) {
+  case Experience::JoeSharedAmmo:
+    // GDD section 51: Trust +20, Loyalty +10, Resource +1.
+    delta.trust = 20;
+    delta.loyalty = 10;
+    delta.ammunition = 1;
+    return delta;
+  case Experience::JoeAbandonedCompanion:
+    // GDD section 51: Trust -40, Fear +20, SelfPreservation +30.
+    delta.trust = -40;
+    delta.fear = 20;
+    delta.selfPreservation = 30;
+    return delta;
+  }
+  return std::nullopt;
+}
+
 } // namespace
 
 CompanionCore::CompanionCore(Character character, Difficulty difficulty,
@@ -72,27 +91,22 @@ bool CompanionCore::ApplyInfluence(const Influence& delta,
   return true;
 }
 
+bool CompanionCore::CanApplyExperience(Experience experience,
+                                       const std::string& eventId,
+                                       double atSeconds) const {
+  const auto delta = ExperienceInfluence(experience);
+  if (!delta || eventId.empty() || appliedEvents_.count(eventId) ||
+      !std::isfinite(atSeconds) || atSeconds < nowSeconds_) return false;
+  const auto newAmmo = static_cast<long long>(traits_.ammunition) +
+                       static_cast<long long>(delta->ammunition);
+  return newAmmo >= 0 && newAmmo <= std::numeric_limits<int>::max();
+}
+
 bool CompanionCore::ApplyExperience(Experience experience,
                                     const std::string& eventId,
                                     double atSeconds) {
-  Influence delta;
-  switch (experience) {
-  case Experience::JoeSharedAmmo:
-    // GDD section 51: Trust +20, Loyalty +10, Resource +1.
-    delta.trust = 20;
-    delta.loyalty = 10;
-    delta.ammunition = 1;
-    break;
-  case Experience::JoeAbandonedCompanion:
-    // GDD section 51: Trust -40, Fear +20, SelfPreservation +30.
-    delta.trust = -40;
-    delta.fear = 20;
-    delta.selfPreservation = 30;
-    break;
-  default:
-    return false;
-  }
-  return ApplyInfluence(delta, eventId, atSeconds);
+  const auto delta = ExperienceInfluence(experience);
+  return delta && ApplyInfluence(*delta, eventId, atSeconds);
 }
 
 bool CompanionCore::LearnRoute(const std::string& routeId,

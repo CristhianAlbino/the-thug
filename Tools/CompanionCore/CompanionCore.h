@@ -66,6 +66,9 @@ public:
   const std::set<std::string>& KnownRoutes() const { return knownRoutes_; }
 
   // Applies the two GDD-specified numerical consequences, once per actual act.
+  // Read-only validation for coordinators that must commit another resource.
+  bool CanApplyExperience(Experience experience, const std::string& eventId,
+                          double atSeconds) const;
   bool ApplyExperience(Experience experience, const std::string& eventId,
                        double atSeconds);
   // Only call when the character actually learned a route by observation/dialogue.

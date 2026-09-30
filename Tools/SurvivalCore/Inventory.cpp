@@ -23,6 +23,12 @@ int Inventory::Quantity(const std::string& itemId) const {
   return it == quantities_.end() ? 0 : it->second;
 }
 
+bool Inventory::IsCategory(const std::string& itemId,
+                           ItemCategory category) const {
+  const auto it = definitions_.find(itemId);
+  return it != definitions_.end() && it->second.category == category;
+}
+
 long long Inventory::UsedSlots() const {
   long long total = 0;
   for (const auto& [id, count] : quantities_) {

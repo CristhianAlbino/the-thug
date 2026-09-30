@@ -30,6 +30,7 @@ public:
   bool TransferTo(Inventory& other, const std::string& itemId, int quantity);
 
   int Quantity(const std::string& itemId) const;
+  bool IsCategory(const std::string& itemId, ItemCategory category) const;
   int CapacitySlots() const { return capacitySlots_; }
   long long UsedSlots() const;
   const std::map<std::string, int>& Contents() const { return quantities_; }

@@ -5,7 +5,7 @@ Baseado no [GDD Mestre](../../02_GAME_DESIGN/GDD/GDD_MASTER.md), seções 5–6 
 ## Entrada da Unreal
 
 - Instanciar Harley, Bartholomeu e Jack com **perfis authored** de 0–100 para confiança, medo, estresse, lealdade, autopreservação e relacionamento. O núcleo não atribui biografias ou valores iniciais automaticamente.
-- Registrar cada ação realmente ocorrida com ID persistente único: `JoeSharedAmmo` só depois de transferir uma munição do inventário de Joe; `JoeAbandonedCompanion` só depois de uma situação concreta de abandono. Um evento repetido não aplica efeitos outra vez.
+- Registrar cada ação realmente ocorrida com ID persistente único: usar [`ShareAmmunition`](../../Tools/IntegrationCore/README.md) para a entrega após validar proximidade e interação; `JoeAbandonedCompanion` só depois de uma situação concreta de abandono. Um evento repetido não aplica efeitos outra vez.
 - Ensinar rotas individualmente por `LearnRoute` após descoberta ou informação recebida. Conhecer uma rota não significa que outro personagem a conhece.
 - Construir `Situation` com fatos percebidos/validados: proximidade do Hunter e de Joe, necessidade de ajuda, acesso físico, recursos observados e saída transitável. Não enviar posição global do jogador a um personagem que não o percebeu.
 - Para acontecimentos adicionais, fornecer deltas assinados por dados de design e registrar sua origem. Nunca confundir uma fala, uma suspeita e uma observação confirmada.
