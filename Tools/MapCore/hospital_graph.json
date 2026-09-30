@@ -1,0 +1,2252 @@
+{
+  "schema": 1,
+  "source": "GDD_MASTER sections 22-31, 48, 53-56, 65 and 81",
+  "start": "F4_START",
+  "floors": [
+    {
+      "id": "G",
+      "name": "Garagem",
+      "order": -2
+    },
+    {
+      "id": "B1",
+      "name": "Subsolo técnico",
+      "order": -1
+    },
+    {
+      "id": "F1",
+      "name": "Emergência",
+      "order": 1
+    },
+    {
+      "id": "F2",
+      "name": "Administração",
+      "order": 2
+    },
+    {
+      "id": "F3",
+      "name": "Clínica",
+      "order": 3
+    },
+    {
+      "id": "F4",
+      "name": "Enfermarias e início",
+      "order": 4
+    },
+    {
+      "id": "R",
+      "name": "Telhado",
+      "order": 5
+    },
+    {
+      "id": "T",
+      "name": "Túneis",
+      "order": -3
+    },
+    {
+      "id": "A",
+      "name": "Anexo vizinho",
+      "order": 3
+    },
+    {
+      "id": "X",
+      "name": "Exterior",
+      "order": 0
+    }
+  ],
+  "nodes": [
+    {
+      "id": "F4_START",
+      "floor": "F4",
+      "name": "Quarto da ruptura",
+      "role": "inicio",
+      "mood": "enfermaria"
+    },
+    {
+      "id": "F4_HALL_E",
+      "floor": "F4",
+      "name": "Corredor leste",
+      "role": "circulacao",
+      "mood": "luz_intermitente"
+    },
+    {
+      "id": "F4_HALL_W",
+      "floor": "F4",
+      "name": "Corredor oeste",
+      "role": "circulacao",
+      "mood": "piso_danificado"
+    },
+    {
+      "id": "F4_NURSE",
+      "floor": "F4",
+      "name": "Posto de enfermagem",
+      "role": "pista_codigo_a",
+      "mood": "papel_e_vidro"
+    },
+    {
+      "id": "F4_WARD_E",
+      "floor": "F4",
+      "name": "Enfermaria leste",
+      "role": "esconderijos",
+      "mood": "leitos"
+    },
+    {
+      "id": "F4_BATH",
+      "floor": "F4",
+      "name": "Banhos e sanitários",
+      "role": "desvio",
+      "mood": "azulejo_umido"
+    },
+    {
+      "id": "F4_STORAGE",
+      "floor": "F4",
+      "name": "Depósito de lençóis",
+      "role": "recurso",
+      "mood": "estantes"
+    },
+    {
+      "id": "F4_WARD_W",
+      "floor": "F4",
+      "name": "Enfermaria oeste",
+      "role": "esconderijos",
+      "mood": "leitos"
+    },
+    {
+      "id": "F4_OBSERVATION",
+      "floor": "F4",
+      "name": "Sala da janela do Bat-Sinal",
+      "role": "marco_narrativo",
+      "mood": "cidade"
+    },
+    {
+      "id": "F4_SERVICE",
+      "floor": "F4",
+      "name": "Prumada de serviço",
+      "role": "atalho",
+      "mood": "tubulacao"
+    },
+    {
+      "id": "F4_ST_E",
+      "floor": "F4",
+      "name": "Escada leste 4",
+      "role": "circulacao",
+      "mood": "escada"
+    },
+    {
+      "id": "F4_ST_W",
+      "floor": "F4",
+      "name": "Escada oeste 4",
+      "role": "circulacao",
+      "mood": "escada"
+    },
+    {
+      "id": "F4_LIFT",
+      "floor": "F4",
+      "name": "Elevador 4",
+      "role": "atalho_condicional",
+      "mood": "elevador"
+    },
+    {
+      "id": "F3_ST_E",
+      "floor": "F3",
+      "name": "Escada leste 3",
+      "role": "circulacao",
+      "mood": "escada"
+    },
+    {
+      "id": "F3_ST_W",
+      "floor": "F3",
+      "name": "Escada oeste 3",
+      "role": "circulacao",
+      "mood": "escada"
+    },
+    {
+      "id": "F3_CENTRAL",
+      "floor": "F3",
+      "name": "Corredor clínico central",
+      "role": "circulacao",
+      "mood": "pe_direito_alto"
+    },
+    {
+      "id": "F3_SURGERY",
+      "floor": "F3",
+      "name": "Centro cirúrgico",
+      "role": "risco",
+      "mood": "aco_e_luz_fria"
+    },
+    {
+      "id": "F3_ICU",
+      "floor": "F3",
+      "name": "UTI",
+      "role": "esconderijos",
+      "mood": "monitores"
+    },
+    {
+      "id": "F3_RECOVERY",
+      "floor": "F3",
+      "name": "Recuperação",
+      "role": "circulacao",
+      "mood": "cortinas"
+    },
+    {
+      "id": "F3_EXAMS",
+      "floor": "F3",
+      "name": "Exames",
+      "role": "pista_janela",
+      "mood": "radiologia"
+    },
+    {
+      "id": "F3_ISOLATION",
+      "floor": "F3",
+      "name": "Isolamento antigo",
+      "role": "abrigo_raro",
+      "mood": "porta_pesada"
+    },
+    {
+      "id": "F3_UTILITY",
+      "floor": "F3",
+      "name": "Utilidades",
+      "role": "atalho",
+      "mood": "tubulacao"
+    },
+    {
+      "id": "F3_PIPE",
+      "floor": "F3",
+      "name": "Passagem entre tubulações",
+      "role": "atalho_estreito",
+      "mood": "tubulacao"
+    },
+    {
+      "id": "F3_HALL_W",
+      "floor": "F3",
+      "name": "Corredor clínico oeste",
+      "role": "circulacao",
+      "mood": "sombra"
+    },
+    {
+      "id": "F3_WINDOW",
+      "floor": "F3",
+      "name": "Sala de procedimento da janela",
+      "role": "rota_janela",
+      "mood": "anexo_visivel"
+    },
+    {
+      "id": "F3_LIFT",
+      "floor": "F3",
+      "name": "Elevador 3",
+      "role": "atalho_condicional",
+      "mood": "elevador"
+    },
+    {
+      "id": "F2_ST_E",
+      "floor": "F2",
+      "name": "Escada leste 2",
+      "role": "circulacao",
+      "mood": "escada"
+    },
+    {
+      "id": "F2_ST_W",
+      "floor": "F2",
+      "name": "Escada oeste 2",
+      "role": "circulacao",
+      "mood": "escada"
+    },
+    {
+      "id": "F2_CENTRAL",
+      "floor": "F2",
+      "name": "Galeria administrativa",
+      "role": "circulacao",
+      "mood": "concreto"
+    },
+    {
+      "id": "F2_ADMIN",
+      "floor": "F2",
+      "name": "Administração",
+      "role": "circulacao",
+      "mood": "escritorios"
+    },
+    {
+      "id": "F2_ARCHIVE",
+      "floor": "F2",
+      "name": "Arquivo físico",
+      "role": "pista_codigo_b",
+      "mood": "papel"
+    },
+    {
+      "id": "F2_SECURITY",
+      "floor": "F2",
+      "name": "Segurança",
+      "role": "pista_cofre",
+      "mood": "vidro_escuro"
+    },
+    {
+      "id": "F2_CAMERAS",
+      "floor": "F2",
+      "name": "Sala de câmeras",
+      "role": "informacao_interferencia",
+      "mood": "telas"
+    },
+    {
+      "id": "F2_SERVER",
+      "floor": "F2",
+      "name": "Sala de servidores",
+      "role": "pilhas",
+      "mood": "racks"
+    },
+    {
+      "id": "F2_SAFE",
+      "floor": "F2",
+      "name": "Sala do cofre",
+      "role": "chave_garagem",
+      "mood": "metal"
+    },
+    {
+      "id": "F2_MEETING",
+      "floor": "F2",
+      "name": "Sala de reuniões",
+      "role": "desvio",
+      "mood": "mesa_longa"
+    },
+    {
+      "id": "F2_SUPPLY",
+      "floor": "F2",
+      "name": "Almoxarifado",
+      "role": "ferramentas_janela",
+      "mood": "estantes"
+    },
+    {
+      "id": "F2_SERVICE",
+      "floor": "F2",
+      "name": "Galeria técnica",
+      "role": "atalho",
+      "mood": "tubulacao"
+    },
+    {
+      "id": "F2_LIFT",
+      "floor": "F2",
+      "name": "Elevador 2",
+      "role": "atalho_condicional",
+      "mood": "elevador"
+    },
+    {
+      "id": "F1_ST_E",
+      "floor": "F1",
+      "name": "Escada leste 1",
+      "role": "circulacao",
+      "mood": "escada"
+    },
+    {
+      "id": "F1_ST_W",
+      "floor": "F1",
+      "name": "Escada oeste 1",
+      "role": "circulacao",
+      "mood": "escada"
+    },
+    {
+      "id": "F1_LOBBY",
+      "floor": "F1",
+      "name": "Átrio da entrada",
+      "role": "exposicao",
+      "mood": "vidro_e_chuva"
+    },
+    {
+      "id": "F1_EMERGENCY",
+      "floor": "F1",
+      "name": "Emergência",
+      "role": "circulacao",
+      "mood": "portas_duplas"
+    },
+    {
+      "id": "F1_TRIAGE",
+      "floor": "F1",
+      "name": "Triagem",
+      "role": "desvio",
+      "mood": "biombos"
+    },
+    {
+      "id": "F1_PHARMACY",
+      "floor": "F1",
+      "name": "Farmácia",
+      "role": "tratamento",
+      "mood": "vitrine"
+    },
+    {
+      "id": "F1_RADIO",
+      "floor": "F1",
+      "name": "Sala de rádio",
+      "role": "rota_telhado",
+      "mood": "interferencia"
+    },
+    {
+      "id": "F1_SECURITY",
+      "floor": "F1",
+      "name": "Guarita interna",
+      "role": "circulacao",
+      "mood": "cameras"
+    },
+    {
+      "id": "F1_LOADING",
+      "floor": "F1",
+      "name": "Doca de insumos",
+      "role": "atalho",
+      "mood": "portao"
+    },
+    {
+      "id": "F1_TREATMENT",
+      "floor": "F1",
+      "name": "Pronto atendimento",
+      "role": "tratamento",
+      "mood": "macas"
+    },
+    {
+      "id": "F1_SERVICE",
+      "floor": "F1",
+      "name": "Acesso à prumada",
+      "role": "atalho",
+      "mood": "tubulacao"
+    },
+    {
+      "id": "F1_LIFT",
+      "floor": "F1",
+      "name": "Elevador 1",
+      "role": "atalho_condicional",
+      "mood": "elevador"
+    },
+    {
+      "id": "B1_ST_E",
+      "floor": "B1",
+      "name": "Escada leste subsolo",
+      "role": "circulacao",
+      "mood": "escada"
+    },
+    {
+      "id": "B1_ST_W",
+      "floor": "B1",
+      "name": "Escada oeste subsolo",
+      "role": "circulacao",
+      "mood": "escada"
+    },
+    {
+      "id": "B1_CENTRAL",
+      "floor": "B1",
+      "name": "Espinha de manutenção",
+      "role": "circulacao",
+      "mood": "concreto_umido"
+    },
+    {
+      "id": "B1_GENERATOR",
+      "floor": "B1",
+      "name": "Geradores",
+      "role": "energia_pista_codigo_c",
+      "mood": "maquinas"
+    },
+    {
+      "id": "B1_LAUNDRY",
+      "floor": "B1",
+      "name": "Lavanderia",
+      "role": "desvio",
+      "mood": "vapor"
+    },
+    {
+      "id": "B1_MORGUE",
+      "floor": "B1",
+      "name": "Necrotério",
+      "role": "risco",
+      "mood": "gavetas"
+    },
+    {
+      "id": "B1_PIPE",
+      "floor": "B1",
+      "name": "Galeria de tubulações",
+      "role": "atalho",
+      "mood": "tubulacao"
+    },
+    {
+      "id": "B1_PUMP",
+      "floor": "B1",
+      "name": "Casa de bombas",
+      "role": "orientacao_tuneis",
+      "mood": "agua"
+    },
+    {
+      "id": "B1_STORAGE",
+      "floor": "B1",
+      "name": "Depósito técnico",
+      "role": "recurso",
+      "mood": "caixas"
+    },
+    {
+      "id": "B1_TUNNEL",
+      "floor": "B1",
+      "name": "Entrada não mapeada",
+      "role": "rota_tunel",
+      "mood": "parede_falsa"
+    },
+    {
+      "id": "B1_LIFT",
+      "floor": "B1",
+      "name": "Elevador subsolo",
+      "role": "atalho_condicional",
+      "mood": "elevador"
+    },
+    {
+      "id": "B1_VALVE",
+      "floor": "B1",
+      "name": "Galeria de válvulas",
+      "role": "atalho",
+      "mood": "tubulacao"
+    },
+    {
+      "id": "G_ST_E",
+      "floor": "G",
+      "name": "Escada leste garagem",
+      "role": "circulacao",
+      "mood": "escada"
+    },
+    {
+      "id": "G_ST_W",
+      "floor": "G",
+      "name": "Escada oeste garagem",
+      "role": "circulacao",
+      "mood": "escada"
+    },
+    {
+      "id": "G_FLOOR",
+      "floor": "G",
+      "name": "Pátio central da garagem",
+      "role": "exposicao",
+      "mood": "pilares"
+    },
+    {
+      "id": "G_VEHICLES",
+      "floor": "G",
+      "name": "Fileiras de veículos",
+      "role": "esconderijos",
+      "mood": "farol"
+    },
+    {
+      "id": "G_CONTROL",
+      "floor": "G",
+      "name": "Controle do portão",
+      "role": "rota_garagem",
+      "mood": "quadro_eletrico"
+    },
+    {
+      "id": "G_GATE",
+      "floor": "G",
+      "name": "Portão de saída",
+      "role": "rota_garagem",
+      "mood": "luz_exterior"
+    },
+    {
+      "id": "G_MAINT",
+      "floor": "G",
+      "name": "Oficina da garagem",
+      "role": "atalho",
+      "mood": "ferramentas"
+    },
+    {
+      "id": "G_TUNNEL_LINK",
+      "floor": "G",
+      "name": "Acesso de serviço dos túneis",
+      "role": "atalho",
+      "mood": "tubulacao"
+    },
+    {
+      "id": "T_FORK",
+      "floor": "T",
+      "name": "Bifurcação subterrânea",
+      "role": "orientacao",
+      "mood": "agua_rasa"
+    },
+    {
+      "id": "T_DEAD_A",
+      "floor": "T",
+      "name": "Ramal sem saída norte",
+      "role": "beco_sem_saida",
+      "mood": "paredes_umidas"
+    },
+    {
+      "id": "T_PUMP",
+      "floor": "T",
+      "name": "Conduto das bombas",
+      "role": "circulacao",
+      "mood": "tubulacao"
+    },
+    {
+      "id": "T_VALVE",
+      "floor": "T",
+      "name": "Câmara de válvulas",
+      "role": "circulacao",
+      "mood": "tubulacao"
+    },
+    {
+      "id": "T_LOOP",
+      "floor": "T",
+      "name": "Anel de manutenção",
+      "role": "orientacao",
+      "mood": "marcas"
+    },
+    {
+      "id": "T_DEAD_B",
+      "floor": "T",
+      "name": "Ramal sem saída leste",
+      "role": "beco_sem_saida",
+      "mood": "paredes_umidas"
+    },
+    {
+      "id": "T_EXIT",
+      "floor": "T",
+      "name": "Galeria de descarga",
+      "role": "rota_tunel",
+      "mood": "vento_exterior"
+    },
+    {
+      "id": "R_ST_E",
+      "floor": "R",
+      "name": "Escada leste telhado",
+      "role": "circulacao",
+      "mood": "escada"
+    },
+    {
+      "id": "R_ST_W",
+      "floor": "R",
+      "name": "Escada oeste telhado",
+      "role": "circulacao",
+      "mood": "escada"
+    },
+    {
+      "id": "R_HVAC",
+      "floor": "R",
+      "name": "Máquinas de climatização",
+      "role": "cobertura",
+      "mood": "dutos"
+    },
+    {
+      "id": "R_PAD",
+      "floor": "R",
+      "name": "Área de pouso improvisada",
+      "role": "rota_telhado",
+      "mood": "cidade"
+    },
+    {
+      "id": "R_LEDGE",
+      "floor": "R",
+      "name": "Parapeito",
+      "role": "risco",
+      "mood": "vento"
+    },
+    {
+      "id": "A_BRIDGE",
+      "floor": "A",
+      "name": "Passarela de serviço do anexo",
+      "role": "rota_janela",
+      "mood": "altura"
+    },
+    {
+      "id": "X_GARAGE",
+      "floor": "X",
+      "name": "Rua pela garagem",
+      "role": "saida",
+      "mood": "cidade"
+    },
+    {
+      "id": "X_TUNNEL",
+      "floor": "X",
+      "name": "Saída pluvial",
+      "role": "saida",
+      "mood": "cidade"
+    },
+    {
+      "id": "X_WINDOW",
+      "floor": "X",
+      "name": "Edifício vizinho",
+      "role": "saida",
+      "mood": "cidade"
+    },
+    {
+      "id": "X_ROOF",
+      "floor": "X",
+      "name": "Extração no telhado",
+      "role": "saida",
+      "mood": "cidade"
+    }
+  ],
+  "edges": [
+    {
+      "a": "F4_START",
+      "b": "F4_HALL_E",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "F4_START",
+      "b": "F4_OBSERVATION",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "F4_HALL_E",
+      "b": "F4_NURSE",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "F4_HALL_E",
+      "b": "F4_WARD_E",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "F4_HALL_E",
+      "b": "F4_ST_E",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "F4_HALL_E",
+      "b": "F4_LIFT",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "F4_NURSE",
+      "b": "F4_HALL_W",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "F4_WARD_E",
+      "b": "F4_BATH",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "F4_BATH",
+      "b": "F4_HALL_W",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "F4_HALL_W",
+      "b": "F4_WARD_W",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "F4_HALL_W",
+      "b": "F4_ST_W",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "F4_WARD_W",
+      "b": "F4_STORAGE",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "F4_STORAGE",
+      "b": "F4_SERVICE",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "F4_SERVICE",
+      "b": "F4_HALL_W",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "F4_OBSERVATION",
+      "b": "F4_HALL_W",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "F3_ST_E",
+      "b": "F3_CENTRAL",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "F3_CENTRAL",
+      "b": "F3_SURGERY",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "F3_CENTRAL",
+      "b": "F3_ICU",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "F3_CENTRAL",
+      "b": "F3_RECOVERY",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "F3_CENTRAL",
+      "b": "F3_LIFT",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "F3_SURGERY",
+      "b": "F3_UTILITY",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "F3_UTILITY",
+      "b": "F3_PIPE",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "F3_UTILITY",
+      "b": "F3_HALL_W",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "F3_ICU",
+      "b": "F3_RECOVERY",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "F3_RECOVERY",
+      "b": "F3_EXAMS",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "F3_EXAMS",
+      "b": "F3_WINDOW",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "F3_EXAMS",
+      "b": "F3_HALL_W",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "F3_HALL_W",
+      "b": "F3_ST_W",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "F3_HALL_W",
+      "b": "F3_ISOLATION",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [
+        "isolation_known"
+      ],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "F3_WINDOW",
+      "b": "F3_HALL_W",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "F2_ST_E",
+      "b": "F2_CENTRAL",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "F2_CENTRAL",
+      "b": "F2_ADMIN",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "F2_CENTRAL",
+      "b": "F2_SECURITY",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "F2_CENTRAL",
+      "b": "F2_SERVER",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "F2_CENTRAL",
+      "b": "F2_LIFT",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "F2_ADMIN",
+      "b": "F2_ARCHIVE",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "F2_ADMIN",
+      "b": "F2_SAFE",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "F2_ARCHIVE",
+      "b": "F2_MEETING",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "F2_MEETING",
+      "b": "F2_ST_W",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "F2_SECURITY",
+      "b": "F2_CAMERAS",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "F2_CAMERAS",
+      "b": "F2_SERVICE",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "F2_SERVICE",
+      "b": "F2_ST_W",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "F2_SERVICE",
+      "b": "F2_SUPPLY",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "F2_SUPPLY",
+      "b": "F2_SERVER",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "F1_ST_E",
+      "b": "F1_EMERGENCY",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "F1_EMERGENCY",
+      "b": "F1_LOBBY",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "F1_EMERGENCY",
+      "b": "F1_TRIAGE",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "F1_EMERGENCY",
+      "b": "F1_RADIO",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "F1_TRIAGE",
+      "b": "F1_PHARMACY",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "F1_PHARMACY",
+      "b": "F1_TREATMENT",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "F1_TREATMENT",
+      "b": "F1_LOBBY",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "F1_LOBBY",
+      "b": "F1_SECURITY",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "F1_SECURITY",
+      "b": "F1_ST_W",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "F1_SECURITY",
+      "b": "F1_RADIO",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "F1_ST_W",
+      "b": "F1_LOADING",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "F1_LOADING",
+      "b": "F1_SERVICE",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "F1_SERVICE",
+      "b": "F1_RADIO",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "F1_EMERGENCY",
+      "b": "F1_LIFT",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "B1_ST_E",
+      "b": "B1_CENTRAL",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "B1_CENTRAL",
+      "b": "B1_GENERATOR",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "B1_CENTRAL",
+      "b": "B1_LAUNDRY",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "B1_CENTRAL",
+      "b": "B1_PIPE",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "B1_CENTRAL",
+      "b": "B1_LIFT",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "B1_LAUNDRY",
+      "b": "B1_MORGUE",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "B1_MORGUE",
+      "b": "B1_ST_W",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "B1_PIPE",
+      "b": "B1_VALVE",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "B1_PIPE",
+      "b": "B1_PUMP",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "B1_PUMP",
+      "b": "B1_TUNNEL",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "B1_VALVE",
+      "b": "B1_ST_W",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "B1_VALVE",
+      "b": "B1_STORAGE",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "B1_STORAGE",
+      "b": "B1_GENERATOR",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "G_ST_E",
+      "b": "G_FLOOR",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "G_FLOOR",
+      "b": "G_VEHICLES",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "G_FLOOR",
+      "b": "G_GATE",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "G_FLOOR",
+      "b": "G_CONTROL",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "G_VEHICLES",
+      "b": "G_ST_W",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "G_VEHICLES",
+      "b": "G_MAINT",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "G_MAINT",
+      "b": "G_TUNNEL_LINK",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "G_MAINT",
+      "b": "G_CONTROL",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "T_FORK",
+      "b": "T_DEAD_A",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "T_FORK",
+      "b": "T_PUMP",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "T_FORK",
+      "b": "T_VALVE",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "T_PUMP",
+      "b": "T_LOOP",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "T_VALVE",
+      "b": "T_LOOP",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "T_LOOP",
+      "b": "T_DEAD_B",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "T_LOOP",
+      "b": "T_EXIT",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "R_ST_E",
+      "b": "R_HVAC",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "R_ST_W",
+      "b": "R_HVAC",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "R_HVAC",
+      "b": "R_PAD",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "R_PAD",
+      "b": "R_LEDGE",
+      "kind": "corridor",
+      "seconds": 12,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "F4_ST_E",
+      "b": "F3_ST_E",
+      "kind": "stairs",
+      "seconds": 20,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "high"
+    },
+    {
+      "a": "F3_ST_E",
+      "b": "F2_ST_E",
+      "kind": "stairs",
+      "seconds": 20,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "high"
+    },
+    {
+      "a": "F2_ST_E",
+      "b": "F1_ST_E",
+      "kind": "stairs",
+      "seconds": 20,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "high"
+    },
+    {
+      "a": "F1_ST_E",
+      "b": "B1_ST_E",
+      "kind": "stairs",
+      "seconds": 20,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "high"
+    },
+    {
+      "a": "B1_ST_E",
+      "b": "G_ST_E",
+      "kind": "stairs",
+      "seconds": 20,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "high"
+    },
+    {
+      "a": "F4_ST_W",
+      "b": "F3_ST_W",
+      "kind": "stairs",
+      "seconds": 20,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "high"
+    },
+    {
+      "a": "F3_ST_W",
+      "b": "F2_ST_W",
+      "kind": "stairs",
+      "seconds": 20,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "high"
+    },
+    {
+      "a": "F2_ST_W",
+      "b": "F1_ST_W",
+      "kind": "stairs",
+      "seconds": 20,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "high"
+    },
+    {
+      "a": "F1_ST_W",
+      "b": "B1_ST_W",
+      "kind": "stairs",
+      "seconds": 20,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "high"
+    },
+    {
+      "a": "B1_ST_W",
+      "b": "G_ST_W",
+      "kind": "stairs",
+      "seconds": 20,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "high"
+    },
+    {
+      "a": "F4_ST_E",
+      "b": "R_ST_E",
+      "kind": "stairs",
+      "seconds": 20,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "high"
+    },
+    {
+      "a": "F4_ST_W",
+      "b": "R_ST_W",
+      "kind": "stairs",
+      "seconds": 20,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "high"
+    },
+    {
+      "a": "F4_LIFT",
+      "b": "F3_LIFT",
+      "kind": "lift",
+      "seconds": 12,
+      "requires": [
+        "power_restored"
+      ],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "high"
+    },
+    {
+      "a": "F3_LIFT",
+      "b": "F2_LIFT",
+      "kind": "lift",
+      "seconds": 12,
+      "requires": [
+        "power_restored"
+      ],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "high"
+    },
+    {
+      "a": "F2_LIFT",
+      "b": "F1_LIFT",
+      "kind": "lift",
+      "seconds": 12,
+      "requires": [
+        "power_restored"
+      ],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "high"
+    },
+    {
+      "a": "F1_LIFT",
+      "b": "B1_LIFT",
+      "kind": "lift",
+      "seconds": 12,
+      "requires": [
+        "power_restored"
+      ],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "high"
+    },
+    {
+      "a": "F4_SERVICE",
+      "b": "F3_PIPE",
+      "kind": "pipe_crawl",
+      "seconds": 24,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": false,
+      "exposure": "low"
+    },
+    {
+      "a": "F3_PIPE",
+      "b": "F2_SERVICE",
+      "kind": "pipe_crawl",
+      "seconds": 24,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": false,
+      "exposure": "low"
+    },
+    {
+      "a": "F2_SERVICE",
+      "b": "F1_SERVICE",
+      "kind": "pipe_crawl",
+      "seconds": 24,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": false,
+      "exposure": "low"
+    },
+    {
+      "a": "F1_SERVICE",
+      "b": "B1_PIPE",
+      "kind": "pipe_crawl",
+      "seconds": 24,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": false,
+      "exposure": "low"
+    },
+    {
+      "a": "B1_VALVE",
+      "b": "G_TUNNEL_LINK",
+      "kind": "pipe_crawl",
+      "seconds": 24,
+      "requires": [],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": false,
+      "exposure": "low"
+    },
+    {
+      "a": "B1_TUNNEL",
+      "b": "T_FORK",
+      "kind": "tunnel",
+      "seconds": 18,
+      "requires": [
+        "tunnel_found"
+      ],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "low"
+    },
+    {
+      "a": "G_TUNNEL_LINK",
+      "b": "T_VALVE",
+      "kind": "tunnel",
+      "seconds": 20,
+      "requires": [
+        "tunnel_found"
+      ],
+      "forbids": [],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "low"
+    },
+    {
+      "a": "G_GATE",
+      "b": "X_GARAGE",
+      "kind": "exit",
+      "seconds": 15,
+      "requires": [
+        "gate_released"
+      ],
+      "forbids": [
+        "garage_failed"
+      ],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "high"
+    },
+    {
+      "a": "T_EXIT",
+      "b": "X_TUNNEL",
+      "kind": "exit",
+      "seconds": 18,
+      "requires": [
+        "tunnel_found"
+      ],
+      "forbids": [
+        "tunnel_failed"
+      ],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "medium"
+    },
+    {
+      "a": "F3_WINDOW",
+      "b": "A_BRIDGE",
+      "kind": "window",
+      "seconds": 35,
+      "requires": [
+        "window_unblocked"
+      ],
+      "forbids": [
+        "window_failed"
+      ],
+      "one_way": true,
+      "hunter_access": false,
+      "exposure": "high"
+    },
+    {
+      "a": "A_BRIDGE",
+      "b": "X_WINDOW",
+      "kind": "exit",
+      "seconds": 25,
+      "requires": [],
+      "forbids": [
+        "window_failed"
+      ],
+      "one_way": true,
+      "hunter_access": true,
+      "exposure": "high"
+    },
+    {
+      "a": "R_PAD",
+      "b": "X_ROOF",
+      "kind": "exit",
+      "seconds": 10,
+      "requires": [
+        "helicopter_confirmed"
+      ],
+      "forbids": [
+        "roof_failed"
+      ],
+      "one_way": false,
+      "hunter_access": true,
+      "exposure": "high"
+    }
+  ],
+  "actions": [
+    {
+      "id": "clue_code_a",
+      "at": "F4_NURSE",
+      "requires": [],
+      "grants": "code_a",
+      "run_event": null
+    },
+    {
+      "id": "clue_code_b",
+      "at": "F2_ARCHIVE",
+      "requires": [],
+      "grants": "code_b",
+      "run_event": null
+    },
+    {
+      "id": "clue_code_c",
+      "at": "B1_GENERATOR",
+      "requires": [],
+      "grants": "code_c",
+      "run_event": null
+    },
+    {
+      "id": "restore_power",
+      "at": "B1_GENERATOR",
+      "requires": [],
+      "grants": "power_restored",
+      "run_event": null
+    },
+    {
+      "id": "learn_key",
+      "at": "F1_SECURITY",
+      "requires": [],
+      "grants": "key_known",
+      "run_event": null
+    },
+    {
+      "id": "locate_safe",
+      "at": "F2_SECURITY",
+      "requires": [
+        "key_known"
+      ],
+      "grants": "safe_known",
+      "run_event": null
+    },
+    {
+      "id": "open_safe",
+      "at": "F2_SAFE",
+      "requires": [
+        "safe_known",
+        "code_a",
+        "code_b",
+        "code_c"
+      ],
+      "grants": "safe_opened",
+      "run_event": "SafeOpened"
+    },
+    {
+      "id": "take_garage_key",
+      "at": "F2_SAFE",
+      "requires": [
+        "safe_opened"
+      ],
+      "grants": "garage_key",
+      "run_event": "GarageKeyTaken"
+    },
+    {
+      "id": "release_gate",
+      "at": "G_CONTROL",
+      "requires": [
+        "garage_key",
+        "power_restored"
+      ],
+      "grants": "gate_released",
+      "run_event": "GarageGateReleased"
+    },
+    {
+      "id": "escape_garage",
+      "at": "X_GARAGE",
+      "requires": [
+        "gate_released"
+      ],
+      "grants": "garage_escaped",
+      "run_event": "GarageExitReached"
+    },
+    {
+      "id": "find_radio",
+      "at": "F1_RADIO",
+      "requires": [],
+      "grants": "radio_found",
+      "run_event": "RadioFound"
+    },
+    {
+      "id": "find_batteries",
+      "at": "F2_SERVER",
+      "requires": [],
+      "grants": "batteries_found",
+      "run_event": null
+    },
+    {
+      "id": "clear_interference",
+      "at": "F2_CAMERAS",
+      "requires": [],
+      "grants": "interference_clear",
+      "run_event": null
+    },
+    {
+      "id": "install_batteries",
+      "at": "F1_RADIO",
+      "requires": [
+        "radio_found",
+        "batteries_found"
+      ],
+      "grants": "batteries_installed",
+      "run_event": "BatteriesInstalled"
+    },
+    {
+      "id": "make_radio_contact",
+      "at": "F1_RADIO",
+      "requires": [
+        "batteries_installed",
+        "interference_clear"
+      ],
+      "grants": "radio_contact",
+      "run_event": "RadioContactEstablished"
+    },
+    {
+      "id": "confirm_helicopter",
+      "at": "F1_RADIO",
+      "requires": [
+        "radio_contact"
+      ],
+      "grants": "helicopter_confirmed",
+      "run_event": "HelicopterConfirmed"
+    },
+    {
+      "id": "escape_roof",
+      "at": "X_ROOF",
+      "requires": [
+        "helicopter_confirmed"
+      ],
+      "grants": "roof_escaped",
+      "run_event": "RoofReached"
+    },
+    {
+      "id": "discover_tunnel",
+      "at": "B1_TUNNEL",
+      "requires": [],
+      "grants": "tunnel_found",
+      "run_event": "TunnelFound"
+    },
+    {
+      "id": "escape_tunnel",
+      "at": "X_TUNNEL",
+      "requires": [
+        "tunnel_found"
+      ],
+      "grants": "tunnel_escaped",
+      "run_event": "TunnelExitReached"
+    },
+    {
+      "id": "discover_window",
+      "at": "F3_WINDOW",
+      "requires": [],
+      "grants": "window_found",
+      "run_event": "WindowFound"
+    },
+    {
+      "id": "find_window_tools",
+      "at": "F2_SUPPLY",
+      "requires": [],
+      "grants": "window_tools",
+      "run_event": "WindowToolsFound"
+    },
+    {
+      "id": "unblock_window",
+      "at": "F3_WINDOW",
+      "requires": [
+        "window_found",
+        "window_tools"
+      ],
+      "grants": "window_unblocked",
+      "run_event": "WindowUnblocked"
+    },
+    {
+      "id": "escape_window",
+      "at": "X_WINDOW",
+      "requires": [
+        "window_unblocked"
+      ],
+      "grants": "window_escaped",
+      "run_event": "WindowCrossed"
+    },
+    {
+      "id": "discover_isolation",
+      "at": "F3_UTILITY",
+      "requires": [],
+      "grants": "isolation_known",
+      "run_event": null
+    }
+  ],
+  "sightlines": [
+    {
+      "a": "F4_OBSERVATION",
+      "b": "R_LEDGE",
+      "cue": "silhouette_above"
+    },
+    {
+      "a": "F3_CENTRAL",
+      "b": "F2_CENTRAL",
+      "cue": "atrium_partial"
+    },
+    {
+      "a": "F2_CAMERAS",
+      "b": "F1_LOBBY",
+      "cue": "camera_if_powered"
+    },
+    {
+      "a": "G_FLOOR",
+      "b": "G_GATE",
+      "cue": "headlights_and_rain"
+    }
+  ],
+  "exits": {
+    "garage": {
+      "node": "X_GARAGE",
+      "flag": "garage_escaped",
+      "failure": "garage_failed"
+    },
+    "roof": {
+      "node": "X_ROOF",
+      "flag": "roof_escaped",
+      "failure": "roof_failed"
+    },
+    "tunnel": {
+      "node": "X_TUNNEL",
+      "flag": "tunnel_escaped",
+      "failure": "tunnel_failed"
+    },
+    "window": {
+      "node": "X_WINDOW",
+      "flag": "window_escaped",
+      "failure": "window_failed"
+    }
+  }
+}

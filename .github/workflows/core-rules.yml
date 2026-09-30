@@ -9,6 +9,7 @@ on:
       - 'Tools/PerceptionCore/**'
       - 'Tools/IntegrationCore/**'
       - 'Tools/SaveCore/**'
+      - 'Tools/MapCore/**'
       - '.github/workflows/core-rules.yml'
   push:
     branches: [main]
@@ -19,6 +20,7 @@ on:
       - 'Tools/PerceptionCore/**'
       - 'Tools/IntegrationCore/**'
       - 'Tools/SaveCore/**'
+      - 'Tools/MapCore/**'
       - '.github/workflows/core-rules.yml'
 
 permissions:
@@ -44,3 +46,5 @@ jobs:
             cmake --build "Build/$module"
             ctest --test-dir "Build/$module" --output-on-failure
           done
+      - name: Validate hospital graph and escape routes
+        run: python3 Tools/MapCore/validate_map.py
