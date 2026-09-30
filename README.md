@@ -39,7 +39,7 @@ The player controls a Gotham criminal trapped inside an abandoned hospital while
 09_TESTING/       Test plans, QA and performance
 10_BUILD/         Build and release documentation
 Tools/            Project utilities
-UnrealProject/    Unreal Engine project root (created on Day 1)
+UnrealProject/    Unreal Engine project root (to be created in the editor)
 ```
 
 ## Development philosophy
@@ -61,11 +61,11 @@ Build **10 excellent minutes first**. Prove that walking through a corridor whil
 
 ## Engine-independent systems
 
-The [C++17 game rules](Tools/HunterCore/README.md) now implement a testable Hunter decision core and campaign escape conditions. Their [integration contract](04_TECHNICAL/Architecture/CONTRATO_SISTEMAS.md) defines what the Unreal project must provide. They compile outside Unreal; no editor integration has been claimed.
+The [C++17 game rules](Tools/HunterCore/README.md) now implement a testable Hunter decision core and campaign escape conditions. Their [integration contract](04_TECHNICAL/Architecture/CONTRATO_SISTEMAS.md) defines what the Unreal project must provide. The [CompanionCore](Tools/CompanionCore/README.md) adds individual companion knowledge, relationships and conditional goals. These modules compile outside Unreal; no editor integration has been claimed.
 
 ## Current next step
 
-Follow the [Day 1 Unreal setup](01_PROJECT/Roadmap/DIA_1_UNREAL.md) to create `UnrealProject/TheThug.uproject`, then begin **M01 — Core Prototype**. The [complete master GDD](02_GAME_DESIGN/GDD/GDD_MASTER.md) is the design source of truth. GitHub updates require a commit and push; editor saves are local.
+Follow the [24-day pre-Unreal plan](01_PROJECT/Roadmap/PLANO_PRE_UNREAL_24_DIAS.md) through October 23, 2026. The [Day 1 Unreal setup](01_PROJECT/Roadmap/DIA_1_UNREAL.md) applies once the editor is available. Open design questions are tracked in [Decisions](01_PROJECT/Decisions/DECISOES_ABERTAS.md). The [complete master GDD](02_GAME_DESIGN/GDD/GDD_MASTER.md) is the design source of truth. GitHub updates require a commit and push; editor saves are local.
 
 ---
 **Working title:** The Thug

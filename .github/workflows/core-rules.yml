@@ -4,11 +4,13 @@ on:
   pull_request:
     paths:
       - 'Tools/HunterCore/**'
+      - 'Tools/CompanionCore/**'
       - '.github/workflows/core-rules.yml'
   push:
     branches: [main]
     paths:
       - 'Tools/HunterCore/**'
+      - 'Tools/CompanionCore/**'
       - '.github/workflows/core-rules.yml'
 
 permissions:
@@ -20,4 +22,6 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Compile and test engine-independent rules
-        run: bash Tools/HunterCore/run-tests.sh
+        run: |
+          bash Tools/HunterCore/run-tests.sh
+          bash Tools/CompanionCore/run-tests.sh
