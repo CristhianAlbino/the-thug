@@ -21,7 +21,7 @@ Registro atual: [Decisões abertas](../Decisions/DECISOES_ABERTAS.md).
 - [x] ScenarioLab fase 1: oito percursos do mapa reproduzíveis e executados no `RunRules` C++; simulação espacial do Hunter/companheiros permanece para etapa posterior.
 - [x] Bíblia visual v0.1 baseada nos cinco vídeos recebidos, vinculada a setores do grafo; materiais, luz e som finais aguardam editor/playtest.
 - [x] WorldCore inicial: portas, circuitos, câmeras e esconderijos persistidos; desvios de blackout verificados no grafo e fluxo Hunter/companheiros ensaiado no ScenarioLab. Geometria, visadas e balanceamento ainda pendentes.
-- [x] Estrutura narrativa v0.1 de 33 cenas, decisões de companheiros e quatro fugas escrita para revisão do criador; roteiro final e diálogos condicionais pendentes da D-11.
+- [x] Estrutura narrativa v0.2 de 34 cenas com as diretrizes D-11 confirmadas, dilemas e epílogos individuais; contrato NarrativeCore testa revelações por dificuldade e IDs do mapa. Encenação final, diálogos condicionais e gatilhos ainda pendentes da D-12 e da revisão próxima do criador.
 - [ ] Projeto `.uproject`, níveis e execução no editor: aguardam o computador/Unreal.
 
 ## Calendário de entregas

@@ -1,0 +1,52 @@
+{
+  "schema": 1,
+  "world_truth": {
+    "thomas": "killed_by_batman",
+    "hospital_history": "possible_decommissioned_arkham_clinical_extension"
+  },
+  "difficulty": {
+    "Easy": {"thomas": "unconfirmed", "joe_harley": "asymmetric", "jack": "baseline"},
+    "Normal": {"thomas": "unconfirmed", "joe_harley": "asymmetric", "jack": "baseline"},
+    "Hard": {"thomas": "confirmed", "joe_harley": "asymmetric", "jack": "baseline"},
+    "Punitive": {"thomas": "confirmed", "joe_harley": "reciprocal", "jack": "progressive_secret"}
+  },
+  "thomas_reveal": {
+    "scene": "N34",
+    "scene_nodes": ["B1_MORGUE", "F2_SECURITY"],
+    "fallback": "E_THOMAS_CODA_PLAYER_ONLY",
+    "easy_normal": "E_THOMAS_UNCONFIRMED",
+    "joe_witnessed": "E_THOMAS_JOE_KNOWS"
+  },
+  "jack_secret": {
+    "clues": ["J1", "J2", "J3"],
+    "minimum_act": {"J1": 2, "J2": 3, "J3": 4, "J4": 5},
+    "late_clue": "J3",
+    "minimum_clues": 2,
+    "reveal": "J4",
+    "difficulty": "Punitive"
+  },
+  "companion_statuses": ["together", "escaped_alone", "captured", "dead", "unknown"],
+  "epilogues": {
+    "harley": {
+      "together": {"asymmetric": "E_HARLEY_TOGETHER_ASYMMETRIC", "reciprocal": "E_HARLEY_TOGETHER_RECIPROCAL"},
+      "escaped_alone": "E_HARLEY_ALONE",
+      "captured": "E_HARLEY_CAPTURED",
+      "dead": "E_HARLEY_DEAD",
+      "unknown": "E_HARLEY_UNKNOWN"
+    },
+    "bartholomeu": {
+      "together": "E_BARTH_TOGETHER",
+      "escaped_alone": "E_BARTH_ALONE",
+      "captured": "E_BARTH_CAPTURED",
+      "dead": "E_BARTH_DEAD",
+      "unknown": "E_BARTH_UNKNOWN"
+    },
+    "jack": {
+      "together": "E_JACK_TOGETHER",
+      "escaped_alone": "E_JACK_ALONE",
+      "captured": "E_JACK_CAPTURED",
+      "dead": "E_JACK_DEAD",
+      "unknown": "E_JACK_UNKNOWN"
+    }
+  }
+}
