@@ -6,11 +6,11 @@ O GDD define a visão e as regras centrais. Esta lista impede que um valor de te
 | --- | --- | --- | --- |
 | D-01 | Versão exata da Unreal e toolchain C++ no novo computador | Aguardar instalação; código atual usa C++17 puro | Adaptadores, build e plugins |
 | D-02 | Valores iniciais de confiança, medo, estresse, lealdade e relação de cada companheiro | Não definidos no GDD; nenhum perfil numérico oficial foi criado | Balanceamento e narrativa |
-| D-03 | Planta conectada do hospital: metragem, portas, áreas acessíveis e bloqueios por ato | Apenas setores e funções por andar estão definidos | Blockout e navegação |
+| D-03 | Planta conectada do hospital: metragem, portas, áreas acessíveis e bloqueios por ato | Grafo lógico inicial com 88 áreas, duas escadas, tubulações e quatro saídas em `02_GAME_DESIGN/World/MAPA_LOGICO_HOSPITAL.md`; metragem, geometria, portas e bloqueios por ato aguardam blockout e playtest | Blockout e navegação |
 | D-04 | Frequência de save, checkpoints e consequências de carregar partida | Não especificadas | Persistência e tensão |
 | D-05 | Duração e condições concretas do amanhecer por dificuldade | Metas aproximadas de 30/90/180 min; Punitivo sem vitória automática | Relógio e finais |
 | D-06 | Quantidade de inventário, peso/capacidade e valores de ferimentos/stamina | Relações qualitativas no GDD; números pendentes | Balanceamento de sobrevivência |
-| D-07 | Sequência exata de pistas da combinação da garagem, localização de ferramentas e rotas alternativas | Pré-requisitos narrativos definidos; posicionamento pendente | Progressão sem softlock |
+| D-07 | Sequência exata de pistas da combinação da garagem, localização de ferramentas e rotas alternativas | Posicionamento provisório e sequência de flags no grafo testados contra softlock; dígitos, texto das pistas, descoberta pelos jogadores e falhas concretas aguardam autoria e playtest | Progressão sem softlock |
 | D-08 | Como confiança do Hunter em uma área cai até permitir vitória por esconderijo | Princípio definido; limiar e duração pendentes | Final por esconderijo |
 | D-09 | UI de informação, controles, acessibilidade e idiomas iniciais | Pilares definidos; fluxos e texto final pendentes | UX e produção de interface |
 | D-10 | Origem, licença e uso público de personagens, trilhas e assets de terceiros | Revisão necessária antes de distribuir o jogo | Escopo de publicação |

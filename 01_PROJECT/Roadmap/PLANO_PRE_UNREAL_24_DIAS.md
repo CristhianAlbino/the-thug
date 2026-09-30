@@ -17,6 +17,7 @@ Registro atual: [Decisões abertas](../Decisions/DECISOES_ABERTAS.md).
 - [x] IntegrationCore C++17: entrega de munição entre inventário e companheiro sem duplicação em memória.
 - [x] SaveCore C++17: checkpoint versionado conjunto de inventário, três companheiros, Hunter, regras de fuga, sobrevivência, percepção/evidências e registro genérico do mundo. Integração de atores da Unreal pendente.
 - [x] Testes locais e GitHub Actions para HunterCore, RunRules, CompanionCore, SurvivalCore, PerceptionCore, IntegrationCore e SaveCore.
+- [x] MapCore: grafo lógico inicial do hospital, tubulações e quatro fugas com checagem de alcançabilidade; blockout, escala e duração seguem pendentes.
 - [ ] Projeto `.uproject`, níveis e execução no editor: aguardam o computador/Unreal.
 
 ## Calendário de entregas
