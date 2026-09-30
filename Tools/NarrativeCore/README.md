@@ -2,6 +2,8 @@
 
 `variants.json` guarda as diretrizes aprovadas pelo criador. `variant_rules.py` resolve **elegibilidade** de N34/J1–J4 e IDs de epílogo a partir de fatos de campanha que a Unreal deverá persistir. `validate_variants.py` cruza cenas e IDs com o mapa e verifica que segredos não vazam para dificuldades indevidas.
 
+`act12_scenes.json` e `act12_rules.py` são o primeiro contrato de disparo das cenas N01–N11 do [roteiro de trabalho](../../02_GAME_DESIGN/Narrative/ROTEIRO_ATOS_1_2_RASCUNHO.md). A função `eligible(id, Facts)` exige local, cenas já vistas e, nos reencontros, **ator ativo no mesmo nó**. N11 exige evidência percebida pelo Hunter, trajeto físico até a área e alternativa de saída. `can_witness_j1` requer que Joe tenha realmente visto e ouvido a pista no Punitivo. Esses fatos vêm dos sistemas de mundo/percepção e são persistidos pelo futuro diretor; a função não os inventa. O validador ensaia caminhos em que Harley/Jack não aparecem, a sala de câmeras é ignorada e o Hunter não recebeu evidência.
+
 ```bash
 python3 Tools/NarrativeCore/validate_variants.py
 ```

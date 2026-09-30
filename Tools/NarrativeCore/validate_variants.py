@@ -9,6 +9,59 @@ import sys
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
 from variant_rules import DATA, resolve_epilogue, scene_available  # noqa: E402
+from act12_rules import Actor, CONTRACT, Facts, SCENES, can_witness_j1, eligible  # noqa: E402
+from dataclasses import replace
+
+
+def verify_early_scenes(nodes, devices):
+    assert CONTRACT["schema"] == 1
+    assert set(SCENES) == {f"N{i:02d}" for i in range(1, 12)}
+    assert len(CONTRACT["scenes"]) == len(SCENES)
+    manuscript = (ROOT / "../../02_GAME_DESIGN/Narrative/ROTEIRO_ATOS_1_2_RASCUNHO.md").read_text(encoding="utf-8")
+    headings = re.findall(r"^### (N\d+) ·", manuscript, flags=re.M)
+    assert len(headings) == len(set(headings)) == 11 and set(headings) == set(SCENES)
+    refs = set(re.findall(r"`((?:F[1-4]|B1|G|T|R|A|X|CAM|D|H|C)_[A-Z0-9_]+)`", manuscript))
+    assert refs <= nodes | devices, f"unknown early manuscript references: {refs - (nodes | devices)}"
+    for scene in SCENES.values():
+        assert scene["act"] in (1, 2)
+        assert set(scene["anchors"]) <= nodes
+        assert set(scene["must_seen"]) <= set(SCENES)
+        assert set(scene.get("any_seen", ())) <= set(SCENES)
+
+    opening = Facts("Hard", "F4_START")
+    assert eligible("N01", opening)
+    assert not eligible("N03", opening)
+    assert eligible("N02", replace(opening, joe_node="F4_OBSERVATION", seen=frozenset({"N01"})))
+    after_split = replace(opening, seen=frozenset({"N01", "N02", "N03"}))
+    assert eligible("N04", replace(after_split, joe_node="F4_HALL_E"))
+    assert eligible("N06", replace(after_split, joe_node="F3_CENTRAL"))
+    assert eligible("N09", replace(after_split, joe_node="F2_SECURITY"))
+    assert not eligible("N10", replace(after_split, joe_node="F2_SERVER"))
+    assert eligible("N10", replace(after_split, joe_node="F2_SERVER", facts=frozenset({"doc11_read"})))
+
+    harley_area = replace(after_split, joe_node="F3_ICU")
+    assert not eligible("N07", harley_area)
+    assert not eligible("N07", replace(harley_area, companions={"harley": Actor("F1_TREATMENT")}))
+    assert not eligible("N07", replace(harley_area, companions={"harley": Actor("F3_ICU", False)}))
+    assert eligible("N07", replace(harley_area, companions={"harley": Actor("F3_ICU")}))
+    jack_area = replace(after_split, joe_node="F3_EXAMS", companions={"jack": Actor("F3_EXAMS")})
+    assert eligible("N08", jack_area)
+    assert not can_witness_j1(jack_area, True)
+    jack_met = replace(jack_area, seen=jack_area.seen | {"N08"})
+    assert can_witness_j1(replace(jack_met, difficulty="Punitive"), True)
+    assert not can_witness_j1(replace(jack_met, difficulty="Punitive"), False)
+    assert not can_witness_j1(replace(jack_met, difficulty="Normal"), True)
+    assert not can_witness_j1(replace(jack_met, difficulty="Punitive", companions={"jack": Actor("F2_CAMERAS")}), True)
+
+    hunt = replace(after_split, joe_node="F3_CENTRAL", hunter_has_evidence=True,
+                   hunter_can_reach=True, alternative_reachable=True,
+                   area_previously_visited=True)
+    assert eligible("N11", hunt)
+    for override in ({"hunter_has_evidence": False}, {"hunter_can_reach": False},
+                     {"alternative_reachable": False}, {"area_previously_visited": False}):
+        assert not eligible("N11", replace(hunt, **override))
+    assert not eligible("N11", replace(hunt, seen=hunt.seen | {"N11"}))
+    return len(refs)
 
 
 def verify():
@@ -30,6 +83,7 @@ def verify():
     assert DATA["jack_secret"]["minimum_act"] == {"J1": 2, "J2": 3, "J3": 4, "J4": 5}
     assert set(DATA["epilogues"]) == {"harley", "bartholomeu", "jack"}
     assert len(set(DATA["companion_statuses"])) == 5
+    early_refs = verify_early_scenes(nodes, devices)
 
     for difficulty in DATA["difficulty"]:
         revealed = difficulty in ("Hard", "Punitive")
@@ -72,8 +126,8 @@ def verify():
         pass
     else:
         raise AssertionError("Jack secret leaked into Normal")
-    print(f"NarrativeCore: 4 difficulties, 34 scenes, {len(refs)} map/device IDs, "
-          "Thomas/Jack gates and individual epilogues valid")
+    print(f"NarrativeCore: 4 difficulties, 34 scenes, {len(refs)} campaign and {early_refs} "
+          "early-scene map/device IDs, Thomas/Jack gates and individual epilogues valid")
 
 
 if __name__ == "__main__":

@@ -22,6 +22,7 @@ Registro atual: [Decisões abertas](../Decisions/DECISOES_ABERTAS.md).
 - [x] Bíblia visual v0.1 baseada nos cinco vídeos recebidos, vinculada a setores do grafo; materiais, luz e som finais aguardam editor/playtest.
 - [x] WorldCore inicial: portas, circuitos, câmeras e esconderijos persistidos; desvios de blackout verificados no grafo e fluxo Hunter/companheiros ensaiado no ScenarioLab. Geometria, visadas e balanceamento ainda pendentes.
 - [x] Estrutura narrativa v0.2 de 34 cenas com as diretrizes D-11 confirmadas, dilemas e epílogos individuais; contrato NarrativeCore testa revelações por dificuldade e IDs do mapa. Encenação final, diálogos condicionais e gatilhos ainda pendentes da D-12 e da revisão próxima do criador.
+- [x] Primeira passada de roteiro jogável N01–N11 (atos 1–2), com variantes de Joe/Harley, primeiro sinal de Jack e encontro condicional com Batman; contrato de disparo verifica presença física dos companheiros, evidência e alternativas de percurso. Atos 3–5 e falas finais continuam pendentes.
 - [ ] Projeto `.uproject`, níveis e execução no editor: aguardam o computador/Unreal.
 
 ## Calendário de entregas
