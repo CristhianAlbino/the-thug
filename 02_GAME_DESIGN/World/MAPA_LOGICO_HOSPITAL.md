@@ -1,6 +1,6 @@
 # Hospital — mapa lógico jogável (proposta de blockout)
 
-**Estado:** direção e grafo inicial, ainda sem escala física. Fonte de visão: [GDD Mestre](../GDD/GDD_MASTER.md), seções 22–31 e 53–56. Dados: [`hospital_graph.json`](../../Tools/MapCore/hospital_graph.json). Validação: [`validate_map.py`](../../Tools/MapCore/validate_map.py).
+**Estado:** direção e grafo inicial, ainda sem escala física. Fonte de visão: [GDD Mestre](../GDD/GDD_MASTER.md), seções 22–31 e 53–56. Dados: [`hospital_graph.json`](../../Tools/MapCore/hospital_graph.json). Validação: [`validate_map.py`](../../Tools/MapCore/validate_map.py). Direção baseada nos vídeos enviados: [Bíblia visual](../Visual/BIBLIA_VISUAL_HOSPITAL.md).
 
 O hospital deve parecer grande pela memória espacial: enxergar um lugar cedo, alcançá-lo por outra porta mais tarde, ouvir eventos em andares próximos e descobrir que o mesmo tubo passa sob várias salas. Para aproximadamente três horas no Difícil, a densidade e o retorno com nova informação importam mais que corredores extensos. **88 nós são áreas lógicas, não 88 salas a modelar nem garantia de três horas de gameplay.** Tamanho, portas, velocidades e duração dependem do blockout e dos testes na Unreal.
 
@@ -68,7 +68,7 @@ Essas faixas **não** são metas individuais de missão, tempos de travessia med
 
 - **The Last of Us:** desgaste com história legível — reparos improvisados, abandono desigual, vegetação e vestígios de quem tentou sobreviver. A circulação deve continuar clara sob sujeira e dano.
 - **Outlast:** pressão clínica — luz incompleta, materiais frios, som atravessando portas, máquinas e silêncios. Áreas estreitas alternam com vazios expostos; esconderijos dão oportunidade, não invulnerabilidade.
-- **Referência do short de horror urbano:** leitura de ameaça vertical e cidade hostil em janelas, chuva, silhuetas e telhado. A referência foi identificada pelo título, mas a reprodução do vídeo não carregou para inspeção quadro a quadro; detalhes específicos de cenário **não** foram inferidos dele.
+- **Cinco vídeos enviados em 30/09:** corredores clínicos com luz vermelha localizada, instalações técnicas úmidas, feixes de lanterna e silhuetas emergindo da escuridão foram observados diretamente nos arquivos. Ver a bíblia visual para correspondência por setor e limites de legibilidade. O short anterior agora está disponível também como arquivo `78713.mp4`.
 - **Tubulações como assinatura:** vapor denuncia um cruzamento; golpes metálicos podem mascarar um passo; válvulas e juntas repetidas dão direção entre andares. Diferenciar ruído ambiente de evidência real para a IA.
 
 Evitar reproduzir composição, símbolos ou cenário específico de uma referência. A identidade final de personagens, marca e assets tem decisão de publicação própria em D-10.

@@ -10,6 +10,7 @@ on:
       - 'Tools/IntegrationCore/**'
       - 'Tools/SaveCore/**'
       - 'Tools/MapCore/**'
+      - 'Tools/ScenarioLab/**'
       - '.github/workflows/core-rules.yml'
   push:
     branches: [main]
@@ -21,6 +22,7 @@ on:
       - 'Tools/IntegrationCore/**'
       - 'Tools/SaveCore/**'
       - 'Tools/MapCore/**'
+      - 'Tools/ScenarioLab/**'
       - '.github/workflows/core-rules.yml'
 
 permissions:
@@ -48,3 +50,5 @@ jobs:
           done
       - name: Validate hospital graph and escape routes
         run: python3 Tools/MapCore/validate_map.py
+      - name: Replay map and C++ route scenarios
+        run: bash Tools/ScenarioLab/run-tests.sh
