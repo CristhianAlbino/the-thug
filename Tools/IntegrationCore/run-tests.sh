@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -euo pipefail
+root="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+c++ -std=c++17 -Wall -Wextra -Wpedantic -Werror \
+  "$root/../CompanionCore/CompanionCore.cpp" \
+  "$root/../SurvivalCore/Inventory.cpp" \
+  "$root/../SurvivalCore/SurvivalCore.cpp" \
+  "$root/IntegrationCore.cpp" "$root/tests.cpp" \
+  -o "${TMPDIR:-/tmp}/the-thug-integration-tests"
+"${TMPDIR:-/tmp}/the-thug-integration-tests"
