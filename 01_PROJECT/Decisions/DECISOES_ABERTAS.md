@@ -14,6 +14,7 @@ O GDD define a visão e as regras centrais. Esta lista impede que um valor de te
 | D-08 | Como confiança do Hunter em uma área cai até permitir vitória por esconderijo | Princípio definido; limiar e duração pendentes | Final por esconderijo |
 | D-09 | UI de informação, controles, acessibilidade e idiomas iniciais | Pilares definidos; fluxos e texto final pendentes | UX e produção de interface |
 | D-10 | Origem, licença e uso público de personagens, trilhas e assets de terceiros | Revisão necessária antes de distribuir o jogo | Escopo de publicação |
+| D-11 | Destino de Thomas, intensidade da relação Joe–Harley, variante secreta de Jack e tom dos epílogos | Campanha N01–N33 em rascunho para revisão direta com Cristhian; nenhuma dessas propostas é cânone final | Cenas, diálogos e finais |
 
 ## Decisões já fixadas
 
