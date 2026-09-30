@@ -281,6 +281,62 @@ EXITS = {
                "failure": "window_failed"},
 }
 
+# Provisional interactive devices. Door IDs bind to exact graph edges, while
+# camera/hide IDs bind to rooms. State is persisted through WorldState actors.
+_DOORS = [
+    ("D_F4_WARD", "F4_HALL_E", "F4_WARD_E", "closed", "manual", ""),
+    ("D_F4_NURSE", "F4_NURSE", "F4_HALL_W", "closed", "manual", ""),
+    ("D_F4_SERVICE", "F4_SERVICE", "F4_STORAGE", "closed", "manual", ""),
+    ("D_F3_SURGERY", "F3_SURGERY", "F3_UTILITY", "closed", "needs_power", "C_CLINIC"),
+    ("D_F3_ISOLATION", "F3_HALL_W", "F3_ISOLATION", "closed", "manual", ""),
+    ("D_F3_EXAMS", "F3_EXAMS", "F3_WINDOW", "locked", "manual", ""),
+    ("D_F3_PIPE", "F3_UTILITY", "F3_PIPE", "closed", "manual", ""),
+    ("D_F2_SERVER", "F2_CENTRAL", "F2_SERVER", "closed", "needs_power", "C_SECURITY"),
+    ("D_F2_CAMERAS", "F2_SECURITY", "F2_CAMERAS", "closed", "manual", ""),
+    ("D_F2_SAFE", "F2_ADMIN", "F2_SAFE", "closed", "manual", ""),
+    ("D_F2_SUPPLY", "F2_SERVICE", "F2_SUPPLY", "closed", "manual", ""),
+    ("D_F1_RADIO_E", "F1_EMERGENCY", "F1_RADIO", "closed", "manual", ""),
+    ("D_F1_RADIO_W", "F1_SECURITY", "F1_RADIO", "closed", "manual", ""),
+    ("D_F1_SECURITY", "F1_LOBBY", "F1_SECURITY", "closed", "manual", ""),
+    ("D_F1_PHARMACY", "F1_TRIAGE", "F1_PHARMACY", "closed", "manual", ""),
+    ("D_F1_SERVICE", "F1_LOADING", "F1_SERVICE", "closed", "manual", ""),
+    ("D_B1_GENERATOR", "B1_CENTRAL", "B1_GENERATOR", "closed", "manual", ""),
+    ("D_B1_TUNNEL", "B1_PUMP", "B1_TUNNEL", "closed", "manual", ""),
+    ("D_B1_MORGUE", "B1_LAUNDRY", "B1_MORGUE", "closed", "manual", ""),
+    ("D_G_CONTROL", "G_FLOOR", "G_CONTROL", "closed", "releases_when_off", "C_SERVICE"),
+    ("D_G_TUNNEL", "G_MAINT", "G_TUNNEL_LINK", "closed", "manual", ""),
+    ("D_R_PAD", "R_HVAC", "R_PAD", "closed", "manual", ""),
+]
+
+DEVICES = {
+    "circuits": [
+        {"id": "C_SECURITY", "at": "F2_SERVER", "initial": "on"},
+        {"id": "C_SERVICE", "at": "B1_GENERATOR", "initial": "off"},
+        {"id": "C_CLINIC", "at": "F3_UTILITY", "initial": "on"},
+    ],
+    "doors": [dict(id=i, a=a, b=b, initial=state, power=policy,
+                   circuit=circuit) for i, a, b, state, policy, circuit in _DOORS],
+    "cameras": [
+        {"id": "CAM_LOBBY", "at": "F2_CAMERAS", "view": "F1_LOBBY", "circuit": "C_SECURITY", "initial": "online"},
+        {"id": "CAM_CLINIC", "at": "F2_CAMERAS", "view": "F3_CENTRAL", "circuit": "C_SECURITY", "initial": "interference"},
+        {"id": "CAM_F4_WEST", "at": "F2_CAMERAS", "view": "F4_HALL_W", "circuit": "C_SECURITY", "initial": "online"},
+        {"id": "CAM_B1_VALVE", "at": "F2_CAMERAS", "view": "B1_VALVE", "circuit": "C_SERVICE", "initial": "broken"},
+        {"id": "CAM_GARAGE", "at": "F2_CAMERAS", "view": "G_FLOOR", "circuit": "C_SERVICE", "initial": "looped"},
+    ],
+    "hides": [
+        {"id": "H_F4_SHEETS", "at": "F4_STORAGE", "initial": "empty"},
+        {"id": "H_F4_WARD", "at": "F4_WARD_W", "initial": "empty"},
+        {"id": "H_F3_CURTAIN", "at": "F3_RECOVERY", "initial": "empty"},
+        {"id": "H_F3_ICU", "at": "F3_ICU", "initial": "empty"},
+        {"id": "H_F3_ISOLATION", "at": "F3_ISOLATION", "initial": "empty"},
+        {"id": "H_F2_ARCHIVE", "at": "F2_ARCHIVE", "initial": "empty"},
+        {"id": "H_F1_TREATMENT", "at": "F1_TREATMENT", "initial": "empty"},
+        {"id": "H_B1_VALVE", "at": "B1_VALVE", "initial": "empty"},
+        {"id": "H_T_LOOP", "at": "T_LOOP", "initial": "empty"},
+        {"id": "H_G_VEHICLES", "at": "G_VEHICLES", "initial": "empty"},
+    ],
+}
+
 
 def build():
     return {
@@ -296,4 +352,5 @@ def build():
         "sightlines": [dict(a=a, b=b, cue=cue)
                        for a, b, cue in SIGHTLINES],
         "exits": EXITS,
+        "devices": DEVICES,
     }
