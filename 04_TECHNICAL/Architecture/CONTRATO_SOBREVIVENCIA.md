@@ -22,4 +22,4 @@ Fonte: [GDD Mestre](../../02_GAME_DESIGN/GDD/GDD_MASTER.md), seções 36–43 e 
 
 ## Pendências de integração
 
-Catálogo e capacidade finais, relação entre nível de ferimento e dano, balanceamento em tempo real, demais transações entre módulos, save de ferimentos e mundo, som/respiração, feedback de câmera, efeitos de medicamento, impactos nos companheiros e teste Play na Unreal. Os valores atuais são hipóteses de balanceamento e podem mudar após medir a experiência real.
+Catálogo e capacidade finais, relação entre nível de ferimento e dano, balanceamento em tempo real, demais transações entre módulos, ligação do save de ferimentos e mundo aos atores Unreal, som/respiração, feedback de câmera, efeitos de medicamento, impactos nos companheiros e teste Play. Os valores atuais são hipóteses de balanceamento e podem mudar após medir a experiência real.

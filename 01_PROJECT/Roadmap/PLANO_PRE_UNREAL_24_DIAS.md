@@ -15,7 +15,7 @@ Registro atual: [Decisões abertas](../Decisions/DECISOES_ABERTAS.md).
 - [x] SurvivalCore C++17: ferimentos, sangramento, stamina e inventário com capacidade configurável (base inicial dos dias 03–04 adiantada).
 - [x] PerceptionCore C++17: propagação abstrata de som, incerteza e evidências vistas pelo Hunter (base inicial do dia 05 adiantada).
 - [x] IntegrationCore C++17: entrega de munição entre inventário e companheiro sem duplicação em memória.
-- [x] SaveCore C++17: snapshot versionado conjunto de inventário e três companheiros, com replay e corrupção testados (parte do dia 07 adiantada; campanha completa pendente).
+- [x] SaveCore C++17: checkpoint versionado conjunto de inventário, três companheiros, Hunter, regras de fuga, sobrevivência, percepção/evidências e registro genérico do mundo. Integração de atores da Unreal pendente.
 - [x] Testes locais e GitHub Actions para HunterCore, RunRules, CompanionCore, SurvivalCore, PerceptionCore, IntegrationCore e SaveCore.
 - [ ] Projeto `.uproject`, níveis e execução no editor: aguardam o computador/Unreal.
 

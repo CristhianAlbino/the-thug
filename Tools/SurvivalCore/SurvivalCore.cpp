@@ -10,6 +10,22 @@ namespace {
 bool Positive(double value) { return std::isfinite(value) && value > 0; }
 bool NonNegative(double value) { return std::isfinite(value) && value >= 0; }
 
+bool SameTuning(const Tuning& a, const Tuning& b) {
+  return a.maxStamina == b.maxStamina &&
+         a.sprintDrainPerSecond == b.sprintDrainPerSecond &&
+         a.restRecoveryPerSecond == b.restRecoveryPerSecond &&
+         a.walkRecoveryFraction == b.walkRecoveryFraction &&
+         a.moderateDrainMultiplier == b.moderateDrainMultiplier &&
+         a.severeDrainMultiplier == b.severeDrainMultiplier &&
+         a.moderateRecoveryMultiplier == b.moderateRecoveryMultiplier &&
+         a.severeRecoveryMultiplier == b.severeRecoveryMultiplier &&
+         a.exhaustionReleaseFraction == b.exhaustionReleaseFraction &&
+         a.bleedingPerSecond == b.bleedingPerSecond &&
+         a.collapseBloodLoss == b.collapseBloodLoss &&
+         a.fatalBloodLoss == b.fatalBloodLoss &&
+         a.treatmentBloodRecovery == b.treatmentBloodRecovery;
+}
+
 } // namespace
 
 SurvivalCore::SurvivalCore(Tuning tuning)
@@ -174,6 +190,31 @@ Effects SurvivalCore::CurrentEffects() const {
                       !collapsed_ && !dead_;
   if (collapsed_ || dead_) effects.speedMultiplier = 0;
   return effects;
+}
+
+SurvivalSnapshot SurvivalCore::CaptureSnapshot() const {
+  return {tuning_, injury_, stamina_, bloodLoss_, bleeding_, exhausted_,
+          collapsed_, dead_};
+}
+
+bool SurvivalCore::RestoreSnapshot(const SurvivalSnapshot& s) {
+  if (!SameTuning(s.tuning, tuning_) ||
+      s.injury < Injury::None || s.injury > Injury::Severe ||
+      !NonNegative(s.stamina) || s.stamina > tuning_.maxStamina ||
+      !NonNegative(s.bloodLoss) || s.bloodLoss > tuning_.fatalBloodLoss ||
+      (s.bleeding && s.injury != Injury::Severe) ||
+      (s.collapsed && s.bloodLoss < tuning_.collapseBloodLoss) ||
+      (!s.collapsed && s.bloodLoss >= tuning_.collapseBloodLoss) ||
+      (s.dead && (!s.collapsed || !s.bleeding ||
+                  s.bloodLoss < tuning_.fatalBloodLoss))) return false;
+  injury_ = s.injury;
+  stamina_ = s.stamina;
+  bloodLoss_ = s.bloodLoss;
+  bleeding_ = s.bleeding;
+  exhausted_ = s.exhausted;
+  collapsed_ = s.collapsed;
+  dead_ = s.dead;
+  return true;
 }
 
 } // namespace thug::survival

@@ -24,7 +24,7 @@ O multiplicador de respiração do [SurvivalCore](CONTRATO_SOBREVIVENCIA.md) pod
 
 `EvidenceMemory::Inspect` só é chamada quando o Hunter vê/inspeciona fisicamente um objeto. A primeira inspeção fornece referência. Ao ver estado diferente, o Hunter recebe pista localizada no **objeto observado**, sem autoria conhecida. Portas, luzes, câmeras, objetos deslocados e corpos precisam de estados legíveis; o design pode escolher quais alterações são relevantes.
 
-Não usar notificações globais de “porta mudou” como percepção. Um objeto pode mudar e voltar ao normal enquanto o Hunter está ausente. Estado anterior para persistência e debug deverá ser serializado em saves.
+Não usar notificações globais de “porta mudou” como percepção. Um objeto pode mudar e voltar ao normal enquanto o Hunter está ausente. O [SaveCore](../../Tools/SaveCore/README.md) já serializa o último estado visto de cada objeto e o RNG dos sons; a engine ainda precisa restaurar os objetos reais e os sensores.
 
 ## Limites e telemetria
 

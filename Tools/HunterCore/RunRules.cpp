@@ -130,4 +130,55 @@ std::optional<double> RunRules::HelicopterDeadlineSeconds() const {
   return helicopterDeadline_;
 }
 
+RunSnapshot RunRules::CaptureSnapshot() const {
+  return {difficulty_, nowSeconds_, result_, safeOpened_, garageKey_,
+          garageGate_, garageFailed_, radioFound_, batteriesInstalled_,
+          radioContact_, roofFailed_, helicopterDeadline_, tunnelFound_,
+          tunnelFailed_, windowFound_, windowTools_, windowUnblocked_,
+          windowFailed_};
+}
+
+bool RunRules::RestoreSnapshot(const RunSnapshot& s) {
+  if (s.difficulty != difficulty_ ||
+      s.result < Ending::None || s.result > Ending::Died ||
+      !std::isfinite(s.nowSeconds) || s.nowSeconds < 0 ||
+      (s.helicopterDeadline &&
+       (!std::isfinite(*s.helicopterDeadline) ||
+        *s.helicopterDeadline < 0)) ||
+      (s.garageKey && !s.safeOpened) ||
+      (s.garageGate && !s.garageKey) ||
+      (s.batteriesInstalled && !s.radioFound) ||
+      (s.radioContact && !s.batteriesInstalled) ||
+      (s.helicopterDeadline && !s.radioContact) ||
+      (s.windowUnblocked && (!s.windowFound || !s.windowTools)) ||
+      (s.result == Ending::GarageEscape && (!s.garageGate || s.garageFailed)) ||
+      (s.result == Ending::RoofEscape &&
+       (!s.helicopterDeadline || s.roofFailed)) ||
+      (s.result == Ending::TunnelEscape && (!s.tunnelFound || s.tunnelFailed)) ||
+      (s.result == Ending::WindowEscape &&
+       (!s.windowUnblocked || s.windowFailed)) ||
+      (s.result == Ending::SurvivedDawn &&
+       difficulty_ == Difficulty::Punitive) ||
+      (s.result == Ending::None && s.helicopterDeadline &&
+       s.nowSeconds > *s.helicopterDeadline && !s.roofFailed)) return false;
+  nowSeconds_ = s.nowSeconds;
+  result_ = s.result;
+  safeOpened_ = s.safeOpened;
+  garageKey_ = s.garageKey;
+  garageGate_ = s.garageGate;
+  garageFailed_ = s.garageFailed;
+  radioFound_ = s.radioFound;
+  batteriesInstalled_ = s.batteriesInstalled;
+  radioContact_ = s.radioContact;
+  roofFailed_ = s.roofFailed;
+  helicopterDeadline_ = s.helicopterDeadline;
+  tunnelFound_ = s.tunnelFound;
+  tunnelFailed_ = s.tunnelFailed;
+  windowFound_ = s.windowFound;
+  windowTools_ = s.windowTools;
+  windowUnblocked_ = s.windowUnblocked;
+  windowFailed_ = s.windowFailed;
+  return true;
+}
+
 } // namespace thug::rules
