@@ -61,7 +61,7 @@ Build **10 excellent minutes first**. Prove that walking through a corridor whil
 
 ## Engine-independent systems
 
-The [C++17 game rules](Tools/HunterCore/README.md) now implement a testable Hunter decision core and campaign escape conditions. Their [integration contract](04_TECHNICAL/Architecture/CONTRATO_SISTEMAS.md) defines what the Unreal project must provide. The [CompanionCore](Tools/CompanionCore/README.md) adds individual companion knowledge, relationships and conditional goals. [SurvivalCore](Tools/SurvivalCore/README.md) covers injuries, bleeding, stamina and a capacity-limited inventory. These modules compile outside Unreal; no editor integration has been claimed.
+The [C++17 game rules](Tools/HunterCore/README.md) now implement a testable Hunter decision core and campaign escape conditions. Their [integration contract](04_TECHNICAL/Architecture/CONTRATO_SISTEMAS.md) defines what the Unreal project must provide. The [CompanionCore](Tools/CompanionCore/README.md) adds individual companion knowledge, relationships and conditional goals. [SurvivalCore](Tools/SurvivalCore/README.md) covers injuries, bleeding, stamina and a capacity-limited inventory. [PerceptionCore](Tools/PerceptionCore/README.md) turns sounds and inspected environmental changes into fair, uncertain Hunter observations. These modules compile outside Unreal; no editor integration has been claimed.
 
 ## Current next step
 

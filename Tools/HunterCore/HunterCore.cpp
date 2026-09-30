@@ -135,6 +135,7 @@ bool HunterCore::Observe(const Stimulus& stimulus) {
     }
     break;
   case StimulusKind::Sound:
+    lastHeardType_ = stimulus.perceivedType;
     if (stimulus.strength >= tuning_.soundThreshold &&
         state_ != State::Pursuing) {
       lastEstimate_ = stimulus.estimate;
