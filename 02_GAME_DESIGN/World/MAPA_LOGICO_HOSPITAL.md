@@ -41,6 +41,20 @@ Há **escada leste e oeste independentes** do telhado ao quarto andar e do quart
 - **Visadas curtas e memorizáveis:** a sala de observação mostra o parapeito do telhado; um átrio parcial relaciona 3º e 2º; o monitor do 2º pode mostrar o saguão se a câmera funcionar; faróis e chuva recortam o portão na garagem. Essas visadas são pistas visuais condicionais, não informação automática ao Hunter.
 - **Marcos de orientação:** tubo vermelho de incêndio, tubo de água marcado em azul, reservatório de B1, vidro quebrado da clínica e luz intermitente no 4º. A cor nunca é a única pista; forma, texto, som e localização reforçam o caminho.
 
+## Portas, circuitos, câmeras e esconderijos
+
+O JSON agora contém 22 portas em conexões identificadas, 3 circuitos, 5 câmeras e 10 esconderijos. São **pontos de interação lógica iniciais**, não contagem final de objetos no nível. `WorldCore` mantém seus estados no mesmo `WorldState` do checkpoint de campanha.
+
+| Mudança | Efeito legível | Garantia de alternativa |
+| --- | --- | --- |
+| Desligar `C_SECURITY` | Algumas câmeras do 2º perdem imagem; `D_F2_SERVER` não abre por controle elétrico | Servidores também são acessíveis via almoxarifado; escadas e tubos seguem manuais |
+| Restaurar `C_SERVICE` | A câmera da garagem ganha energia e o controle do portão pode ser preparado | Câmera em loop continua mostrando imagem antiga; energia não conserta interferência |
+| Cortar energia numa porta `releases_when_off` | Fecho elétrico libera abertura manual, com ruído possível | Não abre automaticamente o portão de fuga nem concede sua chave |
+| Forçar porta trancada | Abre a ligação se não estiver emperrada, produz ruído e muda o estado persistido | Hunter só investiga se o evento chegar ao seu sensor com oclusão/mascaramento real |
+| Entrar no isolamento `H_F3_ISOLATION` | Ocupa o esconderijo no mundo | Batman não sabe disso por leitura do save; precisa ter visto a entrada/evidência |
+
+O validador também percorre as quatro fugas com todas as portas `needs_power` e a porta inicialmente trancada indisponíveis. Portas manuais são atravessáveis após interação, com custo e som a medir na Unreal.
+
 ## Quatro fugas e distribuição da informação
 
 | Rota | Descoberta e preparo | Ação final / estado de falha |

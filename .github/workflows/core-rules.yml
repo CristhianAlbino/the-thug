@@ -11,6 +11,7 @@ on:
       - 'Tools/SaveCore/**'
       - 'Tools/MapCore/**'
       - 'Tools/ScenarioLab/**'
+      - 'Tools/WorldCore/**'
       - '.github/workflows/core-rules.yml'
   push:
     branches: [main]
@@ -23,6 +24,7 @@ on:
       - 'Tools/SaveCore/**'
       - 'Tools/MapCore/**'
       - 'Tools/ScenarioLab/**'
+      - 'Tools/WorldCore/**'
       - '.github/workflows/core-rules.yml'
 
 permissions:
@@ -41,9 +43,10 @@ jobs:
           bash Tools/PerceptionCore/run-tests.sh
           bash Tools/IntegrationCore/run-tests.sh
           bash Tools/SaveCore/run-tests.sh
+          bash Tools/WorldCore/run-tests.sh
       - name: Validate CMake project files
         run: |
-          for module in HunterCore CompanionCore SurvivalCore PerceptionCore IntegrationCore SaveCore; do
+          for module in HunterCore CompanionCore SurvivalCore PerceptionCore IntegrationCore SaveCore WorldCore; do
             cmake -S "Tools/$module" -B "Build/$module"
             cmake --build "Build/$module"
             ctest --test-dir "Build/$module" --output-on-failure

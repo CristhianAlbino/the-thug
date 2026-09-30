@@ -19,5 +19,8 @@ Contrato JSON (`schema: 1`):
 | `actions` | Interações locais com `requires`, `grants` e evento opcional de `RunRules` |
 | `sightlines` | Referência de visada a ser verificada na geometria; não cria percepção ou caminho por si |
 | `exits` | Nó final, flag de vitória e flag de falha independente por rota |
+| `devices` | Circuitos, portas sobre ligações exatas, câmeras com visão e esconderijos associados aos nós; estados iniciais para `WorldCore` |
 
 `hunter_access: false` marca somente o trecho estreito; perseguição indireta e investigação de entradas continuam possíveis. As flags são estados de campanha a persistir, incluindo falhas; um inventário físico e o tempo real da ação devem ser conciliados com SurvivalCore/SaveCore na integração. Não use os `seconds` como duração de missão, curva de dificuldade ou fato medido.
+
+O validador também verifica IDs e ligações dos dispositivos e prova que cada fuga permanece alcançável mesmo com a porta inicialmente trancada e todas as portas `needs_power` fechadas. Essa análise pressupõe que portas manuais podem ser abertas; perseguição, tempo da interação e bloqueios concretos devem ser reavaliados no blockout.

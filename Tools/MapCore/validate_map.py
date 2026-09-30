@@ -66,6 +66,35 @@ def check_contract():
     for sight in DATA["sightlines"]:
         require(sight["a"] in nodes and sight["b"] in nodes,
                 f"visada inválida: {sight}")
+    devices = DATA["devices"]
+    require(set(devices) == {"circuits", "doors", "cameras", "hides"},
+            "famílias de dispositivos inválidas")
+    ids = [d["id"] for group in devices.values() for d in group]
+    require(len(ids) == len(set(ids)), "IDs duplicados de dispositivos")
+    circuits = {c["id"] for c in devices["circuits"]}
+    require(circuits and all(c["at"] in nodes and c["initial"] in ("on", "off")
+                             for c in devices["circuits"]), "circuito inválido")
+    door_edges = set()
+    for door in devices["doors"]:
+        pair = frozenset((door["a"], door["b"]))
+        require(pair in {frozenset((e["a"], e["b"])) for e in DATA["edges"]},
+                f"porta sem ligação: {door['id']}")
+        require(pair not in door_edges, f"duas portas numa mesma ligação: {door['id']}")
+        door_edges.add(pair)
+        require(door["initial"] in ("open", "closed", "locked", "jammed"),
+                f"estado de porta inválido: {door['id']}")
+        require(door["power"] in ("manual", "needs_power", "releases_when_off")
+                and ((door["power"] == "manual" and not door["circuit"])
+                     or (door["power"] != "manual" and door["circuit"] in circuits)),
+                f"alimentação de porta inválida: {door['id']}")
+    for camera in devices["cameras"]:
+        require(camera["at"] in nodes and camera["view"] in nodes
+                and camera["circuit"] in circuits
+                and camera["initial"] in ("online", "interference", "broken", "looped"),
+                f"câmera inválida: {camera['id']}")
+    for hide in devices["hides"]:
+        require(hide["at"] in nodes and hide["initial"] in ("empty", "occupied"),
+                f"esconderijo inválido: {hide['id']}")
     all_adjacent = defaultdict(list)
     for edge in DATA["edges"]:
         all_adjacent[edge["a"]].append(edge["b"])
@@ -228,6 +257,12 @@ def main():
         lifts = [(e["a"], e["b"]) for e in DATA["edges"] if e["kind"] == "lift"]
         require(solve(name, blocked_edges=lifts) is not None,
                 f"rota depende do elevador: {name}")
+    disabled = [(d["a"], d["b"]) for d in DATA["devices"]["doors"]
+                if d["initial"] in ("locked", "jammed")
+                or d["power"] == "needs_power"]
+    for name in routes:
+        require(solve(name, blocked_edges=disabled) is not None,
+                f"rota depende de porta inicialmente trancada ou energizada: {name}")
     for side in ("E", "W"):
         blocked = [(f"{a}_ST_{side}", f"{b}_ST_{side}")
                    for a, b in (("F4", "F3"), ("F3", "F2"), ("F2", "F1"),

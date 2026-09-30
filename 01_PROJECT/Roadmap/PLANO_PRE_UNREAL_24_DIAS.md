@@ -20,6 +20,7 @@ Registro atual: [Decisões abertas](../Decisions/DECISOES_ABERTAS.md).
 - [x] MapCore: grafo lógico inicial do hospital, tubulações e quatro fugas com checagem de alcançabilidade; blockout, escala e duração seguem pendentes.
 - [x] ScenarioLab fase 1: oito percursos do mapa reproduzíveis e executados no `RunRules` C++; simulação espacial do Hunter/companheiros permanece para etapa posterior.
 - [x] Bíblia visual v0.1 baseada nos cinco vídeos recebidos, vinculada a setores do grafo; materiais, luz e som finais aguardam editor/playtest.
+- [x] WorldCore inicial: portas, circuitos, câmeras e esconderijos persistidos; desvios de blackout verificados no grafo e fluxo Hunter/companheiros ensaiado no ScenarioLab. Geometria, visadas e balanceamento ainda pendentes.
 - [ ] Projeto `.uproject`, níveis e execução no editor: aguardam o computador/Unreal.
 
 ## Calendário de entregas

@@ -22,3 +22,21 @@ assert rows[6]['failed_route']=='roof' and rows[6]['ending']=='WindowEscape'
 assert all(row['events'] for row in rows)
 print('ScenarioLab: 8 scenarios, C++/map parity and deterministic replay passed')
 PY
+c++ -std=c++17 -Wall -Wextra -Wpedantic -Werror \
+  "$root/../CompanionCore/CompanionCore.cpp" \
+  "$root/../HunterCore/HunterCore.cpp" "$root/../HunterCore/RunRules.cpp" \
+  "$root/../PerceptionCore/PerceptionCore.cpp" \
+  "$root/../SurvivalCore/Inventory.cpp" "$root/../SurvivalCore/SurvivalCore.cpp" \
+  "$root/../IntegrationCore/IntegrationCore.cpp" \
+  "$root/../SaveCore/SaveCore.cpp" "$root/../SaveCore/WorldState.cpp" \
+  "$root/../WorldCore/WorldCore.cpp" "$root/actor_scenarios.cpp" \
+  -o "$build_dir/actor_scenarios"
+"$build_dir/actor_scenarios" 42 > "$build_dir/actor_first.jsonl"
+"$build_dir/actor_scenarios" 42 > "$build_dir/actor_replay.jsonl"
+cmp "$build_dir/actor_first.jsonl" "$build_dir/actor_replay.jsonl"
+python3 - "$build_dir/actor_first.jsonl" <<'PY'
+import json,sys
+row=json.loads(open(sys.argv[1],encoding='utf-8').read())
+assert row['save_replay'] and row['checks'] >= 50
+print('ScenarioLab: blackout/Hunter/companions/world checkpoint replay passed')
+PY
