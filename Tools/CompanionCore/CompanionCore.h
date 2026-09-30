@@ -54,6 +54,17 @@ struct Option {
   std::optional<std::string> routeId;
 };
 
+// Versioned by the enclosing save format. All data needed to resume choices.
+struct CompanionSnapshot {
+  Character character;
+  Difficulty difficulty;
+  Traits traits;
+  double nowSeconds;
+  std::set<std::string> knownRoutes;
+  std::set<std::string> appliedEvents;
+  std::string randomState;
+};
+
 // Own knowledge is separate from what Joe and the Hunter know. The world layer
 // must validate events and spatial reachability before calling this core.
 class CompanionCore {
@@ -62,6 +73,7 @@ public:
                 std::uint64_t seed = 1);
 
   Character Identity() const { return character_; }
+  Difficulty DifficultyLevel() const { return difficulty_; }
   const Traits& CurrentTraits() const { return traits_; }
   const std::set<std::string>& KnownRoutes() const { return knownRoutes_; }
 
@@ -80,6 +92,11 @@ public:
 
   std::vector<Option> AvailableOptions(const Situation& situation) const;
   Option Choose(const Situation& situation);
+
+  CompanionSnapshot CaptureSnapshot() const;
+  // Accepts older game time when loading an earlier save; rejects mismatched
+  // identity, malformed traits, IDs and RNG without changing the live object.
+  bool RestoreSnapshot(const CompanionSnapshot& snapshot);
 
 private:
   static bool ValidTraits(const Traits& traits);

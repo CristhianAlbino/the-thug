@@ -29,4 +29,4 @@ cmake --build Build/CompanionCore --config Release
 ctest --test-dir Build/CompanionCore -C Release --output-on-failure
 ```
 
-Os testes cobrem as duas consequências do GDD, IDs duplicados, conhecimento individual, restrições de dificuldade e situação, limites dos traços e decisões reproduzíveis por semente. Consulte o [contrato de integração](../../04_TECHNICAL/Architecture/CONTRATO_COMPANHEIROS.md).
+Os testes cobrem as duas consequências do GDD, IDs duplicados, conhecimento individual, restrições de dificuldade e situação, limites dos traços e decisões reproduzíveis por semente. O [SaveCore](../SaveCore/README.md) persiste os três companheiros junto ao inventário do Joe, inclusive os IDs aplicados e o estado aleatório. Consulte o [contrato de integração](../../04_TECHNICAL/Architecture/CONTRATO_COMPANHEIROS.md).

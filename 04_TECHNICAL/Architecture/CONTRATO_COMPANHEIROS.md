@@ -25,4 +25,4 @@ Baseado no [GDD Mestre](../../02_GAME_DESIGN/GDD/GDD_MASTER.md), seções 5–6 
 
 ## Limites pendentes
 
-Pesos e limiares são parâmetros iniciais de teste. Faltam perfis numéricos aprovados, objetivos autônomos mais ricos, medo/estresse ao longo do tempo, mentira, ferimentos graduais, recursos além de munição, diálogos, animações e serialização de traços, rotas conhecidas, eventos aplicados e estado do RNG. A integração deve manter a individualidade de Harley, Bartholomeu e Jack sem transformar nenhum deles em seguidor genérico.
+Pesos e limiares são parâmetros iniciais de teste. O [SaveCore](../../Tools/SaveCore/README.md) persiste traços, rotas, IDs aplicados e RNG junto ao inventário de Joe. Faltam perfis numéricos aprovados, objetivos autônomos mais ricos, medo/estresse ao longo do tempo, mentira, ferimentos graduais, recursos além de munição, diálogos, animações e save do restante do mundo. A integração deve manter a individualidade de Harley, Bartholomeu e Jack sem transformar nenhum deles em seguidor genérico.

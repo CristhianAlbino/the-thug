@@ -17,9 +17,9 @@ Fonte: [GDD Mestre](../../02_GAME_DESIGN/GDD/GDD_MASTER.md), seções 36–43 e 
 - `CurrentEffects` comunica capacidade de correr, velocidade relativa e volume relativo da respiração. O adaptador Unreal produz animação, câmera, áudio e ruído espacial; estes efeitos não identificam Joe magicamente para o Hunter.
 - Quando `Advance` informa `becameDead`, o coordenador da campanha envia `RunRules::JoeDied`. `becameCollapsed` impede deslocamento até tratamento adequado; o colapso não é Game Over automático.
 - Tiro, granada e respiração alta deverão produzir estímulos de áudio com localização aproximada conforme o contrato do [Hunter](CONTRATO_SISTEMAS.md). Nenhuma posição exata é criada aqui.
-- [`ShareAmmunition`](../../Tools/IntegrationCore/README.md) coordena a entrega de Joe e a consequência no companheiro, com ID de evento persistente. O mundo confirma proximidade/ação física antes da chamada. Inventário, eventos aplicados e companheiro precisam ser salvos num mesmo snapshot para manter a operação íntegra após load; a persistência ainda está pendente.
+- [`ShareAmmunition`](../../Tools/IntegrationCore/README.md) coordena a entrega de Joe e a consequência no companheiro, com ID de evento persistente. O mundo confirma proximidade/ação física antes da chamada. O [SaveCore](../../Tools/SaveCore/README.md) grava inventário e companheiros num mesmo snapshot; a persistência da campanha inteira ainda está pendente.
 - Regras de capacidade, custo e quantidade por item devem vir de dados versionados. Os exemplos do teste servem só para demonstrar a escolha “munição ou ferramenta”.
 
 ## Pendências de integração
 
-Catálogo e capacidade finais, relação entre nível de ferimento e dano, balanceamento em tempo real, demais transações entre módulos, persistência, som/respiração, feedback de câmera, efeitos de medicamento, impactos nos companheiros e teste Play na Unreal. Os valores atuais são hipóteses de balanceamento e podem mudar após medir a experiência real.
+Catálogo e capacidade finais, relação entre nível de ferimento e dano, balanceamento em tempo real, demais transações entre módulos, save de ferimentos e mundo, som/respiração, feedback de câmera, efeitos de medicamento, impactos nos companheiros e teste Play na Unreal. Os valores atuais são hipóteses de balanceamento e podem mudar após medir a experiência real.

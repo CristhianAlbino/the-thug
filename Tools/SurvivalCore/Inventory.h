@@ -19,6 +19,12 @@ struct ItemDefinition {
   bool droppable = true;
 };
 
+struct InventorySnapshot {
+  int capacitySlots;
+  std::vector<ItemDefinition> definitions;
+  std::map<std::string, int> contents;
+};
+
 class Inventory {
 public:
   Inventory(int capacitySlots, const std::vector<ItemDefinition>& definitions);
@@ -34,6 +40,9 @@ public:
   int CapacitySlots() const { return capacitySlots_; }
   long long UsedSlots() const;
   const std::map<std::string, int>& Contents() const { return quantities_; }
+  InventorySnapshot CaptureSnapshot() const;
+  // A catalog mismatch or over-capacity save is rejected without mutation.
+  bool RestoreSnapshot(const InventorySnapshot& snapshot);
 
 private:
   int capacitySlots_;

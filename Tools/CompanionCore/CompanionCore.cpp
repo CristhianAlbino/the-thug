@@ -3,6 +3,8 @@
 #include <algorithm>
 #include <cmath>
 #include <limits>
+#include <locale>
+#include <sstream>
 #include <stdexcept>
 
 namespace thug::companion {
@@ -179,6 +181,39 @@ Option CompanionCore::Choose(const Situation& situation) {
   for (const auto& option : options) weights.push_back(option.weight);
   std::discrete_distribution<std::size_t> pick(weights.begin(), weights.end());
   return options[pick(random_)];
+}
+
+CompanionSnapshot CompanionCore::CaptureSnapshot() const {
+  std::ostringstream randomStream;
+  randomStream.imbue(std::locale::classic());
+  randomStream << random_;
+  return {character_, difficulty_, traits_, nowSeconds_, knownRoutes_,
+          appliedEvents_, randomStream.str()};
+}
+
+bool CompanionCore::RestoreSnapshot(const CompanionSnapshot& snapshot) {
+  if (snapshot.character != character_ || snapshot.difficulty != difficulty_ ||
+      !ValidTraits(snapshot.traits) || !std::isfinite(snapshot.nowSeconds) ||
+      snapshot.nowSeconds < 0 || snapshot.randomState.empty()) return false;
+  for (const auto& id : snapshot.knownRoutes) if (id.empty()) return false;
+  for (const auto& id : snapshot.appliedEvents) if (id.empty()) return false;
+
+  std::istringstream randomStream(snapshot.randomState);
+  randomStream.imbue(std::locale::classic());
+  std::mt19937_64 restoredRandom;
+  if (!(randomStream >> restoredRandom)) return false;
+  randomStream >> std::ws;
+  if (!randomStream.eof()) return false;
+
+  // Allocate all replacement state before touching the live companion.
+  auto routes = snapshot.knownRoutes;
+  auto events = snapshot.appliedEvents;
+  traits_ = snapshot.traits;
+  nowSeconds_ = snapshot.nowSeconds;
+  knownRoutes_.swap(routes);
+  appliedEvents_.swap(events);
+  random_ = restoredRandom;
+  return true;
 }
 
 } // namespace thug::companion
