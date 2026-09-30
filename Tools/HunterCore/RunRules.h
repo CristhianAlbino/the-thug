@@ -26,6 +26,27 @@ struct RouteState {
   bool ready = false;
 };
 
+struct RunSnapshot {
+  Difficulty difficulty;
+  double nowSeconds = 0;
+  Ending result = Ending::None;
+  bool safeOpened = false;
+  bool garageKey = false;
+  bool garageGate = false;
+  bool garageFailed = false;
+  bool radioFound = false;
+  bool batteriesInstalled = false;
+  bool radioContact = false;
+  bool roofFailed = false;
+  std::optional<double> helicopterDeadline;
+  bool tunnelFound = false;
+  bool tunnelFailed = false;
+  bool windowFound = false;
+  bool windowTools = false;
+  bool windowUnblocked = false;
+  bool windowFailed = false;
+};
+
 // The world verifies interactions and emits events. These rules guard their
 // sequence and decide results; they never open a door or spawn a helicopter.
 class RunRules {
@@ -39,6 +60,9 @@ public:
   Ending Result() const { return result_; }
   RouteState Status(Route route) const;
   std::optional<double> HelicopterDeadlineSeconds() const;
+  Difficulty DifficultyLevel() const { return difficulty_; }
+  RunSnapshot CaptureSnapshot() const;
+  bool RestoreSnapshot(const RunSnapshot& snapshot);
 
 private:
   Difficulty difficulty_;

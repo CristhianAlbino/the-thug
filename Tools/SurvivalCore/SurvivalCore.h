@@ -36,6 +36,17 @@ struct AdvanceResult {
   bool becameDead = false;
 };
 
+struct SurvivalSnapshot {
+  Tuning tuning;
+  Injury injury = Injury::None;
+  double stamina = 0;
+  double bloodLoss = 0;
+  bool bleeding = false;
+  bool exhausted = false;
+  bool collapsed = false;
+  bool dead = false;
+};
+
 class SurvivalCore {
 public:
   explicit SurvivalCore(Tuning tuning = {});
@@ -54,6 +65,8 @@ public:
   bool IsBleeding() const { return bleeding_; }
   bool IsExhausted() const { return exhausted_; }
   Effects CurrentEffects() const;
+  SurvivalSnapshot CaptureSnapshot() const;
+  bool RestoreSnapshot(const SurvivalSnapshot& snapshot);
 
 private:
   double DrainMultiplier() const;

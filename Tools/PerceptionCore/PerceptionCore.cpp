@@ -2,6 +2,8 @@
 
 #include <algorithm>
 #include <cmath>
+#include <locale>
+#include <sstream>
 #include <stdexcept>
 
 namespace thug::perception {
@@ -14,6 +16,14 @@ bool ValidPosition(const hunter::Vec3& position) {
 
 double Distance(const hunter::Vec3& a, const hunter::Vec3& b) {
   return std::hypot(std::hypot(a.x - b.x, a.y - b.y), a.z - b.z);
+}
+
+bool SameTuning(const Tuning& a, const Tuning& b) {
+  return a.minimumEstimateRadiusMeters == b.minimumEstimateRadiusMeters &&
+         a.minimumAudibleStrength == b.minimumAudibleStrength &&
+         a.distanceUncertaintyFactor == b.distanceUncertaintyFactor &&
+         a.occlusionUncertaintyMeters == b.occlusionUncertaintyMeters &&
+         a.maskingUncertaintyMeters == b.maskingUncertaintyMeters;
 }
 
 } // namespace
@@ -108,6 +118,25 @@ std::optional<hunter::Stimulus> PerceptionCore::Hear(
       std::clamp(heardStrength, 0.0, 1.0), "", SoundName(sound.kind)};
 }
 
+PerceptionSnapshot PerceptionCore::CaptureSnapshot() const {
+  std::ostringstream out;
+  out.imbue(std::locale::classic());
+  out << random_;
+  return {tuning_, out.str()};
+}
+
+bool PerceptionCore::RestoreSnapshot(const PerceptionSnapshot& s) {
+  if (!SameTuning(s.tuning, tuning_) || s.randomState.empty()) return false;
+  std::istringstream in(s.randomState);
+  in.imbue(std::locale::classic());
+  std::mt19937_64 random;
+  if (!(in >> random)) return false;
+  in >> std::ws;
+  if (!in.eof()) return false;
+  random_ = random;
+  return true;
+}
+
 std::optional<hunter::Stimulus> EvidenceMemory::Inspect(
     const std::string& objectId, const std::string& visibleState,
     hunter::Vec3 observedPosition, double atSeconds, double confidence) {
@@ -125,6 +154,20 @@ std::optional<hunter::Stimulus> EvidenceMemory::Inspect(
       hunter::StimulusKind::EnvironmentalEvidence, hunter::Subject::Unknown,
       atSeconds, hunter::LocationEstimate{observedPosition, 4, atSeconds},
       confidence, "", objectId + ":" + visibleState};
+}
+
+EvidenceMemorySnapshot EvidenceMemory::CaptureSnapshot() const {
+  return {lastSeen_, nowSeconds_};
+}
+
+bool EvidenceMemory::RestoreSnapshot(const EvidenceMemorySnapshot& s) {
+  if (!std::isfinite(s.nowSeconds) || s.nowSeconds < 0) return false;
+  for (const auto& [id, visibleState] : s.lastSeen)
+    if (id.empty() || visibleState.empty()) return false;
+  auto states = s.lastSeen;
+  lastSeen_.swap(states);
+  nowSeconds_ = s.nowSeconds;
+  return true;
 }
 
 } // namespace thug::perception

@@ -27,7 +27,7 @@ A construção dos estímulos de som e de evidência observada está detalhada n
 - Enviar `VisualLost` quando o sensor perder o alvo; não manter perseguição indefinidamente por falta desse evento.
 - O plano de investigação vira busca, e a busca retorna à patrulha após seus prazos. Um novo estímulo pode redirecionar a investigação. Sons durante visão direta de Joe não substituem o alvo visto.
 - O núcleo retorna uma intenção. Ele não teletransporta, não calcula caminho e não verifica se um ponto está acessível. A navegação precisa validar/recusar o destino.
-- Persistência entre saves ainda requer serialização explícita de relógio, memória, estado, rotas e escolhas de RNG. Não declarar sistema de save concluído até isso existir.
+- O [SaveCore](../../Tools/SaveCore/README.md) já serializa relógio, memória, estado, rotas e RNG do Hunter. A restauração de sensores, navegação e atores da Unreal segue o [contrato de save](CONTRATO_SAVE_CAMPANHA.md).
 
 ## Regras da campanha
 
@@ -44,6 +44,6 @@ A construção dos estímulos de som e de evidência observada está detalhada n
 1. Criar adaptadores de percepção e tempo, com logs de cada estímulo e da sua origem.
 2. Ligar `Intent` a AI Controller/Behavior Tree e navegação, mantendo checagens de caminho e linha de visão na engine.
 3. Ligar interações dos objetivos a `RunRules`; reproduzir os testes também em sessões Play.
-4. Adicionar serialização e testes de save/load antes de depender da memória adaptativa durante uma campanha longa.
+4. Conectar os snapshots existentes a uma fase real e validar save/load da memória adaptativa em sessões Play.
 
 **Limites verificados:** lógica C++ compilada e testada isoladamente. Nenhuma cena, Blueprint, comportamento em rede ou build Unreal foi testado.

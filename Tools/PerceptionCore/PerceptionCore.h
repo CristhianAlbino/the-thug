@@ -41,6 +41,16 @@ struct Tuning {
   double maskingUncertaintyMeters = 6;
 };
 
+struct PerceptionSnapshot {
+  Tuning tuning;
+  std::string randomState;
+};
+
+struct EvidenceMemorySnapshot {
+  std::map<std::string, std::string> lastSeen;
+  double nowSeconds = 0;
+};
+
 SoundProfile ProfileFor(SoundKind kind);
 std::string SoundName(SoundKind kind);
 
@@ -52,6 +62,8 @@ public:
   // May return no event when the sound is too faint or fully occluded.
   std::optional<hunter::Stimulus> Hear(const SoundEvent& sound,
                                        const ListenerContext& listener);
+  PerceptionSnapshot CaptureSnapshot() const;
+  bool RestoreSnapshot(const PerceptionSnapshot& snapshot);
 
 private:
   Tuning tuning_;
@@ -66,6 +78,8 @@ public:
   std::optional<hunter::Stimulus> Inspect(
       const std::string& objectId, const std::string& visibleState,
       hunter::Vec3 observedPosition, double atSeconds, double confidence = 1);
+  EvidenceMemorySnapshot CaptureSnapshot() const;
+  bool RestoreSnapshot(const EvidenceMemorySnapshot& snapshot);
 
 private:
   std::map<std::string, std::string> lastSeen_;

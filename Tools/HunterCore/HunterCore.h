@@ -74,6 +74,24 @@ struct Intent {
   std::optional<LocationEstimate> destination;
 };
 
+struct EvidenceSnapshot {
+  double score = 0;
+  double lastObservedAt = 0;
+  int observations = 0;
+};
+
+struct HunterSnapshot {
+  Tuning tuning;
+  State state = State::Patrol;
+  double nowSeconds = 0;
+  double enteredStateAt = 0;
+  std::optional<LocationEstimate> lastEstimate;
+  std::string lastHeardType;
+  std::map<std::string, EvidenceSnapshot> observedRoutes;
+  std::map<std::string, EvidenceSnapshot> confirmedHideSpots;
+  std::string randomState;
+};
+
 // Engine-agnostic decision core. Navigation, perception, animation, dialogue and
 // damage remain the responsibility of the Unreal integration layer.
 class HunterCore {
@@ -92,6 +110,8 @@ public:
   const std::string& LastHeardType() const { return lastHeardType_; }
   // Picks among designer-provided valid routes. Never creates a route or moves an actor.
   std::string ChoosePatrolRoute(const std::vector<std::string>& availableRoutes);
+  HunterSnapshot CaptureSnapshot() const;
+  bool RestoreSnapshot(const HunterSnapshot& snapshot);
 
 private:
   struct Evidence {

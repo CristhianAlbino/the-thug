@@ -2,6 +2,8 @@
 
 #include <algorithm>
 #include <cmath>
+#include <locale>
+#include <sstream>
 #include <stdexcept>
 #include <unordered_set>
 
@@ -12,6 +14,18 @@ bool Finite(double value) { return std::isfinite(value); }
 
 bool ValidPosition(const Vec3& value) {
   return Finite(value.x) && Finite(value.y) && Finite(value.z);
+}
+
+bool SameTuning(const Tuning& a, const Tuning& b) {
+  return a.minimumSoundRadiusMeters == b.minimumSoundRadiusMeters &&
+         a.soundThreshold == b.soundThreshold &&
+         a.searchSeconds == b.searchSeconds &&
+         a.investigateSeconds == b.investigateSeconds &&
+         a.memoryHalfLifeSeconds == b.memoryHalfLifeSeconds &&
+         a.locationLifetimeSeconds == b.locationLifetimeSeconds &&
+         a.minimumRouteWeight == b.minimumRouteWeight &&
+         a.routeEvidenceWeight == b.routeEvidenceWeight &&
+         a.hideSuspicionCap == b.hideSuspicionCap;
 }
 
 } // namespace
@@ -238,6 +252,78 @@ std::string HunterCore::ChoosePatrolRoute(
   }
   std::discrete_distribution<std::size_t> choice(weights.begin(), weights.end());
   return availableRoutes[choice(random_)];
+}
+
+HunterSnapshot HunterCore::CaptureSnapshot() const {
+  HunterSnapshot snapshot;
+  snapshot.tuning = tuning_;
+  snapshot.state = state_;
+  snapshot.nowSeconds = nowSeconds_;
+  snapshot.enteredStateAt = enteredStateAt_;
+  snapshot.lastEstimate = lastEstimate_;
+  snapshot.lastHeardType = lastHeardType_;
+  for (const auto& [id, e] : observedRoutes_)
+    snapshot.observedRoutes.emplace(id, EvidenceSnapshot{e.score,
+                                     e.lastObservedAt, e.observations});
+  for (const auto& [id, e] : confirmedHideSpots_)
+    snapshot.confirmedHideSpots.emplace(id, EvidenceSnapshot{e.score,
+                                       e.lastObservedAt, e.observations});
+  std::ostringstream out;
+  out.imbue(std::locale::classic());
+  out << random_;
+  snapshot.randomState = out.str();
+  return snapshot;
+}
+
+bool HunterCore::RestoreSnapshot(const HunterSnapshot& snapshot) {
+  if (!SameTuning(snapshot.tuning, tuning_) ||
+      snapshot.state < State::Patrol || snapshot.state > State::Searching ||
+      !Finite(snapshot.nowSeconds) || snapshot.nowSeconds < 0 ||
+      !Finite(snapshot.enteredStateAt) || snapshot.enteredStateAt < 0 ||
+      snapshot.enteredStateAt > snapshot.nowSeconds ||
+      snapshot.randomState.empty()) return false;
+  if (snapshot.lastEstimate) {
+    const auto& value = *snapshot.lastEstimate;
+    if (!ValidPosition(value.center) || !Finite(value.radiusMeters) ||
+        value.radiusMeters < 0 || !Finite(value.observedAtSeconds) ||
+        value.observedAtSeconds < 0 ||
+        value.observedAtSeconds > snapshot.nowSeconds) return false;
+  }
+  auto validEvidence = [&](const auto& entries, bool hideSpots) {
+    for (const auto& [id, e] : entries) {
+      if (id.empty() || !Finite(e.score) || e.score < 0 ||
+          (hideSpots && e.score > tuning_.hideSuspicionCap) ||
+          !Finite(e.lastObservedAt) || e.lastObservedAt < 0 ||
+          e.lastObservedAt > snapshot.nowSeconds || e.observations <= 0)
+        return false;
+    }
+    return true;
+  };
+  if (!validEvidence(snapshot.observedRoutes, false) ||
+      !validEvidence(snapshot.confirmedHideSpots, true)) return false;
+  std::istringstream in(snapshot.randomState);
+  in.imbue(std::locale::classic());
+  std::mt19937_64 restoredRandom;
+  if (!(in >> restoredRandom)) return false;
+  in >> std::ws;
+  if (!in.eof()) return false;
+
+  std::map<std::string, Evidence> routes, spots;
+  for (const auto& [id, e] : snapshot.observedRoutes)
+    routes.emplace(id, Evidence{e.score, e.lastObservedAt, e.observations});
+  for (const auto& [id, e] : snapshot.confirmedHideSpots)
+    spots.emplace(id, Evidence{e.score, e.lastObservedAt, e.observations});
+  auto estimate = snapshot.lastEstimate;
+  auto heardType = snapshot.lastHeardType;
+  observedRoutes_.swap(routes);
+  confirmedHideSpots_.swap(spots);
+  lastEstimate_.swap(estimate);
+  lastHeardType_.swap(heardType);
+  state_ = snapshot.state;
+  nowSeconds_ = snapshot.nowSeconds;
+  enteredStateAt_ = snapshot.enteredStateAt;
+  random_ = restoredRandom;
+  return true;
 }
 
 } // namespace thug::hunter
