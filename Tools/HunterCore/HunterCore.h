@@ -5,6 +5,7 @@
 #include <optional>
 #include <random>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace thug::hunter {
@@ -37,12 +38,21 @@ enum class Difficulty { Easy, Normal, Hard, Punitive };
 // These observations must be produced by an actual sensor or observed evidence.
 // A sound's position is approximate even when its cause was the player.
 struct Stimulus {
+  Stimulus() = default;
+  Stimulus(StimulusKind kind, Subject subject, double atSeconds,
+           std::optional<LocationEstimate> estimate, double strength,
+           std::string observedId, std::string perceivedType = {})
+      : kind(kind), subject(subject), atSeconds(atSeconds),
+        estimate(std::move(estimate)), strength(strength),
+        observedId(std::move(observedId)),
+        perceivedType(std::move(perceivedType)) {}
   StimulusKind kind = StimulusKind::Sound;
   Subject subject = Subject::Unknown;
   double atSeconds = 0;
   std::optional<LocationEstimate> estimate;
   double strength = 1; // In [0, 1], after occlusion and sensor attenuation.
   std::string observedId; // Route or hiding spot ID, as appropriate.
+  std::string perceivedType; // Classified sound/evidence; empty means unknown.
 };
 
 struct Tuning {
@@ -79,6 +89,7 @@ public:
   State CurrentState() const { return state_; }
   double HideSpotSuspicion(const std::string& id) const;
   double RouteEvidence(const std::string& id) const;
+  const std::string& LastHeardType() const { return lastHeardType_; }
   // Picks among designer-provided valid routes. Never creates a route or moves an actor.
   std::string ChoosePatrolRoute(const std::vector<std::string>& availableRoutes);
 
@@ -99,6 +110,7 @@ private:
   double nowSeconds_ = 0;
   double enteredStateAt_ = 0;
   std::optional<LocationEstimate> lastEstimate_;
+  std::string lastHeardType_;
   std::map<std::string, Evidence> observedRoutes_;
   std::map<std::string, Evidence> confirmedHideSpots_;
 };

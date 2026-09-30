@@ -4,6 +4,8 @@
 
 Baseado no [GDD Mestre](../../02_GAME_DESIGN/GDD/GDD_MASTER.md), especialmente percepção e memória do Hunter (seções 8–17), dificuldades (66) e rotas/finais (52–59). Implementação independente em [Tools/HunterCore](../../Tools/HunterCore/README.md). Este código é a lógica de decisão da versão final em desenvolvimento, não um asset temporário de protótipo.
 
+A construção dos estímulos de som e de evidência observada está detalhada no [contrato de percepção](CONTRATO_PERCEPCAO.md).
+
 ## Separação de responsabilidades
 
 | Origem na Unreal | Evento para o núcleo | Saída consumida pela Unreal |

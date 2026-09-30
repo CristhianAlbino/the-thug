@@ -8,4 +8,6 @@ Engine-independent C++17 systems and test tooling:
 
 - [SurvivalCore](SurvivalCore/README.md) — injuries, stamina, bleeding and inventory rules, with standalone tests.
 
+- [PerceptionCore](PerceptionCore/README.md) — uncertain sound and observed environmental evidence, with standalone tests.
+
 Other developer utilities can be added here as needed.
