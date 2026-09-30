@@ -6,4 +6,6 @@ Engine-independent C++17 systems and test tooling:
 
 - [CompanionCore](CompanionCore/README.md) — independent companion state and conditional goals, with standalone tests.
 
+- [SurvivalCore](SurvivalCore/README.md) — injuries, stamina, bleeding and inventory rules, with standalone tests.
+
 Other developer utilities can be added here as needed.
