@@ -1,9 +1,7 @@
 # Tools
 
-Project-specific utilities and developer tooling will live here.
+Engine-independent C++17 systems and test tooling:
 
-Examples later:
-- validation scripts
-- data conversion tools
-- build helpers
-- content auditing utilities
+- [HunterCore](HunterCore/README.md) — Hunter perception/memory decisions and campaign route/finale rules, with standalone tests.
+
+Other developer utilities can be added here as needed.

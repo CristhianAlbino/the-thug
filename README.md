@@ -59,6 +59,10 @@ Build **10 excellent minutes first**. Prove that walking through a corridor whil
 - M08 — Beta
 - M09 — Release
 
+## Engine-independent systems
+
+The [C++17 game rules](Tools/HunterCore/README.md) now implement a testable Hunter decision core and campaign escape conditions. Their [integration contract](04_TECHNICAL/Architecture/CONTRATO_SISTEMAS.md) defines what the Unreal project must provide. They compile outside Unreal; no editor integration has been claimed.
+
 ## Current next step
 
 Follow the [Day 1 Unreal setup](01_PROJECT/Roadmap/DIA_1_UNREAL.md) to create `UnrealProject/TheThug.uproject`, then begin **M01 — Core Prototype**. The [complete master GDD](02_GAME_DESIGN/GDD/GDD_MASTER.md) is the design source of truth. GitHub updates require a commit and push; editor saves are local.

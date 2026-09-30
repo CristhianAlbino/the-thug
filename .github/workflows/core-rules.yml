@@ -1,0 +1,23 @@
+name: Core game rules
+
+on:
+  pull_request:
+    paths:
+      - 'Tools/HunterCore/**'
+      - '.github/workflows/core-rules.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'Tools/HunterCore/**'
+      - '.github/workflows/core-rules.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  cpp17:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Compile and test engine-independent rules
+        run: bash Tools/HunterCore/run-tests.sh
