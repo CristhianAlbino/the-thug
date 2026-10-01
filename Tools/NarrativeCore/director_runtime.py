@@ -95,13 +95,17 @@ def banter_eligible(exchange_id: str, observation: Observation, progress: Progre
 def begin_scene(scene_id: str, observation: Observation, progress: Progress) -> Progress:
     if not scene_eligible(scene_id, observation, progress):
         raise ValueError("scene lacks a witnessed, spatially valid trigger")
-    return replace(progress, active_scene=scene_id, active_scene_line=0)
+    completed_id = (f"N26:{observation.route_failure}"
+                    if scene_id == "N26" else scene_id)
+    return replace(progress, active_scene=completed_id, active_scene_line=0)
 
 
 def finish_scene(scene_id: str, progress: Progress) -> Progress:
-    if progress.active_scene != scene_id or scene_id in progress.scenes:
+    completed_id = (progress.active_scene if scene_id == "N26" and
+                    progress.active_scene.startswith("N26:") else scene_id)
+    if progress.active_scene != completed_id or completed_id in progress.scenes:
         raise ValueError("scene was not begun or already completed")
-    return replace(progress, scenes=progress.scenes | {scene_id},
+    return replace(progress, scenes=progress.scenes | {completed_id},
                    active_scene="", active_scene_line=0)
 
 

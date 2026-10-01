@@ -41,6 +41,17 @@ def verify():
     scene = Observation("Hard", 2, "F3_ICU", companions={"harley": Actor("F3_RECOVERY")})
     assert not scene_eligible("N07", scene, progressed)
     assert scene_eligible("N07", replace(scene, companions={"harley": Actor("F3_ICU")}), progressed)
+    failed = Observation("Hard", 4, "F3_CENTRAL", route_failure="roof",
+                         alternative_reachable=True,
+                         facts=frozenset({"route_failure_observed", "route_failed:roof"}))
+    progress = begin_scene("N26", failed, progressed)
+    assert progress.active_scene == "N26:roof"
+    progress = finish_scene("N26", progress)
+    assert "N26:roof" in progress.scenes
+    assert not scene_eligible("N26", failed, progress)
+    another = replace(failed, route_failure="garage",
+                      facts=frozenset({"route_failure_observed", "route_failed:garage"}))
+    assert scene_eligible("N26", another, progress)
     print("DirectorRuntime: integration scenarios passed")
 
 
