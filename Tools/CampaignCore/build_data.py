@@ -20,9 +20,9 @@ def positive(value):
 
 
 def generate():
-    balance = json.loads((ROOT / "../NarrativeCore/balance_initial.json").read_text())
-    authored = json.loads((ROOT / "campaign_initial.json").read_text())
-    graph = json.loads((ROOT / "../MapCore/hospital_graph.json").read_text())
+    balance = json.loads((ROOT / "../NarrativeCore/balance_initial.json").read_text(encoding="utf-8"))
+    authored = json.loads((ROOT / "campaign_initial.json").read_text(encoding="utf-8"))
+    graph = json.loads((ROOT / "../MapCore/hospital_graph.json").read_text(encoding="utf-8"))
     assert balance["schema"] == authored["schema"] == graph["schema"] == 1
     assert balance["status"] == authored["status"] == "playtest_hypothesis"
     assert set(balance["modes"]) == set(MODES)
@@ -148,8 +148,8 @@ if __name__ == "__main__":
     output = ROOT / "CampaignData.generated.h"
     rendered = generate()
     if args.check:
-        assert output.exists() and output.read_text() == rendered, "Campaign data out of date; run build_data.py"
+        assert output.exists() and output.read_text(encoding="utf-8") == rendered, "Campaign data out of date; run build_data.py"
         print("CampaignData: balance/loadouts/hospital bindings match native data")
     else:
-        output.write_text(rendered)
+        output.write_text(rendered, encoding="utf-8")
         print("CampaignData: generated native balance and hospital bindings")
