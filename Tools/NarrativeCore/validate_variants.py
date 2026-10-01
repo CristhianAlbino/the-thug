@@ -64,6 +64,17 @@ def verify_early_scenes(nodes, devices):
     return len(refs)
 
 
+def verify_later_scenes(nodes, devices):
+    manuscript = (ROOT / "../../02_GAME_DESIGN/Narrative/ROTEIRO_ATOS_3_5_RASCUNHO.md").read_text(encoding="utf-8")
+    headings = re.findall(r"^### (N\d+) ·", manuscript, flags=re.M)
+    assert headings == [f"N{i:02d}" for i in range(12, 35)]
+    refs = set(re.findall(r"`((?:F[1-4]|B1|G|T|R|A|X|CAM|D|H|C)_[A-Z0-9_]+)`", manuscript))
+    assert refs <= nodes | devices, f"unknown later manuscript references: {refs - (nodes | devices)}"
+    assert "J4 é opcional e exclusiva do Punitivo" in manuscript
+    assert "A coda não muda fuga" in manuscript
+    return len(refs)
+
+
 def verify():
     assert DATA["schema"] == 1
     assert set(DATA["difficulty"]) == {"Easy", "Normal", "Hard", "Punitive"}
@@ -84,6 +95,7 @@ def verify():
     assert set(DATA["epilogues"]) == {"harley", "bartholomeu", "jack"}
     assert len(set(DATA["companion_statuses"])) == 5
     early_refs = verify_early_scenes(nodes, devices)
+    later_refs = verify_later_scenes(nodes, devices)
 
     for difficulty in DATA["difficulty"]:
         revealed = difficulty in ("Hard", "Punitive")
@@ -126,8 +138,8 @@ def verify():
         pass
     else:
         raise AssertionError("Jack secret leaked into Normal")
-    print(f"NarrativeCore: 4 difficulties, 34 scenes, {len(refs)} campaign and {early_refs} "
-          "early-scene map/device IDs, Thomas/Jack gates and individual epilogues valid")
+    print(f"NarrativeCore: 4 difficulties, 34 scenes, {len(refs)} campaign, {early_refs} "
+          f"early and {later_refs} later map/device IDs; gates and epilogues valid")
 
 
 if __name__ == "__main__":

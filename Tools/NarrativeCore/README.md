@@ -4,6 +4,8 @@
 
 `act12_scenes.json` e `act12_rules.py` são o primeiro contrato de disparo das cenas N01–N11 do [roteiro de trabalho](../../02_GAME_DESIGN/Narrative/ROTEIRO_ATOS_1_2_RASCUNHO.md). A função `eligible(id, Facts)` exige local, cenas já vistas e, nos reencontros, **ator ativo no mesmo nó**. N11 exige evidência percebida pelo Hunter, trajeto físico até a área e alternativa de saída. `can_witness_j1` requer que Joe tenha realmente visto e ouvido a pista no Punitivo. Esses fatos vêm dos sistemas de mundo/percepção e são persistidos pelo futuro diretor; a função não os inventa. O validador ensaia caminhos em que Harley/Jack não aparecem, a sala de câmeras é ignorada e o Hunter não recebeu evidência.
 
+O [roteiro dos atos 3–5](../../02_GAME_DESIGN/Narrative/ROTEIRO_ATOS_3_5_RASCUNHO.md) detalha N12–N34. O validador confere os 23 IDs e referências de mapa/dispositivos; gatilhos completos desses atos aguardam o mesmo contrato espacial e de estados usado nos primeiros dois atos.
+
 ```bash
 python3 Tools/NarrativeCore/validate_variants.py
 ```

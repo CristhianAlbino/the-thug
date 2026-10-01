@@ -2,7 +2,7 @@
 
 **Estado: direção narrativa v0.2.** As decisões do criador registradas em 30/09/2026 na seção seguinte estão fixadas; encenação, ordem fina, falas e gatilhos continuam rascunho para acompanhamento. O [GDD Mestre](../GDD/GDD_MASTER.md) fixa a premissa, cinco personagens, Batman como Hunter, quatro fugas e os cinco atos conceituais. Este documento propõe uma sequência extensa e dinâmica para o Difícil, conectada ao [mapa lógico](../World/MAPA_LOGICO_HOSPITAL.md) e à [bíblia visual](../Visual/BIBLIA_VISUAL_HOSPITAL.md). IDs de cena são estáveis para roteiro e implementação; durações são **hipóteses**, sem playtest.
 
-As cenas N01–N11 receberam uma [primeira passada de roteiro jogável](ROTEIRO_ATOS_1_2_RASCUNHO.md), com condições, alternativas e falas para revisão próxima. Os demais atos permanecem no nível de cena e serão desdobrados na mesma linha.
+As cenas N01–N11 receberam uma [primeira passada de roteiro jogável](ROTEIRO_ATOS_1_2_RASCUNHO.md), com condições, alternativas e falas para revisão próxima. N12–N34 têm [roteiro de trabalho dos atos 3 a 5](ROTEIRO_ATOS_3_5_RASCUNHO.md), com rotas, dilemas, Thomas, J4 e epílogos; detalhes de implementação/encenação seguem em revisão.
 
 ## Diretrizes confirmadas por Cristhian
 
