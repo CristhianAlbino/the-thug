@@ -203,7 +203,7 @@ void RoutesAndTerminalState() {
   RejectedUnchanged(window, Action(window, "post-end-damage", ActionKind::Injury, "joe", "X_WINDOW", 3), Status::Finished);
 
   campaign::CampaignCore garage(rules::Difficulty::Hard);
-  Apply(garage, "code-accepted-by-world", ActionKind::Use, "safe_code_accepted", "F2_SAFE");
+  Apply(garage, "code-entered", ActionKind::SubmitKeypad, director::Content().garageCode.c_str(), "F2_SAFE");
   Apply(garage, "key", ActionKind::Collect, "P_GARAGE_KEY", "F2_SAFE");
   RejectedUnchanged(garage, Action(garage, "release-unpowered", ActionKind::Use, "release_garage", "G_CONTROL"), Status::MissingRequirement);
   Apply(garage, "power", ActionKind::Circuit, "C_SERVICE", "B1_GENERATOR", 1);
@@ -279,7 +279,7 @@ void CheckpointFailureAndIdentity() {
   Reject(changed, save::Result::Corrupt);
   Reject(clean + "EXTRA", save::Result::Malformed);
   changed = clean;
-  changed.replace(0, std::string("THE_THUG_RUNTIME_CAMPAIGN 1").size(), "THE_THUG_RUNTIME_CAMPAIGN 2");
+  changed.replace(0, std::string("THE_THUG_RUNTIME_CAMPAIGN 2").size(), "THE_THUG_RUNTIME_CAMPAIGN 3");
   Reject(changed, save::Result::UnsupportedVersion);
   changed = clean;
   const auto offset = changed.find("CONTENT ") + 8;

@@ -1,0 +1,1980 @@
+{
+  "schema": 1,
+  "locale": "pt-BR",
+  "status": "creative_review",
+  "blocks": [
+    {
+      "id": "N01",
+      "cues": [
+        {
+          "kind": "speech",
+          "speaker": "joe",
+          "text": "A polícia não vai subir até aqui. Temos alguns minutos.",
+          "id": "N01:0"
+        },
+        {
+          "kind": "speech",
+          "speaker": "bartholomeu",
+          "text": "A porta não fecha.",
+          "id": "N01:1"
+        },
+        {
+          "kind": "speech",
+          "speaker": "thomas",
+          "text": "Olha pra mim, pequeno. No três a gente empurra junto.",
+          "actors": [
+            "bartholomeu"
+          ],
+          "id": "N01:2"
+        },
+        {
+          "kind": "speech",
+          "speaker": "harley",
+          "text": "Você deixou isso. De novo.",
+          "id": "N01:3"
+        },
+        {
+          "kind": "speech",
+          "speaker": "joe",
+          "text": "Guarda. Conversamos lá em cima.",
+          "actors": [
+            "harley"
+          ],
+          "id": "N01:4"
+        },
+        {
+          "kind": "speech",
+          "speaker": "harley",
+          "text": "Você sempre promete.",
+          "id": "N01:5"
+        },
+        {
+          "kind": "gesture",
+          "asset": "thomas_checks_barth_hand",
+          "text": "",
+          "actors": [
+            "thomas",
+            "bartholomeu"
+          ],
+          "id": "N01:6"
+        }
+      ]
+    },
+    {
+      "id": "N02",
+      "cues": [
+        {
+          "kind": "speech",
+          "speaker": "thomas",
+          "text": "É só um morcego fantasiado. Relaxa. Quando a gente sair, pago café pra todo mundo.",
+          "delivered_fact": "thomas_promised_coffee",
+          "id": "N02:0"
+        },
+        {
+          "kind": "speech",
+          "speaker": "bartholomeu",
+          "text": "Você disse isso na última vez.",
+          "actors": [
+            "thomas"
+          ],
+          "id": "N02:1"
+        },
+        {
+          "kind": "speech",
+          "speaker": "thomas",
+          "text": "Paguei, não paguei?",
+          "actors": [
+            "bartholomeu"
+          ],
+          "id": "N02:2"
+        },
+        {
+          "kind": "speech",
+          "speaker": "harley",
+          "text": "Eu não ficaria na janela.",
+          "id": "N02:3"
+        },
+        {
+          "kind": "speech",
+          "speaker": "joe",
+          "text": "Sai daí, Thomas.",
+          "actors": [
+            "thomas"
+          ],
+          "id": "N02:4"
+        },
+        {
+          "kind": "speech",
+          "speaker": "jack",
+          "text": "Já cruzei com ele. Saí vivo. A janela não é o único lugar por onde alguém entra.",
+          "delivered_fact": "jack_previous_encounter_heard",
+          "id": "N02:5"
+        },
+        {
+          "kind": "gesture",
+          "asset": "distant_batsignal",
+          "text": "",
+          "id": "N02:6"
+        }
+      ]
+    },
+    {
+      "id": "N03",
+      "cues": [
+        {
+          "kind": "speech",
+          "speaker": "thomas",
+          "text": "Merda, que foi isso—",
+          "id": "N03:0"
+        },
+        {
+          "kind": "speech",
+          "speaker": "joe",
+          "text": "Thomas?!",
+          "id": "N03:1"
+        },
+        {
+          "kind": "speech",
+          "speaker": "harley",
+          "text": "Barth, vem comigo. Joe, olha pra mim. Agora anda.",
+          "actors": [
+            "bartholomeu"
+          ],
+          "id": "N03:2"
+        },
+        {
+          "kind": "speech",
+          "speaker": "joe",
+          "text": "Não foi a polícia.",
+          "id": "N03:3"
+        }
+      ]
+    },
+    {
+      "id": "N04",
+      "cues": [
+        {
+          "kind": "speech",
+          "speaker": "joe",
+          "text": "Foi o carrinho. Preciso sair daqui.",
+          "all": [
+            "joe_cart_noise_observed"
+          ],
+          "id": "N04:0"
+        },
+        {
+          "kind": "gesture",
+          "asset": "quiet_corridor",
+          "text": "",
+          "all": [
+            "quiet_corridor_observed"
+          ],
+          "id": "N04:1"
+        }
+      ]
+    },
+    {
+      "id": "N05",
+      "cues": [
+        {
+          "kind": "speech",
+          "speaker": "joe",
+          "text": "Ele passou aqui?",
+          "all": [
+            "ambiguous_trace_observed"
+          ],
+          "id": "N05:0"
+        },
+        {
+          "kind": "speech",
+          "speaker": "joe",
+          "text": "Registro de frota. Vou guardar.",
+          "all": [
+            "doc01_read"
+          ],
+          "none": [
+            "doc05_read"
+          ],
+          "id": "N05:1"
+        },
+        {
+          "kind": "speech",
+          "speaker": "joe",
+          "text": "Uma das referências. Ainda preciso conferir as outras.",
+          "all": [
+            "doc01_read",
+            "doc05_read"
+          ],
+          "id": "N05:2"
+        }
+      ]
+    },
+    {
+      "id": "N06",
+      "cues": [
+        {
+          "kind": "speech",
+          "speaker": "joe",
+          "text": "O mesmo cano. Esse andar volta para o outro lado.",
+          "all": [
+            "pipe_landmark_observed"
+          ],
+          "id": "N06:0"
+        },
+        {
+          "kind": "gesture",
+          "asset": "ambient_navigation",
+          "text": "",
+          "id": "N06:1"
+        }
+      ]
+    },
+    {
+      "id": "N07",
+      "cues": [
+        {
+          "kind": "speech",
+          "speaker": "harley",
+          "text": "Você tá sangrando.",
+          "all": [
+            "joe_bleeding"
+          ],
+          "id": "N07:0"
+        },
+        {
+          "kind": "speech",
+          "speaker": "joe",
+          "text": "Não é nada.",
+          "all": [
+            "joe_bleeding"
+          ],
+          "id": "N07:1"
+        },
+        {
+          "kind": "speech",
+          "speaker": "harley",
+          "text": "Não mente pra mim. Já vi você mentir melhor.",
+          "all": [
+            "joe_bleeding"
+          ],
+          "id": "N07:2"
+        },
+        {
+          "kind": "speech",
+          "speaker": "harley",
+          "text": "Ouvi a porta bater, não vi quem entrou.",
+          "all": [
+            "harley_heard_unseen_door"
+          ],
+          "none": [
+            "joe_injured"
+          ],
+          "id": "N07:3"
+        },
+        {
+          "kind": "speech",
+          "speaker": "joe",
+          "text": "Você consegue andar?",
+          "all": [
+            "harley_injured"
+          ],
+          "modes": [
+            "Easy",
+            "Normal",
+            "Hard"
+          ],
+          "id": "N07:4"
+        },
+        {
+          "kind": "speech",
+          "speaker": "harley",
+          "text": "Consigo. Era só isso?",
+          "all": [
+            "harley_injured"
+          ],
+          "modes": [
+            "Easy",
+            "Normal",
+            "Hard"
+          ],
+          "id": "N07:5"
+        },
+        {
+          "kind": "speech",
+          "speaker": "joe",
+          "text": "Deixa eu ver. Se ficar pior, eu volto por você.",
+          "all": [
+            "harley_injured"
+          ],
+          "modes": [
+            "Punitive"
+          ],
+          "id": "N07:6"
+        },
+        {
+          "kind": "speech",
+          "speaker": "harley",
+          "text": "Então me diz por onde.",
+          "all": [
+            "harley_injured"
+          ],
+          "modes": [
+            "Punitive"
+          ],
+          "id": "N07:7"
+        }
+      ]
+    },
+    {
+      "id": "N08",
+      "cues": [
+        {
+          "kind": "speech",
+          "speaker": "jack",
+          "text": "Na primeira, veio pelo barulho. Na segunda, pela escada.",
+          "all": [
+            "jack_two_encounters_observed"
+          ],
+          "id": "N08:0"
+        },
+        {
+          "kind": "speech",
+          "speaker": "joe",
+          "text": "Ele sabe o caminho?",
+          "all": [
+            "jack_two_encounters_observed"
+          ],
+          "id": "N08:1"
+        },
+        {
+          "kind": "speech",
+          "speaker": "jack",
+          "text": "Sabe o que você mostrou.",
+          "all": [
+            "jack_two_encounters_observed"
+          ],
+          "id": "N08:2"
+        },
+        {
+          "kind": "speech",
+          "speaker": "jack",
+          "text": "A porta está aberta. O resto é palpite.",
+          "all": [
+            "jack_open_door_observed"
+          ],
+          "none": [
+            "jack_two_encounters_observed"
+          ],
+          "id": "N08:3"
+        },
+        {
+          "kind": "speech",
+          "speaker": "jack",
+          "text": "Esse hospital recebe muito bem.",
+          "all": [
+            "jack_heard_thomas_or_injury"
+          ],
+          "modes": [
+            "Punitive"
+          ],
+          "id": "N08:4"
+        },
+        {
+          "kind": "gesture",
+          "asset": "jack_j1_laugh",
+          "text": "",
+          "all": [
+            "jack_heard_thomas_or_injury"
+          ],
+          "modes": [
+            "Punitive"
+          ],
+          "actors": [
+            "jack"
+          ],
+          "id": "N08:5"
+        }
+      ]
+    },
+    {
+      "id": "N09",
+      "cues": [
+        {
+          "kind": "speech",
+          "speaker": "joe",
+          "text": "A hora está andando.",
+          "all": [
+            "live_feed_observed"
+          ],
+          "id": "N09:0"
+        },
+        {
+          "kind": "speech",
+          "speaker": "joe",
+          "text": "O mesmo reflexo. Isso já aconteceu.",
+          "all": [
+            "loop_feed_observed"
+          ],
+          "id": "N09:1"
+        },
+        {
+          "kind": "speech",
+          "speaker": "joe",
+          "text": "Nada de imagem.",
+          "all": [
+            "offline_feed_observed"
+          ],
+          "id": "N09:2"
+        }
+      ]
+    },
+    {
+      "id": "N10",
+      "cues": [
+        {
+          "kind": "speech",
+          "speaker": "joe",
+          "text": "A câmera mostrou o que havia, não o que há.",
+          "all": [
+            "camera_area_physically_checked"
+          ],
+          "id": "N10:0"
+        },
+        {
+          "kind": "speech",
+          "speaker": "joe",
+          "text": "Pode ser antigo.",
+          "none": [
+            "camera_area_physically_checked"
+          ],
+          "id": "N10:1"
+        }
+      ]
+    },
+    {
+      "id": "N11",
+      "cues": [
+        {
+          "kind": "speech",
+          "speaker": "joe",
+          "text": "Pensa, Joe. Pensa.",
+          "id": "N11:0"
+        },
+        {
+          "kind": "gesture",
+          "asset": "hunter_arrival_physical",
+          "text": "",
+          "id": "N11:1"
+        }
+      ]
+    },
+    {
+      "id": "N12",
+      "cues": [
+        {
+          "kind": "speech",
+          "speaker": "joe",
+          "text": "Tem remédio. O caminho até ele é o problema.",
+          "all": [
+            "joe_injured"
+          ],
+          "id": "N12:0"
+        },
+        {
+          "kind": "speech",
+          "speaker": "joe",
+          "text": "Posso precisar disso depois.",
+          "none": [
+            "joe_injured"
+          ],
+          "id": "N12:1"
+        }
+      ]
+    },
+    {
+      "id": "N13",
+      "cues": [
+        {
+          "kind": "speech",
+          "speaker": "joe",
+          "text": "Tem carro. A chave ficou num cofre lá em cima.",
+          "all": [
+            "doc04_read"
+          ],
+          "id": "N13:0"
+        }
+      ]
+    },
+    {
+      "id": "N14",
+      "cues": [
+        {
+          "kind": "speech",
+          "speaker": "joe",
+          "text": "Três referências. Leitos, arquivo, manutenção.",
+          "all": [
+            "doc05_read"
+          ],
+          "id": "N14:0"
+        },
+        {
+          "kind": "speech",
+          "speaker": "joe",
+          "text": "Agora a chave.",
+          "all": [
+            "key_inside_safe_observed"
+          ],
+          "id": "N14:1"
+        },
+        {
+          "kind": "speech",
+          "speaker": "joe",
+          "text": "Não abriu. Preciso conferir.",
+          "all": [
+            "keypad_failure_observed"
+          ],
+          "id": "N14:2"
+        }
+      ]
+    },
+    {
+      "id": "N15",
+      "cues": [
+        {
+          "kind": "speech",
+          "speaker": "bartholomeu",
+          "text": "Vi uma entrada perto das bombas. Não vi saída. Você sempre me disse pra falar só do que vi, Joe.",
+          "all": [
+            "barth_tunnel_entry_observed"
+          ],
+          "id": "N15:0"
+        },
+        {
+          "kind": "speech",
+          "speaker": "joe",
+          "text": "Vem mostrar.",
+          "all": [
+            "joe_requested_tunnel_guidance"
+          ],
+          "id": "N15:1"
+        },
+        {
+          "kind": "speech",
+          "speaker": "joe",
+          "text": "Guarda isso pra você.",
+          "all": [
+            "joe_declined_tunnel_guidance"
+          ],
+          "id": "N15:2"
+        },
+        {
+          "kind": "speech",
+          "speaker": "bartholomeu",
+          "text": "Eu vou lembrar. É bom saber que você ainda confia em mim.",
+          "all": [
+            "joe_shared_ammo_with_bartholomeu"
+          ],
+          "id": "N15:3"
+        },
+        {
+          "kind": "speech",
+          "speaker": "bartholomeu",
+          "text": "Pode estar morto, Joe. Eu não vi.",
+          "all": [
+            "thomas_discussed"
+          ],
+          "modes": [
+            "Easy",
+            "Normal"
+          ],
+          "id": "N15:4"
+        },
+        {
+          "kind": "speech",
+          "speaker": "bartholomeu",
+          "text": "Thomas morreu",
+          "all": [
+            "barth_informed_of_thomas_proof"
+          ],
+          "modes": [
+            "Hard",
+            "Punitive"
+          ],
+          "id": "N15:5"
+        },
+        {
+          "kind": "speech",
+          "speaker": "jack",
+          "text": "Até o hospital deve ter desistido de achar esse homem.",
+          "all": [
+            "jack_act3_encounter",
+            "jack_heard_thomas_or_injury"
+          ],
+          "modes": [
+            "Punitive"
+          ],
+          "id": "N15:6"
+        },
+        {
+          "kind": "speech",
+          "speaker": "joe",
+          "text": "Não fala dele assim.",
+          "all": [
+            "jack_act3_encounter",
+            "jack_heard_thomas_or_injury"
+          ],
+          "modes": [
+            "Punitive"
+          ],
+          "actors": [
+            "jack"
+          ],
+          "id": "N15:7"
+        },
+        {
+          "kind": "gesture",
+          "asset": "jack_j2_laugh",
+          "text": "",
+          "all": [
+            "jack_act3_encounter",
+            "jack_heard_thomas_or_injury"
+          ],
+          "modes": [
+            "Punitive"
+          ],
+          "actors": [
+            "jack"
+          ],
+          "id": "N15:8"
+        }
+      ]
+    },
+    {
+      "id": "N16",
+      "cues": [
+        {
+          "kind": "speech",
+          "speaker": "joe",
+          "text": "Se eu ligar isso, alguém vai ouvir.",
+          "all": [
+            "generator_heard"
+          ],
+          "id": "N16:0"
+        }
+      ]
+    },
+    {
+      "id": "N17",
+      "cues": [
+        {
+          "kind": "speech",
+          "speaker": "joe",
+          "text": "Ele não passa por esse vão. Pode dar a volta.",
+          "all": [
+            "pipe_opening_assessed"
+          ],
+          "id": "N17:0"
+        }
+      ]
+    },
+    {
+      "id": "N18",
+      "cues": [
+        {
+          "kind": "speech",
+          "speaker": "joe",
+          "text": "Ali é outro prédio.",
+          "all": [
+            "annex_seen"
+          ],
+          "id": "N18:0"
+        },
+        {
+          "kind": "speech",
+          "speaker": "joe",
+          "text": "Uma ida só.",
+          "all": [
+            "window_unblocked"
+          ],
+          "id": "N18:1"
+        },
+        {
+          "kind": "speech",
+          "speaker": "joe",
+          "text": "Preciso de algo que tire a trava.",
+          "all": [
+            "window_blocked_observed"
+          ],
+          "none": [
+            "window_unblocked"
+          ],
+          "id": "N18:2"
+        }
+      ]
+    },
+    {
+      "id": "N19",
+      "cues": [
+        {
+          "kind": "speech",
+          "speaker": "radio",
+          "text": "Repete o ponto. Não pouso às cegas.",
+          "all": [
+            "radio_contact_established"
+          ],
+          "id": "N19:0"
+        },
+        {
+          "kind": "speech",
+          "speaker": "joe",
+          "text": "Telhado do hospital. Confirma.",
+          "all": [
+            "radio_contact_established"
+          ],
+          "id": "N19:1"
+        },
+        {
+          "kind": "speech",
+          "speaker": "radio",
+          "text": "Confirmado. Cinco minutos.",
+          "all": [
+            "helicopter_confirmed"
+          ],
+          "id": "N19:2"
+        }
+      ]
+    },
+    {
+      "id": "N20",
+      "cues": [
+        {
+          "kind": "speech",
+          "speaker": "joe",
+          "text": "Água vai para algum lugar.",
+          "all": [
+            "water_current_observed"
+          ],
+          "id": "N20:0"
+        },
+        {
+          "kind": "speech",
+          "speaker": "bartholomeu",
+          "text": "Eu vi a entrada, agora ouvi o ar lá dentro.",
+          "all": [
+            "barth_tunnel_entry_observed",
+            "barth_tunnel_air_heard"
+          ],
+          "id": "N20:1"
+        }
+      ]
+    },
+    {
+      "id": "N21",
+      "cues": [
+        {
+          "kind": "speech",
+          "speaker": "jack",
+          "text": "Ele parou de procurar o andar. Está esperando sua escada.",
+          "all": [
+            "jack_hunter_habit_observed"
+          ],
+          "id": "N21:0"
+        },
+        {
+          "kind": "speech",
+          "speaker": "joe",
+          "text": "Então mudamos de escada.",
+          "all": [
+            "jack_hunter_habit_observed"
+          ],
+          "actors": [
+            "jack"
+          ],
+          "id": "N21:1"
+        }
+      ]
+    },
+    {
+      "id": "N22",
+      "cues": [
+        {
+          "kind": "speech",
+          "speaker": "joe",
+          "text": "Caiu a segurança.",
+          "all": [
+            "security_blackout_observed"
+          ],
+          "id": "N22:0"
+        },
+        {
+          "kind": "speech",
+          "speaker": "joe",
+          "text": "O controle da porta não responde",
+          "all": [
+            "closed_powered_door_attempt_failed"
+          ],
+          "id": "N22:1"
+        },
+        {
+          "kind": "speech",
+          "speaker": "joe",
+          "text": "Voltou a energia. Preciso conferir a imagem.",
+          "all": [
+            "security_power_restored_observed"
+          ],
+          "id": "N22:2"
+        },
+        {
+          "kind": "gesture",
+          "asset": "service_power_effect",
+          "text": "",
+          "all": [
+            "service_power_effect_observed"
+          ],
+          "id": "N22:3"
+        }
+      ]
+    },
+    {
+      "id": "N23",
+      "cues": [
+        {
+          "kind": "speech",
+          "speaker": "harley",
+          "text": "Você ouviu quando pedi ajuda?",
+          "all": [
+            "joe_heard_harley_help_request"
+          ],
+          "modes": [
+            "Easy",
+            "Normal",
+            "Hard"
+          ],
+          "id": "N23:0"
+        },
+        {
+          "kind": "speech",
+          "speaker": "joe",
+          "text": "Ouvi. Estou vendo se dá pra passar.",
+          "all": [
+            "joe_heard_harley_help_request"
+          ],
+          "modes": [
+            "Easy",
+            "Normal",
+            "Hard"
+          ],
+          "id": "N23:1"
+        },
+        {
+          "kind": "speech",
+          "speaker": "harley",
+          "text": "Eu perguntei de mim.",
+          "all": [
+            "joe_heard_harley_help_request"
+          ],
+          "modes": [
+            "Easy",
+            "Normal",
+            "Hard"
+          ],
+          "id": "N23:2"
+        },
+        {
+          "kind": "speech",
+          "speaker": "harley",
+          "text": "Barth ainda está esperando por nós.",
+          "all": [
+            "harley_knows_barth_alive_waiting"
+          ],
+          "modes": [
+            "Easy",
+            "Normal",
+            "Hard"
+          ],
+          "id": "N23:3"
+        },
+        {
+          "kind": "speech",
+          "speaker": "harley",
+          "text": "Consigo ir. Você não precisa voltar.",
+          "modes": [
+            "Punitive"
+          ],
+          "id": "N23:4"
+        },
+        {
+          "kind": "speech",
+          "speaker": "joe",
+          "text": "Preciso saber que você chegou.",
+          "modes": [
+            "Punitive"
+          ],
+          "id": "N23:5"
+        },
+        {
+          "kind": "speech",
+          "speaker": "harley",
+          "text": "Eu vi você voltar",
+          "all": [
+            "joe_returned_for_harley"
+          ],
+          "id": "N23:6"
+        },
+        {
+          "kind": "speech",
+          "speaker": "harley",
+          "text": "Então vou por mim.",
+          "all": [
+            "joe_abandoned_harley"
+          ],
+          "id": "N23:7"
+        }
+      ]
+    },
+    {
+      "id": "N24",
+      "cues": [
+        {
+          "kind": "speech",
+          "speaker": "bartholomeu",
+          "text": "Segurei a porta quando entramos. O Thomas me ajudou.",
+          "all": [
+            "barth_held_opening_door"
+          ],
+          "id": "N24:0"
+        },
+        {
+          "kind": "speech",
+          "speaker": "joe",
+          "text": "E agora?",
+          "all": [
+            "barth_held_opening_door"
+          ],
+          "id": "N24:1"
+        },
+        {
+          "kind": "speech",
+          "speaker": "bartholomeu",
+          "text": "Agora é você que decide se a deixa aberta. Eu já fiz isso por você, lembra?",
+          "all": [
+            "barth_held_opening_door"
+          ],
+          "id": "N24:2"
+        },
+        {
+          "kind": "speech",
+          "speaker": "bartholomeu",
+          "text": "Desculpa. Eu quero viver.",
+          "all": [
+            "barth_betrayal_executed"
+          ],
+          "id": "N24:3"
+        }
+      ]
+    },
+    {
+      "id": "N25",
+      "cues": [
+        {
+          "kind": "speech",
+          "speaker": "jack",
+          "text": "Pelo servidor você corta caminho. Confira a tela se não confia.",
+          "all": [
+            "jack_verified_inference"
+          ],
+          "id": "N25:0"
+        },
+        {
+          "kind": "speech",
+          "speaker": "joe",
+          "text": "Você sabia que a porta não abria.",
+          "all": [
+            "joe_discovered_jack_lie"
+          ],
+          "id": "N25:1"
+        },
+        {
+          "kind": "speech",
+          "speaker": "jack",
+          "text": "Eu sabia que talvez não abrisse.",
+          "all": [
+            "joe_discovered_jack_lie"
+          ],
+          "id": "N25:2"
+        },
+        {
+          "kind": "speech",
+          "speaker": "jack",
+          "text": "Parece que reservaram um quarto pra ele.",
+          "all": [
+            "jack_perceived_companion_risk"
+          ],
+          "modes": [
+            "Punitive"
+          ],
+          "id": "N25:3"
+        },
+        {
+          "kind": "speech",
+          "speaker": "joe",
+          "text": "Isso é engraçado pra você?",
+          "all": [
+            "jack_perceived_companion_risk"
+          ],
+          "modes": [
+            "Punitive"
+          ],
+          "id": "N25:4"
+        },
+        {
+          "kind": "gesture",
+          "asset": "jack_j3_laugh",
+          "text": "",
+          "all": [
+            "jack_perceived_companion_risk"
+          ],
+          "modes": [
+            "Punitive"
+          ],
+          "actors": [
+            "jack"
+          ],
+          "id": "N25:5"
+        }
+      ]
+    },
+    {
+      "id": "N26:garage",
+      "cues": [
+        {
+          "kind": "speech",
+          "speaker": "joe",
+          "text": "O portão não vai subir.",
+          "id": "N26:garage:0"
+        }
+      ],
+      "requires": [
+        "route_failed:garage"
+      ]
+    },
+    {
+      "id": "N26:roof",
+      "cues": [
+        {
+          "kind": "speech",
+          "speaker": "joe",
+          "text": "Foi embora.",
+          "id": "N26:roof:0"
+        }
+      ],
+      "requires": [
+        "route_failed:roof"
+      ]
+    },
+    {
+      "id": "N26:tunnel",
+      "cues": [
+        {
+          "kind": "speech",
+          "speaker": "joe",
+          "text": "Está naquela passagem. Preciso de outra.",
+          "id": "N26:tunnel:0"
+        }
+      ],
+      "requires": [
+        "route_failed:tunnel"
+      ]
+    },
+    {
+      "id": "N26:window",
+      "cues": [
+        {
+          "kind": "speech",
+          "speaker": "joe",
+          "text": "Se eu cruzar agora, ele me vê.",
+          "id": "N26:window:0"
+        }
+      ],
+      "requires": [
+        "route_failed:window"
+      ]
+    },
+    {
+      "id": "N27",
+      "cues": [
+        {
+          "kind": "speech",
+          "speaker": "joe",
+          "text": "Se ele não viu a porta…",
+          "all": [
+            "hide_access_observed"
+          ],
+          "id": "N27:0"
+        }
+      ]
+    },
+    {
+      "id": "N28",
+      "cues": [
+        {
+          "kind": "speech",
+          "speaker": "joe",
+          "text": "Abre. Abre agora.",
+          "all": [
+            "garage_gate_released"
+          ],
+          "id": "N28:0"
+        },
+        {
+          "kind": "speech",
+          "speaker": "joe",
+          "text": "Falta alguma coisa no controle.",
+          "none": [
+            "garage_gate_released"
+          ],
+          "id": "N28:1"
+        }
+      ]
+    },
+    {
+      "id": "N29",
+      "cues": [
+        {
+          "kind": "speech",
+          "speaker": "radio",
+          "text": "Estamos chegando.",
+          "all": [
+            "helicopter_confirmed"
+          ],
+          "none": [
+            "route_failed:roof"
+          ],
+          "id": "N29:0"
+        },
+        {
+          "kind": "speech",
+          "speaker": "radio",
+          "text": "Já saímos da área.",
+          "all": [
+            "route_failed:roof"
+          ],
+          "id": "N29:1"
+        }
+      ]
+    },
+    {
+      "id": "N30",
+      "cues": [
+        {
+          "kind": "speech",
+          "speaker": "joe",
+          "text": "A corrente vem da esquerda.",
+          "all": [
+            "tunnel_left_current_observed"
+          ],
+          "id": "N30:0"
+        },
+        {
+          "kind": "speech",
+          "speaker": "joe",
+          "text": "Sem ar. Volta.",
+          "all": [
+            "dead_branch_air_absent"
+          ],
+          "id": "N30:1"
+        }
+      ]
+    },
+    {
+      "id": "N31",
+      "cues": [
+        {
+          "kind": "speech",
+          "speaker": "joe",
+          "text": "Depois da ponte não tem volta.",
+          "all": [
+            "bridge_geometry_observed"
+          ],
+          "id": "N31:0"
+        }
+      ]
+    },
+    {
+      "id": "N32",
+      "cues": [
+        {
+          "kind": "gesture",
+          "asset": "verified_hunter_departure",
+          "text": "",
+          "all": [
+            "hide_victory"
+          ],
+          "id": "N32:0"
+        },
+        {
+          "kind": "gesture",
+          "asset": "verified_dawn_exterior",
+          "text": "",
+          "all": [
+            "dawn_victory"
+          ],
+          "modes": [
+            "Easy",
+            "Normal",
+            "Hard"
+          ],
+          "id": "N32:1"
+        }
+      ]
+    },
+    {
+      "id": "N33",
+      "cues": [
+        {
+          "kind": "gesture",
+          "asset": "rare_final_sequence",
+          "text": "",
+          "id": "N33:0"
+        }
+      ]
+    },
+    {
+      "id": "N34",
+      "cues": [
+        {
+          "kind": "speech",
+          "speaker": "joe",
+          "text": "É o Thomas.",
+          "id": "N34:0"
+        },
+        {
+          "kind": "gesture",
+          "asset": "thomas_identity_and_record",
+          "text": "",
+          "id": "N34:1"
+        },
+        {
+          "kind": "speech",
+          "speaker": "joe",
+          "text": "Foi o Batman. Ele matou o Thomas.",
+          "id": "N34:2"
+        }
+      ],
+      "modes": [
+        "Hard",
+        "Punitive"
+      ]
+    },
+    {
+      "id": "N28:exit",
+      "cues": [
+        {
+          "kind": "gesture",
+          "asset": "physical_exit_coda",
+          "text": "",
+          "id": "N28:exit:0"
+        }
+      ]
+    },
+    {
+      "id": "N29:exit",
+      "cues": [
+        {
+          "kind": "gesture",
+          "asset": "physical_exit_coda",
+          "text": "",
+          "id": "N29:exit:0"
+        }
+      ]
+    },
+    {
+      "id": "N30:exit",
+      "cues": [
+        {
+          "kind": "gesture",
+          "asset": "physical_exit_coda",
+          "text": "",
+          "id": "N30:exit:0"
+        }
+      ]
+    },
+    {
+      "id": "N31:exit",
+      "cues": [
+        {
+          "kind": "gesture",
+          "asset": "physical_exit_coda",
+          "text": "",
+          "id": "N31:exit:0"
+        }
+      ]
+    },
+    {
+      "id": "J4",
+      "cues": [
+        {
+          "kind": "speech",
+          "speaker": "joe",
+          "text": "Quem diabos é você?",
+          "id": "J4:0"
+        },
+        {
+          "kind": "speech",
+          "speaker": "jack",
+          "text": "Você passou a noite inteira olhando para o homem no teto.",
+          "id": "J4:1"
+        },
+        {
+          "kind": "gesture",
+          "asset": "jack_costume_revelation",
+          "text": "",
+          "actors": [
+            "jack"
+          ],
+          "id": "J4:2"
+        },
+        {
+          "kind": "speech",
+          "speaker": "jack",
+          "text": "Nunca olhou direito para quem estava ao seu lado.",
+          "id": "J4:3"
+        }
+      ],
+      "modes": [
+        "Punitive"
+      ]
+    },
+    {
+      "id": "DOC01",
+      "cues": [
+        {
+          "kind": "document",
+          "text": "Controle de frota — posto de leitos: 41. Repasse ao arquivo, depois manutenção. A ordem não muda com o turno.",
+          "id": "DOC01:0"
+        }
+      ],
+      "nodes": [
+        "F4_NURSE"
+      ]
+    },
+    {
+      "id": "DOC02",
+      "cues": [
+        {
+          "kind": "document",
+          "text": "Frota/segurança. Referência do arquivo: 07. Conferir o posto de leitos antes; manutenção encerra o registro.",
+          "id": "DOC02:0"
+        }
+      ],
+      "nodes": [
+        "F2_ARCHIVE"
+      ]
+    },
+    {
+      "id": "DOC03",
+      "cues": [
+        {
+          "kind": "document",
+          "text": "Último par do controle de frota: 23. Registrar após leitos e arquivo. Equipamento de força fora desse registro.",
+          "id": "DOC03:0"
+        }
+      ],
+      "nodes": [
+        "B1_GENERATOR"
+      ]
+    },
+    {
+      "id": "DOC04",
+      "cues": [
+        {
+          "kind": "document",
+          "text": "Veículo de serviço mantido na garagem. Chave retirada do posto e guardada no cofre da Administração.",
+          "id": "DOC04:0"
+        }
+      ],
+      "nodes": [
+        "F1_SECURITY"
+      ]
+    },
+    {
+      "id": "DOC05",
+      "cues": [
+        {
+          "kind": "document",
+          "text": "Cofre da Administração, porta ao lado da sala de arquivo. Sequência de seis dígitos: leitos → arquivo → manutenção. Conferir as três referências no local.",
+          "id": "DOC05:0"
+        }
+      ],
+      "nodes": [
+        "F2_SECURITY"
+      ]
+    },
+    {
+      "id": "DOC06",
+      "cues": [
+        {
+          "kind": "document",
+          "text": "A linha pluvial continua além da casa de bombas. A entrada não aparece na planta de emergência; a válvula maior aponta para a derivação antiga.",
+          "id": "DOC06:0"
+        }
+      ],
+      "nodes": [
+        "B1_PUMP"
+      ]
+    },
+    {
+      "id": "DOC07",
+      "cues": [
+        {
+          "kind": "document",
+          "text": "Isolamento: acesso desviado para o corredor oeste após fechamento da sala de cirurgia. A placa antiga não foi retirada.",
+          "id": "DOC07:0"
+        }
+      ],
+      "nodes": [
+        "F3_UTILITY"
+      ]
+    },
+    {
+      "id": "DOC08",
+      "cues": [
+        {
+          "kind": "document",
+          "text": "Rádio de cobertura: bateria removível. Interferência na central de segurança. Contato não é confirmação de pouso.",
+          "id": "DOC08:0"
+        }
+      ],
+      "nodes": [
+        "F1_RADIO"
+      ]
+    },
+    {
+      "id": "DOC09",
+      "cues": [
+        {
+          "kind": "document",
+          "text": "Ao perder quadro, o sistema pode repetir os últimos segundos gravados. Verifique relógio e continuidade antes de agir.",
+          "id": "DOC09:0"
+        }
+      ],
+      "nodes": [
+        "F2_CAMERAS"
+      ]
+    },
+    {
+      "id": "DOC10",
+      "cues": [
+        {
+          "kind": "document",
+          "text": "Anexo: acesso pela janela de serviço. Trava externa exige ferramenta de alavanca guardada no suprimento do 2º andar.",
+          "id": "DOC10:0"
+        }
+      ],
+      "nodes": [
+        "F3_EXAMS"
+      ]
+    },
+    {
+      "id": "DOC11",
+      "cues": [
+        {
+          "kind": "document",
+          "text": "Sem energia, o comando de abertura do servidor fica indisponível. Uma folha já aberta exige fechamento manual. O acesso pelo suprimento e serviço não depende deste motor.",
+          "id": "DOC11:0"
+        }
+      ],
+      "nodes": [
+        "F2_SERVER"
+      ]
+    },
+    {
+      "id": "DOC12",
+      "cues": [
+        {
+          "kind": "document",
+          "text": "Ordem externa: manter perímetro. Nenhuma entrada ou saída pela recepção sem identificação.",
+          "id": "DOC12:0"
+        }
+      ],
+      "nodes": [
+        "F1_LOBBY"
+      ]
+    },
+    {
+      "id": "DOC13",
+      "cues": [
+        {
+          "kind": "document",
+          "text": "Transferência clínica 19—. Origem: A—KH—M. Destino: ala de observação. A assinatura foi removida do formulário.",
+          "id": "DOC13:0"
+        }
+      ],
+      "nodes": [
+        "F2_ARCHIVE"
+      ]
+    },
+    {
+      "id": "DOC14",
+      "cues": [
+        {
+          "kind": "document",
+          "text": "Ala de observação / acesso de serviço",
+          "id": "DOC14:0"
+        }
+      ],
+      "nodes": [
+        "F3_HALL_W"
+      ]
+    },
+    {
+      "id": "DOC15",
+      "cues": [
+        {
+          "kind": "gesture",
+          "asset": "document_doc15",
+          "text": "",
+          "id": "DOC15:0"
+        }
+      ],
+      "nodes": [
+        "B1_STORAGE"
+      ]
+    },
+    {
+      "id": "DOC16",
+      "cues": [
+        {
+          "kind": "gesture",
+          "asset": "document_doc16",
+          "text": "",
+          "id": "DOC16:0"
+        }
+      ],
+      "modes": [
+        "Hard",
+        "Punitive"
+      ],
+      "nodes": [
+        "B1_MORGUE",
+        "F2_SECURITY"
+      ]
+    },
+    {
+      "id": "AUD01",
+      "cues": [
+        {
+          "kind": "recording",
+          "speaker": "recording",
+          "text": "A clínica caiu de novo. O relógio está correndo, mas o quadro repete a cortina. Confere com os olhos antes de mandar alguém lá.",
+          "id": "AUD01:0"
+        }
+      ]
+    },
+    {
+      "id": "AUD02",
+      "cues": [
+        {
+          "kind": "recording",
+          "speaker": "recording",
+          "text": "Passa da bomba maior. Se o ar parar, pegou o braço morto. A corrente vem do ramal que segue.",
+          "id": "AUD02:0"
+        }
+      ]
+    },
+    {
+      "id": "AUD03",
+      "cues": [
+        {
+          "kind": "recording",
+          "speaker": "recording",
+          "text": "A última ala foi evacuada? Não recebi lista. Se alguém ainda estiver lá, não desliguem a linha.",
+          "id": "AUD03:0"
+        }
+      ]
+    },
+    {
+      "id": "AUD04",
+      "cues": [
+        {
+          "kind": "recording",
+          "speaker": "recording",
+          "text": "Perímetro mantido. Ninguém pela recepção. Repito: não entrem no edifício sem contato.",
+          "id": "AUD04:0"
+        }
+      ]
+    },
+    {
+      "id": "AUD05",
+      "cues": [
+        {
+          "kind": "recording",
+          "speaker": "recording",
+          "text": "A movimentação mudou de andar. Confirme antes de concluir. Um ruído não é uma pessoa.",
+          "id": "AUD05:0"
+        }
+      ]
+    },
+    {
+      "id": "AUD06",
+      "cues": [
+        {
+          "kind": "recording",
+          "speaker": "bartholomeu",
+          "text": "Joe, achei a casa de bombas. Vi uma entrada, não vi onde sai. Se ouvir isso, não me siga às cegas.",
+          "id": "AUD06:0"
+        }
+      ],
+      "requires": [
+        "barth_recording_found"
+      ]
+    },
+    {
+      "id": "AUD07",
+      "cues": [
+        {
+          "kind": "gesture",
+          "asset": "recording_aud07",
+          "text": "",
+          "id": "AUD07:0"
+        }
+      ],
+      "modes": [
+        "Punitive"
+      ],
+      "requires": [
+        "jack_recording_found"
+      ]
+    },
+    {
+      "id": "AUD08",
+      "cues": [
+        {
+          "kind": "gesture",
+          "asset": "recording_aud08",
+          "text": "",
+          "id": "AUD08:0"
+        }
+      ],
+      "modes": [
+        "Hard",
+        "Punitive"
+      ]
+    },
+    {
+      "id": "E_HARLEY_TOGETHER_ASYMMETRIC",
+      "cues": [
+        {
+          "kind": "epilogue",
+          "text": "Ela saiu ao lado dele. Sobreviver juntos ainda não respondia tudo que havia entre os dois.",
+          "id": "E_HARLEY_TOGETHER_ASYMMETRIC:0"
+        }
+      ],
+      "modes": [
+        "Easy",
+        "Normal",
+        "Hard"
+      ]
+    },
+    {
+      "id": "E_HARLEY_TOGETHER_RECIPROCAL",
+      "cues": [
+        {
+          "kind": "epilogue",
+          "text": "Do lado de fora, Harley procurou o olhar de Joe.",
+          "id": "E_HARLEY_TOGETHER_RECIPROCAL:0"
+        }
+      ],
+      "modes": [
+        "Punitive"
+      ]
+    },
+    {
+      "id": "E_HARLEY_ALONE",
+      "cues": [
+        {
+          "kind": "epilogue",
+          "text": "Harley encontrou uma saída por conta própria. A travessia seguinte teria de ser dela.",
+          "id": "E_HARLEY_ALONE:0"
+        }
+      ]
+    },
+    {
+      "id": "E_HARLEY_CAPTURED",
+      "cues": [
+        {
+          "kind": "epilogue",
+          "text": "Harley foi capturada. Depois disso, nenhuma notícia foi confirmada.",
+          "id": "E_HARLEY_CAPTURED:0"
+        }
+      ]
+    },
+    {
+      "id": "E_HARLEY_DEAD",
+      "cues": [
+        {
+          "kind": "epilogue",
+          "text": "A voz que chamava os outros pelo nome não voltaria a responder.",
+          "id": "E_HARLEY_DEAD:0"
+        }
+      ]
+    },
+    {
+      "id": "E_HARLEY_UNKNOWN",
+      "cues": [
+        {
+          "kind": "epilogue",
+          "text": "Joe a perdeu de vista. Não chegou notícia de fuga, captura ou morte.",
+          "id": "E_HARLEY_UNKNOWN:0"
+        }
+      ]
+    },
+    {
+      "id": "E_BARTH_TOGETHER",
+      "cues": [
+        {
+          "kind": "epilogue",
+          "text": "Bartholomeu atravessou a saída ao lado de Joe. Ainda tremia. Estava vivo.",
+          "id": "E_BARTH_TOGETHER:0"
+        }
+      ]
+    },
+    {
+      "id": "E_BARTH_ALONE",
+      "cues": [
+        {
+          "kind": "epilogue",
+          "text": "Ele encontrou outra saída. Pela primeira vez naquela noite, teria de decidir o próximo passo sem Joe.",
+          "id": "E_BARTH_ALONE:0"
+        }
+      ]
+    },
+    {
+      "id": "E_BARTH_CAPTURED",
+      "cues": [
+        {
+          "kind": "epilogue",
+          "text": "Bartholomeu foi capturado antes de alcançar a saída.",
+          "id": "E_BARTH_CAPTURED:0"
+        }
+      ]
+    },
+    {
+      "id": "E_BARTH_DEAD",
+      "cues": [
+        {
+          "kind": "epilogue",
+          "text": "O amigo que tremia na escada não sairia do hospital.",
+          "id": "E_BARTH_DEAD:0"
+        }
+      ]
+    },
+    {
+      "id": "E_BARTH_UNKNOWN",
+      "cues": [
+        {
+          "kind": "epilogue",
+          "text": "Depois do último contato, não houve resposta sobre Bartholomeu.",
+          "id": "E_BARTH_UNKNOWN:0"
+        }
+      ]
+    },
+    {
+      "id": "E_JACK_TOGETHER",
+      "cues": [
+        {
+          "kind": "epilogue",
+          "text": "Jack saiu ao lado de Joe. Nem todas as perguntas saíram com uma resposta.",
+          "id": "E_JACK_TOGETHER:0"
+        }
+      ]
+    },
+    {
+      "id": "E_JACK_ALONE",
+      "cues": [
+        {
+          "kind": "epilogue",
+          "text": "A fuga dele foi confirmada por caminho próprio.",
+          "id": "E_JACK_ALONE:0"
+        }
+      ]
+    },
+    {
+      "id": "E_JACK_CAPTURED",
+      "cues": [
+        {
+          "kind": "epilogue",
+          "text": "O último fato confirmado é a captura.",
+          "id": "E_JACK_CAPTURED:0"
+        }
+      ]
+    },
+    {
+      "id": "E_JACK_DEAD",
+      "cues": [
+        {
+          "kind": "epilogue",
+          "text": "A fuga de Jack terminou no hospital.",
+          "id": "E_JACK_DEAD:0"
+        }
+      ]
+    },
+    {
+      "id": "E_JACK_UNKNOWN",
+      "cues": [
+        {
+          "kind": "epilogue",
+          "text": "Sumiu dos trajetos que Joe podia verificar.",
+          "id": "E_JACK_UNKNOWN:0"
+        }
+      ]
+    },
+    {
+      "id": "E_THOMAS_UNCONFIRMED",
+      "cues": [
+        {
+          "kind": "epilogue",
+          "text": "Thomas desapareceu no quarto andar. Joe não recebeu uma resposta.",
+          "id": "E_THOMAS_UNCONFIRMED:0"
+        }
+      ],
+      "modes": [
+        "Easy",
+        "Normal"
+      ]
+    },
+    {
+      "id": "E_THOMAS_JOE_KNOWS",
+      "cues": [
+        {
+          "kind": "epilogue",
+          "text": "Joe encontrou a prova: Batman matou Thomas.",
+          "id": "E_THOMAS_JOE_KNOWS:0"
+        }
+      ],
+      "modes": [
+        "Hard",
+        "Punitive"
+      ]
+    },
+    {
+      "id": "E_THOMAS_CODA_PLAYER_ONLY",
+      "cues": [
+        {
+          "kind": "gesture",
+          "asset": "thomas_proof_player_only",
+          "text": "",
+          "id": "E_THOMAS_CODA_PLAYER_ONLY:0"
+        }
+      ],
+      "modes": [
+        "Hard",
+        "Punitive"
+      ]
+    },
+    {
+      "id": "E_JACK_SECRET_REVEALED",
+      "cues": [
+        {
+          "kind": "gesture",
+          "asset": "jack_revelation_remembered",
+          "text": "",
+          "id": "E_JACK_SECRET_REVEALED:0"
+        }
+      ],
+      "modes": [
+        "Punitive"
+      ]
+    },
+    {
+      "id": "E_JACK_SECRET_NOT_WITNESSED",
+      "cues": [
+        {
+          "kind": "gesture",
+          "asset": "jack_suspicion_unconfirmed",
+          "text": "",
+          "id": "E_JACK_SECRET_NOT_WITNESSED:0"
+        }
+      ],
+      "modes": [
+        "Punitive"
+      ]
+    },
+    {
+      "id": "E_JACK_BASELINE",
+      "cues": [
+        {
+          "kind": "gesture",
+          "asset": "jack_unanswered_baseline",
+          "text": "",
+          "id": "E_JACK_BASELINE:0"
+        }
+      ],
+      "modes": [
+        "Easy",
+        "Normal",
+        "Hard"
+      ]
+    },
+    {
+      "id": "E_JOE_WAYNE",
+      "cues": [
+        {
+          "kind": "epilogue",
+          "text": "Sobreviveu ao hospital. A lembrança do casal Wayne ainda estava com ele do lado de fora. A fuga não devolveu aquela família.",
+          "id": "E_JOE_WAYNE:0"
+        }
+      ]
+    },
+    {
+      "id": "E_HARLEY_RETURNED",
+      "cues": [
+        {
+          "kind": "epilogue",
+          "text": "Ela viu quando ele voltou.",
+          "id": "E_HARLEY_RETURNED:0"
+        }
+      ]
+    },
+    {
+      "id": "E_HARLEY_SHARED",
+      "cues": [
+        {
+          "kind": "epilogue",
+          "text": "Ela guardou a lembrança do que ele dividiu.",
+          "id": "E_HARLEY_SHARED:0"
+        }
+      ]
+    },
+    {
+      "id": "E_HARLEY_IGNORED",
+      "cues": [
+        {
+          "kind": "epilogue",
+          "text": "Ela ainda esperava uma resposta",
+          "id": "E_HARLEY_IGNORED:0"
+        }
+      ]
+    },
+    {
+      "id": "E_BARTH_PROTECTED",
+      "cues": [
+        {
+          "kind": "epilogue",
+          "text": "O amigo que tremia na escada segurou uma porta até Joe atravessar.",
+          "id": "E_BARTH_PROTECTED:0"
+        }
+      ]
+    },
+    {
+      "id": "E_JACK_PAST",
+      "cues": [
+        {
+          "kind": "epilogue",
+          "text": "Jack havia dito que sobrevivera ao morcego uma vez; não disse tudo que sabia.",
+          "id": "E_JACK_PAST:0"
+        }
+      ]
+    }
+  ]
+}

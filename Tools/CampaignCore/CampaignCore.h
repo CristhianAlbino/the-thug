@@ -2,6 +2,7 @@
 
 #include "WorldDefinition.h"
 #include "../SaveCore/StorySave.h"
+#include "../DirectorCore/DirectorCore.h"
 
 #include <cstdint>
 #include <iosfwd>
@@ -11,7 +12,9 @@ namespace thug::campaign {
 
 enum class ActionKind {
   Collect, Drop, Treat, Stabilize, Use, UnlockDoor, OpenDoor, CloseDoor,
-  Circuit, EnterHide, LeaveHide, Trigger, Injury, ShareAmmo
+  Circuit, EnterHide, LeaveHide, Trigger, Injury, ShareAmmo, SubmitKeypad,
+  BeginScene, SceneCue, CancelScene, BeginBanter, BanterCue, CancelBanter,
+  InspectDocument, InspectAudio, WitnessClue, RememberFact, AdvanceAct
 };
 
 struct Action {
@@ -24,6 +27,8 @@ struct Action {
   // Supplied only after reachability, actual interaction and event-specific
   // evidence were checked by the world adapter. A UI click is insufficient.
   bool physicallyVerified = false;
+  std::uint64_t presentationSerial = 0;
+  std::string cueId{};
 };
 
 enum class Status {
@@ -34,6 +39,7 @@ enum class Status {
 struct ActionResult {
   Status status;
   std::optional<world::WorldSignal> signal;
+  std::optional<bool> acceptedCode{};
 };
 
 struct TickResult {
@@ -62,6 +68,12 @@ class CampaignCore {
   rules::Ending Ending() const;
   TickResult Tick(double seconds, survival::Activity activity);
   ActionResult Apply(const Action& action);
+  // Observation must describe the current clock/act/difficulty and actual
+  // physical context. Presentation ACK confirms a heard line/completed gesture.
+  ActionResult ApplyNarrative(const Action&, const director::Observation&);
+  std::optional<director::Presentation> CurrentPresentation(const director::Observation&, const std::string& locale = "pt-BR") const;
+  std::vector<director::Cue> JournalText(const std::string&, const std::string& locale = "pt-BR") const;
+  std::vector<director::Cue> EpilogueText(const std::string& locale = "pt-BR") const;
   // Sensor samples are not durable action receipts (footsteps can be frequent).
   bool Hear(const perception::SoundEvent&, const perception::ListenerContext&);
   bool Observe(const hunter::Stimulus&);
@@ -78,10 +90,11 @@ class CampaignCore {
   std::string HidingPlace() const;
   std::size_t AppliedActionCount() const;
 
-  // Runtime v1 adds pause, Joe's hiding occupancy and the transaction ledger
+  // Runtime v2 adds selected cue plans/serials to pause, hiding and transaction ledger
   // around StorySave. Legacy core/story files require an explicit migration.
   save::Result Save(std::ostream&) const;
   save::Result Load(std::istream&);
+  save::Result ValidateCheckpoint(std::istream&) const;
 
  private:
   struct State;
@@ -90,6 +103,10 @@ class CampaignCore {
   std::string contentIdentity_;
 
   bool StaticValid(const Action&) const;
+  bool NarrativeStaticValid(const Action&) const;
+  bool NarrativeCoherent(const State&) const;
+  bool ValidObservation(const director::Observation&) const;
+  director::Observation NarrativeContext(const director::Observation&, const State&) const;
   bool ValidLocation(const Action&) const;
   bool Consistent(const State&) const;
   ActionResult Execute(State&, const Action&);

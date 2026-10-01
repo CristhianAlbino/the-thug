@@ -33,7 +33,8 @@ inline std::string Signature(const Action& action) {
   out.imbue(std::locale::classic());
   out << std::setprecision(std::numeric_limits<double>::max_digits10)
       << static_cast<int>(action.kind) << ' ' << std::quoted(action.target) << ' '
-      << std::quoted(action.node) << ' ' << action.atSeconds << ' ' << action.argument;
+      << std::quoted(action.node) << ' ' << action.atSeconds << ' ' << action.argument
+      << ' ' << action.presentationSerial << ' ' << std::quoted(action.cueId);
   return out.str();
 }
 
@@ -43,8 +44,8 @@ inline bool ParseSignature(const std::string& value, Action& action) {
   in.imbue(std::locale::classic());
   int kind;
   if (!(in >> kind >> std::quoted(action.target) >> std::quoted(action.node)
-           >> action.atSeconds >> action.argument) ||
-      kind < 0 || kind > static_cast<int>(ActionKind::ShareAmmo)) return false;
+           >> action.atSeconds >> action.argument >> action.presentationSerial >> std::quoted(action.cueId)) ||
+      kind < 0 || kind > static_cast<int>(ActionKind::AdvanceAct)) return false;
   action.kind = static_cast<ActionKind>(kind);
   in >> std::ws;
   return in.eof() && Signature(action) == value;

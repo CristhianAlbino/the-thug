@@ -7,6 +7,8 @@ line of sight or successful RunRules route. Eligibility never applies effects.
 from dataclasses import dataclass, field, replace
 from math import isfinite
 from typing import FrozenSet, Mapping
+import json
+from pathlib import Path
 
 from act12_rules import Actor, Facts, SCENES as EARLY, eligible as eligible_early
 from act35_rules import SCENES as LATE, ROUTE_ENDS, eligible_late, can_close_route
@@ -15,13 +17,9 @@ from variant_rules import mode, scene_available
 
 
 BANTER_COOLDOWN_SECONDS = 90
-TRANSIENT_FACTS = frozenset({
-    "jack_act3_encounter", "jack_heard_thomas_or_injury",
-    "jack_final_encounter", "jack_perceived_companion_risk",
-    "circuit_changed", "power_failure_observed", "harley_injured",
-    "harley_under_pressure", "barth_under_pressure", "barth_exit_choice",
-    "jack_verified_inference", "jack_claimed_route", "route_failure_observed",
-})
+TRANSIENT_FACTS = frozenset(json.loads(
+    Path(__file__).with_name("fact_lifetimes.json").read_text(encoding="utf-8")
+)["transient_facts"])
 
 
 @dataclass(frozen=True)

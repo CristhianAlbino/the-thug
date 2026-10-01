@@ -1,5 +1,9 @@
 # The Thug — Roadmap
 
+## Engine-independent implementation status
+
+CampaignCore now provides the shared session and initial Joe/world transactions. DirectorCore provides native conditional text and confirmed presentation; checkpoint files provide validated disk writes and explicit backup recovery. See the [current review and P01–P10 status](../Reviews/REVISAO_GERAL_2026_10_01.md). Next: remaining companion transactions/execution, advanced Hunter, combat/survival additions and rare endings. Editor milestones below still require a real Unreal project and physical integration.
+
 ## M00 — Pre-Production
 - Consolidate GDD
 - Define project/repository architecture

@@ -13,7 +13,9 @@ on:
       - 'Tools/ScenarioLab/**'
       - 'Tools/WorldCore/**'
       - 'Tools/CampaignCore/**'
-      - 'Tools/NarrativeCore/balance_initial.json'
+      - 'Tools/DirectorCore/**'
+      - 'Tools/NarrativeCore/**'
+      - '02_GAME_DESIGN/Narrative/**'
       - '.github/workflows/core-rules.yml'
   push:
     branches: [main]
@@ -28,7 +30,9 @@ on:
       - 'Tools/ScenarioLab/**'
       - 'Tools/WorldCore/**'
       - 'Tools/CampaignCore/**'
-      - 'Tools/NarrativeCore/balance_initial.json'
+      - 'Tools/DirectorCore/**'
+      - 'Tools/NarrativeCore/**'
+      - '02_GAME_DESIGN/Narrative/**'
       - '.github/workflows/core-rules.yml'
 
 permissions:
@@ -48,10 +52,11 @@ jobs:
           bash Tools/IntegrationCore/run-tests.sh
           bash Tools/SaveCore/run-tests.sh
           bash Tools/WorldCore/run-tests.sh
+          bash Tools/DirectorCore/run-tests.sh
           bash Tools/CampaignCore/run-tests.sh
       - name: Validate CMake project files
         run: |
-          for module in HunterCore CompanionCore SurvivalCore PerceptionCore IntegrationCore SaveCore WorldCore CampaignCore; do
+          for module in HunterCore CompanionCore SurvivalCore PerceptionCore IntegrationCore SaveCore WorldCore DirectorCore CampaignCore; do
             cmake -S "Tools/$module" -B "Build/$module"
             cmake --build "Build/$module"
             ctest --test-dir "Build/$module" --output-on-failure
@@ -60,3 +65,18 @@ jobs:
         run: python3 Tools/MapCore/validate_map.py
       - name: Replay map and C++ route scenarios
         run: bash Tools/ScenarioLab/run-tests.sh
+  windows-campaign:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Compile native campaign with MSVC
+        run: |
+          cmake -S Tools/CampaignCore -B Build/CampaignCore
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          cmake --build Build/CampaignCore --config Release
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          ctest --test-dir Build/CampaignCore -C Release --output-on-failure
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

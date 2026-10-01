@@ -10,8 +10,11 @@
 - Transação em cópia temporária: requisito ausente, inventário cheio ou efeito recusado preservam todos os estados e registros.
 - ID de ocorrência persistente: repetir a mesma ação retorna `AlreadyApplied`, sem custo nem sinal novo; reutilizar o ID para outra ação retorna `Conflict`.
 - Envelope de checkpoint que conserva pausa, ocupação de Joe e recibos de ações, além do StorySave completo. Carregamento rejeitado preserva a campanha viva.
+- Diretor narrativo C++ ligado à sessão: sequência de falas/gestos, confirmação por entrada, prioridade/suspensão, diário de materiais inspecionados e epílogos condicionais.
+- Entrada nativa de teclado, com tentativa real e abertura conjunta de mundo/regra; conhecimento prévio não inventa documentos lidos.
+- Escrita/leitura de arquivo com temporário validado, sincronização, backup, substituição, recuperação explícita e bloqueio de slot.
 
-Isso entrega o núcleo de P01 e a primeira cobertura de P02. Tratamento/transferência de outros recursos para companheiros, inventários individuais e execução física de seus objetivos continuam em P02/P06. Diretor nativo de falas e confirmação de gestos são P03. Escrita durável em disco é P04.
+Isso entrega P01, a primeira cobertura P02, o núcleo P03 e o escritor P04. Tratamento/transferência de outros recursos para companheiros, inventários individuais e execução de seus objetivos continuam em P02/P06. Encenação final P09, política/validação humana P10 e restauração física no editor continuam pendentes. Ver [DirectorCore](../DirectorCore/README.md) e [contrato de arquivo](../../04_TECHNICAL/Architecture/CONTRATO_ARQUIVO_CHECKPOINT_V1.md).
 
 ## Dados de autoria
 
@@ -42,7 +45,7 @@ const auto result = campaign.Apply(action);
 
 `Action::atSeconds` deve ser **exatamente** `Now()`. Avançar até o instante do evento antes de enviar a ação; usar `TickResult::advancedSeconds` quando uma atualização termina antes do delta pedido. Pausa e fim impedem novas consequências. Retentar uma ação já confirmada devolve seu recibo também nesses estados.
 
-`physicallyVerified` é uma declaração confiada ao adaptador, não uma checagem de colisão. Para coleta, conferir presença, alcance e ação concluída; para auxílio, presença/proximidade real do companheiro; para saída ou captura, cruzamento/contato real. Uma interação de teclado só pode ser enviada depois da validação da entrada. Visitar um nó ou clicar na UI não basta. O coordenador verifica vínculos e requisitos lógicos; a ponte verifica o mundo físico. Consultar o [contrato de coordenação](../../04_TECHNICAL/Architecture/CONTRATO_COORDENADOR_CAMPANHA_V1.md).
+`physicallyVerified` é uma declaração confiada ao adaptador, não uma checagem de colisão. Para coleta, conferir presença, alcance e ação concluída; para auxílio, presença/proximidade real do companheiro; para saída ou captura, cruzamento/contato real. `SubmitKeypad` recebe os seis caracteres digitados no dispositivo alcançado e valida a combinação no núcleo; `Use("safe_code_accepted")` não é uma entrada pública permitida. Visitar um nó ou clicar na UI não basta. O coordenador verifica vínculos e requisitos lógicos; a ponte verifica o mundo físico. Consultar o [contrato de coordenação](../../04_TECHNICAL/Architecture/CONTRATO_COORDENADOR_CAMPANHA_V1.md).
 
 Um `eventId` identifica uma ocorrência, não um botão: a retentativa reutiliza o ID e payload; a próxima ocorrência usa outro ID. A operação `Drop` atual devolve a quantidade autorada ao seu ponto de coleta, desde que vazio. Soltar pilhas em qualquer lugar, dividir quantidades e criar novos atores de pickup ainda exige extensão de autoria/persistência.
 
@@ -50,9 +53,11 @@ Portas e circuitos podem devolver `WorldSignal`. A ponte emite som uma vez e o e
 
 ## Checkpoint e limites
 
-`Save(std::ostream&)` / `Load(std::istream&)` usam `THE_THUG_RUNTIME_CAMPAIGN 1`: StorySave aninhado, identidade de conteúdo, pausa, ocupação de Joe e até 10.000 recibos. Limite de 4 MiB; checksum FNV-1a 64 identifica corrupção acidental, sem proteção contra adulteração intencional. Falha de formato, versão, configuração ou coerência rejeita o arquivo inteiro. Formatos anteriores não são convertidos silenciosamente. RNG prossegue do estado salvo; identidade não depende da semente do construtor.
+`Save(std::ostream&)` / `Load(std::istream&)` usam `THE_THUG_RUNTIME_CAMPAIGN 2`: StorySave v1 aninhado, identidade de conteúdo, pausa, ocupação de Joe, planos/seriais de apresentação e até 10.000 recibos. Limite de 4 MiB; checksum FNV-1a 64 identifica corrupção acidental, sem proteção contra adulteração intencional. Falha de formato, versão, configuração ou coerência rejeita o arquivo inteiro. Runtime v1 e formatos inferiores não são convertidos silenciosamente. RNG prossegue do estado salvo; identidade inclui autoria narrativa e não depende da semente do construtor.
 
-O stream não garante durabilidade em disco. Ainda faltam temporário, flush/sincronização, substituição segura, recuperação de interrupção e restauração de atores/animações. Regras detalhadas de checkpoint continuam no contrato específico. O diretor Python ainda é a referência narrativa: o coordenador não dispara falas, lê documentos nem aplica todas as consequências de epílogo por conta própria.
+Para disco, usar `checkpoint::SaveFile/LoadFile` de `CheckpointFile.h`; o stream sozinho não oferece garantia de arquivo. Recuperação retorna `RecoveredBackup`, indicando progresso anterior. Uma falha posterior à substituição retorna `CommittedUnconfirmed`. Restauração de atores/animações e integração da política de checkpoint ficam para a engine. Não usar serializadores inferiores como checkpoint completo da sessão.
+
+`ApplyNarrative` usa prova/contexto físico e o mesmo registro de ocorrências para cenas, conversas, leitura e fatos testemunhados. `CurrentPresentation` fornece a entrada a apresentar; a ponte confirma seu serial/índice/ID depois de concluir. `JournalText` expõe somente material inspecionado e `EpilogueText` usa evidências individuais da campanha encerrada. Condições temporárias não viram conhecimento. O núcleo não decide visada, não produz voz/animação e não confirma uma ação só por estar elegível. N33/finais raros ainda são P08.
 
 Cada ação/atualização/sensor aceito prepara uma cópia dos estados. A correção transacional está ensaiada, mas custo com campanha longa e frequência de sensores precisa de benchmark antes da integração definitiva. Uso em uma thread de simulação; sem promessa de 60 Hz ou duração de campanha comprovada.
 
@@ -65,4 +70,4 @@ cmake --build Build/CampaignCore
 ctest --test-dir Build/CampaignCore --output-on-failure
 ```
 
-O script verifica geração e compila com C++17, `-Wall -Wextra -Wpedantic -Werror`. Os cenários cobrem pausa/carregamento nos quatro modos, conservação de recursos, falhas sem mutação, repetição após load, portas/energia/percepção, resultados convencionais, limite fatal durante delta longo e rejeição de checkpoints incoerentes. São testes de regras, não sessões jogáveis.
+O script verifica geração e compila com C++17, `-Wall -Wextra -Wpedantic -Werror`. Os cenários cobrem pausa/carregamento nos quatro modos, conservação de recursos, falhas sem mutação, repetição após load, portas/energia/percepção, resultados convencionais, limite fatal, retomada de falas, fatos restritos e diário. O escritor é ensaiado com corrupção, erro/cancelamento, Unicode, bloqueio e processos encerrados durante a escrita. CMake inclui paridade narrativa e o CI cobre Linux e Windows/MSVC. São testes de regras e arquivos, não sessões jogáveis nem ensaio de perda elétrica.

@@ -13,6 +13,20 @@ bool Quoted(std::istream& in, std::string& value, std::size_t maximum, bool empt
   return in.peek() == '"' && bool(in >> std::quoted(value)) &&
          value.size() <= maximum && (empty || !value.empty());
 }
+void WritePlan(std::ostream& out, const char* tag, const std::vector<std::string>& plan) {
+  out << tag << ' ' << plan.size() << '\n';
+  for (const auto& cue : plan) out << "CUE " << std::quoted(cue) << '\n';
+}
+bool ReadPlan(std::istream& in, const char* tag, std::vector<std::string>& plan) {
+  std::size_t count;
+  if (!Tag(in, tag) || !(in >> count) || count > 1000) return false;
+  for (std::size_t i = 0; i < count; ++i) {
+    std::string cue;
+    if (!Tag(in, "CUE") || !Quoted(in, cue, 128)) return false;
+    plan.push_back(std::move(cue));
+  }
+  return true;
+}
 } // namespace
 
 save::Result CampaignCore::Save(std::ostream& output) const {
@@ -23,10 +37,14 @@ save::Result CampaignCore::Save(std::ostream& output) const {
   const auto nested = story.str();
   std::ostringstream out;
   out.imbue(std::locale::classic());
-  out << "THE_THUG_RUNTIME_CAMPAIGN 1\nCONTENT " << contentIdentity_
+  out << "THE_THUG_RUNTIME_CAMPAIGN 2\nCONTENT " << contentIdentity_
       << "\nPAUSED " << state_->paused << "\nHIDE " << std::quoted(state_->hidingPlace)
       << "\nSTORY " << nested.size() << '\n' << nested
-      << "RECEIPTS " << state_->receipts.size() << '\n';
+      << "PRESENTATION " << state_->presentation.serial << ' ' << state_->presentation.sceneSerial
+      << ' ' << state_->presentation.banterSerial << '\n';
+  WritePlan(out, "SCENE_PLAN", state_->presentation.scenePlan);
+  WritePlan(out, "BANTER_PLAN", state_->presentation.banterPlan);
+  out << "RECEIPTS " << state_->receipts.size() << '\n';
   for (const auto& [id, signature] : state_->receipts)
     out << "RECEIPT " << std::quoted(id) << ' ' << std::quoted(signature) << '\n';
   out << "END\n";
@@ -49,7 +67,7 @@ save::Result CampaignCore::Load(std::istream& input) {
   in.imbue(std::locale::classic());
   int version;
   if (!Tag(in, "THE_THUG_RUNTIME_CAMPAIGN") || !(in >> version)) return save::Result::Malformed;
-  if (version != 1) return save::Result::UnsupportedVersion;
+  if (version != 2) return save::Result::UnsupportedVersion;
   std::string identity, hide;
   int paused;
   std::size_t length, count;
@@ -59,7 +77,10 @@ save::Result CampaignCore::Load(std::istream& input) {
       !Tag(in, "STORY") || !(in >> length) || in.get() != '\n' ||
       length > detail::MaxRuntimeBytes || length > bytes.size()) return save::Result::Malformed;
   std::string story(length, '\0');
+  director::PresentationState presentation;
   if (!in.read(story.data(), static_cast<std::streamsize>(length)) ||
+      !Tag(in, "PRESENTATION") || !(in >> presentation.serial >> presentation.sceneSerial >> presentation.banterSerial) ||
+      !ReadPlan(in, "SCENE_PLAN", presentation.scenePlan) || !ReadPlan(in, "BANTER_PLAN", presentation.banterPlan) ||
       !Tag(in, "RECEIPTS") || !(in >> count) || count > detail::MaxReceipts) return save::Result::Malformed;
   std::map<std::string, std::string> receipts;
   for (std::size_t i = 0; i < count; ++i) {
@@ -83,8 +104,13 @@ save::Result CampaignCore::Load(std::istream& input) {
   next->paused = paused != 0;
   next->hidingPlace = std::move(hide);
   next->receipts = std::move(receipts);
+  next->presentation = std::move(presentation);
   if (!Consistent(*next)) return save::Result::IncompatibleRoster;
   state_.swap(next);
   return save::Result::Ok;
+}
+save::Result CampaignCore::ValidateCheckpoint(std::istream& input) const {
+  CampaignCore candidate(state_->routes.DifficultyLevel(), *definition_, 0, state_->survival.CaptureSnapshot().tuning);
+  return candidate.Load(input);
 }
 } // namespace thug::campaign

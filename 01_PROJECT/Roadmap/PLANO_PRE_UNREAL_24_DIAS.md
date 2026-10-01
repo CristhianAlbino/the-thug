@@ -33,7 +33,10 @@ Registro atual: [Decisões abertas](../Decisions/DECISOES_ABERTAS.md).
 - [x] Matriz de campanha, orçamento provisório, contrato dos adaptadores e kit de primeiro dia; integração jogável depende do editor, especialmente estado narrativo no save.
 - [x] Contratos provisórios de teclado físico, checkpoint atômico e prova de abandono do Hunter; teste humano cego de pistas e medição de esconderijo na Unreal continuam pendentes.
 - [x] Revisão técnica/criativa desta versão: [resultado sem spoilers e pendências de implementação](../Reviews/REVISAO_GERAL_2026_10_01.md); correções de código/texto realizadas. A etapa não encerra os sistemas que ainda são apenas especificados.
-- [x] CampaignCore pós-revisão: relógio/pausa/perfis autorados, transações de Joe/mundo e checkpoint com recibos. Entrega P01 e cobertura inicial P02; diretor C++, disco durável e execução completa dos companheiros ainda pendentes. [Contrato de coordenação](../../04_TECHNICAL/Architecture/CONTRATO_COORDENADOR_CAMPANHA_V1.md).
+- [x] CampaignCore pós-revisão: relógio/pausa/perfis autorados, transações de Joe/mundo e checkpoint com recibos. Entrega P01 e cobertura inicial P02. [Contrato de coordenação](../../04_TECHNICAL/Architecture/CONTRATO_COORDENADOR_CAMPANHA_V1.md).
+- [x] Núcleo P03: DirectorCore C++/textos condicionais pt-BR, confirmação por fala/gesto, retomada, diário/epílogo e paridade de regras com Python. Apresentação física e idiomas adicionais ainda pendentes.
+- [x] Escritor P04: runtime v2, temporário validado, sincronização, backup/recuperação explícita e bloqueio de slot. Ensaios de falha/interrupção de processo em POSIX/Windows; política de disparo e atores requerem integração.
+- [ ] P02 restante/P06: recursos, ferimentos individuais e execução completa dos companheiros; P05/P07/P08 conforme a revisão de escopo.
 - [ ] Validação do resultado com Cristhian, encenação, valores e interface; a [revisão técnica v1](../Reviews/REVISAO_PRE_UNREAL_V1.md) lista evidências e decisões pendentes.
 - [ ] Produção/gravação de áudio e seleção/criação de assets finais **depois** da revisão geral.
 - [ ] Projeto `.uproject`, níveis e execução no editor: aguardam o computador/Unreal.

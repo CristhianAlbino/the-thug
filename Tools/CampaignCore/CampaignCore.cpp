@@ -33,7 +33,8 @@ std::optional<companion::Character> Person(const std::string& id) {
 std::string Identity(const WorldDefinition& d, const survival::Tuning& t) {
   std::ostringstream out;
   out.imbue(std::locale::classic());
-  out << std::setprecision(std::numeric_limits<double>::max_digits10) << data::Revision << std::quoted(d.levelId);
+  out << std::setprecision(std::numeric_limits<double>::max_digits10) << data::Revision
+      << director::Content().revision << std::quoted(d.levelId);
   out << " NODES " << d.nodes.size();
   for (const auto& node : d.nodes) out << std::quoted(node);
   out << " OBJECTS " << d.objects.size();
@@ -221,14 +222,16 @@ TickResult CampaignCore::Tick(double seconds, survival::Activity activity) {
 bool CampaignCore::StaticValid(const Action& a) const {
   if (!detail::Token(a.eventId) || !detail::Token(a.target) || !definition_->nodes.count(a.node) ||
       !std::isfinite(a.atSeconds) || a.atSeconds < 0 ||
-      a.kind < ActionKind::Collect || a.kind > ActionKind::ShareAmmo) return false;
+      a.kind < ActionKind::Collect || a.kind > ActionKind::SubmitKeypad || a.presentationSerial || !a.cueId.empty()) return false;
   if (a.kind == ActionKind::Injury) return a.target == "joe" && a.argument >= 1 && a.argument <= 3;
   if (a.kind == ActionKind::Circuit) return definition_->circuitNodes.count(a.target) && (a.argument == 0 || a.argument == 1);
   if (a.argument) return false;
+  if (a.kind == ActionKind::SubmitKeypad)
+    return a.target.size() == 6 && std::all_of(a.target.begin(), a.target.end(), [](char c) { return c >= '0' && c <= '9'; }) && Find(definition_->uses, "safe_code_accepted");
   switch (a.kind) {
     case ActionKind::Collect: case ActionKind::Drop: return Find(definition_->pickups, a.target);
     case ActionKind::Treat: case ActionKind::Stabilize: return state_->inventory.IsCategory(a.target, survival::ItemCategory::Medical);
-    case ActionKind::Use: return Find(definition_->uses, a.target);
+    case ActionKind::Use: return a.target != "safe_code_accepted" && Find(definition_->uses, a.target);
     case ActionKind::UnlockDoor: return Find(definition_->unlocks, a.target);
     case ActionKind::OpenDoor: case ActionKind::CloseDoor: return Find(definition_->doors, a.target);
     case ActionKind::EnterHide: case ActionKind::LeaveHide: return Find(definition_->hides, a.target);
@@ -264,6 +267,7 @@ bool CampaignCore::ValidLocation(const Action& a) const {
   // StaticValid must run first. This also validates historical receipts on load.
   switch (a.kind) {
     case ActionKind::Collect: case ActionKind::Drop: return a.node == Find(definition_->pickups, a.target)->node;
+    case ActionKind::SubmitKeypad: return a.node == Find(definition_->uses, "safe_code_accepted")->node;
     case ActionKind::Use: return a.node == Find(definition_->uses, a.target)->node;
     case ActionKind::UnlockDoor: return a.node == Find(definition_->unlocks, a.target)->node;
     case ActionKind::OpenDoor: case ActionKind::CloseDoor: {
@@ -371,8 +375,23 @@ ActionResult CampaignCore::Execute(State& s, const Action& a) {
       const auto status = s.narrative.CaptureSnapshot().outcomes.at(a.target);
       if (status.dead || status.captured || status.escapedAlone) return denied;
       if (!integration::ShareAmmunition(s.inventory, "magazine", s.Person(*Person(a.target)), a.eventId, a.atSeconds)) return denied;
+      auto story = s.narrative.CaptureSnapshot();
+      story.durableFacts.insert("joe_shared_ammo_with_" + a.target);
+      if (!s.narrative.RestoreSnapshot(story)) return denied;
       break;
     }
+    case ActionKind::SubmitKeypad: {
+      auto story = s.narrative.CaptureSnapshot();
+      if (s.routes.CaptureSnapshot().safeOpened || story.keypadAttempts >= 100000) return denied;
+      ++story.keypadAttempts;
+      if (!s.narrative.RestoreSnapshot(story)) return denied;
+      if (a.target != director::Content().garageCode) return {Status::Applied, {}, false};
+      auto opening = a; opening.kind = ActionKind::Use; opening.target = "safe_code_accepted";
+      const auto result = Execute(s, opening);
+      if (result.status != Status::Applied) return result;
+      return {Status::Applied, {}, true};
+    }
+    default: return {Status::InvalidAction, {}};
   }
   return {Status::Applied, {}};
 }
@@ -415,7 +434,8 @@ bool CampaignCore::Consistent(const State& s) const {
   if (s.routes.CaptureSnapshot().nowSeconds != now || s.hunter.CaptureSnapshot().nowSeconds != now ||
       s.harley.CaptureSnapshot().nowSeconds != now || s.bartholomeu.CaptureSnapshot().nowSeconds != now ||
       s.jack.CaptureSnapshot().nowSeconds != now || s.narrative.CaptureSnapshot().nowSeconds != now ||
-      s.receipts.size() > detail::MaxReceipts || s.narrative.CaptureSnapshot().joeEscaped != escaped) return false;
+      s.receipts.size() > detail::MaxReceipts || s.narrative.CaptureSnapshot().joeEscaped != escaped ||
+      !director::ValidPresentation(s.narrative.CaptureSnapshot(), s.presentation) || !NarrativeCoherent(s)) return false;
   if (!s.hidingPlace.empty()) {
     if (!Find(definition_->hides, s.hidingPlace)) return false;
     const auto* object = s.world.Find(s.hidingPlace);
@@ -431,7 +451,8 @@ bool CampaignCore::Consistent(const State& s) const {
   }
   for (const auto& [id, signature] : s.receipts) {
     Action a; a.eventId = id;
-    if (!detail::ParseSignature(signature, a) || !StaticValid(a) || !ValidLocation(a) || a.atSeconds > now) return false;
+    if (!detail::ParseSignature(signature, a) || a.atSeconds > now) return false;
+    if (a.kind <= ActionKind::SubmitKeypad ? (!StaticValid(a) || !ValidLocation(a)) : !NarrativeStaticValid(a)) return false;
     if (a.kind == ActionKind::ShareAmmo && !s.Person(*Person(a.target)).CaptureSnapshot().appliedEvents.count(id)) return false;
   }
   try { auto world = s.world; world::WorldCore devices(world, definition_->doors, definition_->cameras, definition_->hides); }

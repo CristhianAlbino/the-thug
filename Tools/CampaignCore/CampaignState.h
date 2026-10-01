@@ -60,6 +60,11 @@ struct CampaignCore::State {
     const auto ending = routes.Result();
     story.joeEscaped = ending == rules::Ending::GarageEscape || ending == rules::Ending::RoofEscape ||
                        ending == rules::Ending::TunnelEscape || ending == rules::Ending::WindowEscape;
+    if (ending != rules::Ending::None) {
+      if (story.activeScene != "N32" && story.activeScene.find(":exit") == std::string::npos)
+        director::CancelScene(story, presentation);
+      director::CancelBanter(story, presentation);
+    }
     if (!narrative.RestoreSnapshot(story)) throw std::logic_error("Invalid narrated ending");
   }
 
@@ -76,6 +81,7 @@ struct CampaignCore::State {
   bool paused = false;
   std::string hidingPlace;
   std::map<std::string, std::string> receipts;
+  director::PresentationState presentation;
 };
 
 } // namespace thug::campaign
