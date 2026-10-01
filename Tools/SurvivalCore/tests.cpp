@@ -89,6 +89,21 @@ void RejectInvalidInputs() {
   Check(!joe.ApplyInjury(Injury::None), "No-op injury rejected");
   Check(joe.ApplyInjury(Injury::Moderate), "Moderate applied");
   Check(!joe.ApplyInjury(Injury::Light), "Damage cannot heal injury");
+  const auto before = joe.CaptureSnapshot();
+  auto broken = before;
+  broken.injury = Injury::Severe;
+  broken.bloodLoss = broken.tuning.fatalBloodLoss;
+  broken.collapsed = true;
+  broken.bleeding = true;
+  Check(!joe.RestoreSnapshot(broken), "Fatal blood loss cannot restore a living Joe");
+  broken = before;
+  broken.stamina = 0;
+  Check(!joe.RestoreSnapshot(broken), "Empty stamina must retain exhaustion");
+  broken = before;
+  broken.exhausted = true;
+  Check(!joe.RestoreSnapshot(broken), "Recovered stamina cannot remain exhausted");
+  Check(joe.Stamina() == before.stamina && joe.BloodLoss() == before.bloodLoss &&
+        joe.CurrentInjury() == before.injury, "Rejected snapshots leave survival untouched");
 }
 
 std::vector<ItemDefinition> Catalog() {

@@ -9,8 +9,8 @@
 | N01 | **Joe:** “A polícia não vai subir até aqui. Temos alguns minutos.” **Bartholomeu:** “A porta não fecha.” **Thomas**, ajudando a segurar com delicadeza a mão de Bartholomeu: “Olha pra mim, pequeno. No três a gente empurra junto.” **Harley**, devolvendo o suprimento a Joe: “Você deixou isso. De novo.” **Joe:** “Guarda. Conversamos lá em cima.” **Harley:** “Você sempre promete.” Thomas brinca com Bartholomeu depois de garantir que ele não machucou a mão. |
 | N02 | **Thomas:** “É só um morcego fantasiado. Relaxa. Quando a gente sair, pago café pra todo mundo.” **Bartholomeu:** “Você disse isso na última vez.” **Thomas:** “Paguei, não paguei?” **Harley:** “Eu não ficaria na janela.” **Joe:** “Sai daí, Thomas.” **Jack**, rindo baixo da própria lembrança: “Já cruzei com ele. Saí vivo. A janela não é o único lugar por onde alguém entra.” O riso sobre sobrevivência ocorre em qualquer modo; não conta como J1–J3. Clarão do sinal sem revelar posição do Hunter. |
 | N03 | **Thomas:** “Merda, que foi isso—” **Joe:** “Thomas?!” **Harley:** “Barth, vem comigo. Joe, olha pra mim. Agora anda.” **Joe:** “Não foi a polícia.” Nenhuma resposta sobre destino, em qualquer modo. |
-| N04 | Se Joe fizer ruído: **Joe**, baixo: “Foi o carrinho. Não sabe onde eu estou.” Se não fizer, respiração e passos distantes; não inventar estímulo. Tutorial por gesto/legenda, sem falas que indiquem posição atual do Hunter. |
-| N05 | Ao ver rastro ambíguo: **Joe:** “Ele passou aqui?” Sem afirmação de morte. Ao encontrar DOC01: “Primeira parte. Não é a chave.” Se ignorar o posto, nenhuma dessas falas é lembrada depois. |
+| N04 | Se Joe fizer ruído: **Joe**, baixo: “Foi o carrinho. Preciso sair daqui.” Se não fizer, respiração e passos distantes; não inventar estímulo. Joe não sabe se Batman ouviu ou o viu. Tutorial por gesto/legenda, sem falas que indiquem posição atual do Hunter. |
+| N05 | Ao ver rastro ambíguo: **Joe:** “Ele passou aqui?” Sem afirmação de morte. Ao inspecionar DOC01 sem conhecer sua função: “Registro de frota. Vou guardar.” Se Joe já leu a instrução do cofre: “Uma das referências. Ainda preciso conferir as outras.” Se ignorar o posto, nenhuma dessas falas é lembrada depois. |
 | N06 | **Joe:** “O mesmo cano. Esse andar volta para o outro lado.” Só se Joe realmente observar o marco; se entrar por outro percurso, usar apenas som ambiente. |
 | N07 | Joe ferido: **Harley:** “Você tá sangrando.” **Joe:** “Não é nada.” **Harley:** “Não mente pra mim. Já vi você mentir melhor.” Joe ileso: **Harley:** “Ouvi a porta bater, não vi quem entrou.” Fora do Punitivo, se ela cita o próprio corte: **Joe:** “Você consegue andar?” **Harley:** “Consigo. Era só isso?” Punitivo: **Joe:** “Deixa eu ver. Se ficar pior, eu volto por você.” **Harley:** “Então me diz por onde.” Se Joe já a ajudou, ela reconhece a ação antes de cobrar o tom. Se Bartholomeu está presente, Harley o chama pelo apelido e verifica primeiro se consegue apoiar o pé; ele não surge só para responder. |
 | N08 | Com duas observações reais: **Jack:** “Na primeira, veio pelo barulho. Na segunda, pela escada.” **Joe:** “Ele sabe o caminho?” **Jack:** “Sabe o que você mostrou.” Sem as duas: **Jack:** “A porta está aberta. O resto é palpite.” Se perguntado pelo encontro passado, Jack relata que sobreviveu ao morcego porque encontrou uma saída, sem alegar conhecer a posição atual dele, e solta seu riso habitual. Punitivo/J1, após fala sobre ferida/sumiço com Jack presente: **Jack**, riso curto e deslocado: “Esse hospital recebe muito bem.” Esse riso cruel, não a história anterior, pode registrar J1. Joe não comenta identidade ainda. |
@@ -19,7 +19,7 @@
 | N11 | Só se houve evidência e deslocamento físico do Hunter: **Joe**, baixo: “Pensa, Joe. Pensa.” Companheiro presente e que o percebeu pode avisar “Escada!”; ausente não fala. Se Batman perde rastro, não narrar captura iminente como certeza. |
 | N12 | **Joe**, ferido: “Tem remédio. O caminho até ele é o problema.” Ileso: “Posso precisar disso depois.” Tratamento só após consumir item real. |
 | N13 | Ao ler DOC04: **Joe:** “Tem carro. A chave ficou num cofre lá em cima.” Não dar código nem objetivo de garagem se o documento não foi lido. |
-| N14 | Ao ver inventário após N13: **Joe:** “Três referências. Turno, arquivo, manutenção.” Ao abrir: “Agora a chave.” Falha no código: “Não é essa ordem.” Sem combinação completa, não resolver automaticamente. |
+| N14 | Após ler DOC05: **Joe:** “Três referências. Leitos, arquivo, manutenção.” Ao abrir e observar a chave no interior: “Agora a chave.” Falha no código: “Não abriu. Preciso conferir.” N13 sozinho não ensina a ordem; a interação não resolve a combinação automaticamente. |
 | N15 | **Bartholomeu:** “Vi uma entrada perto das bombas. Não vi saída. Você sempre me disse pra falar só do que vi, Joe.” **Joe:** “Vem mostrar.” ou “Guarda isso pra você.” Após munição real: **Bartholomeu:** “Eu vou lembrar. É bom saber que você ainda confia em mim.” Se Thomas é mencionado em Fácil/Normal: “Pode estar morto, Joe. Eu não vi.” Em Difícil/Punitivo, “Thomas morreu” apenas se Bartholomeu soube da prova por encontro/comunicação. Punitivo/J2 somente com Jack presente e ouvindo: **Jack**, após riso cruel: “Até o hospital deve ter desistido de achar esse homem.” **Joe:** “Não fala dele assim.” |
 | N16 | Ao ouvir gerador: **Joe:** “Se eu ligar isso, alguém vai ouvir.” Se o relé é mascarado e Hunter não percebe, a preocupação não vira conhecimento do Hunter. |
 | N17 | **Joe:** “Ele não passa por esse vão. Pode dar a volta.” Só se Joe avaliou a abertura; não afirmar que a saída está segura. |
@@ -27,7 +27,7 @@
 | N19 | **Rádio:** “Repete o ponto. Não pouso às cegas.” **Joe:** “Telhado do hospital. Confirma.” **Rádio**, só após contato válido: “Confirmado. Cinco minutos.” O prazo começa na confirmação, não no primeiro ruído do aparelho. |
 | N20 | **Joe:** “Água vai para algum lugar.” **Bartholomeu**, se presente e informado: “Eu vi a entrada, agora ouvi o ar lá dentro.” Não dar certeza da saída sem percorrê-la. |
 | N21 | Se Batman observou hábito: **Jack**, se presente e com evidência: “Ele parou de procurar o andar. Está esperando sua escada.” **Joe:** “Então mudamos de escada.” Sem testemunho de Jack, Joe pode deduzir por som/visão, não por fala dele. |
-| N22 | **Joe:** “Caiu a segurança. A porta do servidor travou.” Se foi `C_SERVICE`, nomear só o efeito observado correspondente; não fingir que todas as portas fecharam. |
+| N22 | Se Joe observa queda de `C_SECURITY`: “Caiu a segurança.” Acrescentar “O controle da porta não responde” só ao tentar abrir a porta motorizada fechada, sem energia. Uma porta já aberta continua aberta até fechamento físico. Se o circuito voltou e Joe vê seu efeito: “Voltou a energia. Preciso conferir a imagem.” Se foi `C_SERVICE`, nomear só o efeito observado correspondente. |
 | N23 | Fora do Punitivo, com Harley pressionada: **Harley:** “Você ouviu quando pedi ajuda?” **Joe:** “Ouvi. Estou vendo se dá pra passar.” **Harley:** “Eu perguntei de mim. Barth ainda está esperando por nós.” (A última frase só se ela sabe que Bartholomeu está vivo e onde foi visto.) Punitivo: **Harley:** “Consigo ir. Você não precisa voltar.” **Joe:** “Preciso saber que você chegou.” Uma ação de ajuda real acrescenta “Eu vi você voltar”; abandono acrescenta “Então vou por mim.” |
 | N24 | **Bartholomeu:** “Segurei a porta quando entramos. O Thomas me ajudou.” **Joe:** “E agora?” **Bartholomeu:** “Agora é você que decide se a deixa aberta. Eu já fiz isso por você, lembra?” Traição somente após condições: **Bartholomeu:** “Desculpa. Eu quero viver.” Sem a escolha, não reutilizar a frase como profecia. |
 | N25 | Jack dá inferência verificável: **Jack:** “Pelo servidor você corta caminho. Confira a tela se não confia.” Se mente e Joe descobre: **Joe:** “Você sabia que a porta não abria.” **Jack:** “Eu sabia que *talvez* não abrisse.” Punitivo/J3 com outro companheiro sob perigo observado: **Jack**, riso longo: “Parece que reservaram um quarto pra ele.” **Joe:** “Isso é engraçado pra você?” Fora do Punitivo, manter só a conversa sobre rota. |
@@ -39,7 +39,7 @@
 | N31 | **Joe:** “Depois da ponte não tem volta.” Só ao observar geometria da travessia. Companhia na outra margem depende de ter cruzado. |
 | N32 | Ao vencer escondido: silêncio e um deslocamento *real* do Hunter para fora da busca; nenhuma fala triunfal obrigatória. Amanhecer permitido: Joe vê luz/atividade exterior. No Punitivo, amanhecer sozinho não produz final. |
 | N33 | Final raro ganha linha específica dos participantes presentes; nenhum NPC ausente fala. O confronto coordenado no Fácil e a destruição no Punitivo não viram vitória padrão ou tutorial. |
-| N34 | **Só Difícil/Punitivo e depois de prova completa vista por Joe:** “É o Thomas.” [conferência do relógio, corpo e registro/visão direta] “Ele não levou o Thomas daqui. Ele o matou.” Se apenas o público recebe coda, Joe fica calado quanto à autoria. |
+| N34 | **Só Difícil/Punitivo e depois de prova completa vista por Joe:** “É o Thomas.” [conferência do relógio, corpo e registro/visão direta] “Foi o Batman. Ele matou o Thomas.” Se apenas o público recebe coda, Joe fica calado quanto à autoria. |
 
 ### J4 — revelação secreta Punitivo
 
@@ -66,12 +66,12 @@ A cena não prende o jogador, não muda de forma mágica o caminho da fuga e nã
 | DOC08 · `F1_RADIO` | “Rádio de cobertura: bateria removível. Interferência na central de segurança. Contato não é confirmação de pouso.” | Orienta etapas de N19. |
 | DOC09 · `F2_CAMERAS` | “Ao perder quadro, o sistema pode repetir os últimos segundos gravados. Verifique relógio e continuidade antes de agir.” | Distinguir feed ao vivo de loop. |
 | DOC10 · `F3_EXAMS` | “Anexo: acesso pela janela de serviço. Trava externa exige ferramenta de alavanca guardada no suprimento do 2º andar.” | Orienta `F2_SUPPLY`. |
-| DOC11 · `F2_SERVER` | “Na queda do circuito de segurança, a porta motorizada mantém travamento. O acesso pelo suprimento e serviço não depende deste motor.” | Alternativa ao bloqueio. |
+| DOC11 · `F2_SERVER` | “Sem energia, o comando de abertura do servidor fica indisponível. Uma folha já aberta exige fechamento manual. O acesso pelo suprimento e serviço não depende deste motor.” | Alternativa ao bloqueio e estado físico legível. |
 | DOC12 · `F1_LOBBY` | “Ordem externa: manter perímetro. Nenhuma entrada ou saída pela recepção sem identificação.” | Cerco da polícia; não abre rota. |
 | DOC13 · `F2_ARCHIVE` | “Transferência clínica 19—. Origem: A—KH—M. Destino: ala de observação. A assinatura foi removida do formulário.” | Semente ambiental Arkham, interpretação aberta. |
 | DOC14 · `F3_HALL_W` | Placa antiga sob tinta nova: “Ala de observação / acesso de serviço”. A numeração anterior difere da sinalização atual. | História sugerida pelo espaço, sem exposição. |
 | DOC15 · `B1_STORAGE` | Inventário de tubos e leitos com série de outra instituição; páginas interrompidas antes da mudança de administração. | Escala e passado ambíguo. |
-| DOC16 · `B1_MORGUE`/`F2_SECURITY` | **Somente Difícil/Punitivo:** registro de entrada e marca no corpo de Thomas que correspondem ao trecho arquivado da câmera. O horário e a identificação cruzam; nenhuma parte isolada concede conclusão completa a Joe. | Prova N34; alternativa direta se blockout invalidar câmera. |
+| DOC16 · `B1_MORGUE`/`F2_SECURITY` | **Somente Difícil/Punitivo:** metadados automáticos do arquivo de segurança, relógio e marcas identificáveis de Thomas correspondem à ação fatal visível na gravação. Não há recepcionista ou registro clínico novo implícito. Corpo e transporte até sua posição, se usados, precisam de trajetória física e tempo compatíveis no blockout; não surgem por visita de Joe. | Prova N34: identificação e autoria inequívocas juntas; áudio, horário ou corpo isolados não bastam. |
 
 **Código candidato para teste: `41-07-23` = `410723` no teclado (seis dígitos, nessa ordem).** Três pares estão em locais distintos; DOC05 fixa a ordem, DOC01–03 a repetem. Não usar o número em diálogo onisciente. A combinação e redação ficam submetidas a playtest de descoberta; D-07 registra a hipótese.
 
@@ -90,25 +90,25 @@ A cena não prende o jogador, não muda de forma mágica o caminho da fuga e nã
 
 ## Blocos finais por personagem
 
-São **texto condicional candidato**. Uma confirmação exige evento verificado em `ending_rules.py`; último contato sozinho é `unknown`. O final da rota de Joe aparece primeiro, depois blocos individuais.
+São **texto condicional candidato**. Uma confirmação exige evento verificado em `ending_rules.py`; último contato sozinho é `unknown`. O final de Joe (fuga, sobrevivência, captura ou morte) aparece primeiro, depois blocos individuais. Texto entre aspas é apresentação; condições fora das aspas são instruções de autoria. Uma coda após morte/captura de Joe pode falar ao público, mas não lhe atribui novas ações, pensamentos posteriores ou conhecimento. Retorno, ajuda, abandono e pedidos ignorados só entram em inserções quando registrados, sem serem deduzidos da dificuldade.
 
 | Pessoa / estado | Texto curto proposto |
 | --- | --- |
-| Harley com Joe, comum | “Ela saiu ao lado dele. Lembrou que Joe voltou; também lembrou cada vez que precisou pedir que ele olhasse para ela.” Se ele ajudou cedo, citar o gesto observado. |
-| Harley com Joe, Punitivo | “Quando o corredor fechou, os dois procuraram um pelo outro. Isso não apaga o que escolheram naquela noite.” |
-| Harley saiu sozinha | “Ela encontrou outra saída. Joe sobreviveu sem ela; a distância entre os dois não foi só a porta. Do lado de fora, ainda procurou notícia do irmãozinho que adotara.” A última frase só se Harley e Bartholomeu tiveram vínculo testemunhado e ela sabe que ele estava no hospital; nenhuma busca prova o destino dele. Apenas fuga comprovada. |
-| Harley capturada | “O último fato confirmado foi a captura. Joe sabe onde a deixou, não o que veio depois.” |
-| Harley morta | “O registro confirmou sua morte. Joe pode recordar a ação que tentou, sem o roteiro fingir que salvar era impossível.” Exige prova, não abandono. |
+| Harley com Joe, comum | “Ela saiu ao lado dele. Sobreviver juntos ainda não respondia tudo que havia entre os dois.” Se Joe ignorou um pedido ouvido, inserir “Ela ainda esperava uma resposta”; se houve cuidado concreto, usar a inserção de ajuda abaixo. |
+| Harley com Joe, Punitivo | “Do lado de fora, Harley procurou o olhar de Joe.” Gesto autorado da coda, com ambos presentes; ele pode corresponder se suas ações sustentam o vínculo. O modo muda o tom, mas não inventa um resgate mútuo. |
+| Harley saiu sozinha | “Harley encontrou uma saída por conta própria. A travessia seguinte teria de ser dela.” Se a coda mostrar a busca por Bartholomeu, acrescentar “Do lado de fora, procurou notícia do irmãozinho que adotara”, sem concluir o destino dele nem a sobrevivência de Joe. Apenas fuga comprovada. |
+| Harley capturada | “Harley foi capturada. Depois disso, nenhuma notícia foi confirmada.” Joe só recebe essa informação se presenciou ou foi informado; caso contrário, é coda ao público. |
+| Harley morta | “A voz que chamava os outros pelo nome não voltaria a responder.” Exige morte confirmada; uma tentativa de ajuda só é lembrada se realmente ocorreu. |
 | Harley desconhecida | “Joe a perdeu de vista. Não chegou notícia de fuga, captura ou morte.” |
-| Bartholomeu com Joe | “Ele atravessou a saída por conta própria, ainda com o recurso/lembrança que dividiram. O medo não o impediu de voltar quando Joe chamou.” A última frase só se de fato houve retorno; mencionar munição só se a recebeu. |
-| Bartholomeu saiu sozinho | “Ele achou uma saída separada. A porta que Joe abriu ou fechou continua entre os dois.” Apenas fuga comprovada. |
-| Bartholomeu capturado | “A captura foi vista ou verificada. Seu medo não era covardia inventada pelo final.” |
-| Bartholomeu morto | “Há confirmação da morte; separar-se dele não basta como prova.” |
-| Bartholomeu desconhecido | “A última pista termina na casa de bombas ou no nó realmente visto. Joe conhecia a voz do amigo havia anos; isso não lhe contou para onde ele foi. O destino ficou aberto.” |
-| Jack com Joe | “Ele saiu com a equipe, mas Joe ainda mede o preço de ter acreditado nele. Jack havia dito que sobrevivera ao morcego uma vez; não disse tudo que sabia.” A segunda frase só se essa história foi ouvida; no Punitivo com J4, substituir pela leitura revelada. |
+| Bartholomeu com Joe | “Bartholomeu atravessou a saída ao lado de Joe. Ainda tremia. Estava vivo.” Acrescentar recurso compartilhado, retorno ou proteção apenas com o evento correspondente; sair junto não significa ter feito a travessia sem ajuda. |
+| Bartholomeu saiu sozinho | “Ele encontrou outra saída. Pela primeira vez naquela noite, teria de decidir o próximo passo sem Joe.” Apenas fuga comprovada; lembrar a porta aberta/fechada somente se essa escolha ocorreu. |
+| Bartholomeu capturado | “Bartholomeu foi capturado antes de alcançar a saída.” Exige confirmação da captura; seu medo não prova rendição voluntária nem traição. |
+| Bartholomeu morto | “O amigo que tremia na escada não sairia do hospital.” Exige morte confirmada; separar-se dele não é prova. |
+| Bartholomeu desconhecido | “Depois do último contato, não houve resposta sobre Bartholomeu.” Mostrar nome do local apenas se ele foi realmente visto ali. A amizade antiga não fornece seu paradeiro. |
+| Jack com Joe | “Jack saiu ao lado de Joe. Nem todas as perguntas saíram com uma resposta. Jack havia dito que sobrevivera ao morcego uma vez; não disse tudo que sabia.” A segunda frase só se essa história foi ouvida; no Punitivo com J4, substituir pela leitura revelada. |
 | Jack saiu sozinho | “A fuga dele foi confirmada por caminho próprio.” Com J4 testemunhada, lembrar a identidade; sem J4, não revelá-la por epílogo. |
 | Jack capturado | “O último fato confirmado é a captura.” Não converter em morte. |
-| Jack morto | “Há evidência da morte; o segredo não vira revelação automática.” |
+| Jack morto | “A fuga de Jack terminou no hospital.” Exige prova da morte; o segredo só é citado se J4 foi testemunhada. |
 | Jack desconhecido | “Sumiu dos trajetos que Joe podia verificar.” No Punitivo sem J4, suspeita sem resposta. |
 | Thomas Fácil/Normal | “Thomas desapareceu no quarto andar. Joe não recebeu uma resposta.” Nenhuma imagem conclusiva ao público. |
 | Thomas Difícil/Punitivo, Joe viu | “Joe encontrou a prova: Batman matou Thomas.” |
@@ -119,7 +119,7 @@ São **texto condicional candidato**. Uma confirmação exige evento verificado 
 | Evidência registrada | Linha candidata e limite |
 | --- | --- |
 | Joe escapou; BAN12 ou BAN13 foi completada diante dele | “Sobreviveu ao hospital. A lembrança do casal Wayne ainda estava com ele do lado de fora. A fuga não devolveu aquela família.” Não atribuir a Joe arrependimento que nenhuma ação mostrou; ele não descobre por isso quem é Batman. |
-| Joe ajudou Harley concretamente e saiu com ela | “Ela viu quando ele voltou. Não precisou aceitar as respostas frias que vieram depois.” No Punitivo, ajustar para reciprocidade sem apagar qualquer abandono anterior. |
+| Joe ajudou Harley concretamente e saiu com ela | Se houve retorno observado: “Ela viu quando ele voltou.” Se houve entrega de recurso: “Ela guardou a lembrança do que ele dividiu.” Acrescentar cobrança por respostas frias apenas se ocorreram; no Punitivo reconhecer reciprocidade sem apagar um abandono anterior. |
 | Bartholomeu escapou junto e protegeu Joe em N24 | “O amigo que tremia na escada segurou uma porta até Joe atravessar.” Não tocar se N24 foi abandono/traição ou se ele estava ausente. |
 | Thomas prometeu café em N02 e Joe testemunha N34 (Difícil/Punitivo) | Joe reconhece o relógio e pode lembrar a promessa. A prova não obriga Joe a se declarar inocente nem converte sua própria história com os Wayne em justiça simples. |
 | Fácil/Normal, Thomas sem confirmação | Uma cadeira vazia ou a ausência de sua voz lembra Thomas, sem corpo, autoria ou narração conclusiva. Nunca usar a inserção de N34. |

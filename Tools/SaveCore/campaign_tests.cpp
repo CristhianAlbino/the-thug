@@ -270,6 +270,25 @@ void WorldGuardsAndClock() {
         "World clock catches up and checkpoint becomes valid");
 }
 
+void FatalInjuryRequiresCampaignOutcome() {
+  Fixture fixture;
+  fixture.survival.ApplyInjury(survival::Injury::Severe);
+  Check(fixture.survival.Advance(1000, survival::Activity::Rest).becameDead &&
+        fixture.world.AdvanceTo(1000), "Fatal bleeding is a real survival outcome");
+  std::ostringstream out;
+  Check(save::SaveCampaign(out, fixture.Members()) ==
+        save::Result::IncompatibleRoster && out.str().empty(),
+        "Death cannot be checkpointed while campaign still says ongoing");
+  Check(fixture.routes.Apply(rules::Event::JoeDied, 1000),
+        "Coordinator delivers confirmed death before checkpoint");
+  const auto bytes = Encode(fixture.Members());
+  Fixture loaded;
+  Check(Decode(bytes, loaded.Members()) == save::Result::Ok &&
+        loaded.survival.CurrentEffects().dead &&
+        loaded.routes.Result() == rules::Ending::Died,
+        "Confirmed death restores survival and ending together");
+}
+
 } // namespace
 
 int main() {
@@ -277,6 +296,7 @@ int main() {
     FullRoundTripAndContinuation();
     FailureLeavesAllTenUntouched();
     WorldGuardsAndClock();
+    FatalInjuryRequiresCampaignOutcome();
     std::cout << "CampaignSave: " << checks << " checks passed\n";
   } catch (const std::exception& error) {
     std::cerr << "CampaignSave test failed after " << checks

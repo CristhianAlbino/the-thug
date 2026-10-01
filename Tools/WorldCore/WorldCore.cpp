@@ -72,29 +72,31 @@ WorldCore::WorldCore(save::WorldState& state, std::vector<DoorDefinition> doors,
 bool WorldCore::Update(const std::string& id, const std::string& stateId,
                        double atSeconds) {
   auto next = Object(state_, id);
-  if (next.stateId == stateId) return false;
+  if (!next.present || next.stateId == stateId) return false;
   next.stateId = stateId;
   return state_.SetObject(id, std::move(next), atSeconds);
 }
 
 bool WorldCore::Powered(const std::string& circuitId) const {
   if (circuits_.count(circuitId) == 0) throw std::out_of_range("Unknown circuit");
-  return Object(state_, circuitId).stateId == "on";
+  const auto& circuit = Object(state_, circuitId);
+  return circuit.present && circuit.stateId == "on";
 }
 
 bool WorldCore::CanTraverse(const std::string& doorId) const {
-  const auto& door = doors_.at(doorId);
-  const auto& current = Object(state_, doorId).stateId;
-  return current == "forced_open" ||
-         (current == "open" &&
-          (door.power != DoorPower::RequiresPower || Powered(door.circuitId)));
+  if (doors_.count(doorId) == 0) throw std::out_of_range("Unknown door");
+  const auto& current = Object(state_, doorId);
+  // Power governs actuation. An open physical passage cannot become an
+  // invisible wall: automatic closure must be a separate, observed action.
+  return current.present &&
+         (current.stateId == "forced_open" || current.stateId == "open");
 }
 
 std::optional<WorldSignal> WorldCore::OpenDoor(const std::string& doorId,
                                                double atSeconds, bool force) {
   const auto& door = doors_.at(doorId);
   const auto& current = Object(state_, doorId);
-  if (current.stateId == "open" || current.stateId == "forced_open" ||
+  if (!current.present || current.stateId == "open" || current.stateId == "forced_open" ||
       current.stateId == "jammed") return std::nullopt;
   if (current.stateId == "locked" && !force) return std::nullopt;
   if (door.power == DoorPower::RequiresPower && !Powered(door.circuitId) &&
@@ -149,7 +151,8 @@ bool WorldCore::SetCameraState(const std::string& cameraId,
 
 std::optional<Feed> WorldCore::ReadCamera(const std::string& cameraId) const {
   const auto& camera = cameras_.at(cameraId);
-  if (!Powered(camera.circuitId)) return std::nullopt;
+  if (!Object(state_, cameraId).present || !Powered(camera.circuitId))
+    return std::nullopt;
   const auto& state = Object(state_, cameraId).stateId;
   if (state == "online") return Feed{camera.viewNode, true};
   if (state == "looped") return Feed{camera.viewNode, false};
@@ -169,7 +172,8 @@ bool WorldCore::LeaveHide(const std::string& hideId, double atSeconds) {
 
 bool WorldCore::Occupied(const std::string& hideId) const {
   if (hides_.count(hideId) == 0) throw std::out_of_range("Unknown hide place");
-  return Object(state_, hideId).stateId == "occupied";
+  const auto& hide = Object(state_, hideId);
+  return hide.present && hide.stateId == "occupied";
 }
 
 } // namespace thug::world

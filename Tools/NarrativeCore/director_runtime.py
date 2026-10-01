@@ -5,12 +5,23 @@ line of sight or successful RunRules route. Eligibility never applies effects.
 """
 
 from dataclasses import dataclass, field, replace
+from math import isfinite
 from typing import FrozenSet, Mapping
 
 from act12_rules import Actor, Facts, SCENES as EARLY, eligible as eligible_early
-from act35_rules import SCENES as LATE, eligible_late, can_close_route
+from act35_rules import SCENES as LATE, ROUTE_ENDS, eligible_late, can_close_route
 from banter_rules import BanterFacts, PresentActor, EXCHANGES, eligible_banter
-from variant_rules import scene_available
+from variant_rules import mode, scene_available
+
+
+BANTER_COOLDOWN_SECONDS = 90
+TRANSIENT_FACTS = frozenset({
+    "jack_act3_encounter", "jack_heard_thomas_or_injury",
+    "jack_final_encounter", "jack_perceived_companion_risk",
+    "circuit_changed", "power_failure_observed", "harley_injured",
+    "harley_under_pressure", "barth_under_pressure", "barth_exit_choice",
+    "jack_verified_inference", "jack_claimed_route", "route_failure_observed",
+})
 
 
 @dataclass(frozen=True)
@@ -26,6 +37,12 @@ class Observation:
     area_previously_visited: bool = False
     route_failure: str = ""
     in_danger: bool = False
+    now_seconds: float = 0
+
+    def __post_init__(self):
+        mode(self.difficulty)
+        if not 1 <= self.act <= 5 or not isfinite(self.now_seconds) or self.now_seconds < 0:
+            raise ValueError("invalid act or world clock")
 
 
 @dataclass(frozen=True)
@@ -40,6 +57,14 @@ class Progress:
     active_scene_line: int = 0
     active_banter: str = ""
     active_banter_line: int = 0
+    last_banter_completed_at: float = -1
+
+    def __post_init__(self):
+        if self.durable_facts & (TRANSIENT_FACTS | {"J1", "J2", "J3", "J4"}):
+            raise ValueError("current encounter observations cannot be persisted as facts")
+        if (not isfinite(self.last_banter_completed_at)
+                or (self.last_banter_completed_at < 0 and self.last_banter_completed_at != -1)):
+            raise ValueError("invalid conversation clock")
 
 
 def _facts(observation: Observation, progress: Progress) -> Facts:
@@ -58,20 +83,24 @@ def _facts(observation: Observation, progress: Progress) -> Facts:
 
 
 def scene_eligible(scene_id: str, observation: Observation, progress: Progress) -> bool:
+    if scene_id.endswith(":exit") and scene_id[:-5] in ROUTE_ENDS:
+        return (not progress.active_scene and scene_id not in progress.scenes
+                and can_close_route(scene_id[:-5], _facts(observation, progress)))
     if scene_id not in EARLY and scene_id not in LATE:
         raise ValueError("unknown authored scene")
-    if progress.active_scene or progress.active_banter or scene_id in progress.scenes:
+    if progress.active_scene or scene_id in progress.scenes:
         return False
-    scene = (EARLY if scene_id in EARLY else LATE)[scene_id]
-    if scene["act"] > observation.act or not scene_available(
+    # Acts group spatial scenes; they are not locks on an otherwise valid route.
+    # Jack's separate clue gates still require their explicit progression marks.
+    if not scene_available(
         scene_id, observation.difficulty, progress.witnessed_clues,
         act=observation.act
     ):
         return False
     facts = _facts(observation, progress)
     allowed = (eligible_early if scene_id in EARLY else eligible_late)(scene_id, facts)
-    if scene_id in ("N28", "N29", "N30", "N31"):
-        allowed = allowed and can_close_route(scene_id, facts)
+    if scene_id in ROUTE_ENDS and observation.joe_node == ROUTE_ENDS[scene_id][0]:
+        allowed = False  # Already outside: use the confirmed coda, not approach VO.
     return allowed
 
 
@@ -80,6 +109,13 @@ def banter_eligible(exchange_id: str, observation: Observation, progress: Progre
         raise ValueError("unknown authored conversation")
     if progress.active_scene or progress.active_banter:
         return False
+    if (progress.last_banter_completed_at >= 0 and
+            observation.now_seconds - progress.last_banter_completed_at < BANTER_COOLDOWN_SECONDS):
+        return False
+    return _banter_context_valid(exchange_id, observation, progress)
+
+
+def _banter_context_valid(exchange_id: str, observation: Observation, progress: Progress) -> bool:
     actors = {name: PresentActor(actor.node, actor.active)
               for name, actor in observation.companions.items()}
     state = BanterFacts(
@@ -88,6 +124,7 @@ def banter_eligible(exchange_id: str, observation: Observation, progress: Progre
         facts=progress.durable_facts | observation.facts,
         delivered=progress.banter, actors=actors,
         in_danger=observation.in_danger,
+        main_scene_active=bool(progress.active_scene),
     )
     return eligible_banter(exchange_id, state)
 
@@ -103,7 +140,7 @@ def begin_scene(scene_id: str, observation: Observation, progress: Progress) -> 
 def finish_scene(scene_id: str, progress: Progress) -> Progress:
     completed_id = (progress.active_scene if scene_id == "N26" and
                     progress.active_scene.startswith("N26:") else scene_id)
-    if progress.active_scene != completed_id or completed_id in progress.scenes:
+    if not completed_id or progress.active_scene != completed_id or completed_id in progress.scenes:
         raise ValueError("scene was not begun or already completed")
     return replace(progress, scenes=progress.scenes | {completed_id},
                    active_scene="", active_scene_line=0)
@@ -115,20 +152,37 @@ def begin_banter(exchange_id: str, observation: Observation, progress: Progress)
     return replace(progress, active_banter=exchange_id, active_banter_line=0)
 
 
-def finish_banter(exchange_id: str, progress: Progress) -> Progress:
-    if progress.active_banter != exchange_id or exchange_id in progress.banter:
-        raise ValueError("conversation was not begun or already delivered")
+def banter_can_resume(observation: Observation, progress: Progress) -> bool:
+    return (bool(progress.active_banter)
+            and _banter_context_valid(progress.active_banter, observation, progress)
+            and observation.now_seconds >= progress.last_banter_completed_at)
+
+
+def cancel_banter(progress: Progress) -> Progress:
+    """Drop an interrupted exchange without claiming that its lines were heard."""
+    return replace(progress, active_banter="", active_banter_line=0)
+
+
+def finish_banter(exchange_id: str, observation: Observation, progress: Progress) -> Progress:
+    if progress.active_banter != exchange_id or not banter_can_resume(observation, progress):
+        raise ValueError("conversation is interrupted, absent or already delivered")
     return replace(progress, banter=progress.banter | {exchange_id},
-                   active_banter="", active_banter_line=0)
+                   active_banter="", active_banter_line=0,
+                   last_banter_completed_at=observation.now_seconds)
 
 
-def inspect_document(document_id: str, progress: Progress) -> Progress:
+def inspect_document(document_id: str, observation: Observation, progress: Progress) -> Progress:
     if document_id not in {f"DOC{i:02d}" for i in range(1, 17)}:
         raise ValueError("unknown document")
+    if document_id == "DOC16" and observation.difficulty not in {"Hard", "Punitive"}:
+        raise ValueError("document is unavailable in this difficulty")
     return replace(progress, documents=progress.documents | {document_id})
 
 
-def inspect_audio(audio_id: str, progress: Progress) -> Progress:
+def inspect_audio(audio_id: str, observation: Observation, progress: Progress) -> Progress:
     if audio_id not in {f"AUD{i:02d}" for i in range(1, 9)}:
         raise ValueError("unknown recording")
+    if ((audio_id == "AUD07" and observation.difficulty != "Punitive")
+            or (audio_id == "AUD08" and observation.difficulty not in {"Hard", "Punitive"})):
+        raise ValueError("recording is unavailable in this difficulty")
     return replace(progress, audio=progress.audio | {audio_id})

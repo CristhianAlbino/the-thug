@@ -39,10 +39,19 @@ SoundProfile ProfileFor(SoundKind kind) {
   case SoundKind::Fall: return {0.85, 45};
   case SoundKind::Gunshot: return {1, 100};
   case SoundKind::Explosion: return {1, 150};
-  case SoundKind::Breathing: return {0.12, 8};
+  case SoundKind::Breathing: return {0.36, 8};
   case SoundKind::Distraction: return {0.65, 35};
   }
   throw std::invalid_argument("Unknown sound kind");
+}
+
+SoundEvent MakeBreathingEvent(hunter::Vec3 source, double atSeconds,
+                             double loudnessMultiplier) {
+  if (!ValidPosition(source) || !std::isfinite(atSeconds) || atSeconds < 0 ||
+      !std::isfinite(loudnessMultiplier) || loudnessMultiplier < 1 ||
+      loudnessMultiplier > 3)
+    throw std::invalid_argument("Invalid breathing source or multiplier");
+  return {SoundKind::Breathing, source, atSeconds, loudnessMultiplier / 3};
 }
 
 std::string SoundName(SoundKind kind) {

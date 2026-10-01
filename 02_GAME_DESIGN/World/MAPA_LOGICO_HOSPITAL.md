@@ -47,7 +47,7 @@ O JSON agora contém 22 portas em conexões identificadas, 3 circuitos, 5 câmer
 
 | Mudança | Efeito legível | Garantia de alternativa |
 | --- | --- | --- |
-| Desligar `C_SECURITY` | Algumas câmeras do 2º perdem imagem; `D_F2_SERVER` não abre por controle elétrico | Servidores também são acessíveis via almoxarifado; escadas e tubos seguem manuais |
+| Desligar `C_SECURITY` | Algumas câmeras do 2º perdem imagem; `D_F2_SERVER` fechada não abre por controle elétrico; se já aberta, permanece passagem até fechamento físico | Servidores também são acessíveis via almoxarifado; escadas e tubos seguem manuais |
 | Restaurar `C_SERVICE` | A câmera da garagem ganha energia e o controle do portão pode ser preparado | Câmera em loop continua mostrando imagem antiga; energia não conserta interferência |
 | Cortar energia numa porta `releases_when_off` | Fecho elétrico libera abertura manual, com ruído possível | Não abre automaticamente o portão de fuga nem concede sua chave |
 | Forçar porta trancada | Abre a ligação se não estiver emperrada, produz ruído e muda o estado persistido | Hunter só investiga se o evento chegar ao seu sensor com oclusão/mascaramento real |
@@ -59,7 +59,7 @@ O validador também percorre as quatro fugas com todas as portas `needs_power` e
 
 | Rota | Descoberta e preparo | Ação final / estado de falha |
 | --- | --- | --- |
-| Garagem | Registro na guarita `F1_SECURITY` indica que existe uma chave. Segurança `F2_SECURITY` aponta o cofre. Fragmentos de uma combinação de seis dígitos em `F4_NURSE`, `F2_ARCHIVE` e `B1_GENERATOR`; abrir `F2_SAFE`; retirar a chave; restabelecer energia em B1. Os dígitos e texto final ainda precisam ser escritos. | Acionar `G_CONTROL`, passar pelo portão. `garage_failed` bloqueia só `X_GARAGE`. |
+| Garagem | Registro na guarita `F1_SECURITY` indica que existe uma chave. Segurança `F2_SECURITY` aponta o cofre. Fragmentos de uma combinação de seis dígitos em `F4_NURSE`, `F2_ARCHIVE` e `B1_GENERATOR`; abrir `F2_SAFE`; retirar a chave; restabelecer energia em B1. Dígitos e redação candidatos estão no pacote de texto v1; descoberta humana ainda precisa de teste. | Acionar `G_CONTROL`, passar pelo portão. `garage_failed` bloqueia só `X_GARAGE`. |
 | Telhado | Rádio `F1_RADIO`, pilhas `F2_SERVER`, interferência tratada em `F2_CAMERAS`; montar equipamento, falar com o chefe. | **Após confirmação** do helicóptero, contar aproximadamente cinco minutos e alcançar `R_PAD`. `roof_failed` bloqueia só `X_ROOF`. Não disparar confirmação automaticamente ao encontrar o rádio. |
 | Túneis | Encontrar `B1_TUNNEL` a partir da casa de bombas, reconhecer bifurcação, ramais mortos e anel de manutenção. A conexão pela garagem também exige a descoberta da entrada. | Alcançar a descarga `T_EXIT`. `tunnel_failed` bloqueia só `X_TUNNEL`. No Punitivo, Robin pode investigar o sistema. |
 | Janela | Identificar `F3_WINDOW`, pegar ferramentas em `F2_SUPPLY`, voltar e remover a trava sem denunciar a posição. | Passar ao anexo `A_BRIDGE` e sair. `window_failed` bloqueia só `X_WINDOW`; barulho da remoção e exposição da travessia são resolvidos pelo gameplay. |

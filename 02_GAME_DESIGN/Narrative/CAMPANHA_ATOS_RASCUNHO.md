@@ -151,11 +151,11 @@ O jogo primeiro resolve **como Joe saiu** (ou não); depois monta blocos individ
 
 | Pessoa | Estado registrado | Batida emocional proposta |
 | --- | --- | --- |
-| Harley | Sai com Joe e confiança preservada | Ela lembra o momento em que Joe escolheu voltar; nos três primeiros modos pode cobrar as vezes em que ele a tratou como plano secundário. No Punitivo, a preocupação recíproca aparece sem tornar o final perfeito. |
-| Harley | Escapa separada ou rompe vínculo | Ela age por conta própria. Joe sobrevive, mas a ausência dela tem peso específico; a relação não é restaurada só porque ambos vivem. |
+| Harley | Sai com Joe e confiança preservada | Ela só lembra um retorno se Joe realmente voltou; nos três primeiros modos pode cobrar pedidos concretos que ele ouviu e ignorou. No Punitivo, a preocupação recíproca aparece sem tornar o final perfeito. |
+| Harley | Escapa separada ou rompe vínculo | Ela age por conta própria. Se Joe também sobreviveu, a distância tem peso; a fuga de Harley não prova sobrevivência de Joe nem restaura automaticamente o vínculo. |
 | Harley | Capturada, morta ou paradeiro desconhecido | Três variantes distintas e condicionadas a fatos; o jogador vê qual escolha/consequência levou à última informação disponível. Evitar punir uma decisão cuidadosa com morte inevitável roteirizada. |
 | Bartholomeu | Coopera e sai com Joe | Seu medo continua humano; a munição/ajuda compartilhada pode receber reconhecimento concreto. |
-| Bartholomeu | Escapa sozinho após abandono ou conflito | Joe sabe que sobreviveram separados, mas não sabe se o outro o entregaria. Falas diferentes se houve traição testemunhada. |
+| Bartholomeu | Escapa sozinho após abandono ou conflito | Se Joe sobreviveu e recebeu prova, sabe da fuga separada. Sem comunicação, a confirmação pertence somente à coda do público. Falas diferentes se houve traição testemunhada. |
 | Bartholomeu | Capturado, morto ou desconhecido | Registrar o último encontro e evitar atribuir culpa automática se Joe nunca poderia alcançá-lo. |
 | Jack | Ajuda, foge sozinho, é capturado ou desaparece | O epílogo responde ao que Joe de fato viu. No Punitivo, J4 altera a leitura de suas ações; sem J4, só indícios permanecem. |
 | Thomas | Qualquer saída | Fácil/Normal: ausência sem resolução. Difícil/Punitivo: morte por Batman mostrada em N34 ou coda; epílogo distingue se Joe viu a prova. |
@@ -176,7 +176,7 @@ O jogo primeiro resolve **como Joe saiu** (ou não); depois monta blocos individ
 | DOC08 · Chamadas falhas | `F1_RADIO` | Por que baterias e interferência importam | Só para telhado |
 | DOC09 · Tela antiga | `F2_CAMERAS` | Distinguir câmera online de loop | Opcional/segurança |
 | DOC10 · Nota da clínica | `F3_EXAMS` | Possibilidade física do anexo | Só para janela |
-| DOC11 · Ocorrência de porta | `F2_SERVER` | Regra de fechamento em queda de energia | Opcional/planejamento |
+| DOC11 · Ocorrência de porta | `F2_SERVER` | Regra de abertura motorizada sem energia e alternativa manual | Opcional/planejamento |
 | DOC12 · Entrada policial | `F1_LOBBY` | Quarteirão cercado; sair não significa segurança imediata | Opcional/ambiente |
 | DOC13 · Transferência apagada | `F2_ARCHIVE` | Formulário antigo com origem clínica parcialmente raspada e carimbo de Arkham | Opcional/ambiente; não é explicação completa |
 | DOC14 · Placa reaproveitada | `F3_HALL_W` | Duas camadas de sinalização sugerem que a ala mudou de administração antes do fechamento | Opcional/ambiente |
@@ -242,7 +242,7 @@ O subtexto de Jack depende de ele ter visto as duas ocasiões. Se não viu, esta
 
 > Joe: “É o Thomas.”  
 > [Joe confere a evidência e entende o que Batman fez.]  
-> Joe: “Ele não levou o Thomas daqui. Ele o matou.”
+> Joe: “Foi o Batman. Ele matou o Thomas.”
 
 O texto só toca quando Joe presenciou prova inequívoca. Se a revelação vier apenas pela coda, Joe não pronuncia uma conclusão que nunca aprendeu. A cena final deve mostrar ao público o ato/resultado de forma conclusiva, sem atribuir a Joe conhecimento retroativo.
 

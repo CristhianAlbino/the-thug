@@ -1,6 +1,7 @@
 #include "NarrativeState.h"
 
 #include <cmath>
+#include <stdexcept>
 #include <utility>
 
 namespace thug::save {
@@ -19,6 +20,8 @@ bool Numbered(const std::string& id, const std::string& prefix,
 
 bool Scene(const std::string& id) {
   if (Numbered(id, "N", 1, 34)) return true;
+  if (id.size() == 8 && id.substr(3) == ":exit" &&
+      Numbered(id.substr(0, 3), "N", 28, 31)) return true;
   if (id.rfind("N26:", 0) != 0) return false;
   const auto route = id.substr(4);
   return route == "garage" || route == "roof" || route == "tunnel" ||
@@ -36,6 +39,17 @@ bool DurableFact(const std::string& id) {
   return true;
 }
 
+bool PersistentFact(const std::string& id) {
+  // These are current encounter observations, never journal knowledge.
+  static const std::set<std::string> transient{
+      "jack_act3_encounter", "jack_heard_thomas_or_injury",
+      "jack_final_encounter", "jack_perceived_companion_risk",
+      "circuit_changed", "power_failure_observed", "harley_injured",
+      "harley_under_pressure", "barth_under_pressure", "barth_exit_choice",
+      "jack_verified_inference", "jack_claimed_route", "route_failure_observed"};
+  return DurableFact(id) && !Clue(id) && !transient.count(id);
+}
+
 template <typename Predicate>
 bool ValidSet(const std::set<std::string>& ids, Predicate predicate) {
   if (ids.size() > 10000) return false;
@@ -50,7 +64,7 @@ bool Valid(const NarrativeSnapshot& s) {
       !std::isfinite(s.nowSeconds) || s.nowSeconds < 0 ||
       s.act < 1 || s.act > 5 || s.keypadAttempts > 100000 ||
       !std::isfinite(s.lastBanterCompletedAt) ||
-      s.lastBanterCompletedAt < -1 ||
+      (s.lastBanterCompletedAt < 0 && s.lastBanterCompletedAt != -1) ||
       s.lastBanterCompletedAt > s.nowSeconds ||
       !ValidSet(s.seenScenes, Scene) ||
       !ValidSet(s.deliveredBanter, [](const std::string& id) {
@@ -63,7 +77,7 @@ bool Valid(const NarrativeSnapshot& s) {
         return Numbered(id, "AUD", 1, 8);
       }) ||
       !ValidSet(s.witnessedClues, Clue) ||
-      !ValidSet(s.durableFacts, DurableFact) ||
+      !ValidSet(s.durableFacts, PersistentFact) ||
       (s.activeScene.empty() ? s.activeSceneLine != 0 :
        !Scene(s.activeScene) || s.activeSceneLine < 0 ||
        s.activeSceneLine > 10000 || s.seenScenes.count(s.activeScene)) ||
@@ -72,8 +86,20 @@ bool Valid(const NarrativeSnapshot& s) {
        s.activeBanterLine < 0 || s.activeBanterLine > 10000 ||
        s.deliveredBanter.count(s.activeBanter)) ||
       s.outcomes.size() != 3) return false;
-  if (difficulty < 2 && s.seenScenes.count("N34")) return false;
+  if (difficulty < 2 && (s.seenScenes.count("N34") ||
+      s.activeScene == "N34" || s.inspectedDocuments.count("DOC16") ||
+      s.inspectedAudio.count("AUD08") ||
+      s.durableFacts.count("joe_identified_thomas_body") ||
+      s.durableFacts.count("joe_verified_batman_record") ||
+      s.durableFacts.count("joe_directly_witnessed_thomas_death"))) return false;
+  if (difficulty != 3 && s.inspectedAudio.count("AUD07")) return false;
+  if (!s.joeEscaped) {
+    for (const auto& id : {"N28:exit", "N29:exit", "N30:exit", "N31:exit"})
+      if (s.activeScene == id || s.seenScenes.count(id)) return false;
+  }
   if (difficulty != 3 && !s.witnessedClues.empty()) return false;
+  for (const auto& clue : s.witnessedClues)
+    if (s.act < clue[1] - '0' + 1) return false;
   if (s.witnessedClues.count("J4") &&
       (!s.witnessedClues.count("J3") || s.witnessedClues.size() < 3))
     return false;
@@ -93,6 +119,8 @@ bool Valid(const NarrativeSnapshot& s) {
 } // namespace
 
 NarrativeState::NarrativeState(rules::Difficulty difficulty) {
+  if (static_cast<int>(difficulty) < 0 || static_cast<int>(difficulty) > 3)
+    throw std::invalid_argument("Invalid narrative difficulty");
   snapshot_.difficulty = difficulty;
 }
 

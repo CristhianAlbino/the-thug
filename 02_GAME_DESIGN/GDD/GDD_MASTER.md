@@ -219,7 +219,7 @@ Jack desaparece por outro corredor.
 
 Joe fica sozinho.
 
-**A gameplay começa.**
+**Começa a exploração livre após a ruptura.** A abertura N01–N02 já é jogável, com deslocamento e interações breves para criar vínculo com Thomas e a equipe antes da separação. O roteiro detalhado N01–N03 orienta a encenação; não contar a abertura como uma cutscene inteiramente sem controle.
 
 ---
 

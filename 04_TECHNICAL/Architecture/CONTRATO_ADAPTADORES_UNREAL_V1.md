@@ -28,3 +28,12 @@ Persistir, com versão própria: dificuldade; `scene_seen` incluindo `N26:route`
 4. Quando o Hunter perde visão, a ponte entrega última estimativa, não coordenada atual; testes com oclusão/navmesh devem mostrar erro possível.
 
 Logs de teste registram `eventId`, tempo, IDs, entrada validada, resultado e motivo de rejeição sem despejar pistas secretas no HUD. O [kit do primeiro dia](KIT_INTEGRACAO_UNREAL_V1.md) dá a ordem; a [matriz](MATRIZ_TESTES_PRE_UNREAL.md) fornece cenários para aceite.
+
+## Ajustes obrigatórios após a revisão de 01/10
+
+1. Separar N28–N31 de suas codas `N28:exit`–`N31:exit`. O ID simples registra preparação, não saída; o sufixo requer confirmação do RunRules e fica salvo. Uma rota fisicamente válida não espera um número de ato; a progressão de Jack mantém marcos próprios.
+2. Cena principal suspende a conversa opcional ativa. Guardar linha concluída e revalidar presença/perigo antes de retomar; cancelar sem marcar entregue se perder contexto. Aplicar o cooldown persistido de banter. Tratar `activeBanter` junto com `activeScene` como **suspenso**, nunca duas vozes principais concorrentes.
+3. Restringir N34 ativo/concluído, DOC16 e AUD08 aos dois modos superiores; AUD07/J1–J4 ao Punitivo. Ato mínimo das pistas deve sobreviver ao load. Não guardar condições correntes de encontro como fatos históricos nem reconstruí-las só porque existem no save.
+4. Uma porta aberta não fica intransponível só por perder energia; sincronizar fechamento físico explícito, estado e colisão. Objetos ausentes não oferecem interação. Reconciliar os estados carregados com o catálogo e as capacidades reais dos atores antes de liberar controles.
+5. Gerar respiração por `MakeBreathingEvent` usando efeitos do SurvivalCore; conferir acústica e limiares no corredor de teste. O ensaio em código comprova a cadeia de decisão, sem substituir propagação real.
+6. As mudanças de tuning tornam saves experimentais com tuning antigo incompatíveis com a configuração nova; o loader deve rejeitá-los claramente, não misturar regras. O envelope continua na versão 1 porque sua estrutura não mudou; novos IDs de etapa são dados do contrato atualizado.

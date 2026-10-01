@@ -34,7 +34,7 @@ Tuning TuningFor(Difficulty difficulty) {
   Tuning tuning;
   switch (difficulty) {
   case Difficulty::Easy:
-    tuning.soundThreshold = 0.55;
+    tuning.soundThreshold = 0.30;
     tuning.searchSeconds = 18;
     tuning.investigateSeconds = 10;
     tuning.memoryHalfLifeSeconds = 90;
@@ -42,7 +42,7 @@ Tuning TuningFor(Difficulty difficulty) {
     tuning.routeEvidenceWeight = 0.5;
     break;
   case Difficulty::Normal:
-    tuning.soundThreshold = 0.4;
+    tuning.soundThreshold = 0.14;
     tuning.searchSeconds = 28;
     tuning.memoryHalfLifeSeconds = 180;
     tuning.locationLifetimeSeconds = 75;
@@ -51,13 +51,15 @@ Tuning TuningFor(Difficulty difficulty) {
   case Difficulty::Hard:
     break;
   case Difficulty::Punitive:
-    tuning.soundThreshold = 0.15;
+    tuning.soundThreshold = 0.05;
     tuning.searchSeconds = 65;
     tuning.investigateSeconds = 22;
     tuning.memoryHalfLifeSeconds = 480;
     tuning.locationLifetimeSeconds = 180;
     tuning.routeEvidenceWeight = 3;
     break;
+  default:
+    throw std::invalid_argument("Unknown Hunter difficulty");
   }
   return tuning;
 }

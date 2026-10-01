@@ -13,6 +13,8 @@ Um passo, porta, queda, tiro, explosão, respiração ou distração contém a p
 
 O HunterCore decide se essa intensidade justifica investigar de acordo com a dificuldade. Tiros são mais audíveis que passos lentos, mas nenhum som revela um esconderijo ou rota usada. Parâmetros de alcance, volume e incerteza são **hipóteses de balanceamento**. Geometria, portas e materiais precisam fornecer transmissão real na Unreal.
 
+Para respiração, usar `MakeBreathingEvent` com o multiplicador fornecido pelo SurvivalCore, em vez de saturar a energia em 1 antes de aplicar o ferimento. A base do perfil representa respiração máxima; a função escala respiração calma, ferimento e fadiga. `ScenarioLab/actor_scenarios.cpp` verifica porta real → percepção → reação, caminhada no Difícil e ferimento → respiração → reação no Normal. Emissão periódica e controle voluntário da respiração ainda pertencem à integração/desenvolvimento posterior.
+
 ## Evidência ambiental
 
 `EvidenceMemory::Inspect` registra a primeira observação de uma porta, luz, câmera ou outro objeto como referência. Uma alteração só gera pista quando o Hunter **volta a inspecionar** o objeto. Se a mudança ocorreu e foi revertida sem inspeção, ele não aprende nada. O evento não declara que Joe causou a alteração.

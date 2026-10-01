@@ -164,11 +164,74 @@ void StoryRoundTrip() {
         "Save refuses story events ahead of the world clock");
 }
 
+void DifficultyAndProgressBoundaries() {
+  for (auto difficulty : {rules::Difficulty::Easy, rules::Difficulty::Normal,
+                         rules::Difficulty::Hard, rules::Difficulty::Punitive}) {
+    save::NarrativeState state(difficulty);
+    const bool confirmed = difficulty == rules::Difficulty::Hard ||
+                           difficulty == rules::Difficulty::Punitive;
+    auto pending = state.CaptureSnapshot();
+    pending.activeScene = "N34";
+    Check(state.RestoreSnapshot(pending) == confirmed,
+          "Unfinished scene obeys the same Thomas gate as completed scenes");
+    Check(state.InspectDocument("DOC16", 1) == confirmed &&
+          state.InspectAudio("AUD08", 2) == confirmed,
+          "Restricted journal entries cannot leak through save state");
+    Check(state.InspectAudio("AUD07", 3) == (difficulty == rules::Difficulty::Punitive),
+          "Jack recording is Punitive-only");
+  }
+  save::NarrativeState punitive(rules::Difficulty::Punitive);
+  Check(!punitive.WitnessClue("J1", 1), "Punitive clue cannot precede its narrative act");
+  auto next = punitive.CaptureSnapshot();
+  next.act = 4;
+  Check(punitive.RestoreSnapshot(next) && punitive.WitnessClue("J2", 1) &&
+        punitive.WitnessClue("J3", 2) && !punitive.WitnessClue("J4", 3),
+        "Missing J1 is allowed, premature J4 is not");
+  next = punitive.CaptureSnapshot();
+  next.act = 5;
+  Check(punitive.RestoreSnapshot(next) && punitive.WitnessClue("J4", 3),
+        "Late reveal accepts J2 plus J3 without forcing the missed J1");
+  next = punitive.CaptureSnapshot();
+  next.durableFacts.insert("jack_final_encounter");
+  Check(!punitive.RestoreSnapshot(next) &&
+        punitive.CaptureSnapshot().durableFacts.empty(),
+        "Transient encounter cannot survive as a durable fact");
+  next.durableFacts = {"J1"};
+  Check(!punitive.RestoreSnapshot(next), "Clue gates cannot be bypassed through generic facts");
+  save::NarrativeState normal(rules::Difficulty::Normal);
+  next = normal.CaptureSnapshot();
+  next.durableFacts.insert("joe_directly_witnessed_thomas_death");
+  Check(!normal.RestoreSnapshot(next), "Generic facts cannot smuggle Thomas proof into Normal");
+
+  Fixture escaped;
+  Check(!escaped.narrative.RecordScene("N30:exit", 1),
+        "Coda cannot be recorded before Joe escaped");
+  Check(escaped.routes.Apply(rules::Event::TunnelFound, 1) &&
+        escaped.routes.Apply(rules::Event::TunnelExitReached, 2) &&
+        escaped.world.AdvanceTo(2), "Confirmed tunnel ending is recorded by RunRules");
+  next = escaped.narrative.CaptureSnapshot();
+  next.joeEscaped = true;
+  Check(escaped.narrative.RestoreSnapshot(next) &&
+        escaped.narrative.RecordScene("N30:exit", 2), "Confirmed route can receive its coda");
+  const auto bytes = Encode(escaped.Members());
+  Fixture loaded;
+  Check(Decode(bytes, loaded.Members()) == save::Result::Ok &&
+        loaded.narrative.CaptureSnapshot().seenScenes.count("N30:exit"),
+        "Coda stage survives complete story round trip");
+  next.seenScenes = {"N28:exit"};
+  Check(escaped.narrative.RestoreSnapshot(next), "Ledger can receive an adapter claim");
+  std::ostringstream rejected;
+  Check(save::SaveStoryCampaign(rejected, escaped.Members()) ==
+        save::Result::IncompatibleRoster && rejected.str().empty(),
+        "Full checkpoint rejects coda for the wrong RunRules route");
+}
+
 } // namespace
 
 int main() {
   try {
     StoryRoundTrip();
+    DifficultyAndProgressBoundaries();
     std::cout << "StorySave: " << checks << " checks passed\n";
   } catch (const std::exception& error) {
     std::cerr << "StorySave failed after " << checks <<

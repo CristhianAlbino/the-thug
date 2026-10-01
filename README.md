@@ -65,6 +65,8 @@ The [C++17 game rules](Tools/HunterCore/README.md) now implement a testable Hunt
 
 ## Current next step
 
+Read the [full review and remaining implementation work (Portuguese, spoiler-free)](01_PROJECT/Reviews/REVISAO_GERAL_2026_10_01.md). The engine-independent foundation is testable, but advanced AI, gameplay transactions, combat and rare endings remain incomplete; no Unreal project or playable build exists yet.
+
 Follow the [24-day pre-Unreal plan](01_PROJECT/Roadmap/PLANO_PRE_UNREAL_24_DIAS.md) through October 23, 2026. The [Day 1 Unreal setup](01_PROJECT/Roadmap/DIA_1_UNREAL.md) applies once the editor is available. Open design questions are tracked in [Decisions](01_PROJECT/Decisions/DECISOES_ABERTAS.md). The [complete master GDD](02_GAME_DESIGN/GDD/GDD_MASTER.md) is the design source of truth. GitHub updates require a commit and push; editor saves are local.
 
 ---

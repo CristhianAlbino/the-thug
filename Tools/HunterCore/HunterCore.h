@@ -57,7 +57,7 @@ struct Stimulus {
 
 struct Tuning {
   double minimumSoundRadiusMeters = 4;
-  double soundThreshold = 0.25;
+  double soundThreshold = 0.08;
   double searchSeconds = 40;
   double investigateSeconds = 16;
   double memoryHalfLifeSeconds = 300;

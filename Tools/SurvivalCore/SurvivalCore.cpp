@@ -205,6 +205,10 @@ bool SurvivalCore::RestoreSnapshot(const SurvivalSnapshot& s) {
       (s.bleeding && s.injury != Injury::Severe) ||
       (s.collapsed && s.bloodLoss < tuning_.collapseBloodLoss) ||
       (!s.collapsed && s.bloodLoss >= tuning_.collapseBloodLoss) ||
+      (!s.dead && s.bloodLoss >= tuning_.fatalBloodLoss) ||
+      (!s.exhausted && s.stamina == 0) ||
+      (s.exhausted && s.stamina >=
+          tuning_.maxStamina * tuning_.exhaustionReleaseFraction) ||
       (s.dead && (!s.collapsed || !s.bleeding ||
                   s.bloodLoss < tuning_.fatalBloodLoss))) return false;
   injury_ = s.injury;

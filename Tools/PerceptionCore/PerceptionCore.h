@@ -53,6 +53,10 @@ struct EvidenceMemorySnapshot {
 
 SoundProfile ProfileFor(SoundKind kind);
 std::string SoundName(SoundKind kind);
+// Pass SurvivalCore::CurrentEffects().breathingLoudnessMultiplier, in [1, 3].
+// Keeps normalized energy while retaining amplification above calm breathing.
+SoundEvent MakeBreathingEvent(hunter::Vec3 source, double atSeconds,
+                             double loudnessMultiplier);
 
 class PerceptionCore {
 public:
