@@ -2,7 +2,7 @@
 
 **Estado: direção narrativa v0.2.** As decisões do criador registradas em 30/09/2026 na seção seguinte estão fixadas; encenação, ordem fina, falas e gatilhos continuam rascunho para acompanhamento. O [GDD Mestre](../GDD/GDD_MASTER.md) fixa a premissa, cinco personagens, Batman como Hunter, quatro fugas e os cinco atos conceituais. Este documento propõe uma sequência extensa e dinâmica para o Difícil, conectada ao [mapa lógico](../World/MAPA_LOGICO_HOSPITAL.md) e à [bíblia visual](../Visual/BIBLIA_VISUAL_HOSPITAL.md). IDs de cena são estáveis para roteiro e implementação; durações são **hipóteses**, sem playtest.
 
-As cenas N01–N11 receberam uma [primeira passada de roteiro jogável](ROTEIRO_ATOS_1_2_RASCUNHO.md), com condições, alternativas e falas para revisão próxima. N12–N34 têm [roteiro de trabalho dos atos 3 a 5](ROTEIRO_ATOS_3_5_RASCUNHO.md), com rotas, dilemas, Thomas, J4 e epílogos; detalhes de implementação/encenação seguem em revisão.
+As cenas N01–N11 receberam uma [primeira passada de roteiro jogável](ROTEIRO_ATOS_1_2_RASCUNHO.md), com condições, alternativas e falas para revisão próxima. N12–N34 têm [roteiro de trabalho dos atos 3 a 5](ROTEIRO_ATOS_3_5_RASCUNHO.md), com rotas, dilemas, Thomas, J4 e epílogos. O [pacote de texto v1](PACOTE_TEXTO_CAMPANHA_V1.md) traz falas, documentos, roteiros de gravações e epílogos para revisão; a [bíblia de personagens](BIBLIA_PERSONAGENS_V1.md) orienta vozes e consequências. Encenação e atuação seguem em revisão.
 
 ## Diretrizes confirmadas por Cristhian
 
@@ -69,7 +69,7 @@ São **faixas de observação para playtest**, não bloqueios por relógio. Quem
 | --- | --- | --- |
 | N12 · Medicamentos | `F1_LOBBY` → `F1_PHARMACY` · O/C | Tratamento visível através do átrio exposto. Um Joe ferido mede custo de atravessar; sem ferimento, o local vira recurso opcional. A câmera do lobby pode ajudar, enganar ou estar apagada. |
 | N13 · A chave existe | `F1_SECURITY` · O/M garagem | Registro liga um veículo de serviço a uma chave guardada na Administração. Revela **existência**, não o código. |
-| N14 · O cofre | `F2_SECURITY` / `F2_SAFE` · O/M garagem | Joe localiza o cofre e cruza três fragmentos de combinação: `F4_NURSE`, `F2_ARCHIVE`, `B1_GENERATOR`. Os seis dígitos e os textos finais continuam em aberto; cada pista tem referência espacial e segunda camada narrativa. |
+| N14 · O cofre | `F2_SECURITY` / `F2_SAFE` · O/M garagem | Joe localiza o cofre e cruza três fragmentos de combinação: `F4_NURSE`, `F2_ARCHIVE`, `B1_GENERATOR`. A hipótese de seis dígitos `410723` e os textos estão no [pacote de pistas](../World/PISTAS_ROTAS_V1.md), sujeitos a playtest de descoberta. |
 | N15 · Bartholomeu | `F2_ADMIN`, `B1_PUMP` ou ligação entre ambos · C | Bartholomeu procura saída e recursos. Se vir túneis ou receber informação verificável, `LearnRoute("tunnel")`. Pode contar a Joe apenas se o encontrar e escolher compartilhar. Entregar munição é ação física: inventário de Joe diminui, Bartholomeu guarda a unidade e o vínculo muda. |
 | N16 · Descenso industrial | `B1_CENTRAL` → `B1_GENERATOR` · M para energia | Tubos, água e gerador identificável pelo som. Restaurar `C_SERVICE` abre possibilidades de portão/câmera, mas pode produzir sinal audível ao Batman se estiver em alcance. Apagar `C_SECURITY` corta certas câmeras e uma porta elétrica; existe desvio pelo almoxarifado. |
 | N17 · Prumada | `B1_PIPE` ↔ `F1_SERVICE` ↔ `F2_SERVICE` ↔ `F3_PIPE` · O/C | O mesmo duto reconhecível permite retorno inteligente. Joe entra devagar; o Hunter não atravessa a aresta estreita se ela não comporta seu corpo, mas pode investigar uma boca ou contornar por escada. |
@@ -117,7 +117,7 @@ São **faixas de observação para playtest**, não bloqueios por relógio. Quem
 | Jack | Exames/câmeras, investigando padrão | Informação incompleta, utilidade e desconfiança; no Punitivo aparência, risos e humor mudam progressivamente | Aliado pragmático, mentiroso, ausente; revelação secreta Punitivo condicionada a pistas, nunca trava a fuga |
 | Thomas | N03 em toda dificuldade; N34 apenas Difícil/Punitivo | Sua morte causada por Batman é fato do mundo, mas não conhecimento automático do jogador | Fácil/Normal terminam sem confirmação; Difícil/Punitivo revelam durante a exploração ou em coda se ele não viu a prova |
 
-O sistema de companheiros parte de **variáveis separadas** de confiança, medo, estresse, lealdade, autopreservação e relacionamento; valores iniciais continuam na decisão D-02. O roteiro não declara “Harley sempre salva Joe” nem “Bartholomeu trai no minuto 140”. Os mesmos encontros podem mudar falas, prioridades e recursos de acordo com o estado. Nenhum NPC sabe uma rota porque Joe a descobriu: precisa de testemunho, observação ou comunicação.
+O sistema de companheiros parte de **variáveis separadas** de confiança, medo, estresse, lealdade, autopreservação e relacionamento; [valores iniciais v1](../Balance/BALANCE_INICIAL_V1.md) são hipóteses de playtest da decisão D-02. O roteiro não declara “Harley sempre salva Joe” nem “Bartholomeu trai no minuto 140”. Os mesmos encontros podem mudar falas, prioridades e recursos de acordo com o estado. Nenhum NPC sabe uma rota porque Joe a descobriu: precisa de testemunho, observação ou comunicação.
 
 ### Fazer o jogador se importar antes do dilema
 
@@ -182,7 +182,7 @@ O jogo primeiro resolve **como Joe saiu** (ou não); depois monta blocos individ
 | DOC15 · Inventário antigo | `B1_STORAGE` | Equipamentos e tubulações numerados por um sistema diferente do hospital atual | Opcional/ambiente |
 | DOC16 · Thomas (prova) | `B1_MORGUE` ou registro verificável em `F2_SECURITY` | Corrobora N34 e a autoria de Batman sem depender de câmera em loop | **Somente Difícil/Punitivo**; alternativa de coda garante revelação ao público |
 
-Documentos opcionais ampliam o hospital e permitem suspeitar que houve uso recente. DOC13–DOC15 podem sugerir que o prédio foi uma **extensão clínica desativada do antigo Asilo Arkham**, sem um texto que resolva toda sua história. DOC16 não existe ou não revela a conclusão no Fácil/Normal; não usar o mesmo prontuário com texto “censurado” de modo artificial. Pistas obrigatórias de **uma rota escolhida** são rastreáveis e continuam acessíveis mesmo quando outra rota falha. A redação exata e a combinação de seis dígitos são pendências de coautoria.
+Documentos opcionais ampliam o hospital e permitem suspeitar que houve uso recente. DOC13–DOC15 podem sugerir que o prédio foi uma **extensão clínica desativada do antigo Asilo Arkham**, sem um texto que resolva toda sua história. DOC16 não existe ou não revela a conclusão no Fácil/Normal; não usar o mesmo prontuário com texto “censurado” de modo artificial. Pistas obrigatórias de **uma rota escolhida** são rastreáveis e continuam acessíveis mesmo quando outra rota falha. Redação e combinação `410723` têm uma primeira versão para revisão no [pacote de texto](PACOTE_TEXTO_CAMPANHA_V1.md); legibilidade ainda precisa de playtest.
 
 ### Gravações e falas de ambiente — ideias de primeira passada
 
@@ -264,4 +264,4 @@ O texto só toca quando Joe presenciou prova inequívoca. Se a revelação vier 
 | Hospital | Possível ala clínica desativada associada a Arkham, narrada pelo ambiente. **Pendente:** sinais físicos exatos no blockout. | Arquivos, placas e materiais |
 | Companheiros | Epílogos individuais e dilemas de ajudar/abandonar/sacrificar. **Pendente:** condições específicas de captura, morte, separação e último testemunho. | Variantes de cena e estado persistido |
 
-As diretrizes da primeira seção estão aprovadas; o restante continua rascunho para revisão de encenação e ritmo com Cristhian. Redigir cenas completas, falas condicionais, documentos e gravações por ID; cruzar cada gatilho com flags, estados do mundo e testes. A duração final depende de playtest.
+As diretrizes da primeira seção estão aprovadas; o restante continua rascunho para revisão de encenação e ritmo com Cristhian. A primeira passada de cenas, falas condicionais, documentos e transcrições está no [pacote de texto v1](PACOTE_TEXTO_CAMPANHA_V1.md), com IDs cruzados com mapa e regras no NarrativeCore. Revisar em conjunto, testar gatilhos no editor e medir duração em playtest.

@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">The Thug — wireframe de exploração e sala de câmeras</title>
+  <desc id="desc">Duas telas de referência: HUD discreto em corredor hospitalar e painel de câmera identificado como repetição de vídeo.</desc>
+  <defs>
+    <linearGradient id="bg" x2="0" y2="1"><stop stop-color="#162229"/><stop offset="1" stop-color="#090d11"/></linearGradient>
+    <linearGradient id="hall" x2="0" y2="1"><stop stop-color="#29363b"/><stop offset="1" stop-color="#0d1115"/></linearGradient>
+    <linearGradient id="screen" x2="0" y2="1"><stop stop-color="#29383c"/><stop offset="1" stop-color="#121b20"/></linearGradient>
+    <pattern id="noise" width="12" height="12" patternUnits="userSpaceOnUse"><path d="M2 2h1m6 5h1m-5 3h1" stroke="#b7ced0" opacity=".12"/></pattern>
+  </defs>
+  <rect width="1600" height="900" fill="#0a0d10"/>
+  <text x="56" y="65" font-family="Arial,sans-serif" font-size="32" fill="#e5eeeb" font-weight="700">THE THUG — interface de trabalho</text>
+  <text x="56" y="98" font-family="Arial,sans-serif" font-size="17" fill="#9bb1ad">Wireframe pré-Unreal • informações verificáveis • sem radar do Hunter</text>
+  <rect x="50" y="130" width="730" height="650" rx="12" fill="url(#bg)" stroke="#51605e" stroke-width="2"/>
+  <rect x="820" y="130" width="730" height="650" rx="12" fill="#11191d" stroke="#51605e" stroke-width="2"/>
+  <text x="72" y="174" font-family="Arial,sans-serif" font-size="22" fill="#f1f5f2">Exploração • corredor F4</text>
+  <text x="842" y="174" font-family="Arial,sans-serif" font-size="22" fill="#f1f5f2">Segurança F2 • câmera observada</text>
+  <g transform="translate(72 195)">
+    <rect width="686" height="448" fill="url(#hall)"/>
+    <path d="M0 0 L270 100 L270 348 L0 448 M686 0 L416 100 L416 348 L686 448" fill="#1b282b" stroke="#43565a" stroke-width="4"/>
+    <path d="M270 100 H416 V348 H270 Z" fill="#131a1c" stroke="#405356" stroke-width="5"/>
+    <path d="M0 448 L270 348 H416 L686 448" fill="#1f2d30" stroke="#435658" stroke-width="3"/>
+    <rect x="280" y="138" width="124" height="190" fill="#171c1d" stroke="#607276" stroke-width="4"/>
+    <rect x="294" y="171" width="90" height="46" fill="#5c1318" opacity=".7"/>
+    <path d="M24 100 H122 V330 H24 M565 65 H650 V353 H565" fill="none" stroke="#667a7d" stroke-width="6"/>
+    <circle cx="343" cy="257" r="4" fill="#e4ebe8" opacity=".78"/>
+    <rect x="233" y="278" width="220" height="46" rx="8" fill="#0a1013" opacity=".86"/>
+    <text x="250" y="307" font-family="Arial,sans-serif" font-size="18" fill="#e5ece8">[E] Examinar porta</text>
+    <rect x="0" y="0" width="686" height="448" fill="url(#noise)"/>
+  </g>
+  <g font-family="Arial,sans-serif">
+    <text x="85" y="684" font-size="17" fill="#d5dddd">FERIMENTO LEVE</text>
+    <rect x="85" y="697" width="170" height="7" rx="3" fill="#293b3d"/>
+    <rect x="85" y="697" width="105" height="7" rx="3" fill="#c47660"/>
+    <text x="85" y="735" font-size="16" fill="#a9bab9">Fôlego</text>
+    <rect x="152" y="723" width="104" height="7" rx="3" fill="#293b3d"/>
+    <rect x="152" y="723" width="73" height="7" rx="3" fill="#9cbab4"/>
+    <text x="492" y="700" font-size="17" fill="#d5dddd">FERRAMENTA</text>
+    <text x="492" y="730" font-size="15" fill="#a9bab9">Inventário 10 / 12</text>
+  </g>
+  <g transform="translate(842 195)" font-family="Arial,sans-serif">
+    <rect width="686" height="448" fill="#071015" stroke="#3b4d50"/>
+    <rect x="18" y="18" width="488" height="342" rx="5" fill="url(#screen)" stroke="#5d7879" stroke-width="3"/>
+    <path d="M40 310 L220 160 L355 160 L487 310 M80 95 H475" fill="none" stroke="#657f7d" stroke-width="7" opacity=".72"/>
+    <rect x="265" y="170" width="90" height="140" fill="#172429" stroke="#849a97" stroke-width="4"/>
+    <rect x="31" y="31" width="197" height="39" rx="4" fill="#b67d3b"/>
+    <text x="45" y="58" font-size="20" font-weight="700" fill="#141b1b">REPETIÇÃO</text>
+    <text x="31" y="343" font-size="17" fill="#e0e7e4">CAM_GARAGE • quadro antigo</text>
+    <rect x="525" y="18" width="143" height="342" fill="#142126" stroke="#455b5e"/>
+    <text x="543" y="56" font-size="17" fill="#a9c2ba">FONTES</text>
+    <text x="543" y="100" font-size="16" fill="#e5ece7">Saguão</text>
+    <text x="543" y="124" font-size="13" fill="#8fc0a4">● Ao vivo</text>
+    <text x="543" y="172" font-size="16" fill="#e5ece7">Clínica</text>
+    <text x="543" y="196" font-size="13" fill="#d5b783">◌ Interferência</text>
+    <text x="543" y="244" font-size="16" fill="#e5ece7">Garagem</text>
+    <text x="543" y="268" font-size="13" fill="#d7ae72">↻ Repetição</text>
+    <text x="543" y="316" font-size="16" fill="#e5ece7">Válvula</text>
+    <text x="543" y="340" font-size="13" fill="#a9b7b7">× Sem sinal</text>
+    <rect x="18" y="377" width="650" height="54" rx="7" fill="#1c292d"/>
+    <text x="36" y="410" font-size="17" fill="#dde8e3">Imagem gravada. Verifique o local antes de concluir que está vazio.</text>
+  </g>
+  <text x="52" y="825" font-family="Arial,sans-serif" font-size="17" fill="#96aaa6">Hipótese de interface para teste de legibilidade, acessibilidade e informação por dificuldade.</text>
+</svg>

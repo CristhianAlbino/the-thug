@@ -2,6 +2,8 @@
 
 **Meta de 24 dias:** deixar o trabalho independente da engine especificado, versionado e verificável para iniciar a produção na Unreal assim que o computador estiver disponível. **Não equivale a jogo 100% pronto:** mapas, assets importados, Blueprints, animações, navegação, iluminação, áudio espacial, desempenho e build jogável dependem do editor.
 
+**Sequência revista com Cristhian:** fechar roteiro/personagens, hipóteses de balanceamento, pistas, interface e preparação técnica; fazer revisão geral; **depois** produzir/gravar áudio e selecionar/criar assets finais. Textos das gravações podem ser escritos na fase de roteiro. O [Modo Extremo/Joker](../../02_GAME_DESIGN/Backlog/MODO_EXTREMO_JOKER.md) é expansão futura e não altera o pacote de quatro dificuldades atual. O calendário abaixo é histórico de metas, não compromisso de produzir áudio/assets antes da revisão.
+
 O [GDD Mestre](../../02_GAME_DESIGN/GDD/GDD_MASTER.md) é a fonte do design. Divergências vão para um registro de decisões; números ainda não fixados no GDD são *hipóteses de balanceamento*, nunca fatos aprovados.
 
 Registro atual: [Decisões abertas](../Decisions/DECISOES_ABERTAS.md).
@@ -24,6 +26,12 @@ Registro atual: [Decisões abertas](../Decisions/DECISOES_ABERTAS.md).
 - [x] Estrutura narrativa v0.2 de 34 cenas com as diretrizes D-11 confirmadas, dilemas e epílogos individuais; contrato NarrativeCore testa revelações por dificuldade e IDs do mapa. Encenação final, diálogos condicionais e gatilhos ainda pendentes da D-12 e da revisão próxima do criador.
 - [x] Primeira passada de roteiro jogável N01–N11 (atos 1–2), com variantes de Joe/Harley, primeiro sinal de Jack e encontro condicional com Batman; contrato de disparo verifica presença física dos companheiros, evidência e alternativas de percurso.
 - [x] Primeira passada de roteiro N12–N34 (atos 3–5), ligando quatro fugas, circuitos, dilemas, Thomas, J4 e epílogos. Contratos formais de entrada, falhas independentes por rota e estados individuais de epílogo validados; falas/encenação finais e playtest continuam pendentes.
+- [x] Bíblia individual e pacote de texto v1 para N01–N34, DOC01–16, AUD01–08 e epílogos, com distinção entre prova de Thomas e informação de Joe; revisão criativa D-12 pendente.
+- [x] Hipóteses de balanceamento em tabela e JSON, três fragmentos da garagem (`410723`) e quatro cadeias de pista validadas contra o grafo; valores/descoberta aguardam playtest.
+- [x] Fluxos de interface, wireframe SVG, acessibilidade e idioma inicial; UMG e teste de leitura aguardam editor.
+- [x] Matriz de campanha, orçamento provisório, contrato dos adaptadores e kit de primeiro dia; integração jogável depende do editor, especialmente estado narrativo no save.
+- [ ] Revisão geral com Cristhian de texto, encenação, valores e interface; a [revisão técnica v1](../Reviews/REVISAO_PRE_UNREAL_V1.md) lista evidências e decisões pendentes.
+- [ ] Produção/gravação de áudio e seleção/criação de assets finais **depois** da revisão geral.
 - [ ] Projeto `.uproject`, níveis e execução no editor: aguardam o computador/Unreal.
 
 ## Calendário de entregas
@@ -45,15 +53,15 @@ Registro atual: [Decisões abertas](../Decisions/DECISOES_ABERTAS.md).
 | 13 | 12/10 | Linha de acontecimentos dos cinco atos | Eventos obrigatórios vs. emergentes separados |
 | 14 | 13/10 | Matriz de consequências dos companheiros | Gatilhos, condições e efeitos auditáveis |
 | 15 | 14/10 | Diálogos e gravações da campanha | Rascunhos indexados por evento e personagem |
-| 16 | 15/10 | Direção de áudio e música adaptativa | Lista de cues, estados e prioridade de mix |
-| 17 | 16/10 | Bíblia visual e lista de assets | Referências, escala, placeholders e origem/licença |
+| 16 | 15/10 | Roteiros de gravação escritos; produção sonora adiada | Transcrições AUD01–08 revisáveis; cues/mix após revisão geral |
+| 17 | 16/10 | Bíblia visual conceitual; assets finais adiados | Referências e origem/licença a fechar após revisão geral |
 | 18 | 17/10 | HUD, menus, acessibilidade e fluxos de informação | Wireframes e critérios de leitura |
 | 19 | 18/10 | Tabelas de dificuldade e balanceamento inicial | Variáveis em dados, com hipóteses identificadas |
 | 20 | 19/10 | Matriz de testes da campanha completa | Vitória, derrota, saves, IA, rotas e regressão |
 | 21 | 20/10 | Orçamento técnico e estratégia de conteúdo | Metas provisórias de desempenho e Git LFS |
 | 22 | 21/10 | Contratos dos adaptadores Unreal | Interfaces, eventos, conversão de unidades e logs |
 | 23 | 22/10 | Kit de importação para o primeiro dia no editor | Ordem de integração, pastas e checklist executável |
-| 24 | 23/10 | Revisão cruzada e congelamento do pacote | Links válidos, testes verdes, pendências explícitas |
+| 24 | 23/10 | Revisão cruzada e decisão de congelamento do pacote | Links válidos, testes verdes, pendências explícitas; congelar só após revisão com Cristhian |
 
 As datas são **ordem de produção**, não execução automática em segundo plano. Replanejar se um sistema revelar uma dependência maior. Cada entrega deve ter: especificação, implementação/dados quando fizer sentido, teste relevante, instruções de integração e estado honesto no README.
 

@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "status": "playtest_hypothesis",
+  "modes": {
+    "Easy": {"inventory_slots": 16, "dawn_minutes": 30, "companions": {
+      "harley": [85, 15, 15, 85, 45, 85], "bartholomeu": [80, 35, 25, 75, 45, 40], "jack": [70, 20, 20, 70, 55, 30]}},
+    "Normal": {"inventory_slots": 14, "dawn_minutes": 90, "companions": {
+      "harley": [75, 25, 25, 75, 50, 85], "bartholomeu": [65, 50, 40, 65, 55, 35], "jack": [55, 30, 30, 50, 65, 25]}},
+    "Hard": {"inventory_slots": 12, "dawn_minutes": 180, "companions": {
+      "harley": [65, 35, 40, 70, 55, 85], "bartholomeu": [55, 60, 45, 55, 65, 35], "jack": [40, 35, 30, 35, 80, 25]}},
+    "Punitive": {"inventory_slots": 10, "dawn_minutes": null, "companions": {
+      "harley": [65, 45, 50, 70, 60, 90], "bartholomeu": [45, 75, 60, 45, 80, 30], "jack": [35, 20, 25, 25, 85, 20]}}
+  },
+  "trait_order": ["trust", "fear", "stress", "loyalty", "selfPreservation", "relationship"],
+  "hard_starting_loadout_slots": {"rifle": 3, "magazines": 2, "grenade": 1, "smokes": 2}
+}

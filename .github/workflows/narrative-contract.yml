@@ -6,6 +6,8 @@ on:
       - 'Tools/NarrativeCore/**'
       - 'Tools/MapCore/hospital_graph.json'
       - '02_GAME_DESIGN/Narrative/**'
+      - '02_GAME_DESIGN/Balance/**'
+      - '02_GAME_DESIGN/World/PISTAS_ROTAS_V1.md'
       - '.github/workflows/narrative-contract.yml'
   push:
     branches: [main]
@@ -13,6 +15,8 @@ on:
       - 'Tools/NarrativeCore/**'
       - 'Tools/MapCore/hospital_graph.json'
       - '02_GAME_DESIGN/Narrative/**'
+      - '02_GAME_DESIGN/Balance/**'
+      - '02_GAME_DESIGN/World/PISTAS_ROTAS_V1.md'
       - '.github/workflows/narrative-contract.yml'
 
 permissions:

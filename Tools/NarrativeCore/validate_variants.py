@@ -195,6 +195,56 @@ def verify_endings():
         raise AssertionError("Thomas knowledge leaked through evidence resolver")
 
 
+def verify_text_and_balance(graph):
+    package = (ROOT / "../../02_GAME_DESIGN/Narrative/PACOTE_TEXTO_CAMPANHA_V1.md").read_text(encoding="utf-8")
+    scene_ids = re.findall(r"^\| (N\d{2}) \|", package, flags=re.M)
+    doc_ids = re.findall(r"^\| (DOC\d{2}) ·", package, flags=re.M)
+    audio_ids = re.findall(r"^\| (AUD\d{2}) ·", package, flags=re.M)
+    assert scene_ids == [f"N{i:02d}" for i in range(1, 35)]
+    assert doc_ids == [f"DOC{i:02d}" for i in range(1, 17)]
+    assert audio_ids == [f"AUD{i:02d}" for i in range(1, 9)]
+    nodes = {node["id"] for node in graph["nodes"]}
+    refs = set(re.findall(r"`((?:F[1-4]|B1|G|T|R|A|X|CAM|D|H|C)_[A-Z0-9_]+)`", package))
+    devices = {d["id"] for group in graph["devices"].values() for d in group}
+    assert refs <= nodes | devices, f"unknown text package references: {refs - (nodes | devices)}"
+
+    puzzle = json.loads((ROOT / "puzzle_contract.json").read_text(encoding="utf-8"))
+    assert puzzle["schema"] == 1
+    garage = puzzle["garage"]
+    assert len(garage["code"]) == 6 and garage["code"].isdigit()
+    fragments = garage["fragments"]
+    assert "".join(part["pair"] for part in fragments) == garage["code"]
+    assert [part["document"] for part in fragments] == ["DOC01", "DOC02", "DOC03"]
+    action_by_flag = {action["grants"]: action["at"] for action in graph["actions"]}
+    for part in fragments:
+        assert part["node"] == action_by_flag[part["flag"]]
+        row = next(x for x in package.splitlines() if x.startswith(f"| {part['document']} ·"))
+        assert part["node"] in row and f"**{part['pair']}**" in row
+    for field in ("key_discovery", "safe_discovery"):
+        item = garage[field]
+        assert item["node"] == action_by_flag[item["flag"]]
+        assert any(x.startswith(f"| {item['document']} ·") for x in package.splitlines())
+    assert garage["order_document"] == garage["safe_discovery"]["document"]
+    assert garage["code"] in package
+
+    balance = json.loads((ROOT / "balance_initial.json").read_text(encoding="utf-8"))
+    assert balance["schema"] == 1 and balance["status"] == "playtest_hypothesis"
+    assert set(balance["modes"]) == set(DATA["difficulty"])
+    assert balance["trait_order"] == ["trust", "fear", "stress", "loyalty",
+                                      "selfPreservation", "relationship"]
+    assert [balance["modes"][d]["dawn_minutes"] for d in
+            ("Easy", "Normal", "Hard", "Punitive")] == [30, 90, 180, None]
+    for profile in balance["modes"].values():
+        assert profile["inventory_slots"] > 0
+        assert set(profile["companions"]) == set(DATA["epilogues"])
+        assert all(len(traits) == 6 and all(isinstance(v, int) and 0 <= v <= 100
+                                            for v in traits)
+                   for traits in profile["companions"].values())
+    assert sum(balance["hard_starting_loadout_slots"].values()) == 8
+    assert balance["modes"]["Hard"]["inventory_slots"] >= 8
+    return len(refs)
+
+
 def verify():
     assert DATA["schema"] == 1
     assert set(DATA["difficulty"]) == {"Easy", "Normal", "Hard", "Punitive"}
@@ -217,6 +267,7 @@ def verify():
     early_refs = verify_early_scenes(nodes, devices)
     later_refs = verify_later_scenes(nodes, devices)
     verify_endings()
+    text_refs = verify_text_and_balance(graph)
 
     for difficulty in DATA["difficulty"]:
         revealed = difficulty in ("Hard", "Punitive")
@@ -259,8 +310,9 @@ def verify():
         pass
     else:
         raise AssertionError("Jack secret leaked into Normal")
-    print(f"NarrativeCore: 4 difficulties, 34 scenes, {len(refs)} campaign, {early_refs} "
-          f"early and {later_refs} later map/device IDs; gates and epilogues valid")
+    print(f"NarrativeCore: 4 difficulties, 34 scenes, 16 documents, 8 audio scripts, "
+          f"{len(refs)} campaign/{early_refs} early/{later_refs} later/{text_refs} text "
+          "map/device IDs; gates, puzzle, balance hypotheses and epilogues valid")
 
 
 if __name__ == "__main__":
