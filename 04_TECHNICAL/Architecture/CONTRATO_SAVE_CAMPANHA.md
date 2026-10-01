@@ -2,6 +2,8 @@
 
 Implementação C++17 em [SaveCore](../../Tools/SaveCore/README.md). O formato `THE_THUG_CAMPAIGN 1` guarda em um mesmo checkpoint os dez estados puros que existem hoje. O formato legado `THE_THUG_PARTY 1` continua válido apenas para a equipe; nunca carregá-lo como uma campanha completa.
 
+O formato `THE_THUG_STORY_CAMPAIGN 1`, acessado por `SaveStoryCampaign`/`LoadStoryCampaign`, envolve os dez estados puros e o novo `NarrativeState`. Ele valida o bloco narrativo e o mundo **antes** de modificar a memória; formatos antigos não ganham flags narrativas inventadas. Em uma campanha jogável, preferir o envelope narrativo. A escrita atômica no disco ainda depende do adaptador Unreal.
+
 ## Captura
 
 1. Pausar a simulação no game thread e encerrar interações em andamento de forma definida. Nenhum sistema altera o estado durante `SaveCampaign`.

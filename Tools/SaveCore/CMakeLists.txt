@@ -9,7 +9,8 @@ enable_testing()
 add_subdirectory(../IntegrationCore ${CMAKE_CURRENT_BINARY_DIR}/IntegrationCore)
 add_subdirectory(../PerceptionCore ${CMAKE_CURRENT_BINARY_DIR}/PerceptionCore)
 
-add_library(the_thug_party_save STATIC SaveCore.cpp WorldState.cpp)
+add_library(the_thug_party_save STATIC SaveCore.cpp WorldState.cpp
+  NarrativeState.cpp StorySave.cpp)
 target_link_libraries(the_thug_party_save PUBLIC
   the_thug_integration the_thug_perception)
 
@@ -21,3 +22,7 @@ add_test(NAME party_save COMMAND save_tests)
 add_executable(campaign_save_tests campaign_tests.cpp)
 target_link_libraries(campaign_save_tests PRIVATE the_thug_party_save)
 add_test(NAME campaign_save COMMAND campaign_save_tests)
+
+add_executable(story_save_tests story_tests.cpp)
+target_link_libraries(story_save_tests PRIVATE the_thug_party_save)
+add_test(NAME story_save COMMAND story_save_tests)

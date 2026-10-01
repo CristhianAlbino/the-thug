@@ -1,6 +1,6 @@
 # Checkpoints e vitória por esconderijo — contrato de hipótese v1
 
-**Estado:** regras de primeiro ensaio, sem Unreal. Não antecipar em resumo ao criador que quer descobrir essas mecânicas jogando. `SaveCore` ainda grava dez estados puros; narrativa/banter e atores da Unreal exigem envelope versionado antes de um save jogável.
+**Estado:** regras de primeiro ensaio, sem Unreal. Não antecipar em resumo ao criador que quer descobrir essas mecânicas jogando. `StorySave` agora envolve os dez estados puros e a narrativa/banter; atores Unreal, ocupação física, retomada de animação e troca atômica de arquivo exigem integração antes de um save jogável.
 
 ## Checkpoint como corte atômico
 

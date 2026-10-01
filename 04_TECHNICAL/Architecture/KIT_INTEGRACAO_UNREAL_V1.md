@@ -20,7 +20,7 @@
 | World → regras | Interação concluída, porta/circuito/câmera e inventário físico | `RunRules::Apply` só após validação; log antes/depois para desfazer falha de adaptação. |
 | Mundo → companheiro | Joe/rota/recurso/Hunter realmente percebidos, alcance físico | `Situation`, transferência e influência com ID único; destino via navmesh, sem teleporte. |
 | Diretor narrativo | Nó, `scene_seen`, atores ativos no nó, prova testemunhada, eventos RunRules | `eligible`/`eligible_late` e ID de fala; não altera estado por estar elegível. Flags de encontro corrente expiradas após cena. |
-| Save | Snapshot de dez estados puros + atores Unreal + estado narrativo/UI relevante | Arquivo temporário, versão/checksum, validação antes de aplicar; falha preserva save anterior. O `SaveCore` atual contém apenas os dez estados puros. |
+| Save | `StorySave` (dez estados puros + narrativa) + atores Unreal/UI relevante | Arquivo temporário, versão/checksum, validação antes de aplicar; falha preserva save anterior. A transação em disco e restauração física continuam no editor. |
 
 ## Conteúdo e desempenho — hipótese inicial
 

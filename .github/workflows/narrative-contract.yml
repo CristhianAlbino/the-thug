@@ -29,3 +29,7 @@ jobs:
       - uses: actions/checkout@v6
       - name: Validate difficulty and epilogue contract
         run: python3 Tools/NarrativeCore/validate_variants.py
+      - name: Replay director and spoiler-free structural audit
+        run: |
+          python3 Tools/NarrativeCore/director_tests.py
+          python3 Tools/NarrativeCore/blind_audit.py
