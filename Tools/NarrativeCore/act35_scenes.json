@@ -1,0 +1,28 @@
+{
+  "schema": 1,
+  "scenes": [
+    {"id": "N12", "act": 3, "anchors": ["F1_LOBBY", "F1_PHARMACY"]},
+    {"id": "N13", "act": 3, "anchors": ["F1_SECURITY"]},
+    {"id": "N14", "act": 3, "anchors": ["F2_ARCHIVE", "F2_SECURITY", "F2_SAFE"]},
+    {"id": "N15", "act": 3, "anchors": ["F2_ADMIN", "B1_PUMP"], "companion": "bartholomeu"},
+    {"id": "N16", "act": 3, "anchors": ["B1_CENTRAL", "B1_GENERATOR"]},
+    {"id": "N17", "act": 3, "anchors": ["B1_PIPE", "F1_SERVICE", "F2_SERVICE", "F3_PIPE"]},
+    {"id": "N18", "act": 3, "anchors": ["F3_WINDOW", "F2_SUPPLY"]},
+    {"id": "N19", "act": 3, "anchors": ["F1_RADIO", "F2_SERVER", "F2_CAMERAS"]},
+    {"id": "N20", "act": 3, "anchors": ["B1_PUMP", "B1_TUNNEL"]},
+    {"id": "N21", "act": 4, "anchors": [], "facts_any": ["hunter_observed_habit"], "requires_reachable_hunter": true, "requires_reachable_exit": true},
+    {"id": "N22", "act": 4, "anchors": ["F2_SERVER", "B1_GENERATOR"], "facts_any": ["circuit_changed", "power_failure_observed"]},
+    {"id": "N23", "act": 4, "anchors": ["F3_RECOVERY", "F1_TREATMENT"], "companion": "harley", "facts_any": ["harley_injured", "harley_under_pressure"]},
+    {"id": "N24", "act": 4, "anchors": ["B1_PUMP", "G_MAINT"], "companion": "bartholomeu", "facts_any": ["barth_under_pressure", "barth_exit_choice"]},
+    {"id": "N25", "act": 4, "anchors": ["F2_CAMERAS", "F3_EXAMS"], "companion": "jack", "facts_any": ["jack_verified_inference", "jack_claimed_route"]},
+    {"id": "N26", "act": 4, "anchors": [], "requires_reachable_exit": true},
+    {"id": "N27", "act": 4, "anchors": ["F3_UTILITY", "F3_ISOLATION"]},
+    {"id": "N28", "act": 5, "anchors": ["G_CONTROL", "X_GARAGE"]},
+    {"id": "N29", "act": 5, "anchors": ["R_PAD", "X_ROOF"]},
+    {"id": "N30", "act": 5, "anchors": ["B1_TUNNEL", "T_LOOP", "X_TUNNEL"]},
+    {"id": "N31", "act": 5, "anchors": ["F3_WINDOW", "A_BRIDGE", "X_WINDOW"]},
+    {"id": "N32", "act": 5, "anchors": [], "facts_any": ["hide_victory", "dawn_victory"]},
+    {"id": "N33", "act": 5, "anchors": [], "facts_any": ["rare_confrontation", "rare_destruction"]},
+    {"id": "N34", "act": 3, "anchors": ["B1_MORGUE", "F2_SECURITY", "F3_SURGERY"], "difficulty": ["Hard", "Punitive"]}
+  ]
+}

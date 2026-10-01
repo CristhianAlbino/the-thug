@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "scenes": [
+    {"id": "N01", "act": 1, "anchors": ["F4_START"], "must_seen": []},
+    {"id": "N02", "act": 1, "anchors": ["F4_OBSERVATION"], "must_seen": ["N01"]},
+    {"id": "N03", "act": 1, "anchors": ["F4_START", "F4_HALL_E"], "must_seen": ["N02"]},
+    {"id": "N04", "act": 1, "anchors": ["F4_HALL_E", "F4_HALL_W"], "must_seen": ["N03"]},
+    {"id": "N05", "act": 1, "anchors": ["F4_NURSE", "F4_STORAGE"], "must_seen": ["N03"]},
+    {"id": "N06", "act": 2, "anchors": ["F3_CENTRAL", "F3_RECOVERY"], "must_seen": ["N03"]},
+    {"id": "N07", "act": 2, "anchors": ["F3_ICU", "F1_TREATMENT"], "must_seen": ["N03"], "companion": "harley"},
+    {"id": "N08", "act": 2, "anchors": ["F3_EXAMS", "F2_CAMERAS"], "must_seen": ["N03"], "companion": "jack"},
+    {"id": "N09", "act": 2, "anchors": ["F2_SECURITY", "F2_CAMERAS"], "must_seen": ["N03"]},
+    {"id": "N10", "act": 2, "anchors": ["F2_CAMERAS", "F2_SERVER"], "must_seen": ["N03"], "any_seen": ["N09"], "alternative_fact": "doc11_read"},
+    {"id": "N11", "act": 2, "anchors": [], "must_seen": ["N03"], "requires_hunter_evidence": true, "requires_reachable_hunter": true, "requires_reachable_exit": true, "requires_visited_area": true}
+  ]
+}

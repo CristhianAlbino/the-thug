@@ -1,0 +1,27 @@
+name: Narrative contract
+
+on:
+  pull_request:
+    paths:
+      - 'Tools/NarrativeCore/**'
+      - 'Tools/MapCore/hospital_graph.json'
+      - '02_GAME_DESIGN/Narrative/**'
+      - '.github/workflows/narrative-contract.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'Tools/NarrativeCore/**'
+      - 'Tools/MapCore/hospital_graph.json'
+      - '02_GAME_DESIGN/Narrative/**'
+      - '.github/workflows/narrative-contract.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  narrative:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Validate difficulty and epilogue contract
+        run: python3 Tools/NarrativeCore/validate_variants.py

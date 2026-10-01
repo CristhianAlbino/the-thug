@@ -14,6 +14,7 @@ O GDD define a visão e as regras centrais. Esta lista impede que um valor de te
 | D-08 | Como confiança do Hunter em uma área cai até permitir vitória por esconderijo | Princípio definido; limiar e duração pendentes | Final por esconderijo |
 | D-09 | UI de informação, controles, acessibilidade e idiomas iniciais | Pilares definidos; fluxos e texto final pendentes | UX e produção de interface |
 | D-10 | Origem, licença e uso público de personagens, trilhas e assets de terceiros | Revisão necessária antes de distribuir o jogo | Escopo de publicação |
+| D-12 | Encenação exata de N34/coda, forma de J4 e texto/atuação dos epílogos | Direção D-11 e contratos de entrada/resultado N01–N34 versionados; opções de encenação seguem rascunho para revisão criativa e playtest | Falas finais, atuação e blockout |
 
 ## Decisões já fixadas
 
@@ -22,5 +23,6 @@ O GDD define a visão e as regras centrais. Esta lista impede que um valor de te
 - O Hunter não sabe a posição exata do jogador sem percepção, não enxerga através de paredes e pode errar.
 - Quatro rotas convencionais: garagem, telhado, túneis e janela; uma falha de rota não encerra necessariamente a partida.
 - A dificuldade Fácil tem companheiros confiáveis; Punitivo não termina automaticamente no amanhecer.
+- **D-11, 30/09/2026, confirmada por Cristhian:** Batman matou Thomas; Fácil/Normal não confirmam seu destino ao jogador; Difícil/Punitivo mostram a morte e autoria. Joe se importa com Harley, mas retribui menos seu cuidado em Fácil/Normal/Difícil, inclusive com omissões incômodas; no Punitivo demonstra maior reciprocidade, sujeita às ações do jogador. Jack tem roupa distinta, humor cruel, risadas macabras e pistas progressivas exclusivamente no Punitivo, com revelação secreta possível. O hospital conta sua história pelo ambiente e pode sugerir uma ala desativada do antigo Asilo Arkham, sem exposição direta. Harley, Bartholomeu e Jack têm dilemas e epílogos individuais com estados distintos de saída, captura, morte e paradeiro desconhecido. Justificativa: escolhas narrativas expressas pelo criador; [campanha v0.2](../../02_GAME_DESIGN/Narrative/CAMPANHA_ATOS_RASCUNHO.md) e [NarrativeCore](../../Tools/NarrativeCore/README.md) aplicam as regras. A encenação específica permanece D-12.
 
 Ao fechar uma decisão, registrar data, justificativa, alteração no GDD quando necessário e testes/documentos afetados.
