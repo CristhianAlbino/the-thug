@@ -23,7 +23,7 @@ Registro atual: [Decisões abertas](../Decisions/DECISOES_ABERTAS.md).
 - [x] WorldCore inicial: portas, circuitos, câmeras e esconderijos persistidos; desvios de blackout verificados no grafo e fluxo Hunter/companheiros ensaiado no ScenarioLab. Geometria, visadas e balanceamento ainda pendentes.
 - [x] Estrutura narrativa v0.2 de 34 cenas com as diretrizes D-11 confirmadas, dilemas e epílogos individuais; contrato NarrativeCore testa revelações por dificuldade e IDs do mapa. Encenação final, diálogos condicionais e gatilhos ainda pendentes da D-12 e da revisão próxima do criador.
 - [x] Primeira passada de roteiro jogável N01–N11 (atos 1–2), com variantes de Joe/Harley, primeiro sinal de Jack e encontro condicional com Batman; contrato de disparo verifica presença física dos companheiros, evidência e alternativas de percurso.
-- [x] Primeira passada de roteiro N12–N34 (atos 3–5), ligando quatro fugas, circuitos, dilemas, Thomas, J4 e epílogos. IDs e referências verificados; gatilhos formais para estes atos, falas finais e playtest continuam pendentes.
+- [x] Primeira passada de roteiro N12–N34 (atos 3–5), ligando quatro fugas, circuitos, dilemas, Thomas, J4 e epílogos. Contratos formais de entrada, falhas independentes por rota e estados individuais de epílogo validados; falas/encenação finais e playtest continuam pendentes.
 - [ ] Projeto `.uproject`, níveis e execução no editor: aguardam o computador/Unreal.
 
 ## Calendário de entregas

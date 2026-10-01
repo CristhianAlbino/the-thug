@@ -1,6 +1,8 @@
 # The Thug — roteiro de trabalho, atos 3 a 5
 
-**Rascunho v0.1 para revisão com Cristhian.** Desdobra N12–N34 da [campanha](CAMPANHA_ATOS_RASCUNHO.md), seguindo o [roteiro dos atos 1 e 2](ROTEIRO_ATOS_1_2_RASCUNHO.md). A numeração organiza autoria; **não exige executar cenas em ordem numérica**. Energia, portas, relógio, rotas, companheiros e Batman reagem a ações/observações. Gatilhos exatos, valores e falas finais ficam em D-12 ou nas decisões técnicas correspondentes.
+**Rascunho v0.1 para revisão com Cristhian.** Desdobra N12–N34 da [campanha](CAMPANHA_ATOS_RASCUNHO.md), seguindo o [roteiro dos atos 1 e 2](ROTEIRO_ATOS_1_2_RASCUNHO.md). A numeração organiza autoria; **não exige executar cenas em ordem numérica**. Energia, portas, relógio, rotas, companheiros e Batman reagem a ações/observações. Os contratos de entrada estão versionados; encenação final, valores e falas ficam em D-12 ou nas decisões técnicas correspondentes.
+
+**Contrato de trabalho:** as condições de entrada estão em `Tools/NarrativeCore/act35_scenes.json` e `act35_rules.py`; elas recebem fatos observados do mundo e não disparam ações. `scene_seen:Nxx` limita a batida de diálogo, **não** impede voltar para ler outra pista ou completar um rádio/cofre. N26 é exceção por rota: persistir `N26:garage`, `N26:roof`, `N26:tunnel` e `N26:window` individualmente. As saídas só se fecham após o evento correspondente do RunRules. J2/J3/J4 precisam de contexto de encontro corrente, além de Jack presente; nunca persistir “Jack está ouvindo esta fala” como verdade permanente.
 
 ## Ato 3 — aprender a usar o hospital
 
@@ -202,4 +204,4 @@ Fora do Punitivo, Jack mantém sarcasmo analítico, sem figurino/risada da cadei
 | Jack desaparece sem J4 | A suspeita permanece aberta no Punitivo; fora dele, não sugerir retroativamente a identidade secreta. |
 | Thomas em Fácil/Normal ou Difícil/Punitivo sem descoberta | Nos dois primeiros não mostrar resolução; nos dois últimos a coda confirma ao jogador e não inventa conhecimento de Joe. |
 
-**Verificações para o futuro editor:** tempo e visada N34; legibilidade da janela de cinco minutos; ocupação física de cada companheiro nas saídas; cobertura e acústica dos corredores; possibilidade de uma fuga alternativa após N26. O documento descreve intenção e relações causais, não valida geometria, duração ou atuação final.
+**Verificações para o futuro editor:** tempo e visada N34; legibilidade da janela de cinco minutos; ocupação física de cada companheiro nas saídas; cobertura e acústica dos corredores; possibilidade de uma fuga alternativa após N26. O documento descreve intenção e relações causais, não valida geometria, duração ou atuação final. Os epílogos usam evidência verificada; uma última posição conhecida isolada resulta em paradeiro desconhecido.

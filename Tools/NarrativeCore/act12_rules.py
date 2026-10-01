@@ -33,6 +33,7 @@ class Facts:
     hunter_can_reach: bool = False
     alternative_reachable: bool = False
     area_previously_visited: bool = False
+    route_failure: str = ""
 
 
 def eligible(scene_id: str, state: Facts) -> bool:
