@@ -96,6 +96,7 @@ struct HunterSnapshot {
 // damage remain the responsibility of the Unreal integration layer.
 class HunterCore {
 public:
+  friend void swap(HunterCore&, HunterCore&) noexcept;
   explicit HunterCore(Difficulty difficulty, std::uint64_t seed = 1);
   explicit HunterCore(Tuning tuning, std::uint64_t seed = 1);
 

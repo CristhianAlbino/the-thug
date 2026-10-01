@@ -77,6 +77,7 @@ private:
 // Stores only what the Hunter has actually inspected, never world-global state.
 class EvidenceMemory {
 public:
+  friend void swap(EvidenceMemory&, EvidenceMemory&) noexcept;
   // Caller guarantees line of sight to the object at inspection time.
   // First inspection establishes a baseline; only a later change raises evidence.
   std::optional<hunter::Stimulus> Inspect(

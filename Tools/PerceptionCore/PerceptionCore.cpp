@@ -5,8 +5,16 @@
 #include <locale>
 #include <sstream>
 #include <stdexcept>
+#include <utility>
 
 namespace thug::perception {
+
+void swap(EvidenceMemory& a, EvidenceMemory& b) noexcept {
+  static_assert(noexcept(a.lastSeen_.swap(b.lastSeen_)));
+  a.lastSeen_.swap(b.lastSeen_);
+  using std::swap;
+  swap(a.nowSeconds_, b.nowSeconds_);
+}
 namespace {
 
 bool ValidPosition(const hunter::Vec3& position) {

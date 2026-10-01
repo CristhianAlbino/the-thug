@@ -57,7 +57,8 @@ void PathsAndConcurrency(){
   Check(disk::LoadFile(core,slot).status==disk::Status::NotFound,"Fresh slot is distinguished from corrupt data");
   Check(disk::SaveFile(core,f.path/"missing"/"slot.sav").status==disk::Status::InvalidPath,"Caller must provision parent directory");
   Check(disk::SaveFile(core,fs::path{}).status==disk::Status::InvalidPath,"Empty path is rejected");
-  Check(disk::LoadFile(core,f.path).status==disk::Status::InvalidPath,"Directory cannot be a slot");
+  const auto directorySlot=f.path/"directory";fs::create_directory(directorySlot);
+  Check(disk::LoadFile(core,directorySlot).status==disk::Status::InvalidPath,"Directory cannot be a slot");
   disk::Result blocked{disk::Status::Ok};
   Check(disk::SaveFile(core,slot,[&](disk::Stage stage){if(stage==disk::Stage::TempCreated){campaign::CampaignCore other(rules::Difficulty::Hard);blocked=disk::LoadFile(other,slot);}return true;}).status==disk::Status::Ok,"Independent contender does not interrupt owner");
   Check(blocked.status==disk::Status::Busy,"Contending slot request returns Busy without waiting");

@@ -69,6 +69,7 @@ struct CompanionSnapshot {
 // must validate events and spatial reachability before calling this core.
 class CompanionCore {
 public:
+  friend void swap(CompanionCore&, CompanionCore&) noexcept;
   CompanionCore(Character character, Difficulty difficulty, Traits initial,
                 std::uint64_t seed = 1);
 

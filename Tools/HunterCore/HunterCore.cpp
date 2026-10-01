@@ -6,8 +6,29 @@
 #include <sstream>
 #include <stdexcept>
 #include <unordered_set>
+#include <type_traits>
+#include <utility>
 
 namespace thug::hunter {
+
+void swap(HunterCore& a, HunterCore& b) noexcept {
+  static_assert(std::is_nothrow_swappable_v<Tuning>);
+  static_assert(std::is_nothrow_swappable_v<std::mt19937_64>);
+  static_assert(noexcept(a.lastEstimate_.swap(b.lastEstimate_)));
+  static_assert(noexcept(a.lastHeardType_.swap(b.lastHeardType_)));
+  static_assert(noexcept(a.observedRoutes_.swap(b.observedRoutes_)));
+  static_assert(noexcept(a.confirmedHideSpots_.swap(b.confirmedHideSpots_)));
+  using std::swap;
+  swap(a.tuning_, b.tuning_);
+  swap(a.random_, b.random_);
+  swap(a.state_, b.state_);
+  swap(a.nowSeconds_, b.nowSeconds_);
+  swap(a.enteredStateAt_, b.enteredStateAt_);
+  a.lastEstimate_.swap(b.lastEstimate_);
+  a.lastHeardType_.swap(b.lastHeardType_);
+  a.observedRoutes_.swap(b.observedRoutes_);
+  a.confirmedHideSpots_.swap(b.confirmedHideSpots_);
+}
 namespace {
 
 bool Finite(double value) { return std::isfinite(value); }

@@ -32,6 +32,7 @@ struct WorldSnapshot {
 // actors to include and applies the state after loading the level.
 class WorldState {
 public:
+  friend void swap(WorldState&, WorldState&) noexcept;
   WorldState(std::string levelId,
              const std::vector<WorldObjectDefinition>& definitions);
   bool SetObject(const std::string& id, WorldObjectState state,

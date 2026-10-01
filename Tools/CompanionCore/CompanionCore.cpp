@@ -6,8 +6,25 @@
 #include <locale>
 #include <sstream>
 #include <stdexcept>
+#include <type_traits>
+#include <utility>
 
 namespace thug::companion {
+
+void swap(CompanionCore& a, CompanionCore& b) noexcept {
+  static_assert(noexcept(a.knownRoutes_.swap(b.knownRoutes_)));
+  static_assert(noexcept(a.appliedEvents_.swap(b.appliedEvents_)));
+  static_assert(std::is_nothrow_swappable_v<Traits>);
+  static_assert(std::is_nothrow_swappable_v<std::mt19937_64>);
+  using std::swap;
+  swap(a.character_, b.character_);
+  swap(a.difficulty_, b.difficulty_);
+  swap(a.traits_, b.traits_);
+  a.knownRoutes_.swap(b.knownRoutes_);
+  a.appliedEvents_.swap(b.appliedEvents_);
+  swap(a.nowSeconds_, b.nowSeconds_);
+  swap(a.random_, b.random_);
+}
 namespace {
 
 bool InRange(double value) {

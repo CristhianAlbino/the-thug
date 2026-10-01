@@ -39,6 +39,8 @@ struct NarrativeSnapshot {
       {"harley", {}}, {"bartholomeu", {}}, {"jack", {}}};
 };
 
+void swap(NarrativeSnapshot&, NarrativeSnapshot&) noexcept;
+
 class NarrativeState {
  public:
   explicit NarrativeState(rules::Difficulty difficulty);

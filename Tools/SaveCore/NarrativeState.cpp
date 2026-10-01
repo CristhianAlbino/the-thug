@@ -6,6 +6,38 @@
 #include <utility>
 
 namespace thug::save {
+
+void swap(NarrativeSnapshot& a, NarrativeSnapshot& b) noexcept {
+  // Member swaps exchange owned buffers/nodes, without the potentially
+  // allocating move-construction used by generic aggregate std::swap on MSVC.
+  static_assert(noexcept(a.seenScenes.swap(b.seenScenes)));
+  static_assert(noexcept(a.deliveredBanter.swap(b.deliveredBanter)));
+  static_assert(noexcept(a.inspectedDocuments.swap(b.inspectedDocuments)));
+  static_assert(noexcept(a.inspectedAudio.swap(b.inspectedAudio)));
+  static_assert(noexcept(a.witnessedClues.swap(b.witnessedClues)));
+  static_assert(noexcept(a.durableFacts.swap(b.durableFacts)));
+  static_assert(noexcept(a.activeScene.swap(b.activeScene)));
+  static_assert(noexcept(a.activeBanter.swap(b.activeBanter)));
+  static_assert(noexcept(a.outcomes.swap(b.outcomes)));
+  using std::swap;
+  swap(a.difficulty, b.difficulty);
+  swap(a.nowSeconds, b.nowSeconds);
+  swap(a.act, b.act);
+  a.seenScenes.swap(b.seenScenes);
+  a.deliveredBanter.swap(b.deliveredBanter);
+  a.inspectedDocuments.swap(b.inspectedDocuments);
+  a.inspectedAudio.swap(b.inspectedAudio);
+  a.witnessedClues.swap(b.witnessedClues);
+  a.durableFacts.swap(b.durableFacts);
+  a.activeScene.swap(b.activeScene);
+  swap(a.activeSceneLine, b.activeSceneLine);
+  a.activeBanter.swap(b.activeBanter);
+  swap(a.activeBanterLine, b.activeBanterLine);
+  swap(a.lastBanterCompletedAt, b.lastBanterCompletedAt);
+  swap(a.keypadAttempts, b.keypadAttempts);
+  swap(a.joeEscaped, b.joeEscaped);
+  a.outcomes.swap(b.outcomes);
+}
 namespace {
 
 bool Numbered(const std::string& id, const std::string& prefix,
@@ -124,7 +156,8 @@ NarrativeState::NarrativeState(rules::Difficulty difficulty) {
 
 bool NarrativeState::RestoreSnapshot(const NarrativeSnapshot& snapshot) {
   if (snapshot.difficulty != snapshot_.difficulty || !Valid(snapshot)) return false;
-  snapshot_ = snapshot;
+  auto staged = snapshot;
+  swap(snapshot_, staged);
   return true;
 }
 

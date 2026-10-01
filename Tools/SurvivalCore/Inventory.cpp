@@ -5,6 +5,15 @@
 
 namespace thug::survival {
 
+void swap(Inventory& a, Inventory& b) noexcept {
+  static_assert(noexcept(a.definitions_.swap(b.definitions_)));
+  static_assert(noexcept(a.quantities_.swap(b.quantities_)));
+  using std::swap;
+  swap(a.capacitySlots_, b.capacitySlots_);
+  a.definitions_.swap(b.definitions_);
+  a.quantities_.swap(b.quantities_);
+}
+
 Inventory::Inventory(int capacitySlots,
                      const std::vector<ItemDefinition>& definitions)
     : capacitySlots_(capacitySlots) {
