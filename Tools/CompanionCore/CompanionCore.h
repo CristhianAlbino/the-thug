@@ -93,6 +93,9 @@ public:
   std::vector<Option> AvailableOptions(const Situation& situation) const;
   Option Choose(const Situation& situation);
 
+  // The campaign owns the shared simulation clock even when no event occurs.
+  void AdvanceTo(double atSeconds);
+
   CompanionSnapshot CaptureSnapshot() const;
   // Accepts older game time when loading an earlier save; rejects mismatched
   // identity, malformed traits, IDs and RNG without changing the live object.
@@ -101,7 +104,6 @@ public:
 private:
   static bool ValidTraits(const Traits& traits);
   static double Clamp(double value);
-  void AdvanceTo(double atSeconds);
 
   Character character_;
   Difficulty difficulty_;

@@ -12,6 +12,8 @@ on:
       - 'Tools/MapCore/**'
       - 'Tools/ScenarioLab/**'
       - 'Tools/WorldCore/**'
+      - 'Tools/CampaignCore/**'
+      - 'Tools/NarrativeCore/balance_initial.json'
       - '.github/workflows/core-rules.yml'
   push:
     branches: [main]
@@ -25,6 +27,8 @@ on:
       - 'Tools/MapCore/**'
       - 'Tools/ScenarioLab/**'
       - 'Tools/WorldCore/**'
+      - 'Tools/CampaignCore/**'
+      - 'Tools/NarrativeCore/balance_initial.json'
       - '.github/workflows/core-rules.yml'
 
 permissions:
@@ -44,9 +48,10 @@ jobs:
           bash Tools/IntegrationCore/run-tests.sh
           bash Tools/SaveCore/run-tests.sh
           bash Tools/WorldCore/run-tests.sh
+          bash Tools/CampaignCore/run-tests.sh
       - name: Validate CMake project files
         run: |
-          for module in HunterCore CompanionCore SurvivalCore PerceptionCore IntegrationCore SaveCore WorldCore; do
+          for module in HunterCore CompanionCore SurvivalCore PerceptionCore IntegrationCore SaveCore WorldCore CampaignCore; do
             cmake -S "Tools/$module" -B "Build/$module"
             cmake --build "Build/$module"
             ctest --test-dir "Build/$module" --output-on-failure

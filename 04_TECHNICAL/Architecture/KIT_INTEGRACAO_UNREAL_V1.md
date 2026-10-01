@@ -5,7 +5,7 @@
 ## Ordem de criação e integração
 
 1. Instalar Unreal Engine 5 e toolchain C++ compatível no notebook; clonar `CristhianAlbino/the-thug` com GitHub Desktop ou Git. Criar projeto Games/C++ `TheThug` em pasta versionada do clone. Confirmar que `TheThug.uproject` abre e um projeto vazio compila **antes** de copiar lógica.
-2. Adicionar módulos/compilação do projeto e adaptar os núcleos puros em camadas, começando `RunRules`, `SurvivalCore`, `CompanionCore`, `HunterCore`, `PerceptionCore`, `WorldCore` e `SaveCore`. Converter o contrato de autoria do `NarrativeCore` (Python/JSON) em lógica de runtime Unreal com paridade testada. Confirmar conversão de unidades **cm Unreal ↔ m núcleos**, relógio monotônico e enums de dificuldade/eventos em cada ponte; detalhes no [contrato dos adaptadores](CONTRATO_ADAPTADORES_UNREAL_V1.md).
+2. Adicionar módulos/compilação do projeto e adaptar os núcleos puros em camadas, começando `RunRules`, `SurvivalCore`, `CompanionCore`, `HunterCore`, `PerceptionCore`, `WorldCore` e `SaveCore`; expor a sessão por `CampaignCore`, dono único de relógio/estado/transações. Não alterar os núcleos internos por pontes paralelas. O coordenador já usa perfis/vínculos exportados de JSON; diretor narrativo nativo continua etapa P03, com paridade exigida contra Python. Confirmar conversão de unidades **cm Unreal ↔ m núcleos**, relógio monotônico e enums de dificuldade/eventos; detalhes nos contratos [dos adaptadores](CONTRATO_ADAPTADORES_UNREAL_V1.md) e [do coordenador](CONTRATO_COORDENADOR_CAMPANHA_V1.md).
 3. Importar o grafo do hospital como dados/IDs e construir blockout de corredor, duas escadas, prumada, B1, garagem, telhado, túnel e anexo. `hospital_graph.json` é topologia e segundos provisórios; não gera paredes automaticamente. Verificar campo real de `CAM_F4_WEST` para N34 antes de gravar cena.
 4. Associar portas/circuitos/câmeras/esconderijos a atores com IDs estáveis. Ajustar colisão, navmesh, linha de visão e propagação de som. Cada estímulo ao Hunter guarda origem observada; falha de rota em RunRules só após mudança física.
 5. Integrar inventário e companheiros com trajetória física, interação e decisões. Testar munição transferida, ferida, abandono, informação de túnel e epílogo sem desfecho inventado. Converter [conversas ambientais](../../02_GAME_DESIGN/Narrative/DIALOGOS_AMBIENTAIS_V1.md) em dados/IDs runtime com presença, perigo e fatos testemunhados; salvar linhas interrompidas sem repetir falas.
@@ -17,10 +17,10 @@
 | Adaptador | Entradas autorizadas | Saída/efeito e log obrigatório |
 | --- | --- | --- |
 | Sensor → Hunter | Contato visual com oclusão, som com fonte/atenuação, evidência inspecionada | `Stimulus` com tempo, tipo, origem, estimativa/raio; rejeição registrada. Nunca posição real por puro roteiro. |
-| World → regras | Interação concluída, porta/circuito/câmera e inventário físico | `RunRules::Apply` só após validação; log antes/depois para desfazer falha de adaptação. |
+| World → coordenador | Interação concluída, nó/prova física, ID estável e tempo atual | `CampaignCore::Apply` confirma recurso/mundo/regra juntos. A ponte representa o snapshot confirmado; retentativa usa o mesmo ID e não repete efeito. |
 | Mundo → companheiro | Joe/rota/recurso/Hunter realmente percebidos, alcance físico | `Situation`, transferência e influência com ID único; destino via navmesh, sem teleporte. |
 | Diretor narrativo | Nó, `scene_seen`, atores ativos no nó, prova testemunhada, eventos RunRules | `eligible`/`eligible_late` e ID de fala; não altera estado por estar elegível. Flags de encontro corrente expiradas após cena. |
-| Save | `StorySave` (dez estados puros + narrativa) + atores Unreal/UI relevante | Arquivo temporário, versão/checksum, validação antes de aplicar; falha preserva save anterior. A transação em disco e restauração física continuam no editor. |
+| Save | `CampaignCore::Save/Load` (StorySave + pausa/ocupação/recibos) + atores Unreal/UI relevante | Escritor durável em disco pendente P04; temporário, versão/checksum e validação antes de aplicar. Restauração física de atores continua no editor. |
 
 ## Conteúdo e desempenho — hipótese inicial
 

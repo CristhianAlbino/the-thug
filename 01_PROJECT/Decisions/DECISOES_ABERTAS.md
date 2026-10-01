@@ -16,7 +16,7 @@ O GDD define a visão e as regras centrais. Esta lista impede que um valor de te
 | D-10 | Origem, licença e uso público de personagens, trilhas e assets de terceiros | Revisão necessária antes de distribuir o jogo | Escopo de publicação |
 | D-12 | Encenação exata de N34/coda, forma de J4 e texto/atuação dos epílogos | Primeira passada N01–N34, DOC01–16, AUD01–08, J4 e epílogos versionada; revisão criativa de Cristhian, campo de câmera e atuação ainda pendentes | Falas finais, atuação e blockout |
 | D-13 | Modo Extremo/Joker desbloqueado pelo Punitivo | Ideia do criador registrada em `02_GAME_DESIGN/Backlog/MODO_EXTREMO_JOKER.md`; implementação adiada até campanha principal, revisão, áudio/assets e playtest | Nova dificuldade, percepção intoxicada, saves, IA e conteúdo |
-| D-15 | Fechamento real do escopo independente da engine | A [revisão geral de 01/10](../Reviews/REVISAO_GERAL_2026_10_01.md) identificou pendências P01–P10: coordenação, transações, diretor runtime, disco, IA avançada, execução de companheiros, combate/sobrevivência adicional e finais raros. Permanecem no escopo; não considerar o GDD todo implementado nem o pacote congelado | Ordem das próximas entregas e critério de pronto |
+| D-15 | Fechamento real do escopo independente da engine | A [revisão geral de 01/10](../Reviews/REVISAO_GERAL_2026_10_01.md) identificou P01–P10. CampaignCore entrega P01 e a cobertura inicial P02 de Joe/mundo; checkpoint inclui seus estados/recibos. Diretor runtime, disco durável, IA avançada, execução completa dos companheiros, combate/sobrevivência adicional e finais raros permanecem no escopo. Não considerar o GDD todo implementado nem o pacote congelado | Ordem das próximas entregas e critério de pronto |
 
 ## Decisões já fixadas
 

@@ -33,6 +33,7 @@ Registro atual: [Decisões abertas](../Decisions/DECISOES_ABERTAS.md).
 - [x] Matriz de campanha, orçamento provisório, contrato dos adaptadores e kit de primeiro dia; integração jogável depende do editor, especialmente estado narrativo no save.
 - [x] Contratos provisórios de teclado físico, checkpoint atômico e prova de abandono do Hunter; teste humano cego de pistas e medição de esconderijo na Unreal continuam pendentes.
 - [x] Revisão técnica/criativa desta versão: [resultado sem spoilers e pendências de implementação](../Reviews/REVISAO_GERAL_2026_10_01.md); correções de código/texto realizadas. A etapa não encerra os sistemas que ainda são apenas especificados.
+- [x] CampaignCore pós-revisão: relógio/pausa/perfis autorados, transações de Joe/mundo e checkpoint com recibos. Entrega P01 e cobertura inicial P02; diretor C++, disco durável e execução completa dos companheiros ainda pendentes. [Contrato de coordenação](../../04_TECHNICAL/Architecture/CONTRATO_COORDENADOR_CAMPANHA_V1.md).
 - [ ] Validação do resultado com Cristhian, encenação, valores e interface; a [revisão técnica v1](../Reviews/REVISAO_PRE_UNREAL_V1.md) lista evidências e decisões pendentes.
 - [ ] Produção/gravação de áudio e seleção/criação de assets finais **depois** da revisão geral.
 - [ ] Projeto `.uproject`, níveis e execução no editor: aguardam o computador/Unreal.

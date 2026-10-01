@@ -42,14 +42,16 @@ Mudanças de audição são **hipóteses melhores para testar**, não balanceame
 
 ## O que o código realmente entrega hoje
 
+**Atualização após a revisão — coordenação e transações:** o novo [CampaignCore](../../Tools/CampaignCore/README.md) entrega o núcleo P01: relógio compartilhado, pausa, perfis/equipamentos vindos da autoria, ordenação pelo instante confirmado e fim da partida. A primeira cobertura P02 conecta coleta, tratamento de Joe, ferramenta/consumo, portas/energia e munição aos companheiros. Falhas descartam a cópia inteira; retentar um ID confirmado não repete efeito. O envelope runtime salva pausa, ocupação e recibos junto aos estados anteriores. Diretor nativo, disco durável e execução completa dos companheiros continuam abertos.
+
 | Frente | Implementado/testável fora da engine | Limite atual |
 | --- | --- | --- |
 | Hunter | Patrulha, investigação, perseguição e busca; estimativas, memória observada e escolha probabilística de rota. | Estados especiais, agressividade dinâmica, plano de emboscada, armadilhas e interrogatório ainda não formam o sistema avançado do GDD. |
 | Companheiros | Traços individuais, conhecimento de rotas, escolhas ponderadas, consequências de ajuda/abandono e entrega coordenada de munição. | Escolher um objetivo não o executa no mundo. Coleta, tratamento, mentiras verificáveis, manipulação de objetos e ações conjuntas ainda precisam de execução e transações completas. |
-| Sobrevivência | Stamina, níveis de ferimento, sangramento, tratamento e inventário limitado; efeito de ferimento sobre ruído ensaiado. | Disparo, recarga, projéteis, fumaça, explosões, oxigênio e controle voluntário da respiração não estão completos. |
+| Sobrevivência | Stamina, níveis de ferimento, sangramento, tratamento e inventário limitado; coleta/tratamento de Joe transacionais no coordenador; efeito de ferimento sobre ruído ensaiado. | Disparo, recarga, projéteis, fumaça, explosões, oxigênio e controle voluntário da respiração não estão completos. |
 | Mundo e percepção | Estados de porta/circuito/câmera/esconderijo; propagação abstrata de som e memória de alterações vistas. | Não há colisão, raycast, visibilidade por luz/postura, navmesh ou streaming reais. |
-| Campanha e narrativa | Quatro rotas convencionais e seus resultados; regras narrativas em Python; registros de leitura, conversas, pistas e epílogos. | Diretor ainda não é runtime Unreal. N33 possui intenção/elegibilidade, mas os finais raros não têm resultados próprios implementados em RunRules. |
-| Persistência | Serialização versionada, validação conjunta, restauração atômica em memória e continuação reproduzível nos cenários testados. | Arquivo durável, recuperação de falha de escrita e restauração dos atores/animações não estão concluídos. Novos sistemas precisam entrar no snapshot. |
+| Campanha e narrativa | Coordenador nativo, dados iniciais autorados, pausa, término e quatro rotas convencionais; regras narrativas em Python; registros de leitura, conversas, pistas e epílogos. | Diretor nativo de falas ainda pendente. Prova física depende do adaptador. N33 possui intenção/elegibilidade, mas os finais raros não têm resultados próprios implementados em RunRules. |
+| Persistência | Serialização versionada, validação conjunta, restauração atômica em memória e continuação reproduzível nos cenários testados; envelope runtime acrescenta pausa, ocupação e recibos. | Arquivo durável, recuperação de falha de escrita e restauração dos atores/animações não estão concluídos. Sistemas futuros precisam entrar no snapshot. |
 | Conteúdo | GDD, roteiros, dados, mapa, direção visual, UX e critérios de integração. | Documentação e transcrições não são níveis, modelos, vozes, música ou uma build jogável. |
 
 ## Pendências que podem avançar antes da Unreal
@@ -58,8 +60,8 @@ Esta é a lista revisada. Os itens não são requisitos para sequer abrir o edit
 
 | ID / prioridade | Trabalho | Evidência exigida para encerrar |
 | --- | --- | --- |
-| P01 · primeira | Coordenador da campanha: relógio, pausa, ordem dos eventos, fim da partida e carregamento dos dados de balanceamento. | Cenário completo avança os núcleos de modo coerente, pausa não avança simulação, término interrompe efeitos posteriores; não depende de valores de fixture. |
-| P02 · primeira | Transações de coleta, uso de medicamento, ferramentas, portas e transferência de recursos além da munição já coordenada. | Falha preserva os dois lados; sucesso consome/transfere uma vez e mantém mundo, inventário, sobrevivência e narrativa concordantes após retomada. |
+| P01 · núcleo entregue | CampaignCore: relógio, pausa, ordem dos eventos, fim da partida e perfis/equipamentos iniciais de autoria. | Testes integrados nas quatro dificuldades; pausa não avança, morte no meio de delta longo interrompe os demais relógios, retomada preserva estados e recibos. Ponte física/editor segue pendente. |
+| P02 · parcial | Coleta, tratamento de Joe, ferramentas, portas/energia e munição coordenados. Falta transferência de outros recursos/tratamento entre companheiros e ações longas com reserva/cancelamento. | Falha preserva todos os lados; sucesso consome/transfere uma vez e mantém mundo, inventário e sobrevivência concordantes após retomada. Primeira cobertura testada; as operações restantes ainda precisam de contrato e casos próprios. |
 | P03 · primeira | Portar o diretor de referência para C++/dados de runtime; exportar textos condicionais e estruturar confirmação de linhas/gestos. | Mesmo resultado dos vetores Python; prioridades, cancelamento, idioma e conteúdo restrito preservados; Markdown não é o motor de diálogo. |
 | P04 · primeira | Persistência durável em disco e cobertura de novos estados de campanha. | Interrupção/erro de escrita preserva um checkpoint válido anterior; carregar é tudo ou nada; versões incompatíveis têm tratamento explícito. Aplicação em atores fica para Unreal. |
 | P05 · seguinte | Hunter avançado: agressividade, observação, emboscada, manipulação do ambiente e escolha de alvo. | Cenários demonstram causa observada, opção de erro, caminho possível fornecido pelo mundo e oportunidade de reação do jogador. |
@@ -69,7 +71,7 @@ Esta é a lista revisada. Os itens não são requisitos para sequer abrir o edit
 | P09 · criativa | Encenação final de Thomas, gesto da revelação de Jack e leitura em voz alta de falas/finais. | Versão indexada revisada com Cristhian, ações/reações demonstráveis e nenhum conhecimento inventado. Revisar estes temas não exige expor as soluções das rotas. |
 | P10 · validação | Teste humano sem solução prévia e revisão das hipóteses de progressão. | Observações de alguém que não conhece os segredos, com relatório de dificuldade de compreensão sem revelá-los ao criador. O ensaio automático existente não equivale a esse teste. |
 
-O primeiro conjunto recomendado é **P01 → P02**, junto da preparação P03/P04 quando suas dependências estiverem prontas. Ele estabelece quem aplica cada consequência e impede que novos sistemas sejam apenas módulos isolados. P05–P08 ampliam o comportamento. A revisão não removeu esses sistemas do projeto nem os marcou como entregues.
+O próximo conjunto recomendado é **P03 → P04**, usando o coordenador agora implementado. P02 continua junto de P06 para recursos/execução completos dos companheiros. P05–P08 ampliam o comportamento. A revisão não removeu esses sistemas do projeto nem os marcou como entregues.
 
 ## Trabalho que precisa do editor e da produção
 
@@ -82,6 +84,8 @@ Criar o projeto C++ da Unreal e compilar as pontes; montar um trecho jogável; r
 Os testes usados nesta revisão estão nos scripts `run-tests.sh` dos núcleos, no ScenarioLab e nos validadores de NarrativeCore/MapCore. Compilação direta usa C++17 com avisos tratados como erro. CMake é verificado no workflow de CI, pois não está instalado no ambiente local desta revisão. A PR mantém o histórico das execuções.
 
 **Resultado local observado:** HunterCore 149, RunRules 37, CompanionCore 533, SurvivalCore 53, PerceptionCore 30, IntegrationCore 23, SaveCore 85, CampaignSave 108, StorySave 62 e WorldCore 24 verificações aprovadas. São contagens de asserções dos executáveis, não campanhas completas jogadas. Também passaram NarrativeCore, DirectorRuntime, auditoria estrutural sem spoilers, MapCore, oito percursos do ScenarioLab e repetição determinística do cenário integrado. `git diff --check` não apontou erro de whitespace.
+
+**Etapa de programação posterior:** CampaignCore acrescenta 257 verificações aprovadas e checagem de geração de dados. Inclui espaço insuficiente, consumo sem pré-requisito, tratamento/estabilização, ação remota enquanto oculto, pausa/carregamento, repetição sem som/custo, quatro resultados de fuga convencionais, fronteira fatal e rejeição de arquivo corrompido/incompatível sem mutação. A regressão dos núcleos, NarrativeCore/DirectorRuntime/auditoria, MapCore e ScenarioLab passou novamente. A cobertura CMake do novo módulo integra o workflow Core game rules. Os cenários usam prova física simulada; não substituem o adaptador real.
 
 O passe de revisão está concluído quando as correções e este diagnóstico estão versionados e os checks passam. **O pacote pré-Unreal completo permanece aberto** até os itens de implementação acima serem concluídos ou terem seu escopo explicitamente revisto com Cristhian. A avaliação criativa do autor e as verificações jogáveis continuam distintas dos testes automáticos.
 

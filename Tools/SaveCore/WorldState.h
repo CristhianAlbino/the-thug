@@ -37,6 +37,7 @@ public:
   bool SetObject(const std::string& id, WorldObjectState state,
                  double atSeconds);
   bool AdvanceTo(double atSeconds);
+  double NowSeconds() const { return nowSeconds_; }
   const WorldObjectState* Find(const std::string& id) const;
   WorldSnapshot CaptureSnapshot() const;
   bool RestoreSnapshot(const WorldSnapshot& snapshot);

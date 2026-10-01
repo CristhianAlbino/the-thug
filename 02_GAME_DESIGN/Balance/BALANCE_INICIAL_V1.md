@@ -27,10 +27,12 @@
 
 | Dificuldade | Capacidade proposta | Oferta relativa | Ponto de partida |
 | --- | ---: | --- | --- |
-| Fácil | 16 slots | Abundante | Ferramentas e tratamento comuns, sem porta final gratuita. |
-| Normal | 14 slots | Moderada | Algumas escolhas de carregar ou voltar. |
+| Fácil | 16 slots | Abundante | Proposta inicial: fuzil, 4 carregadores, 2 granadas, 3 fumaças, 1 tratamento; 14 slots usados. Sem porta final gratuita. |
+| Normal | 14 slots | Moderada | Proposta inicial: fuzil, 3 carregadores, 1 granada, 2 fumaças; 9 slots usados. |
 | Difícil | 12 slots | Limitada | Loadout GDD: fuzil, 2 carregadores, 1 granada, 2 fumaças; custos provisórios 3+2+1+2 = **8 slots**, deixando 4. |
-| Punitivo | 10 slots | Muito escassa | Equipamento inicial a definir em teste; não copiar a abundância do futuro Modo Extremo. |
+| Punitivo | 10 slots | Muito escassa | Proposta inicial: fuzil, 1 carregador, 1 fumaça; 5 slots usados. Não copia a abundância do futuro Modo Extremo. |
+
+As quatro cargas agora estão em `starting_loadout` no JSON e inicializam o CampaignCore real, sem valores de fixture. Fácil, Normal e Punitivo são novas **hipóteses de autoria**, a ajustar no primeiro playtest. O catálogo e os vínculos de coleta/uso ficam em `Tools/CampaignCore/campaign_initial.json`; distribuição pelo mapa ainda não comprova oferta suficiente para uma campanha de três horas. `build_data.py --check` confere custos, capacidade e paridade do header nativo.
 
 **Custos sugeridos:** fuzil 3, carregador 1, granada 1, fumaça 1, tratamento 2, bateria/pilhas 1, ferramenta da janela 2, chave da garagem 1. Documentos e códigos são consultáveis no diário após inspeção física; não são `ItemDefinition` com custo zero, que o InventoryCore atual rejeita. Objetos de missão têm ID persistente e origem, e nunca podem ser duplicados por save/load. O jogador pode deixar recurso não essencial e retornar; a chave/ferramenta de rota não deve desaparecer ao cair por falta de espaço. Capacidade e catálogo entram no save, por isso alterar ambos exige migração ou nova campanha.
 
