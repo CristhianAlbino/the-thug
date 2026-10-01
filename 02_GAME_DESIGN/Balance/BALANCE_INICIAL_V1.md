@@ -41,9 +41,9 @@
 | Sistema | Hipótese para primeiro teste | O que pode invalidá-la |
 | --- | --- | --- |
 | Amanhecer | Fácil 30 min, Normal 90 min, Difícil 180 min de tempo de jogo conforme GDD; evento `DawnReached` só após relógio/ambiente consistentes. Punitivo não vence por amanhecer. | Geometria, exploração e rotas podem permitir fugir antes; duração não é obrigação de segurar o jogador até o marco. |
-| Checkpoint | Autosave após N03, depois de marco irreversível de rota/ato quando Joe está fora de interação inacabada; nunca no meio de captura. Um checkpoint antigo permanece se o novo falhar. | Frequência real e custo de replay precisam de playtest; salvar antes de cada risco pode anular tensão. |
+| Checkpoint | Autosave após N03 e marco irreversível com mundo/atores/narrativa em estado coerente. Política de manual/autosave por modo e arquivo temporário no [contrato de checkpoint](../../04_TECHNICAL/Architecture/CONTRATO_CHECKPOINT_ESCONDERIJO_V1.md). | Frequência real e custo de replay precisam de playtest; salvar antes de cada risco pode anular tensão. |
 | Carregar save | Restaurar Hunter, companheiros, inventário, relógio de helicóptero, portas/câmeras/circuitos e flags narrativas de modo atômico. A mesma semente/estado dá continuação reprodutível. | Adaptação Unreal ainda não salva cenas/áudios em andamento; política final aguarda editor. |
-| Vitória escondido | Hunter abandonou de fato a busca na área, perdeu estimativa válida e não tem pista corrente; Joe não gerou ruído/visão durante a retirada. Exigir comprovação de deslocamento/estado do Hunter, não apenas contador. | `HideSpotSuspicion` e navegação reais podem exigir novos sinais; limiares D-08 pendentes de playtest. |
+| Vitória escondido | Hunter abandonou a busca, saiu fisicamente da área e não recebeu estímulo novo; Joe permanece em esconderijo válido durante janela estável proposta de 20/30/45/60 s por modo **depois** da saída verificada. Ver [sequência de aceitação](../../04_TECHNICAL/Architecture/CONTRATO_CHECKPOINT_ESCONDERIJO_V1.md). | `HideSpotSuspicion`, geometria e navegação reais podem exigir revisão; limiares D-08 pendentes de playtest. |
 
 ## Critérios antes de fixar números
 

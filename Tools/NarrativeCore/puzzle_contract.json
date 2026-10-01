@@ -2,6 +2,8 @@
   "schema": 1,
   "garage": {
     "code": "410723",
+    "correct_prior_knowledge_allowed": true,
+    "wrong_attempts_never_lock": true,
     "order_document": "DOC05",
     "fragments": [
       {"document": "DOC01", "node": "F4_NURSE", "flag": "code_a", "pair": "41"},

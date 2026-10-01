@@ -28,5 +28,10 @@
 | T22 | Save durante perseguição/ferimento/companheiros separados | Estado/restauração atômicos, sem duplicar recursos nem pistas. | SaveCore parcial; atores Unreal pendentes. |
 | T23 | Hunter abandona busca de esconderijo | Vitória só após estado/rota/percepção compatíveis. | Contrato; nav e limiar D-08 pendentes. |
 | T24 | Joins/paths após energia e rota falha | Sem softlock ou teleporte, com indicação de motivo. | Map/Scenario; blockout pendente. |
+| T25 | Thomas/Bartholomeu/Harley antes e depois de N03 | Banter pré-ruptura só com Thomas presente; após N03 a ausência não dispara voz, e nenhum modo conclui destino por essa conversa. | Banter/Narrative; atores e VO pendentes. |
+| T26 | Jack conta encontro anterior em Normal e Punitivo | Riso habitual existe em ambos e não concede J1–J3; pista macabra Punitivo exige cena própria testemunhada. | Banter/Narrative; atuação pendente. |
+| T27 | Salvar com conversa interrompida e recarregar | Retoma na linha correta ou cancela sem marcar ID entregue; não duplica item, fato Wayne ou pista do Hunter. | Contrato; envelope narrativo/VO pendentes. |
+| T28 | Teclado da garagem: tentativa errada, código correto sabido de outra partida | Sem tranca permanente ou abertura por simples visita; RunRules recebe `SafeOpened` só após entrada aceita no cofre físico. | PuzzleRules; integração Map/World/RunRules pendente. |
+| T29 | Hunter sai fisicamente de esconderijo, novo ruído no último segundo, save/load | Janela recomeça após novo estímulo; sem vitória por relógio isolado ou load que perca suspeita/posição. | Contrato; nav/visada/estado persistido pendentes. |
 
 **Gate de revisão geral:** nenhuma afirmação de “campanha 3h” até medir playthrough Difícil completo; nenhuma cena N01–N34 pode depender de NPC morto/ausente ou câmera impossível. Cada novo bug ganha seed, passo de reprodução e regressão apropriada ao sistema; não duplicar testes que apenas reproduzem a mesma tabela.

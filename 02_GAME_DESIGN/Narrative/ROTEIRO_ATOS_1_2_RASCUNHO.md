@@ -16,12 +16,13 @@
 
 **Entrada:** abertura, grupo junto. **Objetivo jogável:** acompanhar a fuga da rua, perceber duas escadas e uma prumada de serviço, chegar à sala de observação. A polícia fecha as saídas externas visíveis; o grupo entra no hospital porque a rua já está perdida, não porque surgiu uma quinta rota de fuga.
 
-**Batidas:** Bartholomeu segura a porta e se atrapalha com o trinco; Joe segura o peso e vê que ele *tentou* ajudar. Harley recolhe um pequeno suprimento esquecido por Joe e o devolve sem discurso. Jack olha a circulação e comenta que o lugar tem mais de uma vertical. Thomas mostra o relógio riscado no pulso ao bater numa porta: a marca identificável reaparece somente como peça de identificação da cena N34 nos modos que a permitem. Não há prova de morte aqui.
+**Batidas:** Bartholomeu segura a porta e se atrapalha com o trinco; Joe segura o peso e vê que o amigo *tentou* ajudar. Thomas se junta sem alarde, verifica a mão de Bartholomeu e o tranquiliza. Harley recolhe um pequeno suprimento esquecido por Joe e o devolve, mas ainda observa se Bartholomeu respira. Jack olha a circulação e comenta que o lugar tem mais de uma vertical. Thomas mostra o relógio riscado no pulso ao bater numa porta: a marca identificável reaparece somente como peça de identificação da cena N34 nos modos que a permitem. Não há prova de morte aqui.
 
 **Falas de trabalho:**
 
 > Joe: “A polícia não vai subir até aqui. Temos alguns minutos.”  
 > Bartholomeu: “Dois caminhos pra descer. Achei que hospital tinha um.”  
+> Thomas: “Barth, no três empurra comigo. Está bem a sua mão?”  
 > Harley: “Você deixou isso cair.”  
 > Joe: “Guarda. A gente conversa lá em cima.”  
 > Harley: “Você sempre promete isso.”
@@ -32,10 +33,12 @@
 
 **Entrada:** grupo presente, N01 concluída. **Objetivo:** olhar a cidade e identificar visualmente o telhado, sem iniciar rádio/helicóptero. Harley vê o Bat-Sinal primeiro; Thomas se aproxima da janela para provocar; o reflexo esconde parcialmente o corredor atrás da equipe. O jogador pode se afastar da janela e ainda ouvir a fala importante.
 
-> Thomas: “É só um morcego fantasiado. Relaxa.”  
+> Thomas: “É só um morcego fantasiado. Quando sairmos, pago café pra todos.”  
+> Bartholomeu: “Você disse isso na última vez.”  
+> Thomas: “E paguei.”  
 > Harley: “Se ele tá na rua, a gente não devia ficar na janela.”  
 > Joe: “Sai daí, Thomas.”  
-> Jack: “Ele não precisa estar na rua.”
+> Jack: “Já cruzei com ele antes. Saí vivo. Ha. E ele não precisa estar na rua.”
 
 **Saída:** retorno ao `F4_START` por ligação existente. `player_saw:bat_signal` não revela onde Batman está. Se Joe não fixou a vista, um clarão atravessa a janela e o grupo comenta; não bloquear N03 numa interação de câmera.
 
@@ -43,9 +46,9 @@
 
 **Entrada:** retorno de N02, uma vez. **Encenação da premissa:** luz/interferência, deslocamento curto no teto, Thomas é arrancado do grupo e some do campo de Joe. Uma possível queda de objeto produz ruído; não há alvo nem comando de combate que desfaça a separação. Harley puxa Joe para trás; Bartholomeu foge por uma ligação de escada alcançável; Jack desaparece por corredor acessível. Seus destinos posteriores usam trajetórias próprias, não destinos instantâneos decretados pela cena.
 
-> Thomas: “Que porra foi essa—”  
+> Thomas: “Merda, que foi isso—”  
 > Joe: “Thomas?!”  
-> Harley: “Joe, olha pra mim. A gente precisa sair daqui.”  
+> Harley: “Barth, vem comigo. Joe, olha pra mim. A gente precisa sair daqui.”  
 > Joe: “Não foi a polícia.”
 
 **Informação:** `joe_knows:thomas_taken` e `story:team_scattered`; **não** `joe_knows:thomas_dead`. Até mesmo no Difícil/Punitivo, a autoria e a morte só se tornam conclusivas em N34 ou na coda ao público. Fácil/Normal nunca exibem tal confirmação. `scene_seen:N03` impede repetir o ataque ao carregar save. Primeiro ponto para salvar a separação como fato; entradas de companheiros seguem condicionadas a presença real depois dela.
@@ -123,6 +126,8 @@
 > Jack: “Se ele ouviu a porta, talvez esteja olhando o corredor errado agora.”  
 > Joe: “Você viu ele?”  
 > Jack: “Vi a porta aberta. O resto é palpite.”
+
+**Lembrança opcional, qualquer modo:** se Joe perguntar sobre o encontro passado, Jack conta o que presenciou e como escapou, ri da própria sobrevivência e não ganha conhecimento atual de Batman. O riso comum não registra pista J1–J3.
 
 **Punitivo/J1:** já no primeiro reencontro, roupa de corte/forro diferentes da abertura. Uma risada curta e macabra acompanha uma graça deslocada *depois* de Joe relatar um ferimento ou sumiço; Jack precisa estar na conversa e o jogador ter visão/áudio suficientes para a pista ser testemunhada. Se a conversa for interrompida ou Joe não ouvir, não gravar J1; haverá pistas posteriores, mas J4 requer duas pistas incluindo J3. Fora do Punitivo, o figurino e a risada J1 não tocam.
 

@@ -4,7 +4,7 @@
 
 ## Joe Chill — medo de depender
 
-**Desejo:** sair antes que a polícia ou o Hunter o alcancem. **Medo íntimo:** precisar de alguém que pode perdê-lo ou traí-lo. **Contradição:** percebe detalhes úteis de rotas e ameaças, mas demora a perceber o custo emocional do que pede aos outros. Seu arco não obriga redenção; o jogador decide quanto tempo, recursos e risco oferece à equipe.
+**Desejo:** sair antes que a polícia ou o Hunter o alcancem. **Medo íntimo:** precisar de alguém que pode perdê-lo ou traí-lo. **Passado confirmado pelo criador:** quando começou a vida criminosa, matou os pais da família Wayne diante do filho. Joe sabe o que fez; isso não concede a Joe ou à equipe a identidade civil do Batman. **Contradição:** percebe detalhes úteis de rotas e ameaças, mas demora a perceber o custo emocional do que pede aos outros. Queremos que sobreviva como protagonista, sem absolver o assassinato que cometeu. Seu arco não obriga redenção; o jogador decide quanto tempo, recursos e risco oferece à equipe.
 
 **Voz:** curta, concreta e urgente. Evitar monólogos em perseguição. Quando frio, faz uma pergunta funcional onde Harley esperava cuidado. Quando cuidadoso, demonstra primeiro por ação e só depois encontra palavras. A ação do jogador não é anulada por uma fala seca. Não atribuir a Joe informação sobre Thomas se ele viu apenas N03 ou a coda exibida somente ao público.
 
@@ -12,17 +12,19 @@
 
 **Variação de cena:** após Harley mencionar o próprio corte, Joe comum pergunta se ela consegue andar antes de perguntar como está; no Punitivo ele oferece examinar e combinar reencontro. Se Joe já dividiu tratamento, reconhecer o gesto em qualquer modo.
 
+**Conversa em movimento:** com Bartholomeu, Joe pode admitir medo que esconderia dos demais e reconhecer uma amizade antiga. Com Harley, o passado Wayne emerge como responsabilidade, nunca como bravata ou explicação para o Hunter saber onde ele está. Uma linha opcional não força confissão a quem não estava presente. Suas pausas após Thomas mostram perda real, sem limpar sua ficha moral.
+
 ## Harley Quinzel — amor sem passividade
 
 **Desejo:** sobreviver com Joe se a relação ainda permitir; preservar a própria capacidade de agir. **Força:** lê pessoas, improvisa tratamento e reconhece pequenos sinais. **Vulnerabilidade:** investe mais no vínculo que Joe nos três primeiros modos, mas não fica presa a ele por roteiro.
 
-**Voz:** provocação que testa intimidade; quando o risco é real, frases precisas e pouco teatro. Ela pode pedir ajuda, recusar um plano ou cuidar de si. Uma partida em que Joe a abandona pode levá-la a escapar sozinha, ser capturada após fato físico, ou ficar desconhecida; **abandono não é sinônimo de morte**. N07 mostra sua competência antes do dilema N23. Se Joe ajudou de verdade, o epílogo o reconhece mesmo quando ela cobra suas palavras.
+**Voz:** provocação que testa intimidade, às vezes um pouco excêntrica e engraçada; quando o risco é real, frases precisas e pouco teatro. É o coração da equipe, mas conserva vontade própria. Trata Bartholomeu como irmão mais novo e pode protegê-lo sem negar sua utilidade. Tem repulsa intuitiva por Jack, questiona seus risos e seus atalhos, mas usa uma observação dele se puder verificá-la. Interage com todos, inclusive Thomas antes de N03. Ela pode pedir ajuda, recusar um plano ou cuidar de si. Uma partida em que Joe a abandona pode levá-la a escapar sozinha, ser capturada após fato físico, ou ficar desconhecida; **abandono não é sinônimo de morte**. N07 mostra sua competência antes do dilema N23. Se Joe ajudou de verdade, o epílogo o reconhece mesmo quando ela cobra suas palavras.
 
 **Limite sistêmico:** tratamento exige recurso e proximidade; alerta exige que ela viu/ouviu algo; rota só entra no conhecimento dela por experiência ou comunicação. Evitar a fala “eu sabia que você não ia me deixar” se ela não observou Joe voltar.
 
 ## Bartholomeu Kent — coragem suficiente para uma porta
 
-**Desejo:** sair vivo; ser tratado como parte da equipe. **Força:** percebe manutenção, retém uma pista parcial, segura uma passagem apesar do medo. **Vulnerabilidade:** medo do Hunter e frustração com abandono podem vencer a lealdade, mas sua traição nunca é papel fixo.
+**Desejo:** sair vivo; ser tratado como parte da equipe. **Vínculo:** é colega e amigo antigo de Joe, e Harley o adotou como irmãozinho. **Força:** percebe manutenção, retém uma pista parcial, segura uma passagem apesar do medo. O medo o faz observar saídas e vibrações que os outros ignoram; ele não é infantil nem inútil. **Vulnerabilidade:** medo do Hunter e frustração com abandono podem vencer a lealdade, mas sua traição nunca é papel fixo.
 
 **Voz:** hesita quando não sabe, é específico sobre o que viu. “Vi a entrada, não a saída” é sua honestidade útil. Ao receber munição ou cobertura real, registra o gesto; ao perder confiança pode fugir sozinho. Uso de Joe como distração exige medo, circunstância física e Hunter percebido. Se ele só supõe o destino de Thomas, sua frase é **“Pode estar morto”**, nunca confirmação em Fácil/Normal. A fala antiga do GDD “Thomas morreu” só pode existir em Difícil/Punitivo se Bartholomeu obteve prova por testemunho ou comunicação.
 
@@ -32,13 +34,13 @@
 
 **Desejo aparente:** sobreviver por leitura de padrões; guardar vantagem. **Força:** percebe ligação entre ruído, escadas e busca do Hunter antes dos outros. **Voz comum:** sarcástica, econômica e analítica, sem informação onisciente. Uma hipótese é apresentada como hipótese; uma observação tem origem concreta. Ele precisa acertar e ajudar pelo menos uma vez em caminhos onde é encontrado, para que N25 tenha peso além da suspeita.
 
-**Punitivo:** figurino distinto desde o primeiro reencontro. J1 é risada breve deslocada; J2 é graça cruel e riso longo ao ouvir ferimento/Thomas; J3 é reação macabra a risco de companheiro e repetição de detalhe de roupa. J4, no ato 5, só confirma o segredo se Joe testemunhou J3 e J1 ou J2, Jack ainda está presente e o encontro é fisicamente possível. Rir no modo comum não promete a mesma identidade. Não colocar J1–J4 por cronômetro ou por flag que Joe não presenciou.
+**Passado com o Hunter:** já se encontrou com Batman e saiu vivo. Conta o fato de maneira provocadora e ri ao lembrá-lo **em todas as dificuldades**; o riso comum é nervoso ou sardônico e não entrega a identidade secreta. Ele pode ser a salvação por uma inferência comprovável e, se manipular Joe, transformar a mesma perspicácia em ameaça. **Punitivo:** figurino distinto desde o primeiro reencontro. J1 é risada breve deslocada diante de ferida/sumiço, diferente do riso habitual; J2 é graça cruel e riso longo ao ouvir ferimento/Thomas; J3 é reação macabra a risco de companheiro e repetição de detalhe de roupa. J4, no ato 5, só confirma o segredo se Joe testemunhou J3 e J1 ou J2, Jack ainda está presente e o encontro é fisicamente possível. Não colocar J1–J4 por cronômetro ou por flag que Joe não presenciou.
 
 **Epílogo:** sem J4, a suspeita do Punitivo permanece suspeita; fora dele, sua história não é reescrita como revelação secreta. Capturado, morto, ausente e fugido têm blocos distintos. A versão de atuação e a frase de revelação seguem revisão D-12.
 
 ## Thomas Terrence — perda antes de resposta
 
-**Função:** membro forte, barulhento e confiante cuja extração em N03 muda a leitura do grupo. **Antes da ruptura:** uma provocação ao perigo, um relógio riscado visível e um gesto pequeno que o torne pessoa, não apenas truque de susto. Pode ajudar Bartholomeu com a porta e logo desdenhar do aviso de Harley.
+**Função:** membro forte, barulhento e confiante cuja extração em N03 muda a leitura do grupo. **Antes da ruptura:** provoca o perigo, usa relógio riscado visível e cuida dos outros com uma ternura que contrasta com seu tamanho. Ajuda Bartholomeu a segurar a porta, checa sua mão e promete café para os cinco quando saírem; brinca com Harley sem ignorar que ela sabe o que faz. O objetivo é que sua ausência doa por uma pessoa conhecida, não por um truque de susto.
 
 **Fato do mundo:** Batman o matou. **Conhecimento por modo:** Fácil/Normal não confirmam nem exibem a resposta; Difícil/Punitivo mostram N34 ou coda conclusiva. O relógio **sozinho** não prova morte/autoria. Joe só diz “ele o matou” depois de cruzar prova suficiente; coda vista pelo público não vira memória de Joe. Não sugerir que Thomas pode ser resgatado como objetivo secreto na campanha comum.
 
@@ -59,3 +61,5 @@
 | Hunter ↔ equipe | Estímulo com origem/alcance, inspeção, visão direta, comunicação percebida | Hunter não lê flags privadas nem planos do jogador. |
 
 **Condições de revisão:** verificar em voz alta se Joe comum frustra sem virar caricatura, se Harley conserva agência, se a ajuda de Bartholomeu é lembrada, se Jack comum permanece útil, e se Thomas importa antes da descoberta. Valores de traços, limiares e atuação serão calibrados separadamente.
+
+As [42 conversas ambientais](DIALOGOS_AMBIENTAIS_V1.md) expandem esses vínculos sem substituir cenas N01–N34. **Linguagem:** sem palavrões fortes; “merda”, “bosta” e “ferrou” são permitidos. Conversas de Jack sobre sobreviver ao Batman não registram J1–J3.

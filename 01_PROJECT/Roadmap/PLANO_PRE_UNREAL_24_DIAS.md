@@ -27,9 +27,11 @@ Registro atual: [Decisões abertas](../Decisions/DECISOES_ABERTAS.md).
 - [x] Primeira passada de roteiro jogável N01–N11 (atos 1–2), com variantes de Joe/Harley, primeiro sinal de Jack e encontro condicional com Batman; contrato de disparo verifica presença física dos companheiros, evidência e alternativas de percurso.
 - [x] Primeira passada de roteiro N12–N34 (atos 3–5), ligando quatro fugas, circuitos, dilemas, Thomas, J4 e epílogos. Contratos formais de entrada, falhas independentes por rota e estados individuais de epílogo validados; falas/encenação finais e playtest continuam pendentes.
 - [x] Bíblia individual e pacote de texto v1 para N01–N34, DOC01–16, AUD01–08 e epílogos, com distinção entre prova de Thomas e informação de Joe; revisão criativa D-12 pendente.
+- [x] Direção D-14 de linguagem/vozes e 42 conversas ambientais opcionais com presença física, perigo e conhecimento por pessoa; Joe/Wayne, Harley/Bartholomeu, Jack e Thomas integrados ao GDD. Leitura em voz alta e performance seguem pendentes.
 - [x] Hipóteses de balanceamento em tabela e JSON, três fragmentos da garagem (`410723`) e quatro cadeias de pista validadas contra o grafo; valores/descoberta aguardam playtest.
 - [x] Fluxos de interface, wireframe SVG, acessibilidade e idioma inicial; UMG e teste de leitura aguardam editor.
 - [x] Matriz de campanha, orçamento provisório, contrato dos adaptadores e kit de primeiro dia; integração jogável depende do editor, especialmente estado narrativo no save.
+- [x] Contratos provisórios de teclado físico, checkpoint atômico e prova de abandono do Hunter; teste humano cego de pistas e medição de esconderijo na Unreal continuam pendentes.
 - [ ] Revisão geral com Cristhian de texto, encenação, valores e interface; a [revisão técnica v1](../Reviews/REVISAO_PRE_UNREAL_V1.md) lista evidências e decisões pendentes.
 - [ ] Produção/gravação de áudio e seleção/criação de assets finais **depois** da revisão geral.
 - [ ] Projeto `.uproject`, níveis e execução no editor: aguardam o computador/Unreal.

@@ -2,6 +2,7 @@
   "schema": 1,
   "world_truth": {
     "thomas": "killed_by_batman",
+    "wayne_parents": "killed_by_joe_chill_years_earlier",
     "hospital_history": "possible_decommissioned_arkham_clinical_extension"
   },
   "difficulty": {

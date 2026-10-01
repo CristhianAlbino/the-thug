@@ -251,6 +251,8 @@ Joe é um criminoso experiente, pragmático e extremamente orientado à sobreviv
 
 Não é um herói.
 
+**Direção confirmada em 01/10/2026:** anos antes da campanha, ainda no início da vida criminosa, Joe matou os pais Wayne diante do filho. Ele pode mencionar esse crime em conversas opcionais; sobreviver como protagonista não o absolve. Joe e a equipe não ganham automaticamente conhecimento da identidade civil do Batman por lembrar dos Wayne. Bartholomeu é um amigo antigo, e Harley é alguém por quem Joe se importa mais do que admite nos modos comuns; no Punitivo ele demonstra cuidado mais recíproco, sempre sujeito às ações do jogador.
+
 ### Personalidade
 
 - frio sob pressão;
@@ -293,7 +295,7 @@ Sozinho:
 
 **Função:** primeira vítima narrativa.
 
-Fisicamente forte e impulsivo.
+Fisicamente forte e impulsivo. A equipe também conhece seu lado afetuoso: ajuda Bartholomeu a segurar a porta, verifica se o amigo se feriu e promete café para todos ao saírem. A perda precisa doer antes de sua confirmação.
 
 ### Personalidade
 
@@ -307,13 +309,15 @@ Thomas serve para estabelecer imediatamente uma regra:
 
 > ninguém está seguro.
 
+Batman o matou após a separação. Fácil/Normal não confirmam o destino ao jogador; Difícil/Punitivo mostram prova da morte/autoria durante a exploração ou em coda. O fato do mundo é o mesmo, mas Joe só sabe o que testemunhou.
+
 Antes do ataque:
 
 > “É só um morcego fantasiado. Relaxa.”
 
 Pouco antes de desaparecer:
 
-> “Que porra foi essa—”
+> “Merda, que foi isso—”
 
 Silêncio.
 
@@ -326,6 +330,8 @@ Silêncio.
 Não funciona como personagem indefesa.
 
 É inteligente, adaptável e capaz de sobreviver sozinha.
+
+É o coração da equipe: às vezes excêntrica de forma querida, trata Bartholomeu como irmão mais novo e desconfia de Jack. Essa repulsa não a impede de usar uma observação dele se puder verificá-la. Ela conversa com todos, conserva agência e não existe apenas em função do romance com Joe.
 
 ### Personalidade
 
@@ -399,7 +405,7 @@ Quer sobreviver.
 
 ### Relação com Joe
 
-Respeita Joe inicialmente.
+É amigo de Joe há anos, respeita o protagonista inicialmente e tem vínculo de irmã/fraterno com Harley. Seu medo o faz procurar detalhes úteis de manutenção e saída; não deve virar uma caricatura infantil.
 
 Sua lealdade depende das ações da partida.
 
@@ -411,7 +417,9 @@ Sua lealdade depende das ações da partida.
 
 Se Joe quiser procurar Thomas:
 
-> “Thomas morreu. Se você voltar lá, nós dois vamos morrer.”
+> “Pode estar morto, Joe. Eu não vi. Se você voltar lá, podemos ficar presos também.”
+
+No Difícil/Punitivo, uma confirmação de morte e autoria só pode ser dita após Bartholomeu obter prova por encontro ou comunicação. Fácil/Normal preservam a incerteza do destino de Thomas ao jogador.
 
 Após receber munição:
 
@@ -442,6 +450,8 @@ Durante uma traição:
 
 Jack percebe padrões antes dos outros.
 
+Já encontrou Batman antes e saiu vivo. Ri ao contar a própria sobrevivência em **todas** as dificuldades. O riso comum pode ser sardônico ou nervoso; no Punitivo, roupa diferente e risos cruéis diante de sofrimento compõem pistas próprias e progressivas. Apenas as pistas testemunhadas em encontros J1–J3 podem sustentar a revelação opcional J4.
+
 Pode ser o primeiro personagem a compreender que o comportamento do Hunter não é aleatório.
 
 ### Exemplo
@@ -457,6 +467,10 @@ Joe:
 Jack:
 
 > “Aprendendo.”
+
+### Linguagem da equipe
+
+Sem palavrões fortes em falas, documentos e gravações do jogo. Expressões leves como “merda”, “bosta” e “ferrou” são permitidas. A [bíblia de personagens](../Narrative/BIBLIA_PERSONAGENS_V1.md), o [pacote de falas](../Narrative/PACOTE_TEXTO_CAMPANHA_V1.md) e as [conversas ambientais](../Narrative/DIALOGOS_AMBIENTAIS_V1.md) aplicam esta direção. Falas condicionais exigem o fato e a presença física de quem fala; não contam um destino ainda desconhecido.
 
 ---
 
@@ -2431,11 +2445,11 @@ Não interfere diretamente na campanha principal.
 
 Conteúdo secreto.
 
-Um dos indivíduos presentes na partida pode não ser quem aparenta.
+No Punitivo, Jack Oswald White pode não ser quem aparenta. Fora desse modo ele ainda relata ter sobrevivido a um encontro com Batman e ri disso, mas a revelação secreta não é antecipada.
 
 Pistas:
 
-- conhecimento impossível;
+- informação que Joe ainda não verificou, mas que Jack poderia ter obtido por percurso ou observação própria;
 - ausência incomum de medo;
 - desaparecimentos;
 - manipulação;

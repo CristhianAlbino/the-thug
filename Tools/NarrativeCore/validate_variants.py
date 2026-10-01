@@ -14,6 +14,10 @@ from act35_rules import (CONTRACT as LATE_CONTRACT, SCENES as LATE_SCENES,
                          ROUTE_ENDS, can_close_route, can_witness_late_clue,
                          eligible_late)  # noqa: E402
 from ending_rules import CompanionEvidence, derive_outcomes, resolve_from_evidence  # noqa: E402
+from banter_rules import (DATA as BANTER_DATA, EXCHANGES, BanterFacts,
+                          PresentActor, eligible_banter)  # noqa: E402
+from render_banter import render as render_banter  # noqa: E402
+from puzzle_rules import PuzzleState, journal_fragments, submit_code  # noqa: E402
 from dataclasses import replace
 
 
@@ -226,6 +230,18 @@ def verify_text_and_balance(graph):
         assert any(x.startswith(f"| {item['document']} ·") for x in package.splitlines())
     assert garage["order_document"] == garage["safe_discovery"]["document"]
     assert garage["code"] in package
+    assert garage["correct_prior_knowledge_allowed"] and garage["wrong_attempts_never_lock"]
+    unfamiliar = PuzzleState()
+    assert not journal_fragments(unfamiliar)
+    assert submit_code(unfamiliar, garage["code"], at_safe=False) == (unfamiliar, False)
+    wrong, accepted = submit_code(unfamiliar, "000000", at_safe=True)
+    assert not accepted and wrong.attempts == 1 and not wrong.safe_opened
+    recovered, accepted = submit_code(wrong, garage["code"], at_safe=True)
+    assert accepted and recovered.safe_opened and recovered.attempts == 2
+    assert submit_code(recovered, garage["code"], at_safe=True) == (recovered, False)
+    assert submit_code(unfamiliar, "１２３４５６", at_safe=True) == (unfamiliar, False)
+    seen = PuzzleState(frozenset({"DOC02"}))
+    assert journal_fragments(seen) == (("DOC02", fragments[1]["pair"]),)
 
     balance = json.loads((ROOT / "balance_initial.json").read_text(encoding="utf-8"))
     assert balance["schema"] == 1 and balance["status"] == "playtest_hypothesis"
@@ -243,6 +259,72 @@ def verify_text_and_balance(graph):
     assert sum(balance["hard_starting_loadout_slots"].values()) == 8
     assert balance["modes"]["Hard"]["inventory_slots"] >= 8
     return len(refs)
+
+
+def verify_banter(nodes):
+    bank = BANTER_DATA["exchanges"]
+    assert BANTER_DATA["schema"] == 1 and BANTER_DATA["locale"] == "pt-BR"
+    assert [e["id"] for e in bank] == [f"BAN{i:02d}" for i in range(1, 43)]
+    assert len(EXCHANGES) == len(bank)
+    speakers = {"joe", "harley", "bartholomeu", "jack", "thomas"}
+    story_scenes = {f"N{i:02d}" for i in range(1, 35)}
+    evidence_facts = {"garage_camera_loop_observed", "camera_loop_observed_by_group",
+                      "doc11_read_by_jack", "camera_live_observed_by_group",
+                      "joe_delayed_harley_help", "harley_injured",
+                      "bartholomeu_cooperative", "bartholomeu_cooperated_n24",
+                      "helicopter_confirmed"}
+    for e in bank:
+        assert e["act"] in range(1, 6) and set(e["nodes"]) <= nodes
+        assert set(e["actors"]) <= speakers
+        assert set(e.get("after", ())) | set(e.get("before", ())) <= story_scenes
+        assert set(e.get("requires_facts", ())) <= evidence_facts
+        assert set(e.get("modes", DATA["difficulty"])) <= set(DATA["difficulty"])
+        assert len(e["lines"]) >= 2
+        assert {line["speaker"] for line in e["lines"]} <= set(e["actors"])
+        assert all(line["text"].strip() for line in e["lines"])
+        if "thomas" in e["actors"]:
+            assert e["act"] == 1 and "N03" in e.get("before", ())
+        assert not any(key.startswith("J") for key in e.get("grants", ()))
+    assert all(sum(e["act"] == act for e in bank) >= 6 for act in range(1, 6))
+
+    result = (ROOT / "../../02_GAME_DESIGN/Narrative/DIALOGOS_AMBIENTAIS_V1.md").read_text(encoding="utf-8")
+    assert result == render_banter(), "render ambient dialogue after editing JSON"
+    assert result.count("### BAN") == 42
+    forbidden = re.compile(r"\b(?:porra|caralho|foda(?:-se)?|foder|puta que pariu|filho da puta|cacete)\b", re.I)
+    for path in ("PACOTE_TEXTO_CAMPANHA_V1.md", "ROTEIRO_ATOS_1_2_RASCUNHO.md",
+                 "ROTEIRO_ATOS_3_5_RASCUNHO.md", "DIALOGOS_AMBIENTAIS_V1.md"):
+        manuscript = (ROOT / "../../02_GAME_DESIGN/Narrative" / path).read_text(encoding="utf-8")
+        assert not forbidden.search(manuscript), f"strong profanity in {path}"
+    gdd = (ROOT / "../../02_GAME_DESIGN/GDD/GDD_MASTER.md").read_text(encoding="utf-8")
+    assert not forbidden.search(gdd), "strong profanity in GDD examples"
+    assert "Joe matou os pais Wayne" in gdd and "No Difícil/Punitivo" in gdd
+
+    party = {name: PresentActor("F4_START") for name in speakers - {"joe"}}
+    opening = BanterFacts("Hard", 1, "F4_START", actors=party)
+    assert eligible_banter("BAN01", opening)
+    assert not eligible_banter("BAN01", replace(opening, seen_scenes=frozenset({"N03"})))
+    assert not eligible_banter("BAN01", replace(opening, actors={**party, "thomas": PresentActor("F4_START", False)}))
+    barth = BanterFacts("Normal", 2, "F3_RECOVERY", frozenset({"N03"}),
+                        actors={"bartholomeu": PresentActor("F3_RECOVERY")})
+    assert eligible_banter("BAN12", barth)
+    assert not eligible_banter("BAN12", replace(barth, actors={}))
+    assert not eligible_banter("BAN12", replace(barth, delivered=frozenset({"BAN12"})))
+    assert not eligible_banter("BAN12", replace(barth, in_danger=True))
+    camera = BanterFacts("Hard", 2, "F2_CAMERAS", frozenset({"N03"}),
+                         actors={"jack": PresentActor("F2_CAMERAS")})
+    assert not eligible_banter("BAN17", camera)
+    assert eligible_banter("BAN17", replace(camera, facts=frozenset({"garage_camera_loop_observed"})))
+    assert not eligible_banter("BAN17", replace(camera, main_scene_active=True,
+                                                  facts=frozenset({"garage_camera_loop_observed"})))
+    harley = BanterFacts("Hard", 4, "F3_RECOVERY", frozenset({"N23"}),
+                         facts=frozenset({"joe_delayed_harley_help", "harley_injured"}),
+                         actors={"harley": PresentActor("F3_RECOVERY")})
+    assert eligible_banter("BAN29", harley)
+    assert not eligible_banter("BAN30", harley)
+    assert eligible_banter("BAN30", replace(harley, difficulty="Punitive"))
+    assert not eligible_banter("BAN29", replace(harley, difficulty="Punitive"))
+    assert DATA["world_truth"]["wayne_parents"] == "killed_by_joe_chill_years_earlier"
+    return len(bank)
 
 
 def verify():
@@ -268,6 +350,7 @@ def verify():
     later_refs = verify_later_scenes(nodes, devices)
     verify_endings()
     text_refs = verify_text_and_balance(graph)
+    banter_count = verify_banter(nodes)
 
     for difficulty in DATA["difficulty"]:
         revealed = difficulty in ("Hard", "Punitive")
@@ -310,7 +393,8 @@ def verify():
         pass
     else:
         raise AssertionError("Jack secret leaked into Normal")
-    print(f"NarrativeCore: 4 difficulties, 34 scenes, 16 documents, 8 audio scripts, "
+    print(f"NarrativeCore: 4 difficulties, 34 scenes, {banter_count} ambient exchanges, "
+          "16 documents, 8 audio scripts, "
           f"{len(refs)} campaign/{early_refs} early/{later_refs} later/{text_refs} text "
           "map/device IDs; gates, puzzle, balance hypotheses and epilogues valid")
 

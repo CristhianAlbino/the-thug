@@ -2,7 +2,7 @@
 
 **Estado: direção narrativa v0.2.** As decisões do criador registradas em 30/09/2026 na seção seguinte estão fixadas; encenação, ordem fina, falas e gatilhos continuam rascunho para acompanhamento. O [GDD Mestre](../GDD/GDD_MASTER.md) fixa a premissa, cinco personagens, Batman como Hunter, quatro fugas e os cinco atos conceituais. Este documento propõe uma sequência extensa e dinâmica para o Difícil, conectada ao [mapa lógico](../World/MAPA_LOGICO_HOSPITAL.md) e à [bíblia visual](../Visual/BIBLIA_VISUAL_HOSPITAL.md). IDs de cena são estáveis para roteiro e implementação; durações são **hipóteses**, sem playtest.
 
-As cenas N01–N11 receberam uma [primeira passada de roteiro jogável](ROTEIRO_ATOS_1_2_RASCUNHO.md), com condições, alternativas e falas para revisão próxima. N12–N34 têm [roteiro de trabalho dos atos 3 a 5](ROTEIRO_ATOS_3_5_RASCUNHO.md), com rotas, dilemas, Thomas, J4 e epílogos. O [pacote de texto v1](PACOTE_TEXTO_CAMPANHA_V1.md) traz falas, documentos, roteiros de gravações e epílogos para revisão; a [bíblia de personagens](BIBLIA_PERSONAGENS_V1.md) orienta vozes e consequências. Encenação e atuação seguem em revisão.
+As cenas N01–N11 receberam uma [primeira passada de roteiro jogável](ROTEIRO_ATOS_1_2_RASCUNHO.md), com condições, alternativas e falas para revisão próxima. N12–N34 têm [roteiro de trabalho dos atos 3 a 5](ROTEIRO_ATOS_3_5_RASCUNHO.md), com rotas, dilemas, Thomas, J4 e epílogos. O [pacote de texto v1](PACOTE_TEXTO_CAMPANHA_V1.md) traz falas, documentos, roteiros de gravações e epílogos para revisão; a [bíblia de personagens](BIBLIA_PERSONAGENS_V1.md) orienta vozes e consequências. As [conversas ambientais](DIALOGOS_AMBIENTAIS_V1.md) ampliam a convivência entre cenas. Encenação e atuação seguem em revisão.
 
 ## Diretrizes confirmadas por Cristhian
 
@@ -13,6 +13,7 @@ As cenas N01–N11 receberam uma [primeira passada de roteiro jogável](ROTEIRO_
 | Jack | No Punitivo, apresenta roupa distinta, humor deslocado e risadas macabras cada vez mais perceptíveis ao longo da noite. A cadeia de pistas sustenta a revelação secreta do GDD; nos outros modos, não antecipar essa versão. |
 | Hospital | Contar pelo ambiente, sem explicação expositiva. **Proposta aceita como possibilidade de direção:** ala clínica desativada associada ao antigo Asilo Arkham, sugerida por placas, arquivos e infraestrutura, sujeita ao blockout. |
 | Companheiros | Harley, Bartholomeu e Jack têm histórias e epílogos individuais. Ações de Joe podem criar dilemas reais de ajudar, deixar para trás ou aceitar risco para salvar alguém. O jogador deve ter tempo de conhecê-los antes de enfrentar o custo. |
+| Vozes e passado | Joe matou os pais Wayne anos antes; a equipe não deduz automaticamente a identidade do Hunter. Harley cuida de Bartholomeu como irmão, desconfia de Jack; Bartholomeu é amigo de Joe e Thomas é forte e carinhoso. Jack encontrou Batman antes e ri quando fala da sobrevivência em todos os modos; os risos cruéis J1–J3 pertencem apenas ao Punitivo. Sem palavrões fortes. |
 
 O Batman desta versão pode matar Thomas, embora suas derrotas usuais contra Joe continuem sendo captura/incapacitação. A morte é uma **exceção estabelecida pelo criador**, não licença para transformar o Hunter num assassino onipresente ou para informar Joe sobre ela no Fácil/Normal. O uso público dos personagens permanece na decisão D-10.
 
