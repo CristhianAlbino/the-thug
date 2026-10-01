@@ -144,6 +144,18 @@ void StoryRoundTrip() {
   Check(!normal.RestoreSnapshot(normalState),
         "Ordinary difficulty cannot learn Punitive-only clues");
 
+  invalid = resumed.narrative.CaptureSnapshot();
+  invalid.joeEscaped = true;
+  Check(resumed.narrative.RestoreSnapshot(invalid),
+        "Narrative can receive a verified exit from the adapter");
+  std::ostringstream impossible;
+  Check(save::SaveStoryCampaign(impossible, resumed.Members()) ==
+            save::Result::IncompatibleRoster && impossible.str().empty(),
+        "A narrated escape without a RunRules ending cannot be saved");
+  invalid.joeEscaped = false;
+  Check(resumed.narrative.RestoreSnapshot(invalid),
+        "Removing the unverified exit returns to the previous story");
+
   Fixture clock;
   Check(clock.narrative.RecordScene("N01", 1), "Narrative clock advances");
   std::ostringstream blank;

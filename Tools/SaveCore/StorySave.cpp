@@ -132,8 +132,14 @@ Result ReadBounded(std::istream& input, std::string& bytes) {
 bool Consistent(const StoryCampaign& campaign) {
   const auto story = campaign.narrative.CaptureSnapshot();
   const auto world = campaign.core.world.CaptureSnapshot();
+  const auto ending = campaign.core.routes.Result();
+  const bool routeEscape = ending == rules::Ending::GarageEscape ||
+      ending == rules::Ending::RoofEscape ||
+      ending == rules::Ending::TunnelEscape ||
+      ending == rules::Ending::WindowEscape;
   return story.difficulty == campaign.core.routes.DifficultyLevel() &&
-         std::isfinite(world.nowSeconds) && story.nowSeconds <= world.nowSeconds;
+         std::isfinite(world.nowSeconds) && story.nowSeconds <= world.nowSeconds &&
+         (!story.joeEscaped || routeEscape);
 }
 
 } // namespace
@@ -206,9 +212,8 @@ Result LoadStoryCampaign(std::istream& input, StoryCampaign campaign) {
   std::istringstream coreIn(core);
   const auto coreResult = LoadCampaign(coreIn, staged);
   if (coreResult != Result::Ok) return coreResult;
-  if (!narrative.RestoreSnapshot(story) ||
-      story.difficulty != routes.DifficultyLevel() ||
-      story.nowSeconds > world.CaptureSnapshot().nowSeconds)
+  StoryCampaign stagedStory{staged, narrative};
+  if (!narrative.RestoreSnapshot(story) || !Consistent(stagedStory))
     return Result::IncompatibleRoster;
 
   using std::swap;
