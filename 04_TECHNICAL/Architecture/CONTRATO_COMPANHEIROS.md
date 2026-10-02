@@ -25,6 +25,6 @@ Baseado no [GDD Mestre](../../02_GAME_DESIGN/GDD/GDD_MASTER.md), seções 5–6 
 
 ## Limites pendentes
 
-Pesos e limiares são parâmetros iniciais de teste. O [SaveCore](../../Tools/SaveCore/README.md) persiste traços, rotas, IDs aplicados e RNG junto ao inventário de Joe. CampaignCore agora executa os seis objetivos com reservas/confirmação e conserva ferimentos graduais, inventários individuais, tarefas e resultados no runtime v4. Faltam perfis numéricos aprovados, objetivos mais ricos, medo/estresse ao longo do tempo, mentira, atuação, animações e integração física. A integração deve manter a individualidade de Harley, Bartholomeu e Jack sem transformar nenhum deles em seguidor genérico.
+Pesos e limiares são parâmetros iniciais de teste. O [SaveCore](../../Tools/SaveCore/README.md) persiste traços, rotas, IDs aplicados e RNG junto ao inventário de Joe. CampaignCore agora executa os seis objetivos com reservas/confirmação e conserva ferimentos graduais, inventários individuais, tarefas e resultados no runtime v5. Faltam perfis numéricos aprovados, objetivos mais ricos, medo/estresse ao longo do tempo, mentira, atuação, animações e integração física. A integração deve manter a individualidade de Harley, Bartholomeu e Jack sem transformar nenhum deles em seguidor genérico.
 
 Para a sessão completa, seguir o [contrato de execução nativa](CONTRATO_EXECUCAO_COMPANHEIROS_V1.md); chamadas diretas aos núcleos não substituem suas transações.

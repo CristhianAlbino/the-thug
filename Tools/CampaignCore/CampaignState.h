@@ -22,6 +22,7 @@ struct CampaignCore::State {
         survival(tuning), hearing({}, seed + 5), world(world.levelId, world.objects),
         narrative(difficulty) {
     hunterRandom.seed(seed + 6);
+    combat.oxygen = CombatProfile(difficulty).oxygenCapacity;
     for (const auto& [id, count] : profile.loadout)
       if (!inventory.Add(id, count)) throw std::logic_error("Invalid authored loadout");
     const auto party = partydata::For(difficulty);
@@ -84,6 +85,11 @@ struct CampaignCore::State {
       }
     }
     if (ending != rules::Ending::None) {
+      combat.task.reset();
+      combat.shots.clear();
+      combat.thrown.clear();
+      combat.smoke.clear();
+      combat.holdingBreath = false;
       hunterRuntime.task.reset();
       hunterRuntime.watchingDoor.clear();
       for (auto& [name, body] : bodies) { (void)name; body.Stop(TaskStop::CampaignEnded); }
@@ -112,6 +118,7 @@ struct CampaignCore::State {
   director::PresentationState presentation;
   std::map<std::string, CompanionBody> bodies;
   std::set<std::string> joeKnownRoutes;
+  CombatRuntimeSnapshot combat;
 };
 
 } // namespace thug::campaign

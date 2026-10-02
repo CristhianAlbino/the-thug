@@ -45,4 +45,12 @@
 | T38 | Escolher distração, cancelar ou concluí-la com Hunter fora de audição | Intenção não gera captura; conclusão emite fonte real, a audição filtra alcance/oclusão. | CampaignCompanions/Perception; acústica física pendente. |
 | T39 | Transferência/medicina/dispositivo com inventário do executor, capacidade insuficiente ou alvo ausente | Um custo/consequência; falha não muda inventários/saúde; repetição após load não duplica. | CampaignCompanions; interação física pendente. |
 
+| T40 | Recarga interrompida, animação não concluída e munição reservada disputada | Nenhum custo antecipado; conclusão/retentativa consome uma vez; transferência não retira reserva. | CampaignCombat; animação/input Unreal pendentes. |
+| T41 | Tiro errado, impacto Hunter, repetição e tentativa de travamento contínuo | Um disparo por ocorrência; som passa pela audição; impacto temporário não mata Hunter e não prolonga bloqueio durante imunidade. | CampaignCombat/Perception/Hunter; raycast/atuação pendentes. |
+| T42 | Save de granada em voo, delta longo e dois fusíveis iguais | Pose/velocidade/fusível retomam; relógio para no primeiro limite e exige resolver cada consulta física. | CampaignCombat; física/colisão pendentes. |
+| T43 | Fumaça entre sensor/alvo, em outro corredor e expirada | Consulta geométrica local; memória não é apagada; sensores reais comprovam perda de visada. | CampaignCombat; paredes/volumetria pendentes. |
+| T44 | Explosão com amigo/Joe expostos, alvo obstruído e destrutível já quebrado | Ferimentos e objetos aplicados juntos; erro de prova preserva sessão; vítima individual não encerra Joe. | CampaignCombat/Companion; consulta física/oclusão pendentes. |
+| T45 | Segurar/soltar ar, correr, ferimento e pausa | Reserva finita, silêncio temporário, fronteira ofegante audível; sem morte por oxigênio ou avanço durante pausa. | CampaignCombat/Survival; feedback/cadência pendentes. |
+| T46 | Registro quase cheio com granada já preparada/lançada | Reserva de recibos permite concluir detonação; demais operações recebem LogFull; nenhum fusível fica impossível de confirmar. | CampaignCombat; orçamento da campanha real pendente. |
+
 **Gate de revisão geral:** nenhuma afirmação de “campanha 3h” até medir playthrough Difícil completo; nenhuma cena N01–N34 pode depender de NPC morto/ausente ou câmera impossível. Cada novo bug ganha seed, passo de reprodução e regressão apropriada ao sistema; não duplicar testes que apenas reproduzem a mesma tabela.

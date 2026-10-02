@@ -2,7 +2,7 @@
 
 Implementação C++17 em [SaveCore](../../Tools/SaveCore/README.md). O formato `THE_THUG_CAMPAIGN 1` guarda em um mesmo checkpoint os dez estados puros que existem hoje. O formato legado `THE_THUG_PARTY 1` continua válido apenas para a equipe; nunca carregá-lo como uma campanha completa.
 
-O formato `THE_THUG_STORY_CAMPAIGN 1`, acessado por `SaveStoryCampaign`/`LoadStoryCampaign`, envolve os dez estados puros e `NarrativeState`. Ele valida o bloco narrativo e o mundo **antes** de modificar a memória; formatos antigos não ganham flags narrativas inventadas. Para a sessão coordenada, usar **`THE_THUG_RUNTIME_CAMPAIGN 4`** de [CampaignCore](../../Tools/CampaignCore/README.md), acrescentando pausa, ocupação de Joe, recibos, planos/seriais de apresentação, inventários/saúde/conhecimento/tarefas individuais. Para arquivo, usar `checkpoint::SaveFile/LoadFile` e o [contrato de escrita/recuperação](CONTRATO_ARQUIVO_CHECKPOINT_V1.md). A aplicação em atores ainda depende da Unreal.
+O formato `THE_THUG_STORY_CAMPAIGN 1`, acessado por `SaveStoryCampaign`/`LoadStoryCampaign`, envolve os dez estados puros e `NarrativeState`. Ele valida o bloco narrativo e o mundo **antes** de modificar a memória; formatos antigos não ganham flags narrativas inventadas. Para a sessão coordenada, usar **`THE_THUG_RUNTIME_CAMPAIGN 5`** de [CampaignCore](../../Tools/CampaignCore/README.md), acrescentando pausa, ocupação de Joe, recibos, planos/seriais de apresentação, inventários/saúde/conhecimento/tarefas individuais. Para arquivo, usar `checkpoint::SaveFile/LoadFile` e o [contrato de escrita/recuperação](CONTRATO_ARQUIVO_CHECKPOINT_V1.md). A aplicação em atores ainda depende da Unreal.
 
 ## Captura
 

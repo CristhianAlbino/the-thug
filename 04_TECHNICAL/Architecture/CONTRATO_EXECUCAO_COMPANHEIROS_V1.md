@@ -58,7 +58,7 @@ Uma morte dentro de esconderijo conserva a ocupação pelo corpo. Captura/extra�
 
 ## Retomada e verificação
 
-Runtime v4 acrescenta os três inventários, saúde/stamina, memórias, ocupação, serial/tarefa/fase/instantes, motivo de interrupção e rotas comunicadas a Joe. O loader valida catálogo/capacidade, saúde contra resultado e ocorrências de captura/fuga/morte, munição/ferimento contra traços, memórias contra ocorrências, reservas únicas, dono de esconderijo e tarefa contra escolha/chegada registradas. Um estado impossível não muda a sessão viva.
+Runtime v5 acrescenta os três inventários, saúde/stamina, memórias, ocupação, serial/tarefa/fase/instantes, motivo de interrupção e rotas comunicadas a Joe. O loader valida catálogo/capacidade, saúde contra resultado e ocorrências de captura/fuga/morte, munição/ferimento contra traços, memórias contra ocorrências, reservas únicas, dono de esconderijo e tarefa contra escolha/chegada registradas. Um estado impossível não muda a sessão viva.
 
 Runtime v1/v2 e serializadores inferiores não são checkpoints completos desta sessão. Não há migração automática. Identidade inclui esta autoria e tuning; um ajuste pode requerer nova campanha ou migração explícita. Usar o escritor de arquivo existente para durabilidade, backup e recuperação.
 

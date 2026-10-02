@@ -1,6 +1,6 @@
 # Checkpoints e vitória por esconderijo — contrato de hipótese v1
 
-**Estado:** regras de primeiro ensaio, sem Unreal. Não antecipar em resumo ao criador que quer descobrir essas mecânicas jogando. Runtime v4 envolve StorySave, pausa, ocupação lógica, recibos e planos de apresentação; o [escritor de arquivo](CONTRATO_ARQUIVO_CHECKPOINT_V1.md) já oferece validação, backup e recuperação. Atores Unreal, ocupação física e retomada de animação exigem integração antes de um save jogável. Política de disparo e hipóteses de vitória continuam distintas da API de arquivo.
+**Estado:** regras de primeiro ensaio, sem Unreal. Não antecipar em resumo ao criador que quer descobrir essas mecânicas jogando. Runtime v5 envolve StorySave, pausa, ocupação lógica, recibos e planos de apresentação; o [escritor de arquivo](CONTRATO_ARQUIVO_CHECKPOINT_V1.md) já oferece validação, backup e recuperação. Atores Unreal, ocupação física e retomada de animação exigem integração antes de um save jogável. Política de disparo e hipóteses de vitória continuam distintas da API de arquivo.
 
 ## Checkpoint como corte atômico
 

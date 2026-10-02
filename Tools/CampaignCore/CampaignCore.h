@@ -5,6 +5,7 @@
 #include "../DirectorCore/DirectorCore.h"
 #include "CompanionRuntime.h"
 #include "HunterRuntime.h"
+#include "CombatRuntime.h"
 
 #include <cstdint>
 #include <iosfwd>
@@ -35,7 +36,7 @@ struct Action {
 
 enum class Status {
   Applied, AlreadyApplied, Paused, Finished, InvalidTime,
-  InvalidAction, MissingRequirement, Conflict, LogFull
+  InvalidAction, MissingRequirement, Conflict, LogFull, AwaitingPhysics
 };
 
 struct ActionResult {
@@ -48,6 +49,16 @@ struct TickResult {
   Status status;
   double advancedSeconds = 0;
   survival::AdvanceResult survival;
+  bool forcedBreathRelease = false;
+};
+
+struct CombatResult {
+  Status status;
+  std::optional<CombatTask> task{};
+  std::optional<Shot> shot{};
+  std::optional<ThrownItem> thrown{};
+  std::optional<perception::SoundEvent> sound{};
+  bool hunterInterrupted = false;
 };
 
 struct CompanionResult {
@@ -94,6 +105,14 @@ class CampaignCore {
   HunterResult ApplyHunter(const HunterCommand&, const HunterContext&);
   std::vector<HunterOffer> HunterOffers(const HunterContext&) const;
   HunterRuntimeSnapshot HunterRuntime() const;
+  CombatResult ApplyCombat(const CombatCommand&, const CombatContext&);
+  CombatRuntimeSnapshot CombatRuntime() const;
+  // Continuous physical tracking is bounded state, not a durable action receipt.
+  bool TrackThrown(std::uint64_t serial, const std::string& actualNode,
+                   hunter::Vec3 position, hunter::Vec3 velocity, bool physicallyVerified);
+  BreathingEffects Breathing() const;
+  std::optional<perception::SoundEvent> BreathingSound(hunter::Vec3 actualSource) const;
+  bool SmokeOccludes(hunter::Vec3 from, hunter::Vec3 to) const;
   // Observation must describe the current clock/act/difficulty and actual
   // physical context. Presentation ACK confirms a heard line/completed gesture.
   ActionResult ApplyNarrative(const Action&, const director::Observation&);
@@ -116,7 +135,7 @@ class CampaignCore {
   std::string HidingPlace() const;
   std::size_t AppliedActionCount() const;
 
-  // Runtime v4 includes individual bodies and Hunter memory, policy RNG and pending tasks
+  // Runtime v5 adds weapon/throw/breath state to individual bodies and Hunter tactics
   // around StorySave. Legacy core/story files require an explicit migration.
   save::Result Save(std::ostream&) const;
   save::Result Load(std::istream&);
@@ -153,6 +172,14 @@ class CampaignCore {
   bool ReadHunter(std::istream&, State&) const;
   void WriteCompanions(std::ostream&, const State&) const;
   bool ReadCompanions(std::istream&, State&) const;
+  bool CombatStaticValid(const CombatCommand&) const;
+  bool CombatCoherent(const State&) const;
+  CombatResult ExecuteCombat(State&, const CombatCommand&, const CombatContext&);
+  bool AdvanceCombat(State&, double, survival::Activity);
+  bool CombatItemAvailable(const State&, const std::string&, int quantity) const;
+  void ReconcileCombat(State&) const;
+  void WriteCombat(std::ostream&, const State&) const;
+  bool ReadCombat(std::istream&, State&) const;
 };
 
 } // namespace thug::campaign

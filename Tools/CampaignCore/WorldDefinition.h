@@ -56,6 +56,13 @@ struct TriggerDefinition {
   std::vector<ObjectRequirement> requirements;
 };
 
+// Only explicitly authored optional destructibles can be changed by combat.
+// Doors, circuits, pickups and essential route objects retain their own contracts.
+struct DestructibleDefinition {
+  std::string id, node, before, after;
+  bool gunshot = false, explosion = false;
+};
+
 struct WorldDefinition {
   std::string levelId;
   std::set<std::string> nodes;
@@ -68,6 +75,7 @@ struct WorldDefinition {
   std::vector<UseDefinition> uses;
   std::vector<UnlockDefinition> unlocks;
   std::vector<TriggerDefinition> triggers;
+  std::vector<DestructibleDefinition> destructibles;
 };
 
 } // namespace thug::campaign

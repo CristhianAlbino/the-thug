@@ -1,4 +1,5 @@
 #include "CampaignState.h"
+#include "CombatIO.h"
 #include "CompanionIO.h"
 #include <algorithm>
 
@@ -63,6 +64,13 @@ bool CampaignCore::CompanionCoherent(const State& s) const {
   std::set<std::string> joeRoutes,medicalFacts,capturedProof,togetherProof,escapedProof,deathProof;
   bool abandonedHarley=false,barthDistraction=false;
   for(const auto& [id,signature]:s.receipts){
+    if(signature.rfind("W ",0)==0){
+      CombatCommand command;command.eventId=id;std::uint64_t order,created;
+      if(!detail::ParseCombat(signature,command,order,created))return false;
+      if(command.kind==CombatOp::Detonate)for(const auto& hit:command.contacts)
+        if(detail::Person(hit.target)&&hit.injury==survival::Injury::Severe)deathProof.insert(hit.target);
+      continue;
+    }
     if(signature.rfind("C ",0)!=0){Action a;if(detail::ParseSignature(signature,a)&&a.kind==ActionKind::Trigger){const auto* trigger=Find(definition_->triggers,a.target);if(trigger&&trigger->event==rules::Event::TunnelFound)joeRoutes.insert("tunnel");if(trigger&&trigger->event==rules::Event::WindowFound)joeRoutes.insert("window");}continue;}
     CompanionCommand a;a.eventId=id;if(!detail::ParseCompanion(signature,a)||!CompanionStaticValid(a)||a.atSeconds>now)return false;
     commands[a.actor].push_back(a);

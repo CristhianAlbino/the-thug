@@ -57,6 +57,7 @@ bool CampaignCore::NarrativeCoherent(const State& s) const {
   for (const auto& [id, signature] : s.receipts) {
     (void)id;
     if (signature.rfind("H ", 0) == 0) continue;
+    if (signature.rfind("W ", 0) == 0) continue; // Combat ledger is validated independently.
     if (signature.rfind("C ", 0) == 0) {
       CompanionCommand c;
       if (!detail::ParseCompanion(signature, c)) return false;
@@ -167,7 +168,7 @@ ActionResult CampaignCore::ApplyNarrative(const Action& a, const director::Obser
       !((a.kind == ActionKind::BeginScene || a.kind == ActionKind::SceneCue) && TerminalScene(a.target))) return {Status::Finished, {}};
   if (!state_->hidingPlace.empty() && a.node != std::find_if(definition_->hides.begin(), definition_->hides.end(),
       [&](const auto& hide) { return hide.id == state_->hidingPlace; })->atNode) return {Status::MissingRequirement, {}};
-  if (state_->receipts.size() >= detail::MaxReceipts) return {Status::LogFull, {}};
+  if (state_->receipts.size() + detail::CombatReservedReceipts(state_->combat) >= detail::MaxReceipts) return {Status::LogFull, {}};
   auto next = std::make_unique<State>(*state_);
   auto story = next->narrative.CaptureSnapshot();
   const auto context = NarrativeContext(input, *next);

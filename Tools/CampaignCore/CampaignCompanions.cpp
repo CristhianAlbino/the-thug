@@ -147,11 +147,11 @@ CompanionResult CampaignCore::ApplyCompanion(const CompanionCommand& a,const Com
   if(a.atSeconds!=Now())return {Status::InvalidTime};
   if(!a.physicallyVerified||!CompanionContextValid(a,c))return {Status::InvalidAction};
   if(Ending()!=rules::Ending::None&&a.kind!=CompanionOp::Outcome&&a.kind!=CompanionOp::Cancel)return {Status::Finished};
-  if(state_->receipts.size()>=detail::MaxReceipts)return {Status::LogFull};
+  if(state_->receipts.size()+detail::CombatReservedReceipts(state_->combat)>=detail::MaxReceipts)return {Status::LogFull};
   auto next=std::make_unique<State>(*state_);
   const auto result=ExecuteCompanion(*next,a,c);
   if(result.status!=Status::Applied)return result;
-  next->receipts.emplace(a.eventId,signature);next->SyncEnding();
+  next->receipts.emplace(a.eventId,signature);next->SyncEnding();ReconcileCombat(*next);
   state_.swap(next);return result;
 }
 
@@ -234,6 +234,8 @@ CompanionResult CampaignCore::ExecuteCompanion(State& s,const CompanionCommand& 
       if(!c.actionCompleted||!reachableRecipient(a.target)||
           (a.target!="joe"&&s.bodies.at(a.target).task))return denied;
       auto& target=a.target=="joe"?s.inventory:s.bodies.at(a.target).inventory;
+      if(a.actor=="joe"&&!CombatItemAvailable(s,a.item,a.quantity))return denied;
+      if(a.actor=="joe"&&a.item=="rifle"&&(s.combat.loadedRounds||s.combat.task))return denied;
       if(!source.TransferTo(target,a.item,a.quantity))return denied;
       if(a.actor=="joe"&&a.item=="magazine"){
         companion::Influence delta{20,0,0,10,0,0,a.quantity};if(!s.Person(*detail::Person(a.target)).ApplyInfluence(delta,a.eventId,a.atSeconds))return denied;

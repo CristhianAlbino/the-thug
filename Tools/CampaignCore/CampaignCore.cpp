@@ -34,7 +34,7 @@ std::string Identity(const WorldDefinition& d, const survival::Tuning& t) {
   std::ostringstream out;
   out.imbue(std::locale::classic());
   out << std::setprecision(std::numeric_limits<double>::max_digits10) << data::Revision
-      << HunterRuntimeRevision << partydata::Revision << director::Content().revision << std::quoted(d.levelId);
+      << CombatRuntimeRevision << HunterRuntimeRevision << partydata::Revision << director::Content().revision << std::quoted(d.levelId);
   out << " NODES " << d.nodes.size();
   for (const auto& node : d.nodes) out << std::quoted(node);
   out << " OBJECTS " << d.objects.size();
@@ -81,6 +81,10 @@ std::string Identity(const WorldDefinition& d, const survival::Tuning& t) {
     out << std::quoted(e.id) << std::quoted(e.node) << ' ' << static_cast<int>(e.event);
     requirements(e.requirements);
   }
+  out << " DESTRUCTIBLES " << d.destructibles.size();
+  for (const auto& object : d.destructibles)
+    out << std::quoted(object.id) << std::quoted(object.node) << std::quoted(object.before)
+        << std::quoted(object.after) << ' ' << object.gunshot << ' ' << object.explosion;
   out << " TUNING " << t.maxStamina << ' ' << t.sprintDrainPerSecond << ' ' << t.restRecoveryPerSecond
       << ' ' << t.walkRecoveryFraction << ' ' << t.moderateDrainMultiplier << ' ' << t.severeDrainMultiplier
       << ' ' << t.moderateRecoveryMultiplier << ' ' << t.severeRecoveryMultiplier << ' ' << t.exhaustionReleaseFraction
@@ -151,6 +155,16 @@ void Validate(const WorldDefinition& d, save::WorldState& state, const survival:
   for (const auto& t : d.triggers) {
     unique(t.id); if (t.node != "*") node(t.node); event(t.event); requirements(t.requirements);
   }
+  std::set<std::string> destructibles;
+  for (const auto& target : d.destructibles) {
+    node(target.node); object(target.id, "destructible");
+    if (!destructibles.insert(target.id).second || !detail::Token(target.before) ||
+        !detail::Token(target.after) || target.before == target.after || (!target.gunshot && !target.explosion) ||
+        state.Find(target.id)->stateId != target.before || !state.Find(target.id)->present)
+      throw std::invalid_argument("Invalid combat destructible binding");
+    for (const auto& use : d.uses) if (use.object == target.id)
+      throw std::invalid_argument("Combat target overlaps required interaction");
+  }
   world::WorldCore devices(state, d.doors, d.cameras, d.hides);
   (void)devices;
 }
@@ -198,14 +212,28 @@ TickResult CampaignCore::Tick(double seconds, survival::Activity activity,
   }
   if (Paused()) return {Status::Paused, 0, {}};
   if (Ending() != rules::Ending::None) return {Status::Finished, 0, {}};
+  for (const auto& [serial, item] : state_->combat.thrown) {
+    (void)serial;
+    if (Now() >= item.detonateAt) return {Status::AwaitingPhysics, 0, {}};
+  }
   auto next = std::make_unique<State>(*state_);
   const auto before = next->survival.CaptureSnapshot();
   double elapsed = seconds;
+  for (const auto& [serial, item] : next->combat.thrown) {
+    (void)serial;
+    elapsed = std::min(elapsed, item.detonateAt - Now());
+  }
+  if (next->combat.holdingBreath) {
+    const auto p = CombatProfile(next->routes.DifficultyLevel());
+    if (activity == survival::Activity::Sprint) elapsed = 0;
+    else elapsed = std::min(elapsed, next->combat.oxygen / (p.oxygenDrain * next->survival.CurrentEffects().breathingLoudnessMultiplier));
+  }
   bool fatalBoundary = false;
   if (before.bleeding) {
     const double remaining = (before.tuning.fatalBloodLoss - before.bloodLoss) / before.tuning.bleedingPerSecond;
     if (remaining <= elapsed) { elapsed = remaining; fatalBoundary = true; }
   }
+  const bool forcedBreathRelease = AdvanceCombat(*next, elapsed, activity);
   auto result = next->survival.Advance(elapsed, activity);
   if (fatalBoundary && !result.becameDead) {
     // Exact boundary can round a few ulps below fatal loss. Do not run another
@@ -223,8 +251,9 @@ TickResult CampaignCore::Tick(double seconds, survival::Activity activity,
   if (result.becameDead && !next->routes.Apply(rules::Event::JoeDied, Now() + elapsed))
     throw std::logic_error("Confirmed death rejected by campaign");
   next->SyncEnding();
+  ReconcileCombat(*next);
   state_.swap(next);
-  return {Status::Applied, elapsed, result};
+  return {Status::Applied, elapsed, result, forcedBreathRelease};
 }
 
 bool CampaignCore::StaticValid(const Action& a) const {
@@ -261,11 +290,12 @@ ActionResult CampaignCore::Apply(const Action& a) {
   if (!ValidLocation(a) || (!state_->hidingPlace.empty() &&
       a.node != Find(definition_->hides, state_->hidingPlace)->atNode))
     return {Status::MissingRequirement, {}};
-  if (state_->receipts.size() >= detail::MaxReceipts) return {Status::LogFull, {}};
+  if (state_->receipts.size() + detail::CombatReservedReceipts(state_->combat) >= detail::MaxReceipts) return {Status::LogFull, {}};
   auto next = std::make_unique<State>(*state_);
   const auto result = Execute(*next, a);
   if (result.status != Status::Applied) return result;
   next->SyncEnding();
+  ReconcileCombat(*next);
   next->receipts.emplace(a.eventId, signature);
   state_.swap(next);
   return result;
@@ -306,6 +336,7 @@ ActionResult CampaignCore::Execute(State& s, const Action& a) {
         if (p.onCollect && !s.routes.Apply(*p.onCollect, a.atSeconds)) return denied;
         object.stateId = "collected"; object.present = false;
       } else {
+        if (!CombatItemAvailable(s, p.item, p.quantity)) return denied;
         if (object.present || !s.inventory.Remove(p.item, p.quantity, survival::RemovalReason::Drop)) return denied;
         object.stateId = "available"; object.present = true;
       }
@@ -313,14 +344,14 @@ ActionResult CampaignCore::Execute(State& s, const Action& a) {
       break;
     }
     case ActionKind::Treat: case ActionKind::Stabilize:
-      if (!s.inventory.Remove(a.target, 1, survival::RemovalReason::Consume) ||
+      if (!CombatItemAvailable(s, a.target, 1) || !s.inventory.Remove(a.target, 1, survival::RemovalReason::Consume) ||
           !(a.kind == ActionKind::Treat ? s.survival.Treat() : s.survival.Stabilize())) return denied;
       break;
     case ActionKind::Use: {
       const auto& u = *Find(definition_->uses, a.target);
       auto object = *s.world.Find(u.object);
       if (a.node != u.node || !object.present || object.stateId != u.before || !Requires(s.world, u.requirements) ||
-          (!u.item.empty() && s.inventory.Quantity(u.item) < u.quantity)) return denied;
+          (!u.item.empty() && !CombatItemAvailable(s, u.item, u.quantity))) return denied;
       if (u.consume && !s.inventory.Remove(u.item, u.quantity, survival::RemovalReason::Consume)) return denied;
       if (u.runEvent && !s.routes.Apply(*u.runEvent, a.atSeconds)) return denied;
       object.stateId = u.after;
@@ -329,7 +360,7 @@ ActionResult CampaignCore::Execute(State& s, const Action& a) {
     }
     case ActionKind::UnlockDoor: {
       const auto& u = *Find(definition_->unlocks, a.target);
-      if (a.node != u.node || s.inventory.Quantity(u.item) < u.quantity || !devices.UnlockDoor(u.door, a.atSeconds)) return denied;
+      if (a.node != u.node || !CombatItemAvailable(s, u.item, u.quantity) || !devices.UnlockDoor(u.door, a.atSeconds)) return denied;
       if (u.consume && !s.inventory.Remove(u.item, u.quantity, survival::RemovalReason::Consume)) return denied;
       break;
     }
@@ -356,6 +387,7 @@ ActionResult CampaignCore::Execute(State& s, const Action& a) {
       if (a.kind == ActionKind::EnterHide) {
         if (!s.hidingPlace.empty() || HideReserved(s, hide.id) || !devices.EnterHide(hide.id, a.atSeconds)) return denied;
         s.hidingPlace = hide.id;
+        s.combat.task.reset();
       } else {
         if (s.hidingPlace != hide.id || !devices.LeaveHide(hide.id, a.atSeconds)) return denied;
         s.hidingPlace.clear();
@@ -380,12 +412,13 @@ ActionResult CampaignCore::Execute(State& s, const Action& a) {
     }
     case ActionKind::Injury:
       if (!s.survival.ApplyInjury(static_cast<survival::Injury>(a.argument))) return denied;
+      s.combat.task.reset();
       break;
     case ActionKind::ShareAmmo: {
       const auto status = s.narrative.CaptureSnapshot().outcomes.at(a.target);
       auto& body = s.bodies.at(a.target);
       if (status.dead || status.captured || status.escapedAlone || status.together || body.task ||
-          !body.inventory.CanAdd("magazine", 1)) return denied;
+          !body.inventory.CanAdd("magazine", 1) || !CombatItemAvailable(s, "magazine", 1)) return denied;
       if (!integration::ShareAmmunition(s.inventory, "magazine", s.Person(*Person(a.target)), a.eventId, a.atSeconds)) return denied;
       if (!body.inventory.Add("magazine", 1)) return denied;
       auto story = s.narrative.CaptureSnapshot();
@@ -449,7 +482,7 @@ bool CampaignCore::Consistent(const State& s) const {
       s.harley.CaptureSnapshot().nowSeconds != now || s.bartholomeu.CaptureSnapshot().nowSeconds != now ||
       s.jack.CaptureSnapshot().nowSeconds != now || s.narrative.CaptureSnapshot().nowSeconds != now ||
       s.receipts.size() > detail::MaxReceipts || s.narrative.CaptureSnapshot().joeEscaped != escaped ||
-      !director::ValidPresentation(s.narrative.CaptureSnapshot(), s.presentation) || !NarrativeCoherent(s) || !CompanionCoherent(s) || !HunterCoherent(s)) return false;
+      !director::ValidPresentation(s.narrative.CaptureSnapshot(), s.presentation) || !NarrativeCoherent(s) || !CompanionCoherent(s) || !HunterCoherent(s) || !CombatCoherent(s)) return false;
   if (!s.hidingPlace.empty()) {
     if (!Find(definition_->hides, s.hidingPlace)) return false;
     const auto* object = s.world.Find(s.hidingPlace);
@@ -464,6 +497,7 @@ bool CampaignCore::Consistent(const State& s) const {
     if (!object || !object->present || (object->stateId != u.before && object->stateId != u.after)) return false;
   }
   for (const auto& [id, signature] : s.receipts) {
+    if (signature.rfind("W ", 0) == 0) continue; // Validated by CombatCoherent.
     if (signature.rfind("H ", 0) == 0) continue; // Validated by HunterCoherent.
     if (signature.rfind("C ", 0) == 0) {
       CompanionCommand c; c.eventId = id;

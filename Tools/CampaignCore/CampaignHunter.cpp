@@ -57,11 +57,12 @@ bool CampaignCore::HunterStaticValid(const HunterCommand& c)const{
   return detail::Token(c.target)&&c.taskSerial>0;
 }
 std::vector<HunterOffer> CampaignCore::HunterOffers(const HunterContext& ctx)const{
-  if(Paused()||Ending()!=rules::Ending::None||state_->hunterRuntime.task)return {};
+  if(Paused()||Ending()!=rules::Ending::None||state_->hunterRuntime.task||Now()<state_->combat.hunterBlockedUntil)return {};
   return HunterOffers(*state_,ctx);
 }
 std::vector<HunterOffer> CampaignCore::HunterOffers(const State& s,const HunterContext& ctx)const{
   std::vector<HunterOffer> offers;
+  if(s.world.NowSeconds()<s.combat.hunterBlockedUntil)return offers;
   if(!definition_->nodes.count(ctx.actualHunterNode))return offers;
   for(const auto& n:ctx.reachableNodes)if(!definition_->nodes.count(n))return {};
   const auto& r=s.hunterRuntime;
@@ -148,7 +149,7 @@ HunterResult CampaignCore::ApplyHunter(const HunterCommand& c,const HunterContex
   if(c.atSeconds!=Now())return {Status::InvalidTime};
   if(!ctx.physicallyVerified||!definition_->nodes.count(ctx.actualHunterNode))return {Status::InvalidAction};
   if(c.kind!=HunterOp::SeeActor&&c.node!=ctx.actualHunterNode)return {Status::MissingRequirement};
-  if(state_->receipts.size()>=detail::MaxReceipts)return {Status::LogFull};
+  if(state_->receipts.size()+detail::CombatReservedReceipts(state_->combat)>=detail::MaxReceipts)return {Status::LogFull};
   auto next=std::make_unique<State>(*state_);
   auto result=ExecuteHunter(*next,c,ctx);
   if(result.status!=Status::Applied)return result;
@@ -158,6 +159,7 @@ HunterResult CampaignCore::ApplyHunter(const HunterCommand& c,const HunterContex
   return result;
 }
 HunterResult CampaignCore::ExecuteHunter(State& s,const HunterCommand& c,const HunterContext& ctx){
+  if(c.atSeconds<s.combat.hunterBlockedUntil&&(c.kind==HunterOp::Choose||c.kind==HunterOp::Arrive||c.kind==HunterOp::Complete))return {Status::MissingRequirement};
   auto& r=s.hunterRuntime;
   const auto p=HunterProfile(s.routes.DifficultyLevel());
   const HunterResult denied{Status::MissingRequirement};

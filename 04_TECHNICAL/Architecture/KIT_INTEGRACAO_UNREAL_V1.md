@@ -20,7 +20,8 @@
 | World → coordenador | Interação concluída, nó/prova física, ID estável e tempo atual | `CampaignCore::Apply` confirma recurso/mundo/regra juntos. A ponte representa o snapshot confirmado; retentativa usa o mesmo ID e não repete efeito. |
 | Mundo → companheiro | Joe/rota/recurso/Hunter realmente percebidos, alcance físico | `Situation`, transferência e influência com ID único; destino via navmesh, sem teleporte. |
 | Diretor narrativo | Nó, atores ativos/presentes, perigo, prova testemunhada e relógio da campanha | `ApplyNarrative` + `CurrentPresentation`; confirmar owner/serial/índice/cueId entregue. Elegibilidade não marca conclusão. Observações temporárias não entram no diário. |
-| Save | Runtime v4 (StorySave + pausa/ocupação/recibos/planos + corpos/inventários/tarefas + memória/tática/RNG Hunter) + reconciliação dos atores/UI | `SaveFile/LoadFile` valida e protege arquivo, com recuperação explícita. Restauração física de atores/animações continua no editor. |
+| Combate/respiração | `ApplyCombat`, provas de animação/colisão e pose/velocidade rastreadas; `BreathingSound` | Consumir retornos uma vez, resolver cada fusível antes de seguir o delta, aplicar janela de interrupção ao ator Hunter. [Contrato P07](CONTRATO_COMBATE_RESPIRACAO_V1.md). |
+| Save | Runtime v5 (StorySave + pausa/ocupação/recibos/planos + corpos/inventários/tarefas + memória/tática/RNG Hunter + combate/respiração) + reconciliação dos atores/UI | `SaveFile/LoadFile` valida e protege arquivo, com recuperação explícita. Restauração física de atores/animações continua no editor. |
 
 ## Conteúdo e desempenho — hipótese inicial
 
