@@ -93,6 +93,8 @@ public:
 
   std::vector<Option> AvailableOptions(const Situation& situation) const;
   Option Choose(const Situation& situation);
+  // Coordinator filters physical targets before choosing with the same RNG.
+  Option ChooseAmong(const std::vector<Option>& executableOptions);
 
   // The campaign owns the shared simulation clock even when no event occurs.
   void AdvanceTo(double atSeconds);

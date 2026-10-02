@@ -1,5 +1,5 @@
 #include "CampaignState.h"
-#include "CampaignIO.h"
+#include "CompanionIO.h"
 #include "../IntegrationCore/IntegrationCore.h"
 
 #include <algorithm>
@@ -34,7 +34,7 @@ std::string Identity(const WorldDefinition& d, const survival::Tuning& t) {
   std::ostringstream out;
   out.imbue(std::locale::classic());
   out << std::setprecision(std::numeric_limits<double>::max_digits10) << data::Revision
-      << director::Content().revision << std::quoted(d.levelId);
+      << partydata::Revision << director::Content().revision << std::quoted(d.levelId);
   out << " NODES " << d.nodes.size();
   for (const auto& node : d.nodes) out << std::quoted(node);
   out << " OBJECTS " << d.objects.size();
@@ -186,10 +186,16 @@ std::optional<world::Feed> CampaignCore::Camera(const std::string& id) const {
   return devices.ReadCamera(id);
 }
 
-TickResult CampaignCore::Tick(double seconds, survival::Activity activity) {
+TickResult CampaignCore::Tick(double seconds, survival::Activity activity,
+                              const std::map<std::string, survival::Activity>& companionActivities) {
   if (!std::isfinite(seconds) || seconds < 0 || !std::isfinite(Now() + seconds)) return {Status::InvalidTime, 0, {}};
   if (activity < survival::Activity::Rest || activity > survival::Activity::Sprint ||
       (!state_->hidingPlace.empty() && activity != survival::Activity::Rest)) return {Status::InvalidAction, 0, {}};
+  for (const auto& [name, requested] : companionActivities) {
+    const auto found = state_->bodies.find(name);
+    if (found == state_->bodies.end() || requested < survival::Activity::Rest || requested > survival::Activity::Sprint ||
+        (!found->second.hidingPlace.empty() && requested != survival::Activity::Rest)) return {Status::InvalidAction, 0, {}};
+  }
   if (Paused()) return {Status::Paused, 0, {}};
   if (Ending() != rules::Ending::None) return {Status::Finished, 0, {}};
   auto next = std::make_unique<State>(*state_);
@@ -212,6 +218,7 @@ TickResult CampaignCore::Tick(double seconds, survival::Activity activity) {
     result.becameDead = true;
   }
   next->AdvanceClocks(Now() + elapsed);
+  AdvanceCompanions(*next, elapsed, companionActivities);
   if (result.becameDead && !next->routes.Apply(rules::Event::JoeDied, Now() + elapsed))
     throw std::logic_error("Confirmed death rejected by campaign");
   next->SyncEnding();
@@ -291,7 +298,7 @@ ActionResult CampaignCore::Execute(State& s, const Action& a) {
     case ActionKind::Collect: case ActionKind::Drop: {
       const auto& p = *Find(definition_->pickups, a.target);
       auto object = *s.world.Find(p.id);
-      if (a.node != p.node) return denied;
+      if (a.node != p.node || PickupReserved(s, p.id)) return denied;
       if (a.kind == ActionKind::Collect) {
         if (!object.present || object.stateId != "available" || !Requires(s.world, p.requirements) ||
             !s.inventory.Add(p.item, p.quantity)) return denied;
@@ -346,7 +353,7 @@ ActionResult CampaignCore::Execute(State& s, const Action& a) {
       const auto& hide = *Find(definition_->hides, a.target);
       if (a.node != hide.atNode) return denied;
       if (a.kind == ActionKind::EnterHide) {
-        if (!s.hidingPlace.empty() || !devices.EnterHide(hide.id, a.atSeconds)) return denied;
+        if (!s.hidingPlace.empty() || HideReserved(s, hide.id) || !devices.EnterHide(hide.id, a.atSeconds)) return denied;
         s.hidingPlace = hide.id;
       } else {
         if (s.hidingPlace != hide.id || !devices.LeaveHide(hide.id, a.atSeconds)) return denied;
@@ -366,6 +373,8 @@ ActionResult CampaignCore::Execute(State& s, const Action& a) {
       if (trigger.event == rules::Event::HunterAbandonedSearch &&
           (s.hidingPlace.empty() || s.hunter.CurrentState() != hunter::State::Patrol)) return denied;
       if (!s.routes.Apply(trigger.event, a.atSeconds)) return denied;
+      if (trigger.event == rules::Event::TunnelFound) s.joeKnownRoutes.insert("tunnel");
+      if (trigger.event == rules::Event::WindowFound) s.joeKnownRoutes.insert("window");
       break;
     }
     case ActionKind::Injury:
@@ -373,8 +382,11 @@ ActionResult CampaignCore::Execute(State& s, const Action& a) {
       break;
     case ActionKind::ShareAmmo: {
       const auto status = s.narrative.CaptureSnapshot().outcomes.at(a.target);
-      if (status.dead || status.captured || status.escapedAlone) return denied;
+      auto& body = s.bodies.at(a.target);
+      if (status.dead || status.captured || status.escapedAlone || status.together || body.task ||
+          !body.inventory.CanAdd("magazine", 1)) return denied;
       if (!integration::ShareAmmunition(s.inventory, "magazine", s.Person(*Person(a.target)), a.eventId, a.atSeconds)) return denied;
+      if (!body.inventory.Add("magazine", 1)) return denied;
       auto story = s.narrative.CaptureSnapshot();
       story.durableFacts.insert("joe_shared_ammo_with_" + a.target);
       if (!s.narrative.RestoreSnapshot(story)) return denied;
@@ -435,7 +447,7 @@ bool CampaignCore::Consistent(const State& s) const {
       s.harley.CaptureSnapshot().nowSeconds != now || s.bartholomeu.CaptureSnapshot().nowSeconds != now ||
       s.jack.CaptureSnapshot().nowSeconds != now || s.narrative.CaptureSnapshot().nowSeconds != now ||
       s.receipts.size() > detail::MaxReceipts || s.narrative.CaptureSnapshot().joeEscaped != escaped ||
-      !director::ValidPresentation(s.narrative.CaptureSnapshot(), s.presentation) || !NarrativeCoherent(s)) return false;
+      !director::ValidPresentation(s.narrative.CaptureSnapshot(), s.presentation) || !NarrativeCoherent(s) || !CompanionCoherent(s)) return false;
   if (!s.hidingPlace.empty()) {
     if (!Find(definition_->hides, s.hidingPlace)) return false;
     const auto* object = s.world.Find(s.hidingPlace);
@@ -450,6 +462,11 @@ bool CampaignCore::Consistent(const State& s) const {
     if (!object || !object->present || (object->stateId != u.before && object->stateId != u.after)) return false;
   }
   for (const auto& [id, signature] : s.receipts) {
+    if (signature.rfind("C ", 0) == 0) {
+      CompanionCommand c; c.eventId = id;
+      if (!detail::ParseCompanion(signature, c) || !CompanionStaticValid(c) || c.atSeconds > now) return false;
+      continue;
+    }
     Action a; a.eventId = id;
     if (!detail::ParseSignature(signature, a) || a.atSeconds > now) return false;
     if (a.kind <= ActionKind::SubmitKeypad ? (!StaticValid(a) || !ValidLocation(a)) : !NarrativeStaticValid(a)) return false;

@@ -30,3 +30,5 @@ ctest --test-dir Build/CompanionCore -C Release --output-on-failure
 ```
 
 Os testes cobrem as duas consequências do GDD, IDs duplicados, conhecimento individual, restrições de dificuldade e situação, limites dos traços e decisões reproduzíveis por semente. O [SaveCore](../SaveCore/README.md) persiste os três companheiros junto ao inventário do Joe, inclusive os IDs aplicados e o estado aleatório. Consulte o [contrato de integração](../../04_TECHNICAL/Architecture/CONTRATO_COMPANHEIROS.md).
+
+A execução integrada agora pertence a [CampaignCore](../CampaignCore/README.md): corpos/inventários individuais, seis objetivos com reservas e confirmação, e runtime v3. `ChooseAmong` permite filtrar destinos fisicamente executáveis antes de selecionar com o mesmo RNG. O núcleo inferior continua sendo política/traços, não um controlador de navegação.

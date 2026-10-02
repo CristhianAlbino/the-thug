@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <limits>
 #include <stdexcept>
 #include <vector>
 
@@ -135,6 +136,30 @@ void ChoicesAreWeightedAndReproducible() {
         "Injured companion cannot offer unreachable assistance");
 }
 
+void ExecutableOptionsValidateBeforeRng() {
+  CompanionCore core(Character::Jack, Difficulty::Hard, {40,35,30,35,80,25}, 17);
+  const auto original=core.CaptureSnapshot().randomState;
+  const auto rejected=[&](std::vector<Option> options){
+    bool threw=false;
+    try { core.ChooseAmong(options); } catch(const std::invalid_argument&) { threw=true; }
+    Check(threw,"Invalid executable policy input is rejected");
+    Check(core.CaptureSnapshot().randomState==original,"Rejected policy never consumes RNG");
+  };
+  rejected({});
+  rejected({{Goal::StayHidden,0,std::nullopt}});
+  rejected({{Goal::StayHidden,std::numeric_limits<double>::infinity(),std::nullopt}});
+  rejected({{static_cast<Goal>(99),1,std::nullopt}});
+  rejected({{Goal::ShareRoute,1,std::nullopt}});
+  rejected({{Goal::StayHidden,1,std::string("tunnel")}});
+  rejected({{Goal::EscapeAlone,1,std::string("unknown")}});
+  Check(core.LearnRoute("tunnel",0),"Filtered routes remain individual knowledge");
+  Check(core.ChooseAmong({{Goal::ShareRoute,1,std::string("tunnel")}}).routeId==std::string("tunnel"),"Executable route option preserves actual known route");
+  CompanionCore easy(Character::Jack,Difficulty::Easy,{70,20,20,70,55,30});
+  easy.LearnRoute("tunnel",0);bool blocked=false;
+  try { easy.ChooseAmong({{Goal::EscapeAlone,1,std::string("tunnel")}}); } catch(const std::invalid_argument&) { blocked=true; }
+  Check(blocked,"Filtering cannot enable forbidden Easy escape");
+}
+
 } // namespace
 
 int main() {
@@ -144,6 +169,7 @@ int main() {
     DifficultyAndSituationGuardrails();
     InvalidActionsDoNotMutate();
     ChoicesAreWeightedAndReproducible();
+    ExecutableOptionsValidateBeforeRng();
     std::cout << "CompanionCore: " << checks << " checks passed\n";
   } catch (const std::exception& error) {
     std::cerr << "CompanionCore test failed after " << checks

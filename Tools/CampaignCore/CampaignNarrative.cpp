@@ -1,18 +1,18 @@
 #include "CampaignState.h"
-#include "CampaignIO.h"
+#include "CompanionIO.h"
 #include <algorithm>
 
 namespace thug::campaign {
 namespace {
 bool ProtectedFact(const std::string& id) {
   static const std::set<std::string> owned{
-    "joe_injured", "joe_bleeding", "garage_escaped", "roof_escaped", "tunnel_escaped", "window_escaped",
+    "joe_injured", "joe_bleeding", "harley_injured", "joe_abandoned_harley", "barth_betrayal_executed", "garage_escaped", "roof_escaped", "tunnel_escaped", "window_escaped",
     "garage_gate_released", "window_unblocked", "radio_contact_established", "helicopter_confirmed",
     "hide_victory", "dawn_victory", "rare_confrontation", "rare_destruction",
     "jack_previous_encounter_heard", "thomas_promised_coffee",
     "code_a", "code_b", "code_c", "key_known", "safe_known", "isolation_known"};
   return owned.count(id) || id.rfind("route_failed:", 0) == 0 || id.rfind("doc", 0) == 0 ||
-      id.rfind("joe_shared_ammo_with_", 0) == 0;
+      id.rfind("joe_shared_ammo_with_", 0) == 0 || id.rfind("joe_shared_treatment_with_", 0) == 0;
 }
 bool TerminalScene(const std::string& id) {
   return id == "N32" || id == "N28:exit" || id == "N29:exit" || id == "N30:exit" || id == "N31:exit";
@@ -56,6 +56,12 @@ bool CampaignCore::NarrativeCoherent(const State& s) const {
   std::set<int> sceneConfirmed, banterConfirmed;
   for (const auto& [id, signature] : s.receipts) {
     (void)id;
+    if (signature.rfind("C ", 0) == 0) {
+      CompanionCommand c;
+      if (!detail::ParseCompanion(signature, c)) return false;
+      if (c.kind == CompanionOp::Transfer && c.actor == "joe" && c.item == "magazine") ammoFacts.insert("joe_shared_ammo_with_" + c.target);
+      continue;
+    }
     Action a; if (!detail::ParseSignature(signature, a)) return false;
     if (a.presentationSerial > s.presentation.serial) return false;
     if (a.kind == ActionKind::BeginScene || a.kind == ActionKind::BeginBanter) ++activations;
@@ -124,6 +130,7 @@ director::Observation CampaignCore::NarrativeContext(const director::Observation
   const auto* key = s.world.Find("P_GARAGE_KEY");
   if (!run.safeOpened || !key || !key->present) o.facts.erase("key_inside_safe_observed");
   if (s.survival.CaptureSnapshot().injury != survival::Injury::None) o.facts.insert("joe_injured");
+  if (s.bodies.at("harley").survival.CurrentInjury() != survival::Injury::None) o.facts.insert("harley_injured");
   if (s.survival.CaptureSnapshot().bleeding) o.facts.insert("joe_bleeding");
   if (run.garageGate) o.facts.insert("garage_gate_released");
   if (run.windowUnblocked) o.facts.insert("window_unblocked");

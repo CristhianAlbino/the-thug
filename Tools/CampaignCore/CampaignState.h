@@ -3,6 +3,10 @@
 // Private implementation shared by CampaignCore.cpp and CampaignSave.cpp.
 #include "CampaignCore.h"
 #include "CampaignData.generated.h"
+#include "CompanionData.generated.h"
+#include "CompanionBody.h"
+#include <tuple>
+#include <utility>
 
 namespace thug::campaign {
 
@@ -18,6 +22,16 @@ struct CampaignCore::State {
         narrative(difficulty) {
     for (const auto& [id, count] : profile.loadout)
       if (!inventory.Add(id, count)) throw std::logic_error("Invalid authored loadout");
+    const auto party = partydata::For(difficulty);
+    int i = 0;
+    for (const auto& name : {"harley", "bartholomeu", "jack"}) {
+      auto [entry, inserted] = bodies.emplace(std::piecewise_construct,
+        std::forward_as_tuple(name), std::forward_as_tuple(party.capacities[i], data::Items(), tuning));
+      (void)inserted;
+      for (const auto& [item, count] : party.loadouts[i])
+        if (!entry->second.inventory.Add(item, count)) throw std::logic_error("Invalid companion loadout");
+      ++i;
+    }
   }
 
   save::StoryCampaign Members() {
@@ -61,6 +75,7 @@ struct CampaignCore::State {
     story.joeEscaped = ending == rules::Ending::GarageEscape || ending == rules::Ending::RoofEscape ||
                        ending == rules::Ending::TunnelEscape || ending == rules::Ending::WindowEscape;
     if (ending != rules::Ending::None) {
+      for (auto& [name, body] : bodies) { (void)name; body.Stop(TaskStop::CampaignEnded); }
       if (story.activeScene != "N32" && story.activeScene.find(":exit") == std::string::npos)
         director::CancelScene(story, presentation);
       director::CancelBanter(story, presentation);
@@ -82,6 +97,8 @@ struct CampaignCore::State {
   std::string hidingPlace;
   std::map<std::string, std::string> receipts;
   director::PresentationState presentation;
+  std::map<std::string, CompanionBody> bodies;
+  std::set<std::string> joeKnownRoutes;
 };
 
 } // namespace thug::campaign

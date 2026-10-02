@@ -38,4 +38,11 @@
 | T32 | Preparar fuga antes do ato nominal e visitar saída sem evento de vitória | Preparação permitida por acesso real; coda só após RunRules. Save rejeita coda de outra rota. | DirectorRuntime/StorySave; travessia Unreal pendente. |
 | T33 | Objeto ausente, sangue fatal com vivo=true, morte sem resultado de campanha ou stamina sem exaustão coerente | Sem interação com objeto ausente; snapshot impossível é rejeitado sem alteração parcial; morte por sangramento exige `JoeDied` antes de salvar. | WorldCore/SurvivalCore/CampaignSave; ator físico pendente. |
 
+| T34 | Dois NPCs disputam pickup/esconderijo; Joe tenta usar o alvo reservado | Um dono/reserva; falha conserva recursos, ocupação e RNG. | CampaignCompanions; disputa física no editor pendente. |
+| T35 | Save durante viagem/interação, cancelar e receber callback antigo | Tarefa/fase/serial retomam; callback antigo não conclui nova tarefa. Load não inventa chegada ou conclusão. | CampaignCompanions; navegação/animação pendentes. |
+| T36 | NPC sangra, colapsa, recebe medicina ou morre com Joe saudável | Saúde individual; resgate antes da morte; morte não encerra Joe nem remove corpo do esconderijo. | CampaignCompanions; dano/corpo físico pendentes. |
+| T37 | Compartilhar rota ou fugir sozinho | Só informação comunicada chega a Joe; fuga de NPC não confirma fuga de Joe nem destino dos demais. | CampaignCompanions; comunicação/travessia pendentes. |
+| T38 | Escolher distração, cancelar ou concluí-la com Hunter fora de audição | Intenção não gera captura; conclusão emite fonte real, a audição filtra alcance/oclusão. | CampaignCompanions/Perception; acústica física pendente. |
+| T39 | Transferência/medicina/dispositivo com inventário do executor, capacidade insuficiente ou alvo ausente | Um custo/consequência; falha não muda inventários/saúde; repetição após load não duplica. | CampaignCompanions; interação física pendente. |
+
 **Gate de revisão geral:** nenhuma afirmação de “campanha 3h” até medir playthrough Difícil completo; nenhuma cena N01–N34 pode depender de NPC morto/ausente ou câmera impossível. Cada novo bug ganha seed, passo de reprodução e regressão apropriada ao sistema; não duplicar testes que apenas reproduzem a mesma tabela.

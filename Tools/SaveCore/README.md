@@ -32,7 +32,7 @@ Com CMake, `cmake -S Tools/SaveCore -B Build/SaveCore`, seguido de build e `ctes
 
 ## Envelope narrativo (pré-Unreal)
 
-Para uma sessão coordenada, usar [`CampaignCore::Save/Load`](../CampaignCore/README.md), com envelope **`THE_THUG_RUNTIME_CAMPAIGN 2`** sobre StorySave v1. Ele persiste pausa, ocupação de Joe, recibos, identidade de autoria e planos/seriais de apresentação. Para disco, usar `checkpoint::SaveFile/LoadFile` desse módulo. Os formatos abaixo continuam úteis para testes dos núcleos; não substituir o envelope runtime por eles nem omitir seu registro de ações. Não há migração automática de runtime v1.
+Para uma sessão coordenada, usar [`CampaignCore::Save/Load`](../CampaignCore/README.md), com envelope **`THE_THUG_RUNTIME_CAMPAIGN 3`** sobre StorySave v1. Ele persiste pausa, ocupação de Joe, recibos, identidade de autoria e planos/seriais de apresentação e inventários/saúde/conhecimento/tarefas individuais. Para disco, usar `checkpoint::SaveFile/LoadFile` desse módulo. Os formatos abaixo continuam úteis para testes dos núcleos; não substituir o envelope runtime por eles nem omitir seu registro de ações. Não há migração automática de runtime v1/v2.
 
 O commit de restauração usa trocas explícitas dos membros dos núcleos, com verificações de `noexcept`, para conservar aplicação conjunta em GCC e MSVC. Não depende de mover um agregado com mapas/sets por `std::swap`. O snapshot narrativo também prepara sua cópia antes da troca. Esta correção de portabilidade não altera o formato serializado.
 

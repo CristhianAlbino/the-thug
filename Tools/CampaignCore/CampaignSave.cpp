@@ -37,13 +37,14 @@ save::Result CampaignCore::Save(std::ostream& output) const {
   const auto nested = story.str();
   std::ostringstream out;
   out.imbue(std::locale::classic());
-  out << "THE_THUG_RUNTIME_CAMPAIGN 2\nCONTENT " << contentIdentity_
+  out << "THE_THUG_RUNTIME_CAMPAIGN 3\nCONTENT " << contentIdentity_
       << "\nPAUSED " << state_->paused << "\nHIDE " << std::quoted(state_->hidingPlace)
       << "\nSTORY " << nested.size() << '\n' << nested
       << "PRESENTATION " << state_->presentation.serial << ' ' << state_->presentation.sceneSerial
       << ' ' << state_->presentation.banterSerial << '\n';
   WritePlan(out, "SCENE_PLAN", state_->presentation.scenePlan);
   WritePlan(out, "BANTER_PLAN", state_->presentation.banterPlan);
+  WriteCompanions(out, *state_);
   out << "RECEIPTS " << state_->receipts.size() << '\n';
   for (const auto& [id, signature] : state_->receipts)
     out << "RECEIPT " << std::quoted(id) << ' ' << std::quoted(signature) << '\n';
@@ -67,7 +68,7 @@ save::Result CampaignCore::Load(std::istream& input) {
   in.imbue(std::locale::classic());
   int version;
   if (!Tag(in, "THE_THUG_RUNTIME_CAMPAIGN") || !(in >> version)) return save::Result::Malformed;
-  if (version != 2) return save::Result::UnsupportedVersion;
+  if (version != 3) return save::Result::UnsupportedVersion;
   std::string identity, hide;
   int paused;
   std::size_t length, count;
@@ -77,10 +78,11 @@ save::Result CampaignCore::Load(std::istream& input) {
       !Tag(in, "STORY") || !(in >> length) || in.get() != '\n' ||
       length > detail::MaxRuntimeBytes || length > bytes.size()) return save::Result::Malformed;
   std::string story(length, '\0');
+  auto next = std::make_unique<State>(*state_);
   director::PresentationState presentation;
   if (!in.read(story.data(), static_cast<std::streamsize>(length)) ||
       !Tag(in, "PRESENTATION") || !(in >> presentation.serial >> presentation.sceneSerial >> presentation.banterSerial) ||
-      !ReadPlan(in, "SCENE_PLAN", presentation.scenePlan) || !ReadPlan(in, "BANTER_PLAN", presentation.banterPlan) ||
+      !ReadPlan(in, "SCENE_PLAN", presentation.scenePlan) || !ReadPlan(in, "BANTER_PLAN", presentation.banterPlan) || !ReadCompanions(in, *next) ||
       !Tag(in, "RECEIPTS") || !(in >> count) || count > detail::MaxReceipts) return save::Result::Malformed;
   std::map<std::string, std::string> receipts;
   for (std::size_t i = 0; i < count; ++i) {
@@ -97,7 +99,6 @@ save::Result CampaignCore::Load(std::istream& input) {
   if (!in.eof()) return save::Result::Malformed;
   if (checksum != detail::Hash(bytes.substr(0, static_cast<std::size_t>(checksumPosition)))) return save::Result::Corrupt;
   if (identity != contentIdentity_) return save::Result::IncompatibleRoster;
-  auto next = std::make_unique<State>(*state_);
   std::istringstream nested(story);
   const auto result = save::LoadStoryCampaign(nested, next->Members());
   if (result != save::Result::Ok) return result;

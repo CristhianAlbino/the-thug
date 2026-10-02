@@ -5,7 +5,7 @@ Baseado no [GDD Mestre](../../02_GAME_DESIGN/GDD/GDD_MASTER.md), seções 5–6 
 ## Entrada da Unreal
 
 - Instanciar Harley, Bartholomeu e Jack com **perfis authored** de 0–100 para confiança, medo, estresse, lealdade, autopreservação e relacionamento. O núcleo não atribui biografias ou valores iniciais automaticamente.
-- Registrar cada ação realmente ocorrida com ID persistente único: usar [`ShareAmmunition`](../../Tools/IntegrationCore/README.md) para a entrega após validar proximidade e interação; `JoeAbandonedCompanion` só depois de uma situação concreta de abandono. Um evento repetido não aplica efeitos outra vez.
+- Registrar cada ação realmente ocorrida com ID persistente único: na sessão coordenada usar `CampaignCore::ApplyCompanion` para transferência/medicina e a API legada `ShareAmmo` para uma unidade após validar proximidade e interação; `JoeAbandonedCompanion` só depois de uma situação concreta de abandono. Um evento repetido não aplica efeitos outra vez.
 - Ensinar rotas individualmente por `LearnRoute` após descoberta ou informação recebida. Conhecer uma rota não significa que outro personagem a conhece.
 - Construir `Situation` com fatos percebidos/validados: proximidade do Hunter e de Joe, necessidade de ajuda, acesso físico, recursos observados e saída transitável. Não enviar posição global do jogador a um personagem que não o percebeu.
 - Para acontecimentos adicionais, fornecer deltas assinados por dados de design e registrar sua origem. Nunca confundir uma fala, uma suspeita e uma observação confirmada.
@@ -25,4 +25,6 @@ Baseado no [GDD Mestre](../../02_GAME_DESIGN/GDD/GDD_MASTER.md), seções 5–6 
 
 ## Limites pendentes
 
-Pesos e limiares são parâmetros iniciais de teste. O [SaveCore](../../Tools/SaveCore/README.md) persiste traços, rotas, IDs aplicados e RNG junto ao inventário de Joe. Faltam perfis numéricos aprovados, objetivos autônomos mais ricos, medo/estresse ao longo do tempo, mentira, ferimentos graduais, recursos além de munição, diálogos, animações e save do restante do mundo. A integração deve manter a individualidade de Harley, Bartholomeu e Jack sem transformar nenhum deles em seguidor genérico.
+Pesos e limiares são parâmetros iniciais de teste. O [SaveCore](../../Tools/SaveCore/README.md) persiste traços, rotas, IDs aplicados e RNG junto ao inventário de Joe. CampaignCore agora executa os seis objetivos com reservas/confirmação e conserva ferimentos graduais, inventários individuais, tarefas e resultados no runtime v3. Faltam perfis numéricos aprovados, objetivos mais ricos, medo/estresse ao longo do tempo, mentira, atuação, animações e integração física. A integração deve manter a individualidade de Harley, Bartholomeu e Jack sem transformar nenhum deles em seguidor genérico.
+
+Para a sessão completa, seguir o [contrato de execução nativa](CONTRATO_EXECUCAO_COMPANHEIROS_V1.md); chamadas diretas aos núcleos não substituem suas transações.

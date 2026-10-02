@@ -12,9 +12,10 @@
 - Envelope de checkpoint que conserva pausa, ocupação de Joe e recibos de ações, além do StorySave completo. Carregamento rejeitado preserva a campanha viva.
 - Diretor narrativo C++ ligado à sessão: sequência de falas/gestos, confirmação por entrada, prioridade/suspensão, diário de materiais inspecionados e epílogos condicionais.
 - Entrada nativa de teclado, com tentativa real e abertura conjunta de mundo/regra; conhecimento prévio não inventa documentos lidos.
+- Inventários e saúde individuais; auxílio e transferência de qualquer recurso do catálogo; seis objetivos com escolha, chegada, conclusão, reserva/cancelamento e retomada.
 - Escrita/leitura de arquivo com temporário validado, sincronização, backup, substituição, recuperação explícita e bloqueio de slot.
 
-Isso entrega P01, a primeira cobertura P02, o núcleo P03 e o escritor P04. Tratamento/transferência de outros recursos para companheiros, inventários individuais e execução de seus objetivos continuam em P02/P06. Encenação final P09, política/validação humana P10 e restauração física no editor continuam pendentes. Ver [DirectorCore](../DirectorCore/README.md) e [contrato de arquivo](../../04_TECHNICAL/Architecture/CONTRATO_ARQUIVO_CHECKPOINT_V1.md).
+Isso entrega P01, o núcleo P03, o escritor P04 e amplia P02/P06 com recursos individuais e a primeira execução dos seis objetivos. Cooperação simultânea, medo/estresse temporal, mentiras/manipulação e planos mais ricos continuam abertos. Encenação final P09, política/validação humana P10 e restauração física no editor continuam pendentes. Ver [DirectorCore](../DirectorCore/README.md) e [contrato de arquivo](../../04_TECHNICAL/Architecture/CONTRATO_ARQUIVO_CHECKPOINT_V1.md).
 
 ## Dados de autoria
 
@@ -23,6 +24,7 @@ Isso entrega P01, a primeira cobertura P02, o núcleo P03 e o escritor P04. Trat
 | Fonte | Uso nativo |
 | --- | --- |
 | `../NarrativeCore/balance_initial.json` | Capacidade, seis traços iniciais por companheiro, equipamento inicial e meta de amanhecer por modo. |
+| `companion_runtime.json` | Inventários por pessoa/modo, influência médica e tempos de tarefa; exportação por `build_companion_data.py`. |
 | `campaign_initial.json` | Catálogo/custos de itens, pontos de coleta, pré-requisitos e vínculos de interação. |
 | `../MapCore/hospital_graph.json` | Nós lógicos, portas, circuitos, câmeras e esconderijos. |
 
@@ -51,9 +53,13 @@ Um `eventId` identifica uma ocorrência, não um botão: a retentativa reutiliza
 
 Portas e circuitos podem devolver `WorldSignal`. A ponte emite som uma vez e o encaminha a `Hear` com distância/oclusão reais. Nenhuma ação informa automaticamente a posição de Joe ao Hunter. `Observe` recebe percepção visual já verificada; `InspectEvidence` exige objeto presente, estado visível atual e visada confirmada. Amostras de sensores não usam recibos de transação; evitar emitir duas vezes a mesma amostra física.
 
+## Execução dos companheiros
+
+`CompanionOffers` consulta alvos conhecidos/alcançáveis; `ApplyCompanion` confirma observação, escolha, chegada e conclusão. A tarefa persiste durante viagem e interação, com serial para rejeitar callbacks antigos. Recursos ficam reservados até o commit e falhas não os consomem. `CompanionRuntime` expõe inventário/saúde/tarefa por pessoa; `Tick` aceita atividades individuais. Transferência, medicina e dispositivos usam o inventário de quem executa. Ver o [contrato de execução](../../04_TECHNICAL/Architecture/CONTRATO_EXECUCAO_COMPANHEIROS_V1.md) para campos, provas e limites.
+
 ## Checkpoint e limites
 
-`Save(std::ostream&)` / `Load(std::istream&)` usam `THE_THUG_RUNTIME_CAMPAIGN 2`: StorySave v1 aninhado, identidade de conteúdo, pausa, ocupação de Joe, planos/seriais de apresentação e até 10.000 recibos. Limite de 4 MiB; checksum FNV-1a 64 identifica corrupção acidental, sem proteção contra adulteração intencional. Falha de formato, versão, configuração ou coerência rejeita o arquivo inteiro. Runtime v1 e formatos inferiores não são convertidos silenciosamente. RNG prossegue do estado salvo; identidade inclui autoria narrativa e não depende da semente do construtor.
+`Save(std::ostream&)` / `Load(std::istream&)` usam `THE_THUG_RUNTIME_CAMPAIGN 3`: StorySave v1 aninhado, identidade de conteúdo, pausa, ocupação de Joe, planos/seriais de apresentação, corpos/recursos/tarefas individuais e até 10.000 recibos. Limite de 4 MiB; checksum FNV-1a 64 identifica corrupção acidental, sem proteção contra adulteração intencional. Falha de formato, versão, configuração ou coerência rejeita o arquivo inteiro. Runtime v1/v2 e formatos inferiores não são convertidos silenciosamente. RNG prossegue do estado salvo; identidade inclui autoria narrativa e não depende da semente do construtor.
 
 Para disco, usar `checkpoint::SaveFile/LoadFile` de `CheckpointFile.h`; o stream sozinho não oferece garantia de arquivo. Recuperação retorna `RecoveredBackup`, indicando progresso anterior. Uma falha posterior à substituição retorna `CommittedUnconfirmed`. Restauração de atores/animações e integração da política de checkpoint ficam para a engine. Não usar serializadores inferiores como checkpoint completo da sessão.
 
@@ -70,4 +76,4 @@ cmake --build Build/CampaignCore
 ctest --test-dir Build/CampaignCore --output-on-failure
 ```
 
-O script verifica geração e compila com C++17, `-Wall -Wextra -Wpedantic -Werror`. Os cenários cobrem pausa/carregamento nos quatro modos, conservação de recursos, falhas sem mutação, repetição após load, portas/energia/percepção, resultados convencionais, limite fatal, retomada de falas, fatos restritos e diário. O escritor é ensaiado com corrupção, erro/cancelamento, Unicode, bloqueio e processos encerrados durante a escrita. CMake inclui paridade narrativa e o CI cobre Linux e Windows/MSVC. São testes de regras e arquivos, não sessões jogáveis nem ensaio de perda elétrica.
+A suíte `companion_tests` acrescenta recursos/saúde individuais, os seis objetivos, reservas, interrupções, retomada, destinos e ausência de informação mágica. O script verifica geração e compila com C++17, `-Wall -Wextra -Wpedantic -Werror`. Os cenários cobrem pausa/carregamento nos quatro modos, conservação de recursos, falhas sem mutação, repetição após load, portas/energia/percepção, resultados convencionais, limite fatal, retomada de falas, fatos restritos e diário. O escritor é ensaiado com corrupção, erro/cancelamento, Unicode, bloqueio e processos encerrados durante a escrita. CMake inclui paridade narrativa e o CI cobre Linux e Windows/MSVC. São testes de regras e arquivos, não sessões jogáveis nem ensaio de perda elétrica.
