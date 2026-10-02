@@ -235,6 +235,31 @@ void ReceiptBudget() {
   Check(c.AppliedActionCount()==10000 && c.Ending()==rules::Ending::CoordinatedEscape,"Committed rare attempt reserves both physical resolution AND evacuation receipts");
   Resume(c);
 }
+void ForgedAppearance() {
+  campaign::CampaignCore c(rules::Difficulty::Hard); Opening(c);
+  auto valid=Bytes(c); auto bad=valid;
+  const auto heading=bad.find("\nSTORY ")+1; const auto first=bad.find('\n',heading)+1;
+  const auto length=static_cast<std::size_t>(std::stoull(bad.substr(heading+6,first-heading-7)));
+  auto story=bad.substr(first,length); const auto facts="FACTS "+std::to_string(c.Narrative().durableFacts.size())+"\n";
+  const auto at=story.find(facts); Check(at!=std::string::npos,"Nested fixture contains authored fact set");
+  story.replace(at,facts.size(),"FACTS "+std::to_string(c.Narrative().durableFacts.size()+1)+"\nFACT \"appearance:alfred\"\n");
+  story.resize(story.rfind("CHECKSUM ")); story+="CHECKSUM "+campaign::detail::Hash(story)+'\n';
+  bad.replace(heading,first-heading+length,"STORY "+std::to_string(story.size())+'\n'+story);
+  const auto reject=[&](std::string forged){
+    forged.resize(forged.rfind("CHECKSUM ")); forged+="CHECKSUM "+campaign::detail::Hash(forged)+'\n';
+    const auto before=Bytes(c); std::istringstream in(forged); const auto result=c.Load(in);
+    if(result!=save::Result::IncompatibleRoster) throw std::runtime_error("Expected appearance ownership rejection, got save result "+std::to_string(static_cast<int>(result)));
+    Check(Bytes(c)==before,"Forged appearance knowledge leaves session untouched");
+  };
+  reject(bad);
+  const auto a=campaign::data::Hospital().appearances[1]; auto witness=Command(c,SpecialOp::WitnessAppearance,a.id,a.node); Apply(c,witness);
+  auto o=At(c,a.node); Check(c.ApplyNarrative(Action(c,campaign::ActionKind::BeginScene,a.block,a.node),o).status==Status::Applied,"Real appearance fixture presents its line"); Complete(c,o);
+  bad=Bytes(c); const auto serial=bad.find("SPECIAL 1 0 "); Check(serial!=std::string::npos,"Fixture has one witnessed appearance"); bad.replace(serial,12,"SPECIAL 0 0 ");
+  const std::string encountered="APPEARANCES 1 \"alfred\""; const auto encounter=bad.find(encountered); Check(encounter!=std::string::npos,"Encounter was durably recorded"); bad.replace(encounter,encountered.size(),"APPEARANCES 0");
+  const auto receipt=bad.find("RECEIPT \""+witness.eventId+"\""); Check(receipt!=std::string::npos,"Fixture has special receipt"); const auto end=bad.find('\n',receipt); bad.erase(receipt,end-receipt+1);
+  const auto count="RECEIPTS "+std::to_string(c.AppliedActionCount()); const auto countAt=bad.find(count); bad.replace(countAt,count.size(),"RECEIPTS "+std::to_string(c.AppliedActionCount()-1));
+  reject(bad);
 }
-int main() { try { AuthorityAndPlant(); Confrontation(); Destruction(); Appearances(); Corruption(); ReceiptBudget(); std::cout<<"CampaignSpecial: "<<checks<<" checks passed\n"; }
+}
+int main() { try { AuthorityAndPlant(); Confrontation(); Destruction(); Appearances(); Corruption(); ReceiptBudget(); ForgedAppearance(); std::cout<<"CampaignSpecial: "<<checks<<" checks passed\n"; }
   catch(const std::exception& e) { std::cerr<<"After "<<checks<<" checks: "<<e.what()<<'\n'; return 1; } }

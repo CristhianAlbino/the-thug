@@ -47,6 +47,9 @@ bool CampaignCore::SpecialCoherent(const State& s) const {
   const auto& actual = s.special;
   const auto story = s.narrative.CaptureSnapshot();
   const auto mode = s.routes.DifficultyLevel(); const double now = s.world.NowSeconds();
+  // Appearance knowledge is projected from this module, never owned by the
+  // free narrative fact set (including after loading a checksum-valid file).
+  for (const auto& fact : story.durableFacts) if (fact.rfind("appearance:", 0) == 0) return false;
   if (actual.appearanceTicket >= 1000 || !std::isfinite(actual.boundaryAt) ||
       s.receipts.size() + detail::CombatReservedReceipts(s.combat) + detail::SpecialReservedReceipts(actual) > detail::MaxReceipts) return false;
   std::map<std::uint64_t, SpecialCommand> commands;
@@ -137,6 +140,12 @@ bool CampaignCore::SpecialCoherent(const State& s) const {
       if (!object || !object->present || object->stateId != expected) return false;
     }
   }
+  const auto ownedPresentation = [&](const std::string& id) {
+    return id.rfind("SP_", 0) != 0 || std::any_of(definition_->appearances.begin(), definition_->appearances.end(),
+        [&](const auto& a) { return a.block == id && r.appearances.count(a.id); });
+  };
+  if (!ownedPresentation(story.activeScene)) return false;
+  for (const auto& id : story.seenScenes) if (!ownedPresentation(id)) return false;
   std::ostringstream expected, received; Write(expected, r); Write(received, actual);
   return expected.str() == received.str();
 }
