@@ -148,7 +148,10 @@ void Wedges() {
   Check(loaded.Inventory().contents.at("window_tool") == 1 && loaded.Interactions().wedges.empty(), "Recovery returns one tool and frees door");
   auto twice = recover; twice.eventId = Id(); Reject(loaded, twice, ctx);
   HunterContext hunter; hunter.actualHunterNode = place.node; hunter.reachableNodes.insert(place.node); hunter.physicallyVerified = hunter.lineOfSightVerified = hunter.reactionCueVerified = true;
+  const auto knowsWedge=[&]{for(const auto& offer:c.HunterOffers(hunter))if(offer.goal==HunterGoal::BreakWedge)return true;return false;};
+  Check(!knowsWedge(), "Unperceived installation does not grant Hunter a wedge target");
   Check(c.InspectEvidence(place.target, "wedged", {}, true), "Hunter actually notices wedged door");
+  Check(c.HunterRuntime().aggression==0&&knowsWedge(), "Perceived wedge can be investigated at baseline pressure");
   for (int kind = 0; kind < 3; ++kind) { HunterCommand a; a.eventId = Id(); a.kind = HunterOp::Pressure; a.node = place.node; a.argument = kind; Check(c.ApplyHunter(a,hunter).status == Status::Applied, "Observed pressure permits environmental tactics"); }
   std::optional<HunterTask> task;
   for (int attempt = 0; attempt < 40 && !task; ++attempt) {

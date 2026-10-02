@@ -44,6 +44,8 @@ WorldCore bloqueia abertura comum/forçada e emperramento enquanto a porta está
 
 O calço não é destruído automaticamente pelo relógio e nenhum efeito ignora uma parede. A ponte mantém colisão e passagem sincronizadas com o estado confirmado e encaminha `WorldSignal` à percepção com alcance/oclusão reais.
 
+Uma instalação percebida pode entrar nas opções de ruptura mesmo com agressividade inicial; o limiar de pressão para alterações discricionárias de energia/câmeras não impede investigar essa obstrução. Uma instalação que Hunter ainda não percebeu não cria alvo.
+
 ## Variação opcional e registro pessoal
 
 Um perfil 0–2 é sorteado com RNG separado uma vez na criação da campanha. Cada perfil escolhe uma ocorrência ambiental e uma fala em três locais: triagem, serviço do segundo andar e carga do térreo. `VariationFor` permite à ponte preparar essa apresentação; a consulta não significa que Joe a viu/ouviu. `Ambient/Banter` confirmam os marcos reais. Carregar restaura o perfil; nenhuma pista essencial, combinação, preparação ou rota muda com ele. As falas são rascunhos de encenação sem palavrão pesado e sem revelação antecipada de Jack.

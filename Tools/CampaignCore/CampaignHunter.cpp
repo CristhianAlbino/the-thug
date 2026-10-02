@@ -103,14 +103,23 @@ std::vector<HunterOffer> CampaignCore::HunterOffers(const State& s,const HunterC
       add(HunterGoal::WatchPassage,id,d->toNode,p.ambushWeight*(1+r.aggression/50));
     }
   }
+  // A perceived physical obstruction can be investigated without the pressure
+  // threshold used for discretionary changes to power/cameras/open passages.
+  for(const auto& d:definition_->doors){
+    const auto memory=seen.find(d.id);
+    if(memory!=seen.end()&&memory->second=="wedged"){
+      add(HunterGoal::BreakWedge,d.id,d.fromNode,1+r.aggression/100);
+      add(HunterGoal::BreakWedge,d.id,d.toNode,1+r.aggression/100);
+    }
+  }
   if(r.aggression>=p.environmentThreshold){
     for(const auto& d:definition_->doors){
       const auto memory=seen.find(d.id);
       if(memory==seen.end())continue;
       const bool open=memory->second=="open"||memory->second=="forced_open";
       if(open&&!ctx.safeToAlter.count(d.id))continue;
-      if(!open&&memory->second!="closed"&&memory->second!="wedged")continue;
-      const auto g=memory->second=="wedged"?HunterGoal::BreakWedge:open?HunterGoal::CloseDoor:HunterGoal::OpenDoor;
+      if(!open&&memory->second!="closed")continue;
+      const auto g=open?HunterGoal::CloseDoor:HunterGoal::OpenDoor;
       add(g,d.id,d.fromNode,1+r.aggression/100);
       add(g,d.id,d.toNode,1+r.aggression/100);
     }
