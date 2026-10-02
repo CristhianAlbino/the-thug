@@ -5,7 +5,7 @@
 #include <array>
 #include <stdexcept>
 namespace thug::campaign::data {
-inline constexpr const char* Revision = "cb5532a9e1c6d16d43b6cdbfa4a54064403f8935aa7020b283c539081f50743e";
+inline constexpr const char* Revision = "2edf0d0579d5277cf7c817714352a8f44440a8d70882a124a6f750741a569804";
 struct Profile { int capacity; std::optional<double> dawnSeconds;
   std::array<companion::Traits, 3> companions; std::map<std::string, int> loadout; };
 inline std::vector<survival::ItemDefinition> Items() { return {
@@ -19,6 +19,8 @@ inline std::vector<survival::ItemDefinition> Items() { return {
   {"window_tool", survival::ItemCategory::Utility, 2, 1, false},
   {"garage_key", survival::ItemCategory::Utility, 1, 1, false},
   {"service_key", survival::ItemCategory::Utility, 1, 1, false},
+  {"structural_charge", survival::ItemCategory::Explosive, 2, 3, true},
+  {"structural_detonator", survival::ItemCategory::Utility, 1, 1, true},
 }; }
 inline Profile For(rules::Difficulty difficulty) {
 switch (difficulty) {
@@ -240,6 +242,37 @@ d.triggers.push_back({"window_discovered", "F3_WINDOW", rules::Event::WindowDisc
 d.triggers.push_back({"hunter_abandoned", "F3_ISOLATION", rules::Event::HunterAbandonedSearch, {}});
 d.triggers.push_back({"dawn_confirmed", "*", rules::Event::DawnReached, {}});
 d.triggers.push_back({"captured", "*", rules::Event::CapturedByHunter, {}});
+d.finale = FinaleDefinition{};
+auto& f = *d.finale;
+f.confrontationNode = "F1_LOADING";
+f.confrontationExit = "X_GARAGE";
+f.detonatorNode = "F1_SERVICE";
+f.collapseShelter = "F1_EMERGENCY";
+f.confrontationSeconds = 3;
+f.opportunitySeconds = 8;
+f.plantSeconds = 4;
+f.collapseSeconds = 12;
+f.minimumCompanions = 2;
+f.minimumTrust = 60;
+d.objects.push_back({"RARE_SITE_A", "rare_site", {"empty", {}, {}, true}});
+f.sites.push_back({"RARE_SITE_A", "F3_UTILITY"});
+d.objects.push_back({"RARE_SITE_B", "rare_site", {"empty", {}, {}, true}});
+f.sites.push_back({"RARE_SITE_B", "F2_SERVER"});
+d.objects.push_back({"RARE_SITE_C", "rare_site", {"empty", {}, {}, true}});
+f.sites.push_back({"RARE_SITE_C", "B1_GENERATOR"});
+d.objects.push_back({"RARE_SUPPLY_A", "rare_supply", {"available", {}, {}, true}});
+f.supplies.push_back({"RARE_SUPPLY_A", "B1_STORAGE", "structural_charge", 1});
+d.objects.push_back({"RARE_SUPPLY_B", "rare_supply", {"available", {}, {}, true}});
+f.supplies.push_back({"RARE_SUPPLY_B", "F2_SUPPLY", "structural_charge", 1});
+d.objects.push_back({"RARE_SUPPLY_C", "rare_supply", {"available", {}, {}, true}});
+f.supplies.push_back({"RARE_SUPPLY_C", "F3_UTILITY", "structural_charge", 1});
+d.objects.push_back({"RARE_DETONATOR", "rare_supply", {"available", {}, {}, true}});
+f.supplies.push_back({"RARE_DETONATOR", "B1_PUMP", "structural_detonator", 1});
+d.appearances.push_back({"robin", "B1_TUNNEL", "SP_ROBIN", 8, 4, 1000});
+d.appearances.push_back({"alfred", "F2_CAMERAS", "SP_ALFRED", 15, 3, 1000});
+d.appearances.push_back({"gordon", "F1_LOBBY", "SP_GORDON", 15, 3, 1000});
+d.appearances.push_back({"oracle", "F2_SECURITY", "SP_ORACLE", 15, 3, 1000});
+d.appearances.push_back({"flash", "R_LEDGE", "SP_FLASH", 15, 4, 1});
 return d;
 }
 } // namespace thug::campaign::data

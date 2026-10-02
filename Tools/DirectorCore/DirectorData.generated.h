@@ -4,7 +4,7 @@
 namespace thug::director::data {
 inline const Catalogue& Content() {
 static const Catalogue result = [] { Catalogue d;
-d.revision = u8"202b60b17b42c4004d298cda2482d6a9b602d1589e08be9322614510dd05eda4";
+d.revision = u8"4446502eb2949d357ea7c395109e1d093b7d70c70c1a13c3243fc65795c8ada7";
 d.garageCode = u8"410723";
 d.nodeRoles.emplace(u8"F4_START", u8"inicio");
 d.nodeRoles.emplace(u8"F4_HALL_E", u8"circulacao");
@@ -95,7 +95,7 @@ d.nodeRoles.emplace(u8"X_TUNNEL", u8"saida");
 d.nodeRoles.emplace(u8"X_WINDOW", u8"saida");
 d.nodeRoles.emplace(u8"X_ROOF", u8"saida");
 d.transientFacts = {u8"ambiguous_trace_observed", u8"barth_exit_choice", u8"barth_tunnel_air_heard", u8"barth_under_pressure", u8"camera_live_observed_by_group", u8"camera_loop_observed_by_group", u8"circuit_changed", u8"closed_powered_door_attempt_failed", u8"dead_branch_air_absent", u8"garage_camera_loop_observed", u8"generator_heard", u8"harley_heard_unseen_door", u8"harley_injured", u8"harley_under_pressure", u8"jack_act3_encounter", u8"jack_claimed_route", u8"jack_final_encounter", u8"jack_heard_thomas_or_injury", u8"jack_open_door_observed", u8"jack_perceived_companion_risk", u8"jack_verified_inference", u8"joe_bleeding", u8"joe_cart_noise_observed", u8"joe_injured", u8"key_inside_safe_observed", u8"keypad_failure_observed", u8"live_feed_observed", u8"loop_feed_observed", u8"offline_feed_observed", u8"power_failure_observed", u8"quiet_corridor_observed", u8"route_failure_observed", u8"security_blackout_observed", u8"security_power_restored_observed", u8"service_power_effect_observed", u8"water_current_observed", u8"window_blocked_observed"};
-d.persistentFacts = {u8"annex_seen", u8"barth_betrayal_executed", u8"barth_held_opening_door", u8"barth_informed_of_thomas_proof", u8"barth_recording_found", u8"barth_tunnel_entry_observed", u8"bartholomeu_cooperated_n24", u8"bartholomeu_cooperative", u8"bridge_geometry_observed", u8"camera_area_physically_checked", u8"dawn_victory", u8"doc01_read", u8"doc04_read", u8"doc05_read", u8"doc11_read", u8"doc11_read_by_jack", u8"garage_gate_released", u8"harley_knows_barth_alive_waiting", u8"helicopter_confirmed", u8"hide_access_observed", u8"hide_victory", u8"hunter_observed_habit", u8"jack_hunter_habit_observed", u8"jack_previous_encounter_heard", u8"jack_recording_found", u8"jack_two_encounters_observed", u8"joe_abandoned_harley", u8"joe_declined_tunnel_guidance", u8"joe_delayed_harley_help", u8"joe_directly_witnessed_thomas_death", u8"joe_discovered_jack_lie", u8"joe_heard_harley_help_request", u8"joe_identified_thomas_body", u8"joe_ignored_harley_request", u8"joe_requested_tunnel_guidance", u8"joe_returned_for_harley", u8"joe_shared_ammo_with_bartholomeu", u8"joe_verified_batman_record", u8"pipe_landmark_observed", u8"pipe_opening_assessed", u8"radio_contact_established", u8"rare_confrontation", u8"rare_destruction", u8"route_failed:garage", u8"route_failed:roof", u8"route_failed:tunnel", u8"route_failed:window", u8"thomas_discussed", u8"thomas_promised_coffee", u8"tunnel_left_current_observed", u8"window_unblocked"};
+d.persistentFacts = {u8"annex_seen", u8"appearance:alfred", u8"appearance:flash", u8"appearance:gordon", u8"appearance:oracle", u8"appearance:robin", u8"barth_betrayal_executed", u8"barth_held_opening_door", u8"barth_informed_of_thomas_proof", u8"barth_recording_found", u8"barth_tunnel_entry_observed", u8"bartholomeu_cooperated_n24", u8"bartholomeu_cooperative", u8"bridge_geometry_observed", u8"camera_area_physically_checked", u8"dawn_victory", u8"doc01_read", u8"doc04_read", u8"doc05_read", u8"doc11_read", u8"doc11_read_by_jack", u8"garage_gate_released", u8"harley_knows_barth_alive_waiting", u8"helicopter_confirmed", u8"hide_access_observed", u8"hide_victory", u8"hunter_observed_habit", u8"jack_hunter_habit_observed", u8"jack_previous_encounter_heard", u8"jack_recording_found", u8"jack_two_encounters_observed", u8"joe_abandoned_harley", u8"joe_declined_tunnel_guidance", u8"joe_delayed_harley_help", u8"joe_directly_witnessed_thomas_death", u8"joe_discovered_jack_lie", u8"joe_heard_harley_help_request", u8"joe_identified_thomas_body", u8"joe_ignored_harley_request", u8"joe_requested_tunnel_guidance", u8"joe_returned_for_harley", u8"joe_shared_ammo_with_bartholomeu", u8"joe_verified_batman_record", u8"pipe_landmark_observed", u8"pipe_opening_assessed", u8"radio_contact_established", u8"rare_confrontation", u8"rare_destruction", u8"route_failed:garage", u8"route_failed:roof", u8"route_failed:tunnel", u8"route_failed:window", u8"thomas_discussed", u8"thomas_promised_coffee", u8"tunnel_left_current_observed", u8"window_unblocked"};
 d.profiles = {{{false, false, false}, {false, false, false}, {true, false, false}, {true, true, true}}};
 d.clueMinimumAct = {2, 3, 4, 5};
 d.minimumClues = 2;
@@ -322,8 +322,14 @@ d.cues.emplace(u8"N31:0", Cue{u8"N31:0", u8"N31", CueKind::Speech, u8"joe", u8"D
 d.blocks.emplace(u8"N32", Block{u8"N32", 15, {}, {}, {u8"N32:0", u8"N32:1"}});
 d.cues.emplace(u8"N32:0", Cue{u8"N32:0", u8"N32", CueKind::Gesture, u8"", u8"", u8"verified_hunter_departure", 15, {u8"hide_victory"}, {}, {}, u8""});
 d.cues.emplace(u8"N32:1", Cue{u8"N32:1", u8"N32", CueKind::Gesture, u8"", u8"", u8"verified_dawn_exterior", 7, {u8"dawn_victory"}, {}, {}, u8""});
-d.blocks.emplace(u8"N33", Block{u8"N33", 15, {}, {}, {u8"N33:0"}});
+d.blocks.emplace(u8"N33", Block{u8"N33", 15, {}, {}, {u8"N33:0", u8"N33:1", u8"N33:2", u8"N33:3", u8"N33:4", u8"N33:5", u8"N33:6"}});
 d.cues.emplace(u8"N33:0", Cue{u8"N33:0", u8"N33", CueKind::Gesture, u8"", u8"", u8"rare_final_sequence", 15, {}, {}, {}, u8""});
+d.cues.emplace(u8"N33:1", Cue{u8"N33:1", u8"N33", CueKind::Speech, u8"joe", u8"A gente sai agora.", u8"", 1, {}, {}, {}, u8""});
+d.cues.emplace(u8"N33:2", Cue{u8"N33:2", u8"N33", CueKind::Speech, u8"harley", u8"Anda, Joe. Ainda d\u00e1.", u8"", 1, {}, {}, {}, u8""});
+d.cues.emplace(u8"N33:3", Cue{u8"N33:3", u8"N33", CueKind::Speech, u8"bartholomeu", u8"Eu t\u00f4 aqui. Eu t\u00f4 aqui.", u8"", 1, {}, {}, {}, u8""});
+d.cues.emplace(u8"N33:4", Cue{u8"N33:4", u8"N33", CueKind::Speech, u8"jack", u8"Ainda estamos respirando.", u8"", 1, {}, {}, {}, u8""});
+d.cues.emplace(u8"N33:5", Cue{u8"N33:5", u8"N33", CueKind::Speech, u8"joe", u8"Eu t\u00f4 vivo...", u8"", 8, {}, {}, {}, u8""});
+d.cues.emplace(u8"N33:6", Cue{u8"N33:6", u8"N33", CueKind::Gesture, u8"", u8"", u8"police_recovery_and_arrest", 8, {}, {}, {}, u8""});
 d.blocks.emplace(u8"N34", Block{u8"N34", 12, {}, {}, {u8"N34:0", u8"N34:1", u8"N34:2"}});
 d.cues.emplace(u8"N34:0", Cue{u8"N34:0", u8"N34", CueKind::Speech, u8"joe", u8"\u00c9 o Thomas.", u8"", 15, {}, {}, {}, u8""});
 d.cues.emplace(u8"N34:1", Cue{u8"N34:1", u8"N34", CueKind::Gesture, u8"", u8"", u8"thomas_identity_and_record", 15, {}, {}, {}, u8""});
@@ -445,6 +451,20 @@ d.blocks.emplace(u8"E_BARTH_PROTECTED", Block{u8"E_BARTH_PROTECTED", 15, {}, {},
 d.cues.emplace(u8"E_BARTH_PROTECTED:0", Cue{u8"E_BARTH_PROTECTED:0", u8"E_BARTH_PROTECTED", CueKind::Epilogue, u8"", u8"O amigo que tremia na escada segurou uma porta at\u00e9 Joe atravessar.", u8"", 15, {}, {}, {}, u8""});
 d.blocks.emplace(u8"E_JACK_PAST", Block{u8"E_JACK_PAST", 15, {}, {}, {u8"E_JACK_PAST:0"}});
 d.cues.emplace(u8"E_JACK_PAST:0", Cue{u8"E_JACK_PAST:0", u8"E_JACK_PAST", CueKind::Epilogue, u8"", u8"Jack havia dito que sobrevivera ao morcego uma vez; n\u00e3o disse tudo que sabia.", u8"", 15, {}, {}, {}, u8""});
+d.blocks.emplace(u8"SP_ROBIN", Block{u8"SP_ROBIN", 8, {u8"B1_TUNNEL"}, {u8"appearance:robin"}, {u8"SP_ROBIN:0"}});
+d.cues.emplace(u8"SP_ROBIN:0", Cue{u8"SP_ROBIN:0", u8"SP_ROBIN", CueKind::Speech, u8"radio", u8"Estou nos t\u00faneis. O sinal aqui \u00e9 ruim.", u8"robin_brief_encounter", 15, {}, {}, {}, u8""});
+d.blocks.emplace(u8"SP_ALFRED", Block{u8"SP_ALFRED", 15, {u8"F2_CAMERAS"}, {u8"appearance:alfred"}, {u8"SP_ALFRED:0"}});
+d.cues.emplace(u8"SP_ALFRED:0", Cue{u8"SP_ALFRED:0", u8"SP_ALFRED", CueKind::Speech, u8"radio", u8"Senhor, esse pr\u00e9dio n\u00e3o est\u00e1 seguro.", u8"alfred_partial_radio", 15, {}, {}, {}, u8""});
+d.blocks.emplace(u8"SP_GORDON", Block{u8"SP_GORDON", 15, {u8"F1_LOBBY"}, {u8"appearance:gordon"}, {u8"SP_GORDON:0"}});
+d.cues.emplace(u8"SP_GORDON:0", Cue{u8"SP_GORDON:0", u8"SP_GORDON", CueKind::Speech, u8"radio", u8"O quarteir\u00e3o est\u00e1 isolado. Aguarde instru\u00e7\u00f5es.", u8"gordon_exterior_radio", 15, {}, {}, {}, u8""});
+d.blocks.emplace(u8"SP_ORACLE", Block{u8"SP_ORACLE", 15, {u8"F2_SECURITY"}, {u8"appearance:oracle"}, {u8"SP_ORACLE:0"}});
+d.cues.emplace(u8"SP_ORACLE:0", Cue{u8"SP_ORACLE:0", u8"SP_ORACLE", CueKind::Speech, u8"radio", u8"Seu sinal ficou inst\u00e1vel. Vou tentar outra frequ\u00eancia.", u8"oracle_partial_radio", 15, {}, {}, {}, u8""});
+d.blocks.emplace(u8"SP_FLASH", Block{u8"SP_FLASH", 15, {u8"R_LEDGE"}, {u8"appearance:flash"}, {u8"SP_FLASH:0"}});
+d.cues.emplace(u8"SP_FLASH:0", Cue{u8"SP_FLASH:0", u8"SP_FLASH", CueKind::Gesture, u8"", u8"", u8"flash_brief_reference", 15, {}, {}, {}, u8""});
+d.blocks.emplace(u8"E_RARE_CONFRONTATION", Block{u8"E_RARE_CONFRONTATION", 15, {}, {}, {u8"E_RARE_CONFRONTATION:0"}});
+d.cues.emplace(u8"E_RARE_CONFRONTATION:0", Cue{u8"E_RARE_CONFRONTATION:0", u8"E_RARE_CONFRONTATION", CueKind::Epilogue, u8"", u8"A resist\u00eancia durou pouco. Joe saiu ferido. O hospital ficou para tr\u00e1s.", u8"", 15, {}, {}, {}, u8""});
+d.blocks.emplace(u8"E_RARE_DESTRUCTION", Block{u8"E_RARE_DESTRUCTION", 15, {}, {}, {u8"E_RARE_DESTRUCTION:0"}});
+d.cues.emplace(u8"E_RARE_DESTRUCTION:0", Cue{u8"E_RARE_DESTRUCTION:0", u8"E_RARE_DESTRUCTION", CueKind::Epilogue, u8"", u8"O hospital cedeu. Joe sobreviveu, gravemente ferido. Ao amanhecer, a pol\u00edcia o encontrou e o prendeu. Ele n\u00e3o conseguiu confirmar o destino do Hunter sob os destro\u00e7os.", u8"", 15, {}, {}, {}, u8""});
 d.blocks.emplace(u8"BAN01", Block{u8"BAN01", 15, {}, {}, {u8"BAN01:0", u8"BAN01:1", u8"BAN01:2"}});
 d.cues.emplace(u8"BAN01:0", Cue{u8"BAN01:0", u8"BAN01", CueKind::Speech, u8"thomas", u8"Barth, sua m\u00e3o ficou presa?", u8"", 15, {}, {}, {}, u8""});
 d.cues.emplace(u8"BAN01:1", Cue{u8"BAN01:1", u8"BAN01", CueKind::Speech, u8"bartholomeu", u8"N\u00e3o. S\u00f3 tremendo.", u8"", 15, {}, {}, {}, u8""});

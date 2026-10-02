@@ -136,7 +136,7 @@ bool Consistent(const StoryCampaign& campaign) {
   const bool routeEscape = ending == rules::Ending::GarageEscape ||
       ending == rules::Ending::RoofEscape ||
       ending == rules::Ending::TunnelEscape ||
-      ending == rules::Ending::WindowEscape;
+      ending == rules::Ending::WindowEscape || ending == rules::Ending::CoordinatedEscape;
   const std::pair<const char*, rules::Ending> codas[] = {
       {"N28:exit", rules::Ending::GarageEscape},
       {"N29:exit", rules::Ending::RoofEscape},
@@ -145,6 +145,8 @@ bool Consistent(const StoryCampaign& campaign) {
   for (const auto& [id, expected] : codas)
     if ((story.activeScene == id || story.seenScenes.count(id)) && ending != expected)
       return false;
+  if ((story.activeScene == "N33" || story.seenScenes.count("N33")) &&
+      ending != rules::Ending::CoordinatedEscape && ending != rules::Ending::BitterDestruction) return false;
   return story.difficulty == campaign.core.routes.DifficultyLevel() &&
          std::isfinite(world.nowSeconds) && story.nowSeconds <= world.nowSeconds &&
          (!story.joeEscaped || routeEscape);

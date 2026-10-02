@@ -22,6 +22,8 @@ struct CampaignCore::State {
         survival(tuning), hearing({}, seed + 5), world(world.levelId, world.objects),
         narrative(difficulty) {
     hunterRandom.seed(seed + 6);
+    std::mt19937_64 specialRandom(seed + 7);
+    special.appearanceTicket = static_cast<unsigned>(specialRandom() % 1000);
     combat.oxygen = CombatProfile(difficulty).oxygenCapacity;
     for (const auto& [id, count] : profile.loadout)
       if (!inventory.Add(id, count)) throw std::logic_error("Invalid authored loadout");
@@ -76,7 +78,8 @@ struct CampaignCore::State {
     auto story = narrative.CaptureSnapshot();
     const auto ending = routes.Result();
     story.joeEscaped = ending == rules::Ending::GarageEscape || ending == rules::Ending::RoofEscape ||
-                       ending == rules::Ending::TunnelEscape || ending == rules::Ending::WindowEscape;
+                       ending == rules::Ending::TunnelEscape || ending == rules::Ending::WindowEscape ||
+                       ending == rules::Ending::CoordinatedEscape;
     for (auto& [actor, track] : hunterRuntime.actors) if (actor != "joe") {
       const auto& outcome = story.outcomes.at(actor);
       if (outcome.dead || outcome.captured || outcome.escapedAlone || outcome.together) {
@@ -85,6 +88,8 @@ struct CampaignCore::State {
       }
     }
     if (ending != rules::Ending::None) {
+      special.plant.reset();
+      if (special.phase == SpecialPhase::Confronting || special.phase == SpecialPhase::Opportunity || special.phase == SpecialPhase::Collapsing) { special.phase = SpecialPhase::Failed; special.boundaryAt = -1; }
       combat.task.reset();
       combat.shots.clear();
       combat.thrown.clear();
@@ -93,7 +98,7 @@ struct CampaignCore::State {
       hunterRuntime.task.reset();
       hunterRuntime.watchingDoor.clear();
       for (auto& [name, body] : bodies) { (void)name; body.Stop(TaskStop::CampaignEnded); }
-      if (story.activeScene != "N32" && story.activeScene.find(":exit") == std::string::npos)
+      if (story.activeScene != "N32" && story.activeScene != "N33" && story.activeScene.find(":exit") == std::string::npos)
         director::CancelScene(story, presentation);
       director::CancelBanter(story, presentation);
     }
@@ -119,6 +124,7 @@ struct CampaignCore::State {
   std::map<std::string, CompanionBody> bodies;
   std::set<std::string> joeKnownRoutes;
   CombatRuntimeSnapshot combat;
+  SpecialRuntimeSnapshot special;
 };
 
 } // namespace thug::campaign

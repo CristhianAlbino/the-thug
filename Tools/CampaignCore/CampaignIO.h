@@ -16,6 +16,10 @@ inline constexpr std::size_t MaxRuntimeBytes = 4 * 1024 * 1024;
 inline std::size_t CombatReservedReceipts(const CombatRuntimeSnapshot& r) {
   return r.thrown.size() + (r.task ? (r.task->kind == CombatOp::BeginThrow ? 2 : 1) : 0);
 }
+inline std::size_t SpecialReservedReceipts(const SpecialRuntimeSnapshot& r) {
+  return (r.plant ? 1 : 0) + (r.phase == SpecialPhase::Confronting ? 2 :
+      r.phase == SpecialPhase::Opportunity || r.phase == SpecialPhase::Collapsing ? 1 : 0);
+}
 
 inline bool Token(const std::string& value) {
   if (value.empty() || value.size() > 128) return false;

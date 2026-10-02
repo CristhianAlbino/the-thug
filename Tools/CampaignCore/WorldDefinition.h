@@ -63,6 +63,23 @@ struct DestructibleDefinition {
   bool gunshot = false, explosion = false;
 };
 
+struct ChargeSiteDefinition { std::string id, node; };
+struct SpecialSupplyDefinition { std::string id, node, item; int quantity = 1; };
+struct FinaleDefinition {
+  std::string confrontationNode, confrontationExit, detonatorNode, collapseShelter;
+  double confrontationSeconds = 3, opportunitySeconds = 8, plantSeconds = 4, collapseSeconds = 12;
+  int minimumCompanions = 2;
+  double minimumTrust = 60;
+  std::vector<ChargeSiteDefinition> sites;
+  std::vector<SpecialSupplyDefinition> supplies;
+};
+struct AppearanceDefinition {
+  std::string id, node, block;
+  unsigned modes = 15;
+  int minimumAct = 3;
+  unsigned tickets = 1000; // Out of 1000; Flash is an optional rare reference.
+};
+
 struct WorldDefinition {
   std::string levelId;
   std::set<std::string> nodes;
@@ -76,6 +93,8 @@ struct WorldDefinition {
   std::vector<UnlockDefinition> unlocks;
   std::vector<TriggerDefinition> triggers;
   std::vector<DestructibleDefinition> destructibles;
+  std::optional<FinaleDefinition> finale;
+  std::vector<AppearanceDefinition> appearances;
 };
 
 } // namespace thug::campaign

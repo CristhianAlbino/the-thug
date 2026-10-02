@@ -346,7 +346,7 @@ bool ReadRules(std::istream& in, rules::RunSnapshot& s) {
   bool deadline;
   if (!Tag(in, "RUN") || !(in >> difficulty >> ending >> s.nowSeconds) ||
       !ReadBool(in, deadline) || !ValidDifficulty(difficulty) ||
-      ending < 0 || ending > 8) return false;
+      ending < 0 || ending > static_cast<int>(rules::Ending::BitterDestruction)) return false;
   s.difficulty = static_cast<rules::Difficulty>(difficulty);
   s.result = static_cast<rules::Ending>(ending);
   if (!Tag(in, "GARAGE") || !ReadBool(in, s.safeOpened) ||

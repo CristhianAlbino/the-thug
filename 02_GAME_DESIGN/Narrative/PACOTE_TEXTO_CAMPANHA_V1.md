@@ -125,3 +125,51 @@ São **texto condicional candidato**. Uma confirmação exige evento verificado 
 | Fácil/Normal, Thomas sem confirmação | Uma cadeira vazia ou a ausência de sua voz lembra Thomas, sem corpo, autoria ou narração conclusiva. Nunca usar a inserção de N34. |
 
 **Revisão necessária:** intensidade das falas frias de Joe, ritmo das piadas de Jack, visada real de N34, leitura da combinação sem tentativa cega e duração dos epílogos. Nenhum áudio foi gerado ou gravado nesta etapa.
+
+## P08 — texto de runtime dos finais raros e participações (rascunho)
+
+As aparições dependem de exposição física confirmada; não concedem rotas, recursos ou conhecimento global. Flash é referência opcional, extremamente rara. Vozes e encenação permanecem para produção. Em N33, só os participantes que cruzaram com Joe e estão presentes falam. O colapso não confirma a morte do Hunter; companheiros não testemunhados conservam destino desconhecido.
+
+### N33
+
+Gesto: `rare_final_sequence`.
+
+JOE: A gente sai agora.
+
+HARLEY: Anda, Joe. Ainda dá.
+
+BARTHOLOMEU: Eu tô aqui. Eu tô aqui.
+
+JACK: Ainda estamos respirando.
+
+JOE: Eu tô vivo...
+
+Gesto: `police_recovery_and_arrest`.
+
+### SP_ROBIN
+
+RADIO: Estou nos túneis. O sinal aqui é ruim.
+
+### SP_ALFRED
+
+RADIO: Senhor, esse prédio não está seguro.
+
+### SP_GORDON
+
+RADIO: O quarteirão está isolado. Aguarde instruções.
+
+### SP_ORACLE
+
+RADIO: Seu sinal ficou instável. Vou tentar outra frequência.
+
+### SP_FLASH
+
+Gesto: `flash_brief_reference`.
+
+### E_RARE_CONFRONTATION
+
+EPÍLOGO: A resistência durou pouco. Joe saiu ferido. O hospital ficou para trás.
+
+### E_RARE_DESTRUCTION
+
+EPÍLOGO: O hospital cedeu. Joe sobreviveu, gravemente ferido. Ao amanhecer, a polícia o encontrou e o prendeu. Ele não conseguiu confirmar o destino do Hunter sob os destroços.

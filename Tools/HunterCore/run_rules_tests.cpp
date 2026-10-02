@@ -107,6 +107,20 @@ void ClockValidationAndFailure() {
         "Defeat cannot be replaced by escape");
 }
 
+void RareResults() {
+  for (auto mode : {Difficulty::Easy, Difficulty::Normal, Difficulty::Hard, Difficulty::Punitive}) {
+    for (auto event : {Event::CoordinatedEscapeConfirmed, Event::CollapseSurvivalConfirmed}) {
+      RunRules run(mode);
+      const bool permitted = event == Event::CoordinatedEscapeConfirmed ? mode == Difficulty::Easy : mode == Difficulty::Punitive;
+      Check(run.Apply(event, 1) == permitted, "Rare result is restricted to its authored mode");
+      Check(run.Result() == (permitted ? event == Event::CoordinatedEscapeConfirmed ? Ending::CoordinatedEscape : Ending::BitterDestruction : Ending::None), "Rare result remains distinct from conventional escape/capture");
+      RunRules restored(mode); Check(restored.RestoreSnapshot(run.CaptureSnapshot()), "Rare result round trip preserves mode and terminal state");
+      if (permitted) Check(!run.Apply(Event::DawnReached, 2), "Rare result cannot be overwritten by dawn");
+      auto bad = restored.CaptureSnapshot(); bad.result = mode == Difficulty::Easy ? Ending::BitterDestruction : Ending::CoordinatedEscape;
+      Check(!restored.RestoreSnapshot(bad), "A rare ending cannot be loaded into a forbidden mode");
+    }
+  }
+}
 } // namespace
 
 int main() {
@@ -115,6 +129,7 @@ int main() {
     HelicopterDeadline();
     WindowAndDawn();
     ClockValidationAndFailure();
+    RareResults();
     std::cout << "RunRules: " << assertions << " checks passed\n";
   } catch (const std::exception& error) {
     std::cerr << "RunRules test failed after " << assertions

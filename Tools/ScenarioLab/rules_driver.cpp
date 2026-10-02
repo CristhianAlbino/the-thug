@@ -47,6 +47,8 @@ const char* EndingName(Ending ending) {
   case Ending::HunterAbandoned: return "HunterAbandoned";
   case Ending::Captured: return "Captured";
   case Ending::Died: return "Died";
+  case Ending::CoordinatedEscape: return "CoordinatedEscape";
+  case Ending::BitterDestruction: return "BitterDestruction";
   }
   throw std::runtime_error("Unknown ending");
 }

@@ -1232,10 +1232,64 @@
       "id": "N33",
       "cues": [
         {
+          "id": "N33:0",
           "kind": "gesture",
           "asset": "rare_final_sequence",
+          "text": ""
+        },
+        {
+          "id": "N33:1",
+          "kind": "speech",
+          "speaker": "joe",
+          "text": "A gente sai agora.",
+          "modes": [
+            "Easy"
+          ]
+        },
+        {
+          "id": "N33:2",
+          "kind": "speech",
+          "speaker": "harley",
+          "text": "Anda, Joe. Ainda dá.",
+          "modes": [
+            "Easy"
+          ]
+        },
+        {
+          "id": "N33:3",
+          "kind": "speech",
+          "speaker": "bartholomeu",
+          "text": "Eu tô aqui. Eu tô aqui.",
+          "modes": [
+            "Easy"
+          ]
+        },
+        {
+          "id": "N33:4",
+          "kind": "speech",
+          "speaker": "jack",
+          "text": "Ainda estamos respirando.",
+          "modes": [
+            "Easy"
+          ]
+        },
+        {
+          "id": "N33:5",
+          "kind": "speech",
+          "speaker": "joe",
+          "text": "Eu tô vivo...",
+          "modes": [
+            "Punitive"
+          ]
+        },
+        {
+          "id": "N33:6",
+          "kind": "gesture",
+          "asset": "police_recovery_and_arrest",
           "text": "",
-          "id": "N33:0"
+          "modes": [
+            "Punitive"
+          ]
         }
       ]
     },
@@ -1973,6 +2027,143 @@
           "kind": "epilogue",
           "text": "Jack havia dito que sobrevivera ao morcego uma vez; não disse tudo que sabia.",
           "id": "E_JACK_PAST:0"
+        }
+      ]
+    },
+    {
+      "id": "SP_ROBIN",
+      "nodes": [
+        "B1_TUNNEL"
+      ],
+      "modes": [
+        "Punitive"
+      ],
+      "requires": [
+        "appearance:robin"
+      ],
+      "cues": [
+        {
+          "id": "SP_ROBIN:0",
+          "kind": "speech",
+          "speaker": "radio",
+          "text": "Estou nos túneis. O sinal aqui é ruim.",
+          "asset": "robin_brief_encounter"
+        }
+      ]
+    },
+    {
+      "id": "SP_ALFRED",
+      "nodes": [
+        "F2_CAMERAS"
+      ],
+      "modes": [
+        "Easy",
+        "Normal",
+        "Hard",
+        "Punitive"
+      ],
+      "requires": [
+        "appearance:alfred"
+      ],
+      "cues": [
+        {
+          "id": "SP_ALFRED:0",
+          "kind": "speech",
+          "speaker": "radio",
+          "text": "Senhor, esse prédio não está seguro.",
+          "asset": "alfred_partial_radio"
+        }
+      ]
+    },
+    {
+      "id": "SP_GORDON",
+      "nodes": [
+        "F1_LOBBY"
+      ],
+      "modes": [
+        "Easy",
+        "Normal",
+        "Hard",
+        "Punitive"
+      ],
+      "requires": [
+        "appearance:gordon"
+      ],
+      "cues": [
+        {
+          "id": "SP_GORDON:0",
+          "kind": "speech",
+          "speaker": "radio",
+          "text": "O quarteirão está isolado. Aguarde instruções.",
+          "asset": "gordon_exterior_radio"
+        }
+      ]
+    },
+    {
+      "id": "SP_ORACLE",
+      "nodes": [
+        "F2_SECURITY"
+      ],
+      "modes": [
+        "Easy",
+        "Normal",
+        "Hard",
+        "Punitive"
+      ],
+      "requires": [
+        "appearance:oracle"
+      ],
+      "cues": [
+        {
+          "id": "SP_ORACLE:0",
+          "kind": "speech",
+          "speaker": "radio",
+          "text": "Seu sinal ficou instável. Vou tentar outra frequência.",
+          "asset": "oracle_partial_radio"
+        }
+      ]
+    },
+    {
+      "id": "SP_FLASH",
+      "nodes": [
+        "R_LEDGE"
+      ],
+      "modes": [
+        "Easy",
+        "Normal",
+        "Hard",
+        "Punitive"
+      ],
+      "requires": [
+        "appearance:flash"
+      ],
+      "cues": [
+        {
+          "id": "SP_FLASH:0",
+          "kind": "gesture",
+          "speaker": "",
+          "text": "",
+          "asset": "flash_brief_reference"
+        }
+      ]
+    },
+    {
+      "id": "E_RARE_CONFRONTATION",
+      "cues": [
+        {
+          "id": "E_RARE_CONFRONTATION:0",
+          "kind": "epilogue",
+          "text": "A resistência durou pouco. Joe saiu ferido. O hospital ficou para trás."
+        }
+      ]
+    },
+    {
+      "id": "E_RARE_DESTRUCTION",
+      "cues": [
+        {
+          "id": "E_RARE_DESTRUCTION:0",
+          "kind": "epilogue",
+          "text": "O hospital cedeu. Joe sobreviveu, gravemente ferido. Ao amanhecer, a polícia o encontrou e o prendeu. Ele não conseguiu confirmar o destino do Hunter sob os destroços."
         }
       ]
     }

@@ -34,7 +34,7 @@ std::string Identity(const WorldDefinition& d, const survival::Tuning& t) {
   std::ostringstream out;
   out.imbue(std::locale::classic());
   out << std::setprecision(std::numeric_limits<double>::max_digits10) << data::Revision
-      << CombatRuntimeRevision << HunterRuntimeRevision << partydata::Revision << director::Content().revision << std::quoted(d.levelId);
+      << SpecialRuntimeRevision << CombatRuntimeRevision << HunterRuntimeRevision << partydata::Revision << director::Content().revision << std::quoted(d.levelId);
   out << " NODES " << d.nodes.size();
   for (const auto& node : d.nodes) out << std::quoted(node);
   out << " OBJECTS " << d.objects.size();
@@ -85,6 +85,17 @@ std::string Identity(const WorldDefinition& d, const survival::Tuning& t) {
   for (const auto& object : d.destructibles)
     out << std::quoted(object.id) << std::quoted(object.node) << std::quoted(object.before)
         << std::quoted(object.after) << ' ' << object.gunshot << ' ' << object.explosion;
+  out << " FINALE " << bool(d.finale);
+  if (d.finale) {
+    const auto& f = *d.finale;
+    out << std::quoted(f.confrontationNode) << std::quoted(f.confrontationExit) << std::quoted(f.detonatorNode)
+        << std::quoted(f.collapseShelter) << ' ' << f.confrontationSeconds << ' ' << f.opportunitySeconds
+        << ' ' << f.plantSeconds << ' ' << f.collapseSeconds << ' ' << f.minimumCompanions << ' ' << f.minimumTrust;
+    out << " SITES " << f.sites.size(); for (const auto& site : f.sites) out << std::quoted(site.id) << std::quoted(site.node);
+    out << " SUPPLIES " << f.supplies.size(); for (const auto& supply : f.supplies) out << std::quoted(supply.id) << std::quoted(supply.node) << std::quoted(supply.item) << ' ' << supply.quantity;
+  }
+  out << " APPEARANCES " << d.appearances.size();
+  for (const auto& a : d.appearances) out << std::quoted(a.id) << std::quoted(a.node) << std::quoted(a.block) << ' ' << a.modes << ' ' << a.minimumAct << ' ' << a.tickets;
   out << " TUNING " << t.maxStamina << ' ' << t.sprintDrainPerSecond << ' ' << t.restRecoveryPerSecond
       << ' ' << t.walkRecoveryFraction << ' ' << t.moderateDrainMultiplier << ' ' << t.severeDrainMultiplier
       << ' ' << t.moderateRecoveryMultiplier << ' ' << t.severeRecoveryMultiplier << ' ' << t.exhaustionReleaseFraction
@@ -165,6 +176,35 @@ void Validate(const WorldDefinition& d, save::WorldState& state, const survival:
     for (const auto& use : d.uses) if (use.object == target.id)
       throw std::invalid_argument("Combat target overlaps required interaction");
   }
+  if (d.finale) {
+    const auto& f = *d.finale;
+    node(f.confrontationNode); node(f.confrontationExit); node(f.detonatorNode); node(f.collapseShelter);
+    for (double duration : {f.confrontationSeconds, f.opportunitySeconds, f.plantSeconds, f.collapseSeconds})
+      if (!std::isfinite(duration) || duration <= 0 || duration > 60) throw std::invalid_argument("Invalid finale duration");
+    if (f.minimumCompanions < 2 || f.minimumCompanions > 3 || !std::isfinite(f.minimumTrust) ||
+        f.minimumTrust < 0 || f.minimumTrust > 100 || f.sites.size() < 3 || f.sites.size() > 16 || f.supplies.size() > 32)
+      throw std::invalid_argument("Invalid finale preparation");
+    std::set<std::string> sectors;
+    for (const auto& site : f.sites) {
+      unique(site.id); node(site.node); object(site.id, "rare_site");
+      if (!sectors.insert(site.node).second || !state.Find(site.id)->present || state.Find(site.id)->stateId != "empty")
+        throw std::invalid_argument("Invalid distinct charge site");
+    }
+    for (const auto& supply : f.supplies) {
+      unique(supply.id); node(supply.node); object(supply.id, "rare_supply"); item(supply.item, supply.quantity);
+      if ((supply.item != "structural_charge" && supply.item != "structural_detonator") ||
+          !state.Find(supply.id)->present || state.Find(supply.id)->stateId != "available") throw std::invalid_argument("Invalid rare supply");
+    }
+  }
+  if (d.appearances.size() > 16) throw std::invalid_argument("Too many appearances");
+  for (const auto& a : d.appearances) {
+    unique(a.id); node(a.node);
+    const auto block = director::Content().blocks.find(a.block);
+    if (!a.modes || a.modes > 15 || a.minimumAct < 1 || a.minimumAct > 5 || a.tickets > 1000 || !a.tickets ||
+        a.block.rfind("SP_", 0) != 0 || block == director::Content().blocks.end() || !block->second.nodes.count(a.node) ||
+        block->second.modes != a.modes || !block->second.requirements.count("appearance:" + a.id))
+      throw std::invalid_argument("Invalid authored appearance");
+  }
   world::WorldCore devices(state, d.doors, d.cameras, d.hides);
   (void)devices;
 }
@@ -212,6 +252,8 @@ TickResult CampaignCore::Tick(double seconds, survival::Activity activity,
   }
   if (Paused()) return {Status::Paused, 0, {}};
   if (Ending() != rules::Ending::None) return {Status::Finished, 0, {}};
+  if ((state_->special.phase == SpecialPhase::Confronting || state_->special.phase == SpecialPhase::Collapsing) &&
+      Now() >= state_->special.boundaryAt) return {Status::AwaitingPhysics, 0, {}};
   for (const auto& [serial, item] : state_->combat.thrown) {
     (void)serial;
     if (Now() >= item.detonateAt) return {Status::AwaitingPhysics, 0, {}};
@@ -219,6 +261,8 @@ TickResult CampaignCore::Tick(double seconds, survival::Activity activity,
   auto next = std::make_unique<State>(*state_);
   const auto before = next->survival.CaptureSnapshot();
   double elapsed = seconds;
+  if (next->special.phase == SpecialPhase::Confronting || next->special.phase == SpecialPhase::Collapsing)
+    elapsed = std::min(elapsed, next->special.boundaryAt - Now());
   for (const auto& [serial, item] : next->combat.thrown) {
     (void)serial;
     elapsed = std::min(elapsed, item.detonateAt - Now());
@@ -247,6 +291,9 @@ TickResult CampaignCore::Tick(double seconds, survival::Activity activity,
   }
   AdvanceHunter(*next, Now() + elapsed);
   next->AdvanceClocks(Now() + elapsed);
+  if (next->special.phase == SpecialPhase::Opportunity && Now() + elapsed >= next->special.boundaryAt) {
+    next->special.phase = SpecialPhase::Failed; next->special.boundaryAt = -1;
+  }
   AdvanceCompanions(*next, elapsed, companionActivities);
   if (result.becameDead && !next->routes.Apply(rules::Event::JoeDied, Now() + elapsed))
     throw std::logic_error("Confirmed death rejected by campaign");
@@ -285,12 +332,14 @@ ActionResult CampaignCore::Apply(const Action& a) {
   if (receipt != state_->receipts.end()) return {receipt->second == signature ? Status::AlreadyApplied : Status::Conflict, {}};
   if (Paused()) return {Status::Paused, {}};
   if (Ending() != rules::Ending::None) return {Status::Finished, {}};
+  if (state_->special.phase == SpecialPhase::Collapsing ||
+      (state_->special.phase == SpecialPhase::Confronting && Now() >= state_->special.boundaryAt)) return {Status::AwaitingPhysics, {}};
   if (a.atSeconds != Now()) return {Status::InvalidTime, {}};
   if (!a.physicallyVerified) return {Status::InvalidAction, {}};
   if (!ValidLocation(a) || (!state_->hidingPlace.empty() &&
       a.node != Find(definition_->hides, state_->hidingPlace)->atNode))
     return {Status::MissingRequirement, {}};
-  if (state_->receipts.size() + detail::CombatReservedReceipts(state_->combat) >= detail::MaxReceipts) return {Status::LogFull, {}};
+  if (state_->receipts.size() + detail::CombatReservedReceipts(state_->combat) + detail::SpecialReservedReceipts(state_->special) >= detail::MaxReceipts) return {Status::LogFull, {}};
   auto next = std::make_unique<State>(*state_);
   const auto result = Execute(*next, a);
   if (result.status != Status::Applied) return result;
@@ -477,12 +526,12 @@ bool CampaignCore::Consistent(const State& s) const {
   const double now = s.world.NowSeconds();
   const auto ending = s.routes.Result();
   const bool escaped = ending == rules::Ending::GarageEscape || ending == rules::Ending::RoofEscape ||
-                       ending == rules::Ending::TunnelEscape || ending == rules::Ending::WindowEscape;
+                       ending == rules::Ending::TunnelEscape || ending == rules::Ending::WindowEscape || ending == rules::Ending::CoordinatedEscape;
   if (s.routes.CaptureSnapshot().nowSeconds != now || s.hunter.CaptureSnapshot().nowSeconds != now ||
       s.harley.CaptureSnapshot().nowSeconds != now || s.bartholomeu.CaptureSnapshot().nowSeconds != now ||
       s.jack.CaptureSnapshot().nowSeconds != now || s.narrative.CaptureSnapshot().nowSeconds != now ||
       s.receipts.size() > detail::MaxReceipts || s.narrative.CaptureSnapshot().joeEscaped != escaped ||
-      !director::ValidPresentation(s.narrative.CaptureSnapshot(), s.presentation) || !NarrativeCoherent(s) || !CompanionCoherent(s) || !HunterCoherent(s) || !CombatCoherent(s)) return false;
+      !director::ValidPresentation(s.narrative.CaptureSnapshot(), s.presentation) || !NarrativeCoherent(s) || !CompanionCoherent(s) || !HunterCoherent(s) || !CombatCoherent(s) || !SpecialCoherent(s)) return false;
   if (!s.hidingPlace.empty()) {
     if (!Find(definition_->hides, s.hidingPlace)) return false;
     const auto* object = s.world.Find(s.hidingPlace);
@@ -497,6 +546,7 @@ bool CampaignCore::Consistent(const State& s) const {
     if (!object || !object->present || (object->stateId != u.before && object->stateId != u.after)) return false;
   }
   for (const auto& [id, signature] : s.receipts) {
+    if (signature.rfind("S ", 0) == 0) continue; // Validated by SpecialCoherent.
     if (signature.rfind("W ", 0) == 0) continue; // Validated by CombatCoherent.
     if (signature.rfind("H ", 0) == 0) continue; // Validated by HunterCoherent.
     if (signature.rfind("C ", 0) == 0) {

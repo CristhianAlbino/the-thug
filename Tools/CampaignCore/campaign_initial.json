@@ -71,6 +71,20 @@
       "slots": 1,
       "max": 1,
       "droppable": false
+    },
+    {
+      "id": "structural_charge",
+      "category": "Explosive",
+      "slots": 2,
+      "max": 3,
+      "droppable": true
+    },
+    {
+      "id": "structural_detonator",
+      "category": "Utility",
+      "slots": 1,
+      "max": 1,
+      "droppable": true
     }
   ],
   "objects": [
@@ -333,6 +347,100 @@
       "id": "captured",
       "node": "*",
       "event": "CapturedByHunter"
+    }
+  ],
+  "finale": {
+    "confrontation_node": "F1_LOADING",
+    "confrontation_exit": "X_GARAGE",
+    "detonator_node": "F1_SERVICE",
+    "collapse_shelter": "F1_EMERGENCY",
+    "minimum_companions": 2,
+    "minimum_trust": 60,
+    "confrontation_seconds": 3,
+    "opportunity_seconds": 8,
+    "plant_seconds": 4,
+    "collapse_seconds": 12,
+    "sites": [
+      {
+        "id": "RARE_SITE_A",
+        "node": "F3_UTILITY"
+      },
+      {
+        "id": "RARE_SITE_B",
+        "node": "F2_SERVER"
+      },
+      {
+        "id": "RARE_SITE_C",
+        "node": "B1_GENERATOR"
+      }
+    ],
+    "supplies": [
+      {
+        "id": "RARE_SUPPLY_A",
+        "node": "B1_STORAGE",
+        "item": "structural_charge",
+        "quantity": 1
+      },
+      {
+        "id": "RARE_SUPPLY_B",
+        "node": "F2_SUPPLY",
+        "item": "structural_charge",
+        "quantity": 1
+      },
+      {
+        "id": "RARE_SUPPLY_C",
+        "node": "F3_UTILITY",
+        "item": "structural_charge",
+        "quantity": 1
+      },
+      {
+        "id": "RARE_DETONATOR",
+        "node": "B1_PUMP",
+        "item": "structural_detonator",
+        "quantity": 1
+      }
+    ]
+  },
+  "appearances": [
+    {
+      "id": "robin",
+      "node": "B1_TUNNEL",
+      "block": "SP_ROBIN",
+      "modes": 8,
+      "minimum_act": 4,
+      "tickets": 1000
+    },
+    {
+      "id": "alfred",
+      "node": "F2_CAMERAS",
+      "block": "SP_ALFRED",
+      "modes": 15,
+      "minimum_act": 3,
+      "tickets": 1000
+    },
+    {
+      "id": "gordon",
+      "node": "F1_LOBBY",
+      "block": "SP_GORDON",
+      "modes": 15,
+      "minimum_act": 3,
+      "tickets": 1000
+    },
+    {
+      "id": "oracle",
+      "node": "F2_SECURITY",
+      "block": "SP_ORACLE",
+      "modes": 15,
+      "minimum_act": 3,
+      "tickets": 1000
+    },
+    {
+      "id": "flash",
+      "node": "R_LEDGE",
+      "block": "SP_FLASH",
+      "modes": 15,
+      "minimum_act": 4,
+      "tickets": 1
     }
   ]
 }

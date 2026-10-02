@@ -81,6 +81,15 @@ def _facts(observation: Observation, progress: Progress) -> Facts:
 
 
 def scene_eligible(scene_id: str, observation: Observation, progress: Progress) -> bool:
+    if scene_id.startswith("SP_"):
+        import json
+        from pathlib import Path
+        blocks = json.loads((Path(__file__).resolve().parent / "../DirectorCore/runtime_ptbr.json").read_text(encoding="utf-8"))["blocks"]
+        block = next((b for b in blocks if b["id"] == scene_id), None)
+        return bool(block and not progress.active_scene and scene_id not in progress.scenes
+                    and observation.difficulty in block.get("modes", ())
+                    and observation.joe_node in block.get("nodes", ())
+                    and set(block.get("requires", ())) <= (progress.durable_facts | observation.facts))
     if scene_id.endswith(":exit") and scene_id[:-5] in ROUTE_ENDS:
         return (not progress.active_scene and scene_id not in progress.scenes
                 and can_close_route(scene_id[:-5], _facts(observation, progress)))

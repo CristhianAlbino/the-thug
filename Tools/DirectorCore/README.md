@@ -32,7 +32,7 @@ Retomada carrega a sequência selecionada, serial e índice da primeira entrada 
 
 `RememberFact` aceita apenas fatos duráveis autorados permitidos à ponte. Ela ainda precisa comprovar o evento físico correspondente. Conhecimento específico de Joe não é criado pela coda destinada apenas ao jogador. Epílogos usam resultados individuais registrados; captura/morte não são deduzidas da ausência de notícia.
 
-As funções de baixo nível operam snapshots para ensaio. Não as chamar paralelamente para alterar o estado da sessão. N33 conserva elegibilidade de referência; seus resultados raros continuam P08 e sua ativação na campanha é recusada nesta etapa. Encenação final de Thomas/Jack continua P09. Não há atores, widgets, vozes ou cinematics produzidos por este módulo.
+As funções de baixo nível operam snapshots para ensaio. Não as chamar paralelamente para alterar o estado da sessão. P08 liga N33 aos resultados raros confirmados pelo CampaignCore e acrescenta cinco apresentações especiais com exposição física/ACK. Ausentes não falam e a destruição não confirma morte do Hunter. Encenação final de Thomas/Jack continua P09. Não há atores, widgets, vozes ou cinematics produzidos por este módulo.
 
 ## Verificação
 

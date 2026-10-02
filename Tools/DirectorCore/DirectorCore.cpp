@@ -90,6 +90,11 @@ bool SceneEligible(const std::string& requested, const Observation& o, const sav
   if (!ValidObservation(o) || !s.activeScene.empty() || s.seenScenes.count(requested)) return false;
   const auto facts = Facts(o, s);
   const auto coda = exits.find(requested);
+  if (requested.rfind("SP_", 0) == 0) {
+    const auto block = Content().blocks.find(requested);
+    return block != Content().blocks.end() && Mode(block->second.modes, o.difficulty) &&
+        block->second.nodes.count(o.joeNode) && Includes(facts, block->second.requirements);
+  }
   if (coda != exits.end()) return o.joeNode == coda->second.first && facts.count(coda->second.second) && s.seenScenes.count("N03");
   if (requested == "J4") return !s.witnessedClues.count("J4") && o.alternativeReachable && CanWitness("J4", o, s);
   const auto id = BaseScene(requested);
@@ -258,6 +263,8 @@ std::vector<Cue> EpilogueText(const save::NarrativeSnapshot& s, const std::strin
   if (locale != "pt-BR") return output;
   const auto ids = ResolveEpilogue(s); if (ids.empty()) return output;
   const auto append = [&](const std::string& id) { for (const auto& cue : Content().blocks.at(id).cues) output.push_back(Content().cues.at(cue)); };
+  if (s.durableFacts.count("rare_confrontation")) append("E_RARE_CONFRONTATION");
+  if (s.durableFacts.count("rare_destruction")) append("E_RARE_DESTRUCTION");
   if (s.joeEscaped && (s.deliveredBanter.count("BAN12") || s.deliveredBanter.count("BAN13"))) append("E_JOE_WAYNE");
   for (const auto& name : {"harley", "bartholomeu", "jack", "thomas", "jack_secret"}) append(ids.at(name));
   if (s.outcomes.at("harley").together) {

@@ -11,11 +11,11 @@ bool ProtectedFact(const std::string& id) {
     "hide_victory", "dawn_victory", "rare_confrontation", "rare_destruction",
     "jack_previous_encounter_heard", "thomas_promised_coffee",
     "code_a", "code_b", "code_c", "key_known", "safe_known", "isolation_known"};
-  return owned.count(id) || id.rfind("route_failed:", 0) == 0 || id.rfind("doc", 0) == 0 ||
+  return owned.count(id) || id.rfind("appearance:", 0) == 0 || id.rfind("route_failed:", 0) == 0 || id.rfind("doc", 0) == 0 ||
       id.rfind("joe_shared_ammo_with_", 0) == 0 || id.rfind("joe_shared_treatment_with_", 0) == 0;
 }
 bool TerminalScene(const std::string& id) {
-  return id == "N32" || id == "N28:exit" || id == "N29:exit" || id == "N30:exit" || id == "N31:exit";
+  return id == "N33" || id == "N32" || id == "N28:exit" || id == "N29:exit" || id == "N30:exit" || id == "N31:exit";
 }
 }
 
@@ -35,6 +35,7 @@ bool CampaignCore::NarrativeStaticValid(const Action& a) const {
   switch (a.kind) {
     case ActionKind::BeginScene: case ActionKind::SceneCue: case ActionKind::CancelScene:
       return a.target == "N26" || a.target == "J4" || director::Content().scenes.count(a.target) ||
+          (a.target.rfind("SP_", 0) == 0 && director::Content().blocks.count(a.target)) ||
           (a.target.rfind("N26:", 0) == 0 && director::Content().blocks.count(a.target)) || TerminalScene(a.target);
     case ActionKind::BeginBanter: case ActionKind::BanterCue: case ActionKind::CancelBanter:
       return director::Content().banter.count(a.target);
@@ -56,6 +57,7 @@ bool CampaignCore::NarrativeCoherent(const State& s) const {
   std::set<int> sceneConfirmed, banterConfirmed;
   for (const auto& [id, signature] : s.receipts) {
     (void)id;
+    if (signature.rfind("S ", 0) == 0) continue;
     if (signature.rfind("H ", 0) == 0) continue;
     if (signature.rfind("W ", 0) == 0) continue; // Combat ledger is validated independently.
     if (signature.rfind("C ", 0) == 0) {
@@ -149,9 +151,14 @@ director::Observation CampaignCore::NarrativeContext(const director::Observation
   if (run.result == rules::Ending::HunterAbandoned) o.facts.insert("hide_victory");
   if (run.result == rules::Ending::SurvivedDawn) o.facts.insert("dawn_victory");
   const auto story = s.narrative.CaptureSnapshot();
+  if (run.result == rules::Ending::CoordinatedEscape) o.facts.insert("rare_confrontation");
+  if (run.result == rules::Ending::BitterDestruction) o.facts.insert("rare_destruction");
+  for (const auto& id : s.special.appearances) o.facts.insert("appearance:" + id);
   for (auto& [name, actor] : o.companions) {
     const auto found = story.outcomes.find(name);
-    if (found != story.outcomes.end() && (found->second.dead || found->second.captured || found->second.escapedAlone)) actor.active = false;
+    if (found != story.outcomes.end() && (found->second.dead || found->second.captured || found->second.escapedAlone ||
+        (run.result == rules::Ending::CoordinatedEscape && !found->second.together) ||
+        run.result == rules::Ending::BitterDestruction)) actor.active = false;
   }
   return o;
 }
@@ -162,21 +169,22 @@ ActionResult CampaignCore::ApplyNarrative(const Action& a, const director::Obser
   const auto receipt = state_->receipts.find(a.eventId);
   if (receipt != state_->receipts.end()) return {receipt->second == signature ? Status::AlreadyApplied : Status::Conflict, {}};
   if (Paused()) return {Status::Paused, {}};
+  if (state_->special.phase == SpecialPhase::Collapsing ||
+      (state_->special.phase == SpecialPhase::Confronting && Now() >= state_->special.boundaryAt)) return {Status::AwaitingPhysics, {}};
   if (a.atSeconds != Now() || !ValidObservation(input) || a.node != input.joeNode) return {Status::InvalidTime, {}};
   if (!a.physicallyVerified) return {Status::InvalidAction, {}};
   if (Ending() != rules::Ending::None && a.kind != ActionKind::CancelScene && a.kind != ActionKind::CancelBanter &&
       !((a.kind == ActionKind::BeginScene || a.kind == ActionKind::SceneCue) && TerminalScene(a.target))) return {Status::Finished, {}};
   if (!state_->hidingPlace.empty() && a.node != std::find_if(definition_->hides.begin(), definition_->hides.end(),
       [&](const auto& hide) { return hide.id == state_->hidingPlace; })->atNode) return {Status::MissingRequirement, {}};
-  if (state_->receipts.size() + detail::CombatReservedReceipts(state_->combat) >= detail::MaxReceipts) return {Status::LogFull, {}};
+  if (state_->receipts.size() + detail::CombatReservedReceipts(state_->combat) + detail::SpecialReservedReceipts(state_->special) >= detail::MaxReceipts) return {Status::LogFull, {}};
   auto next = std::make_unique<State>(*state_);
   auto story = next->narrative.CaptureSnapshot();
   const auto context = NarrativeContext(input, *next);
   bool accepted = false;
   switch (a.kind) {
     case ActionKind::BeginScene:
-      // N33 has only reference eligibility; its RunRules results are still P08.
-      accepted = a.target != "N33" && director::BeginScene(a.target, context, story, next->presentation); break;
+      accepted = director::BeginScene(a.target, context, story, next->presentation); break;
     case ActionKind::BeginBanter: accepted = director::BeginBanter(a.target, context, story, next->presentation); break;
     case ActionKind::SceneCue: case ActionKind::BanterCue: {
       const auto current = director::Current(context, story, next->presentation);

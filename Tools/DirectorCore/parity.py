@@ -29,6 +29,12 @@ def actors(node):return {name:Actor(node) for name in ('thomas','harley','bartho
 def verify(driver):
     rows=[];expected=[]
     def add(kind,id,o,p,result,outcomes=None):rows.append(encode(kind,id,o,p,outcomes));expected.append(result)
+    appearances=json.loads((ROOT/'runtime_ptbr.json').read_text(encoding='utf-8'))['blocks']
+    for block in (b for b in appearances if b['id'].startswith('SP_')):
+        for mode in MODES:
+            o=Observation(mode,5,block['nodes'][0],facts=frozenset(block['requires']))
+            for current,p in ((o,Progress()),(replace(o,facts=frozenset()),Progress()),(replace(o,joe_node='F4_START'),Progress()),(o,Progress(scenes=frozenset({block['id']}))),(o,Progress(active_scene='N01'))):
+                add('scene',block['id'],current,p,str(int(scene_eligible(block['id'],current,p))))
     seen=frozenset({'N01','N02','N03','N09','N25'})
     for id,s in {**EARLY,**LATE}.items():
         node=s['anchors'][0] if s['anchors'] else 'F3_CENTRAL'

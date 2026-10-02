@@ -52,6 +52,7 @@ bool Numbered(const std::string& id, const std::string& prefix,
 }
 
 bool Scene(const std::string& id) {
+  if (id == "SP_ROBIN" || id == "SP_ALFRED" || id == "SP_GORDON" || id == "SP_ORACLE" || id == "SP_FLASH") return true;
   if (id == "J4") return true;
   if (Numbered(id, "N", 1, 34)) return true;
   if (id.size() == 8 && id.substr(3) == ":exit" &&
@@ -121,6 +122,10 @@ bool Valid(const NarrativeSnapshot& s) {
       s.durableFacts.count("joe_verified_batman_record") ||
       s.durableFacts.count("joe_directly_witnessed_thomas_death"))) return false;
   if (difficulty != 3 && s.inspectedAudio.count("AUD07")) return false;
+  if (difficulty != 3 && (s.seenScenes.count("SP_ROBIN") || s.activeScene == "SP_ROBIN")) return false;
+  if ((s.activeScene == "N33" || s.seenScenes.count("N33")) &&
+      !((difficulty == 0 && s.joeEscaped && s.durableFacts.count("rare_confrontation")) ||
+        (difficulty == 3 && !s.joeEscaped && s.durableFacts.count("rare_destruction")))) return false;
   if (!s.joeEscaped) {
     for (const auto& id : {"N28:exit", "N29:exit", "N30:exit", "N31:exit"})
       if (s.activeScene == id || s.seenScenes.count(id)) return false;

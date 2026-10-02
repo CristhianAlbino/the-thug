@@ -144,10 +144,12 @@ CompanionResult CampaignCore::ApplyCompanion(const CompanionCommand& a,const Com
   const auto signature=detail::Signature(a);const auto receipt=state_->receipts.find(a.eventId);
   if(receipt!=state_->receipts.end())return {receipt->second==signature?Status::AlreadyApplied:Status::Conflict};
   if(Paused())return {Status::Paused};
+  if(state_->special.phase==SpecialPhase::Collapsing ||
+     (state_->special.phase==SpecialPhase::Confronting && Now()>=state_->special.boundaryAt))return {Status::AwaitingPhysics};
   if(a.atSeconds!=Now())return {Status::InvalidTime};
   if(!a.physicallyVerified||!CompanionContextValid(a,c))return {Status::InvalidAction};
   if(Ending()!=rules::Ending::None&&a.kind!=CompanionOp::Outcome&&a.kind!=CompanionOp::Cancel)return {Status::Finished};
-  if(state_->receipts.size()+detail::CombatReservedReceipts(state_->combat)>=detail::MaxReceipts)return {Status::LogFull};
+  if(state_->receipts.size()+detail::CombatReservedReceipts(state_->combat) + detail::SpecialReservedReceipts(state_->special)>=detail::MaxReceipts)return {Status::LogFull};
   auto next=std::make_unique<State>(*state_);
   const auto result=ExecuteCompanion(*next,a,c);
   if(result.status!=Status::Applied)return result;

@@ -137,6 +137,26 @@ def generate():
         assert trigger["node"] in nodes or trigger["node"] == "*"
         lines.append(f'd.triggers.push_back({{{quote(trigger["id"])}, {quote(trigger["node"])}, '
                      f'{event(trigger)}, {requirements(trigger)}}});')
+    if "finale" in authored:
+        f = authored["finale"]
+        assert all(f[k] in nodes for k in ("confrontation_node", "confrontation_exit", "detonator_node", "collapse_shelter"))
+        assert len(f["sites"]) >= 3 and len({s["node"] for s in f["sites"]}) == len(f["sites"])
+        lines += ["d.finale = FinaleDefinition{};", "auto& f = *d.finale;"]
+        for key, member in (("confrontation_node","confrontationNode"),("confrontation_exit","confrontationExit"),("detonator_node","detonatorNode"),("collapse_shelter","collapseShelter")):
+            lines.append(f'f.{member} = {quote(f[key])};')
+        for key, member in (("confrontation_seconds","confrontationSeconds"),("opportunity_seconds","opportunitySeconds"),("plant_seconds","plantSeconds"),("collapse_seconds","collapseSeconds"),("minimum_companions","minimumCompanions"),("minimum_trust","minimumTrust")):
+            lines.append(f'f.{member} = {f[key]};')
+        for site in f["sites"]:
+            assert site["node"] in nodes
+            add_object(site["id"], "rare_site", "empty")
+            lines.append(f'f.sites.push_back({{{quote(site["id"])}, {quote(site["node"])}}});')
+        for supply in f["supplies"]:
+            assert supply["node"] in nodes and supply["item"] in items and positive(supply["quantity"])
+            add_object(supply["id"], "rare_supply", "available")
+            lines.append(f'f.supplies.push_back({{{quote(supply["id"])}, {quote(supply["node"])}, {quote(supply["item"])}, {supply["quantity"]}}});')
+    for a in authored.get("appearances", []):
+        assert a["node"] in nodes
+        lines.append('d.appearances.push_back({' + ', '.join(quote(a[k]) for k in ("id","node","block")) + f', {a["modes"]}, {a["minimum_act"]}, {a["tickets"]}' + '});')
     lines += ["return d;", "}", "} // namespace thug::campaign::data", ""]
     return "\n".join(lines)
 

@@ -39,7 +39,7 @@ Registro atual: [Decisões abertas](../Decisions/DECISOES_ABERTAS.md).
 - [x] Escritor P04: runtime v5, temporário validado, sincronização, backup/recuperação explícita e bloqueio de slot. Ensaios de falha/interrupção de processo em POSIX/Windows; política de disparo e atores requerem integração.
 - [x] P02/P06 primeira execução: recursos/ferimentos individuais, seis objetivos, reservas, chegada/conclusão, cancelamento e retomada. [Contrato](../../04_TECHNICAL/Architecture/CONTRATO_EXECUCAO_COMPANHEIROS_V1.md).
 - [x] Primeiro ciclo P07: recarga/disparo, consumíveis reservados, arremessos/fusíveis, fumaça, impactos e respiração/oxigênio no runtime v5. [Contrato](../../04_TECHNICAL/Architecture/CONTRATO_COMBATE_RESPIRACAO_V1.md); física/atuação/armas dos NPCs/calibração permanecem abertas.
-- [ ] P08: finais raros e participações especiais com resultado/save/epílogo próprios.
+- [x] Primeiro ciclo P08: finais raros com resultado/save/epílogo próprios, preparação/custos/provas e participações pontuais. [Contrato](../../04_TECHNICAL/Architecture/CONTRATO_FINAIS_PARTICIPACOES_V1.md); física estrutural, atuação e IA dos convidados continuam abertas.
 - [ ] P02/P06 extensões: cooperação, planos adicionais, emoções temporais e manipulação; extensões P05/P07 conforme a revisão de escopo.
 - [ ] Validação do resultado com Cristhian, encenação, valores e interface; a [revisão técnica v1](../Reviews/REVISAO_PRE_UNREAL_V1.md) lista evidências e decisões pendentes.
 - [ ] Produção/gravação de áudio e seleção/criação de assets finais **depois** da revisão geral.

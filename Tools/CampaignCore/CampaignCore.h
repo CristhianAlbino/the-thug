@@ -6,6 +6,7 @@
 #include "CompanionRuntime.h"
 #include "HunterRuntime.h"
 #include "CombatRuntime.h"
+#include "SpecialRuntime.h"
 
 #include <cstdint>
 #include <iosfwd>
@@ -113,6 +114,8 @@ class CampaignCore {
   BreathingEffects Breathing() const;
   std::optional<perception::SoundEvent> BreathingSound(hunter::Vec3 actualSource) const;
   bool SmokeOccludes(hunter::Vec3 from, hunter::Vec3 to) const;
+  Status ApplySpecial(const SpecialCommand&, const SpecialContext&);
+  SpecialRuntimeSnapshot SpecialRuntime() const;
   // Observation must describe the current clock/act/difficulty and actual
   // physical context. Presentation ACK confirms a heard line/completed gesture.
   ActionResult ApplyNarrative(const Action&, const director::Observation&);
@@ -135,7 +138,7 @@ class CampaignCore {
   std::string HidingPlace() const;
   std::size_t AppliedActionCount() const;
 
-  // Runtime v5 adds weapon/throw/breath state to individual bodies and Hunter tactics
+  // Runtime v6 adds rare endings/appearances to combat, individual bodies and Hunter tactics
   // around StorySave. Legacy core/story files require an explicit migration.
   save::Result Save(std::ostream&) const;
   save::Result Load(std::istream&);
@@ -180,6 +183,11 @@ class CampaignCore {
   void ReconcileCombat(State&) const;
   void WriteCombat(std::ostream&, const State&) const;
   bool ReadCombat(std::istream&, State&) const;
+  bool SpecialStaticValid(const SpecialCommand&) const;
+  bool SpecialCoherent(const State&) const;
+  Status ExecuteSpecial(State&, const SpecialCommand&, const SpecialContext&);
+  void WriteSpecial(std::ostream&, const State&) const;
+  bool ReadSpecial(std::istream&, State&) const;
 };
 
 } // namespace thug::campaign

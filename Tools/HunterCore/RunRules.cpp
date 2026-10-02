@@ -107,6 +107,14 @@ bool RunRules::Apply(Event event, double atSeconds) {
   case Event::JoeDied:
     result_ = Ending::Died;
     return true;
+  case Event::CoordinatedEscapeConfirmed:
+    if (difficulty_ != Difficulty::Easy) return false;
+    result_ = Ending::CoordinatedEscape;
+    return true;
+  case Event::CollapseSurvivalConfirmed:
+    if (difficulty_ != Difficulty::Punitive) return false;
+    result_ = Ending::BitterDestruction;
+    return true;
   }
   return false;
 }
@@ -140,7 +148,7 @@ RunSnapshot RunRules::CaptureSnapshot() const {
 
 bool RunRules::RestoreSnapshot(const RunSnapshot& s) {
   if (s.difficulty != difficulty_ ||
-      s.result < Ending::None || s.result > Ending::Died ||
+      s.result < Ending::None || s.result > Ending::BitterDestruction ||
       !std::isfinite(s.nowSeconds) || s.nowSeconds < 0 ||
       (s.helicopterDeadline &&
        (!std::isfinite(*s.helicopterDeadline) ||
@@ -159,6 +167,8 @@ bool RunRules::RestoreSnapshot(const RunSnapshot& s) {
        (!s.windowUnblocked || s.windowFailed)) ||
       (s.result == Ending::SurvivedDawn &&
        difficulty_ == Difficulty::Punitive) ||
+      (s.result == Ending::CoordinatedEscape && difficulty_ != Difficulty::Easy) ||
+      (s.result == Ending::BitterDestruction && difficulty_ != Difficulty::Punitive) ||
       (s.result == Ending::None && s.helicopterDeadline &&
        s.nowSeconds > *s.helicopterDeadline && !s.roofFailed)) return false;
   nowSeconds_ = s.nowSeconds;

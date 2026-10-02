@@ -3,7 +3,7 @@
 #include "CompanionRuntime.h"
 #include <stdexcept>
 namespace thug::campaign::partydata {
-inline constexpr const char* Revision = "539be6ebc4c61b43ddff945081ab2b8165457892b1796070fbb58d95f9e7bc28";
+inline constexpr const char* Revision = "352e46cdd8fa1f52cb19ec6f0d409645c3d8f8904e680bdfce1790bbf68e0539";
 inline CompanionProfile For(rules::Difficulty mode) { switch(mode) {
 case rules::Difficulty::Easy: return {{8, 7, 7}, {{{{"treatment", 1}}, {}, {}}}};
 case rules::Difficulty::Normal: return {{7, 6, 6}, {{{}, {}, {}}}};

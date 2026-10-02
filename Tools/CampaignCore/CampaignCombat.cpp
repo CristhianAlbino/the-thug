@@ -76,7 +76,7 @@ bool CampaignCore::TrackThrown(std::uint64_t serial, const std::string& node,
   return true;
 }
 bool CampaignCore::CombatItemAvailable(const State& s, const std::string& item, int quantity) const {
-  const int reserved = s.combat.task && s.combat.task->item == item ? 1 : 0;
+  const int reserved = (s.combat.task && s.combat.task->item == item ? 1 : 0) + (s.special.plant && item == "structural_charge" ? 1 : 0);
   return s.inventory.Quantity(item) - reserved >= quantity;
 }
 void CampaignCore::ReconcileCombat(State& s) const {
@@ -165,13 +165,15 @@ CombatResult CampaignCore::ApplyCombat(const CombatCommand& c, const CombatConte
   }
   if (Paused()) return {Status::Paused};
   if (Ending() != rules::Ending::None) return {Status::Finished};
+  if (state_->special.phase == SpecialPhase::Collapsing ||
+      (state_->special.phase == SpecialPhase::Confronting && Now() >= state_->special.boundaryAt)) return {Status::AwaitingPhysics};
   if (c.atSeconds != Now()) return {Status::InvalidTime};
   if (!context.physicallyVerified || !definition_->nodes.count(context.actualJoeNode)) return {Status::InvalidAction};
   if (!state_->hidingPlace.empty() && context.actualJoeNode != Find(definition_->hides, state_->hidingPlace)->atNode) return {Status::MissingRequirement};
   const bool worldEffect = c.kind == CombatOp::ResolveShot || c.kind == CombatOp::Detonate;
   if (!worldEffect && (c.node != context.actualJoeNode ||
       (!state_->hidingPlace.empty() && c.node != Find(definition_->hides, state_->hidingPlace)->atNode))) return {Status::MissingRequirement};
-  std::size_t reserved = detail::CombatReservedReceipts(state_->combat);
+  std::size_t reserved = detail::CombatReservedReceipts(state_->combat) + detail::SpecialReservedReceipts(state_->special);
   if (c.kind == CombatOp::BeginReload) ++reserved;
   if (c.kind == CombatOp::BeginThrow) reserved += 2;
   const auto& task = state_->combat.task;
