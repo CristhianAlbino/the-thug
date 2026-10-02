@@ -56,6 +56,7 @@ bool CampaignCore::NarrativeCoherent(const State& s) const {
   std::set<int> sceneConfirmed, banterConfirmed;
   for (const auto& [id, signature] : s.receipts) {
     (void)id;
+    if (signature.rfind("H ", 0) == 0) continue;
     if (signature.rfind("C ", 0) == 0) {
       CompanionCommand c;
       if (!detail::ParseCompanion(signature, c)) return false;

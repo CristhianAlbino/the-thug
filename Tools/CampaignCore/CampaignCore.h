@@ -4,6 +4,7 @@
 #include "../SaveCore/StorySave.h"
 #include "../DirectorCore/DirectorCore.h"
 #include "CompanionRuntime.h"
+#include "HunterRuntime.h"
 
 #include <cstdint>
 #include <iosfwd>
@@ -56,6 +57,13 @@ struct CompanionResult {
   std::optional<CompanionSignal> actorSignal{};
 };
 
+struct HunterResult {
+  Status status;
+  std::optional<HunterTask> task{};
+  std::optional<world::WorldSignal> signal{};
+  std::optional<bool> inspectedHideOccupied{};
+};
+
 // Sole mutable owner of the pure campaign. All public views are value copies;
 // successful commands swap a fully staged state, rejected commands swap none.
 // Single simulation thread. This is not an Unreal actor/navigation controller.
@@ -81,6 +89,11 @@ class CampaignCore {
   std::vector<CompanionOffer> CompanionOffers(const std::string& actor, const std::string& actualNode, const CompanionContext&) const;
   CompanionRuntimeSnapshot CompanionRuntime(companion::Character person) const;
   std::set<std::string> JoeKnownRoutes() const;
+  // Frequent identity/LOS sensor updates use bounded memory, not action receipts.
+  bool SenseHunter(const HunterCommand&, const HunterContext&);
+  HunterResult ApplyHunter(const HunterCommand&, const HunterContext&);
+  std::vector<HunterOffer> HunterOffers(const HunterContext&) const;
+  HunterRuntimeSnapshot HunterRuntime() const;
   // Observation must describe the current clock/act/difficulty and actual
   // physical context. Presentation ACK confirms a heard line/completed gesture.
   ActionResult ApplyNarrative(const Action&, const director::Observation&);
@@ -103,7 +116,7 @@ class CampaignCore {
   std::string HidingPlace() const;
   std::size_t AppliedActionCount() const;
 
-  // Runtime v3 includes individual bodies, inventories, knowledge and pending tasks
+  // Runtime v4 includes individual bodies and Hunter memory, policy RNG and pending tasks
   // around StorySave. Legacy core/story files require an explicit migration.
   save::Result Save(std::ostream&) const;
   save::Result Load(std::istream&);
@@ -131,6 +144,13 @@ class CampaignCore {
   std::vector<CompanionOffer> Offers(const State&, const std::string&, const std::string&, const CompanionContext&) const;
   CompanionResult ExecuteCompanion(State&, const CompanionCommand&, const CompanionContext&);
   void AdvanceCompanions(State&, double, const std::map<std::string, survival::Activity>&);
+  bool HunterStaticValid(const HunterCommand&) const;
+  bool HunterCoherent(const State&) const;
+  std::vector<HunterOffer> HunterOffers(const State&, const HunterContext&) const;
+  HunterResult ExecuteHunter(State&, const HunterCommand&, const HunterContext&);
+  void AdvanceHunter(State&, double) const;
+  void WriteHunter(std::ostream&, const State&) const;
+  bool ReadHunter(std::istream&, State&) const;
   void WriteCompanions(std::ostream&, const State&) const;
   bool ReadCompanions(std::istream&, State&) const;
 };

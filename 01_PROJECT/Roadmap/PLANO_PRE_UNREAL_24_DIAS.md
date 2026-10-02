@@ -35,7 +35,8 @@ Registro atual: [Decisões abertas](../Decisions/DECISOES_ABERTAS.md).
 - [x] Revisão técnica/criativa desta versão: [resultado sem spoilers e pendências de implementação](../Reviews/REVISAO_GERAL_2026_10_01.md); correções de código/texto realizadas. A etapa não encerra os sistemas que ainda são apenas especificados.
 - [x] CampaignCore pós-revisão: relógio/pausa/perfis autorados, transações de Joe/mundo e checkpoint com recibos. Entrega P01 e cobertura inicial P02. [Contrato de coordenação](../../04_TECHNICAL/Architecture/CONTRATO_COORDENADOR_CAMPANHA_V1.md).
 - [x] Núcleo P03: DirectorCore C++/textos condicionais pt-BR, confirmação por fala/gesto, retomada, diário/epílogo e paridade de regras com Python. Apresentação física e idiomas adicionais ainda pendentes.
-- [x] Escritor P04: runtime v3, temporário validado, sincronização, backup/recuperação explícita e bloqueio de slot. Ensaios de falha/interrupção de processo em POSIX/Windows; política de disparo e atores requerem integração.
+- [x] Primeiro ciclo P05: percepção de indivíduos, agressividade, busca/emboscada e ambiente, com trajetória/aviso/reação e persistência no runtime v4. Interrogação/combate/armadilhas encadeadas e ponte física seguem abertos.
+- [x] Escritor P04: runtime v4, temporário validado, sincronização, backup/recuperação explícita e bloqueio de slot. Ensaios de falha/interrupção de processo em POSIX/Windows; política de disparo e atores requerem integração.
 - [x] P02/P06 primeira execução: recursos/ferimentos individuais, seis objetivos, reservas, chegada/conclusão, cancelamento e retomada. [Contrato](../../04_TECHNICAL/Architecture/CONTRATO_EXECUCAO_COMPANHEIROS_V1.md).
 - [ ] P02/P06 extensões: cooperação, planos adicionais, emoções temporais e manipulação; P05/P07/P08 conforme a revisão de escopo.
 - [ ] Validação do resultado com Cristhian, encenação, valores e interface; a [revisão técnica v1](../Reviews/REVISAO_PRE_UNREAL_V1.md) lista evidências e decisões pendentes.

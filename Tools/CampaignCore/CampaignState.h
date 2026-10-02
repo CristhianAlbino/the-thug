@@ -6,6 +6,7 @@
 #include "CompanionData.generated.h"
 #include "CompanionBody.h"
 #include <tuple>
+#include <random>
 #include <utility>
 
 namespace thug::campaign {
@@ -20,6 +21,7 @@ struct CampaignCore::State {
         hunter(static_cast<hunter::Difficulty>(difficulty), seed + 4), routes(difficulty),
         survival(tuning), hearing({}, seed + 5), world(world.levelId, world.objects),
         narrative(difficulty) {
+    hunterRandom.seed(seed + 6);
     for (const auto& [id, count] : profile.loadout)
       if (!inventory.Add(id, count)) throw std::logic_error("Invalid authored loadout");
     const auto party = partydata::For(difficulty);
@@ -74,7 +76,16 @@ struct CampaignCore::State {
     const auto ending = routes.Result();
     story.joeEscaped = ending == rules::Ending::GarageEscape || ending == rules::Ending::RoofEscape ||
                        ending == rules::Ending::TunnelEscape || ending == rules::Ending::WindowEscape;
+    for (auto& [actor, track] : hunterRuntime.actors) if (actor != "joe") {
+      const auto& outcome = story.outcomes.at(actor);
+      if (outcome.dead || outcome.captured || outcome.escapedAlone || outcome.together) {
+        track.visible = false;
+        if (hunterRuntime.task && hunterRuntime.task->goal == HunterGoal::Pursue && hunterRuntime.task->target == actor) hunterRuntime.task.reset();
+      }
+    }
     if (ending != rules::Ending::None) {
+      hunterRuntime.task.reset();
+      hunterRuntime.watchingDoor.clear();
       for (auto& [name, body] : bodies) { (void)name; body.Stop(TaskStop::CampaignEnded); }
       if (story.activeScene != "N32" && story.activeScene.find(":exit") == std::string::npos)
         director::CancelScene(story, presentation);
@@ -87,6 +98,8 @@ struct CampaignCore::State {
   survival::Inventory inventory;
   companion::CompanionCore harley, bartholomeu, jack;
   hunter::HunterCore hunter;
+  HunterRuntimeSnapshot hunterRuntime;
+  std::mt19937_64 hunterRandom;
   rules::RunRules routes;
   survival::SurvivalCore survival;
   perception::PerceptionCore hearing;
