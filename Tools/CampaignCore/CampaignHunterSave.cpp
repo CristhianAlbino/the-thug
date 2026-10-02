@@ -130,7 +130,7 @@ bool CampaignCore::HunterCoherent(const State& s)const{
       for(const auto& h:definition_->hides)if(h.id==plan.target&&h.atNode==plan.destination)valid=true;
       if(!valid)return false;
       break;
-      } case HunterGoal::WatchPassage:case HunterGoal::CloseDoor:case HunterGoal::OpenDoor:{bool valid=false;
+      } case HunterGoal::BreakWedge:case HunterGoal::WatchPassage:case HunterGoal::CloseDoor:case HunterGoal::OpenDoor:{bool valid=false;
       for(const auto& d:definition_->doors)if(d.id==plan.target&&(d.fromNode==plan.destination||d.toNode==plan.destination))valid=true;
       if(!valid)return false;
       break;
@@ -154,7 +154,8 @@ bool CampaignCore::HunterCoherent(const State& s)const{
       if(terminal||c.target!=plan.target||c.atSeconds<plan.startedAt)return false;
       terminal=true;
       if(c.kind==HunterOp::Complete){
-        const double delay=plan.goal>=HunterGoal::InspectHide&&plan.goal<=HunterGoal::DisableCamera?profile.reactionSeconds:0;
+        double delay=(plan.goal>=HunterGoal::InspectHide&&plan.goal<=HunterGoal::DisableCamera)||plan.goal==HunterGoal::BreakWedge?profile.reactionSeconds:0;
+        if(plan.goal==HunterGoal::BreakWedge){bool bound=false;for(const auto& w:definition_->wedges)if(w.id==plan.target){delay+=w.resistanceSeconds;bound=true;}if(!bound)return false;}
         if(!arrived||c.node!=plan.destination||c.atSeconds-at<delay)return false;
         if(plan.goal==HunterGoal::Investigate||plan.goal==HunterGoal::InspectHide)searched[plan.target]=std::max(searched[plan.target],c.atSeconds);
         if(plan.goal==HunterGoal::WatchPassage&&c.atSeconds>=lastAmbush){

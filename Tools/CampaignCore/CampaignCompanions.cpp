@@ -74,9 +74,9 @@ bool CampaignCore::CompanionStaticValid(const CompanionCommand& a) const {
     case CompanionOp::ObserveHide:case CompanionOp::LeaveHide:return Find(definition_->hides,a.target);
     case CompanionOp::ObserveRoute:return bool(detail::Route(a.target))&&RouteObservation(a.target,a.node);
     case CompanionOp::ChooseTask:return a.target=="auto";
-    case CompanionOp::BeginTask:return a.argument>=0&&a.argument<=static_cast<int>(companion::Goal::UseJoeAsDistraction);
+    case CompanionOp::BeginTask:return a.argument>=0&&a.argument<=static_cast<int>(companion::Goal::InspectSignaledArea);
     case CompanionOp::Arrive:case CompanionOp::Cancel:return true;
-    case CompanionOp::Complete:return a.argument>=0&&a.argument<=static_cast<int>(companion::Goal::UseJoeAsDistraction);
+    case CompanionOp::Complete:return a.argument>=0&&a.argument<=static_cast<int>(companion::Goal::InspectSignaledArea);
     case CompanionOp::Transfer:return (a.target=="joe"||detail::Person(a.target))&&a.target!=a.actor&&a.quantity>0&&a.quantity<=100&&detail::Token(a.item)&&
       [&]{for(const auto& item:data::Items())if(item.id==a.item)return true;return false;}();
     case CompanionOp::Treat:case CompanionOp::Stabilize:return (a.target=="joe"||detail::Person(a.target))&&state_->inventory.IsCategory(a.item,survival::ItemCategory::Medical);
@@ -129,7 +129,15 @@ std::vector<CompanionOffer> CampaignCore::Offers(const State& s,const std::strin
       case companion::Goal::ShareRoute:if(reachJoe&&option.routeId)offers.push_back({option.goal,option.weight,*option.routeId,joe->second.node,{}});break;
       case companion::Goal::EscapeAlone:if(!exit.empty())offers.push_back({option.goal,option.weight,exit,detail::ExitNode(exit),{}});break;
       case companion::Goal::UseJoeAsDistraction:if(reachJoe)offers.push_back({option.goal,option.weight,"joe",joe->second.node,{}});break;
+      case companion::Goal::FollowSignal:case companion::Goal::InspectSignaledArea:break;
     }
+  }
+  const auto order=s.interactions.orders.find(actor);
+  const auto& traits=s.Person(*detail::Person(actor)).CurrentTraits();
+  if(order!=s.interactions.orders.end()&&!order->second.fulfilled&&order->second.expiresAt>s.world.NowSeconds()&&
+      c.reachableNodes.count(order->second.destination)&&traits.trust>=(c.inDanger?55:35)&&traits.fear+traits.stress<175){
+    const auto goal=order->second.kind==SignalKind::Call?companion::Goal::FollowSignal:companion::Goal::InspectSignaledArea;
+    offers.push_back({goal,1+traits.trust/25,order->second.eventId,order->second.destination,{}});
   }
   return offers;
 }
@@ -229,6 +237,12 @@ CompanionResult CampaignCore::ExecuteCompanion(State& s,const CompanionCommand& 
           if(std::none_of(options.begin(),options.end(),[](const auto& o){return o.goal==companion::Goal::UseJoeAsDistraction;}))return denied;
           if(c.joeWitnessedAction&&a.actor=="bartholomeu"){story.durableFacts.insert("barth_betrayal_executed");if(!s.narrative.RestoreSnapshot(story))return denied;}
           result.actorSignal=CompanionSignal{a.actor,a.node,perception::SoundKind::Distraction,c.actualSourceMeters,a.atSeconds};break;}
+        case companion::Goal::FollowSignal:case companion::Goal::InspectSignaledArea:{
+          const auto order=s.interactions.orders.find(a.actor);
+          if(order==s.interactions.orders.end()||order->second.eventId!=task.target||order->second.fulfilled||
+              order->second.expiresAt<=a.atSeconds||order->second.destination!=a.node||
+              (task.goal==companion::Goal::FollowSignal&&!Present(c,"joe",a.node)))return denied;
+          order->second.fulfilled=true;break;}
       }
       body->Stop(TaskStop::Completed);break;
     }
@@ -296,6 +310,17 @@ void CampaignCore::AdvanceCompanions(State& s,double elapsed,const std::map<std:
     const auto before=body.survival.CaptureSnapshot();double dt=elapsed;bool fatal=false;
     if(before.bleeding){const double remaining=(before.tuning.fatalBloodLoss-before.bloodLoss)/before.tuning.bleedingPerSecond;if(remaining<=dt){dt=remaining;fatal=true;}}
     const auto activity=activities.find(name);const auto result=body.survival.Advance(dt,activity==activities.end()?survival::Activity::Rest:activity->second);
+    // Temporary pressure settles only during rest, after the last genuinely
+    // perceived threat. Durable trust/loyalty and private route knowledge stay.
+    const auto threat=s.interactions.threatUntil.find(name);
+    const double calm=std::max(0.0,s.world.NowSeconds()-std::max(s.world.NowSeconds()-elapsed,threat==s.interactions.threatUntil.end()?0:threat->second));
+    if((activity==activities.end()||activity->second==survival::Activity::Rest)&&calm>0){
+      auto person=s.Person(*detail::Person(name)).CaptureSnapshot();
+      const auto& baseline=s.profile.companions[static_cast<int>(*detail::Person(name))];
+      person.traits.fear-=std::min(std::max(0.0,person.traits.fear-baseline.fear),calm*.08);
+      person.traits.stress-=std::min(std::max(0.0,person.traits.stress-baseline.stress),calm*.12);
+      if(!s.Person(*detail::Person(name)).RestoreSnapshot(person))throw std::logic_error("Invalid emotional recovery");
+    }
     if(fatal&&!result.becameDead)ForceFatal(body.survival);
     s.Person(*detail::Person(name)).SetInjured(body.survival.CurrentInjury()!=survival::Injury::None,s.world.NowSeconds());
     if(body.survival.CurrentEffects().dead){story.outcomes.at(name).dead=true;story.outcomes.at(name).lastContactNode=body.lastNode;body.Stop(TaskStop::Outcome);}

@@ -2,7 +2,7 @@
 
 ## Engine-independent implementation status
 
-CampaignCore now provides the shared session and initial Joe/world transactions. DirectorCore provides native conditional text and confirmed presentation; checkpoint files provide validated disk writes and explicit backup recovery. See the [current review and P01–P10 status](../Reviews/REVISAO_GERAL_2026_10_01.md). Rare endings now have authored preparation, physical resolution, individual consequences and corresponding results/epilogues; special appearances are witnessed optional episodes in runtime v6. Next: extended companion cooperation/plans/emotions/manipulation, remaining Hunter/combat work and creative/human review. Editor milestones below still require a real Unreal project and physical integration.
+CampaignCore provides the shared session, native transactions, conditional director and validated checkpoint files. Rare endings/appearances and the five approved interaction extensions are now in runtime v7: perceived signals and refusals, eight companion goals, personal gestures, recoverable wedges and Hunter break, optional night variations and Joe's witnessed record. Temporary emotional pressure can settle after perceived danger. See the [current review](../Reviews/REVISAO_GERAL_2026_10_01.md) and [interaction contract](../../04_TECHNICAL/Architecture/CONTRATO_INTERACOES_REGISTRO_V1.md). Next: timed joint actions, dropped inventory, lies/manipulation, capture/interrogation, remaining combat work and creative/human review. [Rescue in the dark](../../02_GAME_DESIGN/Narrative/IDEIA_RESGATE_NO_ESCURO_RASCUNHO.md) is a new design proposal, not an implemented encounter. Editor milestones still require a real Unreal project and physical integration.
 
 ## M00 — Pre-Production
 - Consolidate GDD

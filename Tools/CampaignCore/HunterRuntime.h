@@ -12,7 +12,7 @@ namespace thug::campaign {
 inline constexpr const char* HunterRuntimeRevision = "hunter-tactics-1";
 enum class HunterOp { SeeActor, LoseActor, Pressure, NoticePassage, Choose, Arrive, Complete, Cancel };
 enum class HunterPressure { Gunshot, Explosion, Destruction, ConfirmedEscape };
-enum class HunterGoal { Pursue, Investigate, InspectHide, WatchPassage, CloseDoor, OpenDoor, PowerOff, DisableCamera, Patrol };
+enum class HunterGoal { Pursue, Investigate, InspectHide, WatchPassage, CloseDoor, OpenDoor, PowerOff, DisableCamera, Patrol, BreakWedge };
 struct HunterTuning {
   double visualLease, aggressionDecay, reactionSeconds, ambushCooldown, watchSeconds;
   double environmentThreshold, ambushWeight;

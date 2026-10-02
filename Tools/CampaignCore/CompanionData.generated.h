@@ -3,7 +3,7 @@
 #include "CompanionRuntime.h"
 #include <stdexcept>
 namespace thug::campaign::partydata {
-inline constexpr const char* Revision = "352e46cdd8fa1f52cb19ec6f0d409645c3d8f8904e680bdfce1790bbf68e0539";
+inline constexpr const char* Revision = "0d0c075452c72d212747f9faa803b7ba76fd20f3401d71229ddaad39a728b162";
 inline CompanionProfile For(rules::Difficulty mode) { switch(mode) {
 case rules::Difficulty::Easy: return {{8, 7, 7}, {{{{"treatment", 1}}, {}, {}}}};
 case rules::Difficulty::Normal: return {{7, 6, 6}, {{{}, {}, {}}}};
@@ -11,6 +11,6 @@ case rules::Difficulty::Hard: return {{6, 5, 5}, {{{}, {}, {}}}};
 case rules::Difficulty::Punitive: return {{5, 4, 4}, {{{}, {}, {}}}};
 default: throw std::invalid_argument("Unknown companion difficulty");
 }}
-inline constexpr std::array<double, 6> InteractionSeconds = {1, 1, 3, 1, 0, 1};
+inline constexpr std::array<double, 8> InteractionSeconds = {1, 1, 3, 1, 0, 1, 1, 1};
 inline constexpr std::array<companion::Influence, 3> MedicalHelp = {{{10, -5, -8, 5, 0, 8, 0}, {12, -8, -10, 6, 0, 4, 0}, {5, 0, -4, 2, 0, 1, 0}}};
 }

@@ -5,7 +5,7 @@
 #include <array>
 #include <stdexcept>
 namespace thug::campaign::data {
-inline constexpr const char* Revision = "2edf0d0579d5277cf7c817714352a8f44440a8d70882a124a6f750741a569804";
+inline constexpr const char* Revision = "52cc4af2fcc63d9beb4a0e943f49b51b67c923cb8506c8ef375543e311e8350a";
 struct Profile { int capacity; std::optional<double> dawnSeconds;
   std::array<companion::Traits, 3> companions; std::map<std::string, int> loadout; };
 inline std::vector<survival::ItemDefinition> Items() { return {
@@ -273,6 +273,12 @@ d.appearances.push_back({"alfred", "F2_CAMERAS", "SP_ALFRED", 15, 3, 1000});
 d.appearances.push_back({"gordon", "F1_LOBBY", "SP_GORDON", 15, 3, 1000});
 d.appearances.push_back({"oracle", "F2_SECURITY", "SP_ORACLE", 15, 3, 1000});
 d.appearances.push_back({"flash", "R_LEDGE", "SP_FLASH", 15, 4, 1});
+d.wedges.push_back({"D_F4_NURSE", "window_tool", 6});
+d.wedges.push_back({"D_F2_SUPPLY", "window_tool", 6});
+d.wedges.push_back({"D_F1_RADIO_E", "window_tool", 6});
+d.variations.push_back({"V_TRIAGE", "F1_TRIAGE", "harley", {"Uma bandeja solta bate na maca.", "Uma roda de cadeira chia no corredor.", "Um copo de metal rola sob a bancada."}, {"Respira, Joe. Um passo de cada vez.", "Se encontrar o Barth, traz ele pra perto.", "T\u00e1 ouvindo? Melhor a gente baixar a voz."}});
+d.variations.push_back({"V_SERVICE", "F2_SERVICE", "bartholomeu", {"Uma tubula\u00e7\u00e3o estala atr\u00e1s da parede.", "Um carrinho vazio encosta na grade.", "Uma placa frouxa vibra no duto."}, {"Eu t\u00f4 com medo, Joe. Mas ainda t\u00f4 aqui.", "Minha m\u00e3o n\u00e3o para de tremer. Me d\u00e1 um segundo.", "Se voc\u00ea ficar de olho, eu consigo procurar aqui."}});
+d.variations.push_back({"V_LOADING", "F1_LOADING", "jack", {"Uma corrente bate no port\u00e3o.", "Uma lata vazia desliza pelo piso.", "A chapa de uma porta vibra com o vento."}, {"Tem algu\u00e9m a\u00ed? S\u00f3 t\u00f4 conferindo.", "Eu at\u00e9 esperava voc\u00eas. At\u00e9.", "Se a gente sair daqui, eu vou rir disso. Depois."}});
 return d;
 }
 } // namespace thug::campaign::data

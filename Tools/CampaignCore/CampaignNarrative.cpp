@@ -57,6 +57,7 @@ bool CampaignCore::NarrativeCoherent(const State& s) const {
   std::set<int> sceneConfirmed, banterConfirmed;
   for (const auto& [id, signature] : s.receipts) {
     (void)id;
+    if (signature.rfind("I ", 0) == 0) continue;
     if (signature.rfind("S ", 0) == 0) continue;
     if (signature.rfind("H ", 0) == 0) continue;
     if (signature.rfind("W ", 0) == 0) continue; // Combat ledger is validated independently.
@@ -163,6 +164,14 @@ director::Observation CampaignCore::NarrativeContext(const director::Observation
   return o;
 }
 
+bool CampaignCore::QuietBanter(const State& s, const std::string& id) const {
+  const auto block = director::Content().banter.find(id);
+  if (block != director::Content().banter.end()) for (const auto& name : block->second.actors) {
+    const auto quiet = s.interactions.quietUntil.find(name);
+    if (quiet != s.interactions.quietUntil.end() && quiet->second > s.world.NowSeconds()) return true;
+  }
+  return false;
+}
 ActionResult CampaignCore::ApplyNarrative(const Action& a, const director::Observation& input) {
   if (!NarrativeStaticValid(a)) return {Status::InvalidAction, {}};
   const auto signature = detail::Signature(a);
@@ -185,11 +194,13 @@ ActionResult CampaignCore::ApplyNarrative(const Action& a, const director::Obser
   switch (a.kind) {
     case ActionKind::BeginScene:
       accepted = director::BeginScene(a.target, context, story, next->presentation); break;
-    case ActionKind::BeginBanter: accepted = director::BeginBanter(a.target, context, story, next->presentation); break;
+    case ActionKind::BeginBanter: {
+      accepted = !QuietBanter(*next, a.target) && director::BeginBanter(a.target, context, story, next->presentation); break;
+    }
     case ActionKind::SceneCue: case ActionKind::BanterCue: {
       const auto current = director::Current(context, story, next->presentation);
       const bool main = a.kind == ActionKind::SceneCue;
-      accepted = current && (main ? !story.activeScene.empty() : story.activeScene.empty()) &&
+      accepted = (main || !QuietBanter(*next, story.activeBanter)) && current && (main ? !story.activeScene.empty() : story.activeScene.empty()) &&
           director::Acknowledge({a.target, a.presentationSerial, a.argument, director::Content().cues.at(a.cueId)},
                                 context, story, next->presentation); break;
     }
@@ -227,6 +238,8 @@ ActionResult CampaignCore::ApplyNarrative(const Action& a, const director::Obser
 }
 std::optional<director::Presentation> CampaignCore::CurrentPresentation(const director::Observation& o, const std::string& locale) const {
   if (Paused() || !ValidObservation(o)) return std::nullopt;
+  const auto story = state_->narrative.CaptureSnapshot();
+  if (story.activeScene.empty() && QuietBanter(*state_, story.activeBanter)) return std::nullopt;
   return director::Current(NarrativeContext(o, *state_), state_->narrative.CaptureSnapshot(), state_->presentation, locale);
 }
 std::vector<director::Cue> CampaignCore::JournalText(const std::string& id, const std::string& locale) const {

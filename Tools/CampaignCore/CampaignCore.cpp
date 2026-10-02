@@ -34,7 +34,7 @@ std::string Identity(const WorldDefinition& d, const survival::Tuning& t) {
   std::ostringstream out;
   out.imbue(std::locale::classic());
   out << std::setprecision(std::numeric_limits<double>::max_digits10) << data::Revision
-      << SpecialRuntimeRevision << CombatRuntimeRevision << HunterRuntimeRevision << partydata::Revision << director::Content().revision << std::quoted(d.levelId);
+      << InteractionRuntimeRevision << SpecialRuntimeRevision << CombatRuntimeRevision << HunterRuntimeRevision << partydata::Revision << director::Content().revision << std::quoted(d.levelId);
   out << " NODES " << d.nodes.size();
   for (const auto& node : d.nodes) out << std::quoted(node);
   out << " OBJECTS " << d.objects.size();
@@ -96,6 +96,14 @@ std::string Identity(const WorldDefinition& d, const survival::Tuning& t) {
   }
   out << " APPEARANCES " << d.appearances.size();
   for (const auto& a : d.appearances) out << std::quoted(a.id) << std::quoted(a.node) << std::quoted(a.block) << ' ' << a.modes << ' ' << a.minimumAct << ' ' << a.tickets;
+  out << " WEDGES " << d.wedges.size();
+  for (const auto& w : d.wedges) out << std::quoted(w.id) << std::quoted(w.item) << ' ' << w.resistanceSeconds;
+  out << " VARIATIONS " << d.variations.size();
+  for (const auto& v : d.variations) {
+    out << std::quoted(v.id) << std::quoted(v.node) << std::quoted(v.speaker);
+    for (const auto& text : v.ambient) out << std::quoted(text);
+    for (const auto& text : v.lines) out << std::quoted(text);
+  }
   out << " TUNING " << t.maxStamina << ' ' << t.sprintDrainPerSecond << ' ' << t.restRecoveryPerSecond
       << ' ' << t.walkRecoveryFraction << ' ' << t.moderateDrainMultiplier << ' ' << t.severeDrainMultiplier
       << ' ' << t.moderateRecoveryMultiplier << ' ' << t.severeRecoveryMultiplier << ' ' << t.exhaustionReleaseFraction
@@ -134,6 +142,7 @@ void Validate(const WorldDefinition& d, save::WorldState& state, const survival:
   for (const auto& n : d.nodes) if (!detail::Token(n)) throw std::invalid_argument("Invalid node ID");
   for (const auto& door : d.doors) {
     node(door.fromNode); node(door.toNode);
+    if (state.Find(door.id) && state.Find(door.id)->stateId == "wedged") throw std::invalid_argument("Wedge needs a confirmed installation");
     if (door.power < world::DoorPower::Manual || door.power > world::DoorPower::ReleasesWithoutPower)
       throw std::invalid_argument("Unknown door power behavior");
   }
@@ -204,6 +213,22 @@ void Validate(const WorldDefinition& d, save::WorldState& state, const survival:
         a.block.rfind("SP_", 0) != 0 || block == director::Content().blocks.end() || !block->second.nodes.count(a.node) ||
         block->second.modes != a.modes || !block->second.requirements.count("appearance:" + a.id))
       throw std::invalid_argument("Invalid authored appearance");
+  }
+  if (d.wedges.size() > d.doors.size() || d.variations.size() > 32) throw std::invalid_argument("Too many optional interactions");
+  std::set<std::string> wedgeIds;
+  for (const auto& w : d.wedges) {
+    const auto* door = Find(d.doors, w.id);
+    item(w.item, 1);
+    if (!door || door->power != world::DoorPower::Manual || !wedgeIds.insert(w.id).second ||
+        !inventory.IsCategory(w.item, survival::ItemCategory::Utility) || !std::isfinite(w.resistanceSeconds) ||
+        w.resistanceSeconds < 1 || w.resistanceSeconds > 30 || state.Find(w.id)->stateId == "wedged")
+      throw std::invalid_argument("Invalid recoverable wedge");
+  }
+  for (const auto& v : d.variations) {
+    unique(v.id); node(v.node);
+    if (!Person(v.speaker) || v.ambient.size() != 3 || v.lines.size() != 3) throw std::invalid_argument("Invalid optional variation");
+    for (const auto& texts : {v.ambient, v.lines}) for (const auto& text : texts)
+      if (text.empty() || text.size() > 1000 || text.find('\n') != std::string::npos) throw std::invalid_argument("Invalid optional text");
   }
   world::WorldCore devices(state, d.doors, d.cameras, d.hides);
   (void)devices;
@@ -531,7 +556,7 @@ bool CampaignCore::Consistent(const State& s) const {
       s.harley.CaptureSnapshot().nowSeconds != now || s.bartholomeu.CaptureSnapshot().nowSeconds != now ||
       s.jack.CaptureSnapshot().nowSeconds != now || s.narrative.CaptureSnapshot().nowSeconds != now ||
       s.receipts.size() > detail::MaxReceipts || s.narrative.CaptureSnapshot().joeEscaped != escaped ||
-      !director::ValidPresentation(s.narrative.CaptureSnapshot(), s.presentation) || !NarrativeCoherent(s) || !CompanionCoherent(s) || !HunterCoherent(s) || !CombatCoherent(s) || !SpecialCoherent(s)) return false;
+      !director::ValidPresentation(s.narrative.CaptureSnapshot(), s.presentation) || !NarrativeCoherent(s) || !CompanionCoherent(s) || !HunterCoherent(s) || !CombatCoherent(s) || !SpecialCoherent(s) || !InteractionCoherent(s)) return false;
   if (!s.hidingPlace.empty()) {
     if (!Find(definition_->hides, s.hidingPlace)) return false;
     const auto* object = s.world.Find(s.hidingPlace);
@@ -546,6 +571,7 @@ bool CampaignCore::Consistent(const State& s) const {
     if (!object || !object->present || (object->stateId != u.before && object->stateId != u.after)) return false;
   }
   for (const auto& [id, signature] : s.receipts) {
+    if (signature.rfind("I ", 0) == 0) continue; // Validated by InteractionCoherent.
     if (signature.rfind("S ", 0) == 0) continue; // Validated by SpecialCoherent.
     if (signature.rfind("W ", 0) == 0) continue; // Validated by CombatCoherent.
     if (signature.rfind("H ", 0) == 0) continue; // Validated by HunterCoherent.

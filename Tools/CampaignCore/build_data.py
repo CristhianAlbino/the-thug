@@ -157,6 +157,24 @@ def generate():
     for a in authored.get("appearances", []):
         assert a["node"] in nodes
         lines.append('d.appearances.push_back({' + ', '.join(quote(a[k]) for k in ("id","node","block")) + f', {a["modes"]}, {a["minimum_act"]}, {a["tickets"]}' + '});')
+    wedge_ids = set()
+    for w in authored.get("wedges", []):
+        door = next(d for d in devices["doors"] if d["id"] == w["id"])
+        assert door["power"] == "manual" and w["id"] not in wedge_ids
+        assert w["item"] in items and items[w["item"]]["category"] == "Utility"
+        assert type(w["resistance_seconds"]) in (int, float) and 1 <= w["resistance_seconds"] <= 30
+        wedge_ids.add(w["id"])
+        lines.append(f'd.wedges.push_back({{{quote(w["id"])}, {quote(w["item"])}, {w["resistance_seconds"]}}});')
+    variation_ids = set()
+    for v in authored.get("variations", []):
+        assert v["id"] not in variation_ids and v["node"] in nodes and v["speaker"] in ("harley", "bartholomeu", "jack")
+        variation_ids.add(v["id"])
+        assert len(v["ambient"]) == len(v["lines"]) == 3
+        assert all(isinstance(t, str) and 0 < len(t) <= 1000 and "\n" not in t for t in v["ambient"] + v["lines"])
+        fields = ', '.join(quote(v[k]) for k in ("id", "node", "speaker"))
+        ambient = ', '.join(quote(t) for t in v["ambient"])
+        dialogue = ', '.join(quote(t) for t in v["lines"])
+        lines.append(f'd.variations.push_back({{{fields}, {{{ambient}}}, {{{dialogue}}}}});')
     lines += ["return d;", "}", "} // namespace thug::campaign::data", ""]
     return "\n".join(lines)
 

@@ -24,6 +24,8 @@ struct CampaignCore::State {
     hunterRandom.seed(seed + 6);
     std::mt19937_64 specialRandom(seed + 7);
     special.appearanceTicket = static_cast<unsigned>(specialRandom() % 1000);
+    std::mt19937_64 variationRandom(seed + 8);
+    interactions.variation = static_cast<unsigned>(variationRandom() % 3);
     combat.oxygen = CombatProfile(difficulty).oxygenCapacity;
     for (const auto& [id, count] : profile.loadout)
       if (!inventory.Add(id, count)) throw std::logic_error("Invalid authored loadout");
@@ -87,6 +89,8 @@ struct CampaignCore::State {
         if (hunterRuntime.task && hunterRuntime.task->goal == HunterGoal::Pursue && hunterRuntime.task->target == actor) hunterRuntime.task.reset();
       }
     }
+    for (const auto& [actor, outcome] : story.outcomes)
+      if (outcome.together) interactions.knownFates[actor] = WitnessedFate::Together;
     if (ending != rules::Ending::None) {
       special.plant.reset();
       if (special.phase == SpecialPhase::Confronting || special.phase == SpecialPhase::Opportunity || special.phase == SpecialPhase::Collapsing) { special.phase = SpecialPhase::Failed; special.boundaryAt = -1; }
@@ -125,6 +129,7 @@ struct CampaignCore::State {
   std::set<std::string> joeKnownRoutes;
   CombatRuntimeSnapshot combat;
   SpecialRuntimeSnapshot special;
+  InteractionRuntimeSnapshot interactions;
 };
 
 } // namespace thug::campaign

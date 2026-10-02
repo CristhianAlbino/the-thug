@@ -9,7 +9,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 MODES = ('Easy', 'Normal', 'Hard', 'Punitive')
 PEOPLE = ('harley', 'bartholomeu', 'jack')
-GOALS = ('StayHidden', 'SearchResources', 'HelpJoe', 'ShareRoute', 'EscapeAlone', 'UseJoeAsDistraction')
+GOALS = ('StayHidden', 'SearchResources', 'HelpJoe', 'ShareRoute', 'EscapeAlone', 'UseJoeAsDistraction', 'FollowSignal', 'InspectSignaledArea')
 FIELDS = ('trust', 'fear', 'stress', 'loyalty', 'selfPreservation', 'relationship')
 
 
@@ -42,7 +42,7 @@ def generate():
     lines += ['default: throw std::invalid_argument("Unknown companion difficulty");', '}}']
     durations = authored['interaction_seconds']
     assert set(durations) == set(GOALS) and all(type(durations[g]) in (int, float) and math.isfinite(durations[g]) and 0 <= durations[g] <= 30 for g in GOALS)
-    lines.append('inline constexpr std::array<double, 6> InteractionSeconds = {' + ', '.join(str(durations[g]) for g in GOALS) + '};')
+    lines.append('inline constexpr std::array<double, 8> InteractionSeconds = {' + ', '.join(str(durations[g]) for g in GOALS) + '};')
     influences = []
     assert set(authored['joe_medical_help']) == set(PEOPLE)
     for name in PEOPLE:

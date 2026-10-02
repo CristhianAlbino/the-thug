@@ -127,7 +127,7 @@ void Integrity(){
   bad=clean;index=bad.find("HEALTH 0 100 0 0 0 0 0",bad.find("BODY \"harley\""));bad.replace(index,22,"HEALTH 1 100 0 0 0 0 0");reject(bad);
   CampaignCore captured(rules::Difficulty::Normal);auto at=Context("jack","F4_START");Accepted(captured,Cmd(captured,CompanionOp::Outcome,"jack","outcome","F4_START",0),at);auto unsupportedFate=Bytes(captured);
   const auto receipt=unsupportedFate.find("RECEIPT ");const auto end=unsupportedFate.find('\n',receipt);unsupportedFate.erase(receipt,end-receipt+1);unsupportedFate.replace(unsupportedFate.find("RECEIPTS 1"),std::string("RECEIPTS 1").size(),"RECEIPTS 0");reject(unsupportedFate);
-  auto old=clean;old.replace(0,std::string("THE_THUG_RUNTIME_CAMPAIGN 6").size(),"THE_THUG_RUNTIME_CAMPAIGN 2");std::istringstream legacy(old);Check(c.Load(legacy)==save::Result::UnsupportedVersion,"Old runtime never silently loses individual state");
+  auto old=clean;old.replace(0,std::string("THE_THUG_RUNTIME_CAMPAIGN 7").size(),"THE_THUG_RUNTIME_CAMPAIGN 2");std::istringstream legacy(old);Check(c.Load(legacy)==save::Result::UnsupportedVersion,"Old runtime never silently loses individual state");
 }
 }
 int main(){try{ProfilesAndTransfers();TasksAndReservations();HideDamageAndAid();CollapseEndAndBodyOccupancy();KnowledgeOutcomesDevices();BetrayalAndRng();FractionalTaskDeadline();Integrity();std::cout<<"CampaignCompanions: "<<checks<<" checks passed\n";return 0;}catch(const std::exception& e){std::cerr<<"After "<<checks<<" checks: "<<e.what()<<'\n';return 1;}}

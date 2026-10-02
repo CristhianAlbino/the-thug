@@ -80,6 +80,11 @@ struct AppearanceDefinition {
   unsigned tickets = 1000; // Out of 1000; Flash is an optional rare reference.
 };
 
+struct WedgeDefinition { std::string id, item; double resistanceSeconds = 6; };
+struct VariationDefinition {
+  std::string id, node, speaker;
+  std::vector<std::string> ambient, lines; // Exactly three optional variants.
+};
 struct WorldDefinition {
   std::string levelId;
   std::set<std::string> nodes;
@@ -95,6 +100,8 @@ struct WorldDefinition {
   std::vector<DestructibleDefinition> destructibles;
   std::optional<FinaleDefinition> finale;
   std::vector<AppearanceDefinition> appearances;
+  std::vector<WedgeDefinition> wedges;
+  std::vector<VariationDefinition> variations;
 };
 
 } // namespace thug::campaign

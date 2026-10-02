@@ -401,6 +401,22 @@
       }
     ]
   },
+  "wedges": [
+    {"id": "D_F4_NURSE", "item": "window_tool", "resistance_seconds": 6},
+    {"id": "D_F2_SUPPLY", "item": "window_tool", "resistance_seconds": 6},
+    {"id": "D_F1_RADIO_E", "item": "window_tool", "resistance_seconds": 6}
+  ],
+  "variations": [
+    {"id": "V_TRIAGE", "node": "F1_TRIAGE", "speaker": "harley",
+     "ambient": ["Uma bandeja solta bate na maca.", "Uma roda de cadeira chia no corredor.", "Um copo de metal rola sob a bancada."],
+     "lines": ["Respira, Joe. Um passo de cada vez.", "Se encontrar o Barth, traz ele pra perto.", "Tá ouvindo? Melhor a gente baixar a voz."]},
+    {"id": "V_SERVICE", "node": "F2_SERVICE", "speaker": "bartholomeu",
+     "ambient": ["Uma tubulação estala atrás da parede.", "Um carrinho vazio encosta na grade.", "Uma placa frouxa vibra no duto."],
+     "lines": ["Eu tô com medo, Joe. Mas ainda tô aqui.", "Minha mão não para de tremer. Me dá um segundo.", "Se você ficar de olho, eu consigo procurar aqui."]},
+    {"id": "V_LOADING", "node": "F1_LOADING", "speaker": "jack",
+     "ambient": ["Uma corrente bate no portão.", "Uma lata vazia desliza pelo piso.", "A chapa de uma porta vibra com o vento."],
+     "lines": ["Tem alguém aí? Só tô conferindo.", "Eu até esperava vocês. Até.", "Se a gente sair daqui, eu vou rir disso. Depois."]}
+  ],
   "appearances": [
     {
       "id": "robin",

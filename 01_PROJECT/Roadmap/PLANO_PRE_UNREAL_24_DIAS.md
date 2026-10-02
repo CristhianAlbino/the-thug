@@ -40,7 +40,8 @@ Registro atual: [Decisões abertas](../Decisions/DECISOES_ABERTAS.md).
 - [x] P02/P06 primeira execução: recursos/ferimentos individuais, seis objetivos, reservas, chegada/conclusão, cancelamento e retomada. [Contrato](../../04_TECHNICAL/Architecture/CONTRATO_EXECUCAO_COMPANHEIROS_V1.md).
 - [x] Primeiro ciclo P07: recarga/disparo, consumíveis reservados, arremessos/fusíveis, fumaça, impactos e respiração/oxigênio no runtime v5. [Contrato](../../04_TECHNICAL/Architecture/CONTRATO_COMBATE_RESPIRACAO_V1.md); física/atuação/armas dos NPCs/calibração permanecem abertas.
 - [x] Primeiro ciclo P08: finais raros com resultado/save/epílogo próprios, preparação/custos/provas e participações pontuais. [Contrato](../../04_TECHNICAL/Architecture/CONTRATO_FINAIS_PARTICIPACOES_V1.md); física estrutural, atuação e IA dos convidados continuam abertas.
-- [ ] P02/P06 extensões: cooperação, planos adicionais, emoções temporais e manipulação; extensões P05/P07 conforme a revisão de escopo.
+- [x] Cinco extensões aprovadas: sinais/recusa, silêncio, seguir/investigar, gestos pessoais, calços recuperáveis/ruptura, variações opcionais e registro pessoal, com pressão temporal e runtime v7. [Contrato](../../04_TECHNICAL/Architecture/CONTRATO_INTERACOES_REGISTRO_V1.md).
+- [ ] P02/P06 restantes: ações conjuntas com duração/reserva, inventário derrubado, mentira/manipulação e planos adicionais; captura/interrogação P05 e extensões P07 conforme a revisão. [Resgate no escuro](../../02_GAME_DESIGN/Narrative/IDEIA_RESGATE_NO_ESCURO_RASCUNHO.md) é proposta nova, ainda sem encontro implementado.
 - [ ] Validação do resultado com Cristhian, encenação, valores e interface; a [revisão técnica v1](../Reviews/REVISAO_PRE_UNREAL_V1.md) lista evidências e decisões pendentes.
 - [ ] Produção/gravação de áudio e seleção/criação de assets finais **depois** da revisão geral.
 - [ ] Projeto `.uproject`, níveis e execução no editor: aguardam o computador/Unreal.

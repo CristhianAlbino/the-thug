@@ -40,7 +40,7 @@ WorldCore::WorldCore(save::WorldState& state, std::vector<DoorDefinition> doors,
     }
     if (door.fromNode.empty() || door.toNode.empty() ||
         door.fromNode == door.toNode ||
-        !Allowed(current, {"open", "forced_open", "closed", "locked", "jammed"}) ||
+        !Allowed(current, {"open", "forced_open", "closed", "locked", "jammed", "wedged"}) ||
         ((door.power == DoorPower::Manual) != door.circuitId.empty()) ||
         (!door.circuitId.empty() &&
          !Allowed(Object(state_, door.circuitId).stateId, {"on", "off"})) ||
@@ -97,7 +97,7 @@ std::optional<WorldSignal> WorldCore::OpenDoor(const std::string& doorId,
   const auto& door = doors_.at(doorId);
   const auto& current = Object(state_, doorId);
   if (!current.present || current.stateId == "open" || current.stateId == "forced_open" ||
-      current.stateId == "jammed") return std::nullopt;
+      current.stateId == "jammed" || current.stateId == "wedged") return std::nullopt;
   if (current.stateId == "locked" && !force) return std::nullopt;
   if (door.power == DoorPower::RequiresPower && !Powered(door.circuitId) &&
       !force) return std::nullopt;
@@ -124,7 +124,7 @@ bool WorldCore::UnlockDoor(const std::string& doorId, double atSeconds) {
 }
 
 bool WorldCore::JamDoor(const std::string& doorId, double atSeconds) {
-  if (doors_.count(doorId) == 0 || Object(state_, doorId).stateId == "jammed")
+  if (doors_.count(doorId) == 0 || Object(state_, doorId).stateId == "jammed" || Object(state_, doorId).stateId == "wedged")
     return false;
   return Update(doorId, "jammed", atSeconds);
 }

@@ -11,7 +11,7 @@ bool Blocking(HunterGoal g){
   return g==HunterGoal::CloseDoor||g==HunterGoal::PowerOff;
 }
 bool Environmental(HunterGoal g){
-  return g>=HunterGoal::CloseDoor&&g<=HunterGoal::DisableCamera;
+  return (g>=HunterGoal::CloseDoor&&g<=HunterGoal::DisableCamera)||g==HunterGoal::BreakWedge;
 }
 bool Live(const HunterTrack& t,double now,const HunterTuning& p){
   return t.visible&&now-t.estimate.observedAtSeconds<=p.visualLease;
@@ -109,8 +109,8 @@ std::vector<HunterOffer> CampaignCore::HunterOffers(const State& s,const HunterC
       if(memory==seen.end())continue;
       const bool open=memory->second=="open"||memory->second=="forced_open";
       if(open&&!ctx.safeToAlter.count(d.id))continue;
-      if(!open&&memory->second!="closed")continue;
-      const auto g=open?HunterGoal::CloseDoor:HunterGoal::OpenDoor;
+      if(!open&&memory->second!="closed"&&memory->second!="wedged")continue;
+      const auto g=memory->second=="wedged"?HunterGoal::BreakWedge:open?HunterGoal::CloseDoor:HunterGoal::OpenDoor;
       add(g,d.id,d.fromNode,1+r.aggression/100);
       add(g,d.id,d.toNode,1+r.aggression/100);
     }
@@ -253,6 +253,12 @@ HunterResult CampaignCore::ExecuteHunter(State& s,const HunterCommand& c,const H
   if(t.arrivedAt<0)return denied;
   const double delay=Environmental(t.goal)||t.goal==HunterGoal::WatchPassage||t.goal==HunterGoal::InspectHide?p.reactionSeconds:0;
   if(c.atSeconds-t.arrivedAt<delay)return denied;
+  if(t.goal==HunterGoal::BreakWedge){
+    const auto* binding=Find(definition_->wedges,t.target);
+    const auto wedge=s.interactions.wedges.find(t.target);
+    if(!binding||wedge==s.interactions.wedges.end()||wedge->second.placedAt>t.arrivedAt||
+        c.atSeconds-t.arrivedAt<delay+binding->resistanceSeconds)return denied;
+  }
   if(Blocking(t.goal)&&!ctx.alternativePathVerified)return denied;
   world::WorldCore devices(s.world,definition_->doors,definition_->cameras,definition_->hides);
   HunterResult result{Status::Applied};
@@ -262,6 +268,13 @@ HunterResult CampaignCore::ExecuteHunter(State& s,const HunterCommand& c,const H
     const auto memory=seen.find(t.target);
     if(!ctx.lineOfSightVerified||!object||!object->present||memory==seen.end()||memory->second!=object->stateId)return denied;
     switch(t.goal){
+      case HunterGoal::BreakWedge:{
+        if(object->stateId!="wedged")return denied;
+        auto changed=*object;changed.stateId="closed";
+        if(!s.world.SetObject(t.target,changed,c.atSeconds))return denied;
+        result.signal=devices.OpenDoor(t.target,c.atSeconds,true);
+        if(!result.signal)return denied;
+        s.interactions.wedges.erase(t.target);break;}
       case HunterGoal::OpenDoor:result.signal=devices.OpenDoor(t.target,c.atSeconds);
       if(!result.signal)return denied;
       break;

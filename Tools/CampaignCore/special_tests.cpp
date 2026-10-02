@@ -211,7 +211,7 @@ void Corruption() {
   auto bad=valid; const auto at=bad.find("PLANTED 0"); Check(at!=std::string::npos,"Fixture contains no completed charge"); bad.replace(at,9,"PLANTED 1 \"RARE_SITE_A\""); reject(bad);
   bad=valid; const auto serial=bad.find("SPECIAL 2 1 "); Check(serial!=std::string::npos,"Fixture has two special receipts"); bad.replace(serial,12,"SPECIAL 3 1 "); reject(bad);
   bad=valid; const auto task=bad.find("PLANT 1\n"); Check(task!=std::string::npos,"Fixture reserves a plant task"); const auto end=bad.find('\n',task+8); bad.erase(task,end-task+1); bad.insert(task,"PLANT 0\n"); reject(bad);
-  auto legacy=valid; legacy.replace(0,std::string("THE_THUG_RUNTIME_CAMPAIGN 6").size(),"THE_THUG_RUNTIME_CAMPAIGN 5"); std::istringstream old(legacy);
+  auto legacy=valid; legacy.replace(0,std::string("THE_THUG_RUNTIME_CAMPAIGN 7").size(),"THE_THUG_RUNTIME_CAMPAIGN 5"); std::istringstream old(legacy);
   Check(c.Load(old)==save::Result::UnsupportedVersion,"Runtime v5 cannot silently lose rare finale state");
 }
 void ReceiptBudget() {

@@ -51,7 +51,7 @@ bool CampaignCore::ReadCompanions(std::istream& in,State& s) const {
     h.injury=static_cast<survival::Injury>(injury);h.bleeding=bleeding!=0;h.exhausted=exhausted!=0;h.collapsed=collapsed!=0;h.dead=dead!=0;
     if(!b.survival.RestoreSnapshot(h)||!ReadSet(in,"PICKUPS",b.knownPickups,definition_->pickups.size())||!ReadSet(in,"HIDES",b.knownHides,definition_->hides.size()))return false;
     int hasTask;if(!Tag(in,"TASK")||!(in>>hasTask)||hasTask<0||hasTask>1)return false;
-    b.task.reset();if(hasTask){CompanionTask t;int goal,phase;if(!Tag(in,"INTENT")||!(in>>t.serial>>goal)||goal<0||goal>5||!Quoted(in,t.target)||!Quoted(in,t.destination)||!Quoted(in,t.item,true)||!(in>>phase>>t.startedAt>>t.readyAt)||phase<0||phase>1||!Quoted(in,t.startEventId))return false;t.goal=static_cast<companion::Goal>(goal);t.phase=static_cast<TaskPhase>(phase);b.task=std::move(t);}
+    b.task.reset();if(hasTask){CompanionTask t;int goal,phase;if(!Tag(in,"INTENT")||!(in>>t.serial>>goal)||goal<0||goal>7||!Quoted(in,t.target)||!Quoted(in,t.destination)||!Quoted(in,t.item,true)||!(in>>phase>>t.startedAt>>t.readyAt)||phase<0||phase>1||!Quoted(in,t.startEventId))return false;t.goal=static_cast<companion::Goal>(goal);t.phase=static_cast<TaskPhase>(phase);b.task=std::move(t);}
     b.lastNode=std::move(node);b.hidingPlace=std::move(hide);b.serial=serial;b.lastStop=static_cast<TaskStop>(stop);
   }
   return ReadSet(in,"JOE_ROUTES",s.joeKnownRoutes,4);
@@ -143,6 +143,11 @@ bool CampaignCore::CompanionCoherent(const State& s) const {
         case companion::Goal::ShareRoute:if(!person.KnownRoutes().count(t.target)||!t.item.empty())return false;break;
         case companion::Goal::EscapeAlone:if(s.routes.DifficultyLevel()==rules::Difficulty::Easy||!person.KnownRoutes().count(t.target)||t.destination!=detail::ExitNode(t.target)||!t.item.empty())return false;break;
         case companion::Goal::UseJoeAsDistraction:if((s.routes.DifficultyLevel()!=rules::Difficulty::Hard&&s.routes.DifficultyLevel()!=rules::Difficulty::Punitive)||t.target!="joe"||!t.item.empty())return false;break;
+        case companion::Goal::FollowSignal:case companion::Goal::InspectSignaledArea:{
+          const auto order=s.interactions.orders.find(name);
+          if(order==s.interactions.orders.end()||order->second.fulfilled||order->second.eventId!=t.target||order->second.destination!=t.destination||!t.item.empty()||
+              (order->second.kind==SignalKind::Call)!=(t.goal==companion::Goal::FollowSignal))return false;
+          break;}
       }
     }else if(b.serial&&b.lastStop==TaskStop::None)return false;
   }

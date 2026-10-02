@@ -30,7 +30,7 @@ Robin tem episódio breve no Punitivo, nos túneis. Este ciclo fornece gatilho e
 
 ## Persistência e limites
 
-Runtime v6 acrescenta fase/marco, participantes, suprimentos, pontos, instalação/serial e encontros/bilhete aos sistemas anteriores. StorySave v1 mantém sua gramática e amplia os valores de resultado conhecidos. O wrapper v6 exige a identidade integral de conteúdo. Runtime v1–v5 é recusado: migração não foi implementada.
+Runtime v6 introduziu fase/marco, participantes, suprimentos, pontos, instalação/serial e encontros/bilhete; o runtime v7 conserva esses estados e acrescenta as [interações/registro](CONTRATO_INTERACOES_REGISTRO_V1.md). StorySave v1 mantém sua gramática e os valores de resultado conhecidos. O wrapper atual exige identidade integral de conteúdo. Runtime v1–v6 é recusado: migração não foi implementada.
 
 Fatos `appearance:*` não pertencem ao conjunto livre de fatos narrativos, nem quando constam de um arquivo com checksum válido. Toda apresentação especial ativa/concluída precisa ter o encontro correspondente no registro autorado. O loader reconstrói a sequência especial por recibos ordenados, verifica estados de objetos, tarefa/reserva, dificuldade, resultado e fatos protegidos antes de substituir a sessão. Checksum identifica corrupção acidental; não autentica um save contra adulteração deliberada. O limite compartilhado de 10.000 recibos reserva a resolução de instalações/colapso e **resolução mais travessia** do confronto já iniciado. Epílogo é consulta sem recibo; N33 usa o orçamento restante de apresentação como as outras cenas.
 

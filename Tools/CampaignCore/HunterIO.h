@@ -6,7 +6,7 @@ inline void WriteHunterTask(std::ostream& out,const HunterTask& t){
 }
 inline bool ReadHunterTask(std::istream& in,HunterTask& t){
   int goal;
-  if(!(in>>t.serial>>goal>>std::quoted(t.target)>>std::quoted(t.destination)>>std::quoted(t.startEventId)>>t.startedAt>>t.arrivedAt)||goal<0||goal>8)return false;
+  if(!(in>>t.serial>>goal>>std::quoted(t.target)>>std::quoted(t.destination)>>std::quoted(t.startEventId)>>t.startedAt>>t.arrivedAt)||goal<0||goal>9)return false;
   t.goal=static_cast<HunterGoal>(goal);
   return true;
 }

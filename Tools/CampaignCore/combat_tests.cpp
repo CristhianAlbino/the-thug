@@ -239,7 +239,7 @@ void CorruptionAndEnding() {
   auto corrupt=good;const auto start=corrupt.find("COMBAT ");corrupt.replace(start+7,2,"31");
   const auto checksum=corrupt.rfind("CHECKSUM ");corrupt=corrupt.substr(0,checksum)+"CHECKSUM "+campaign::detail::Hash(corrupt.substr(0,checksum))+"\n";
   Check(Load(c,corrupt)==save::Result::IncompatibleRoster&&Bytes(c)==good,"Semantically invalid ammo is rejected even with valid checksum");
-  auto legacy=good;legacy.replace(0,std::string("THE_THUG_RUNTIME_CAMPAIGN 6").size(),"THE_THUG_RUNTIME_CAMPAIGN 4");
+  auto legacy=good;legacy.replace(0,std::string("THE_THUG_RUNTIME_CAMPAIGN 7").size(),"THE_THUG_RUNTIME_CAMPAIGN 4");
   Check(Load(c,legacy)==save::Result::UnsupportedVersion&&Bytes(c)==good,"Legacy checkpoint never silently loses combat state");
   campaign::Action capture{Id(),campaign::ActionKind::Trigger,"captured","F4_START",c.Now(),0,true};
   Check(c.Apply(capture).status==Status::Applied&&c.CombatRuntime().shots.empty(),"Ending clears pending presentation/world combat work");

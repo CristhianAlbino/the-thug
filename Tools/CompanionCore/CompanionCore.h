@@ -14,7 +14,7 @@ enum class Difficulty { Easy, Normal, Hard, Punitive };
 enum class Experience { JoeSharedAmmo, JoeAbandonedCompanion };
 enum class Goal {
   StayHidden, SearchResources, HelpJoe, ShareRoute,
-  EscapeAlone, UseJoeAsDistraction
+  EscapeAlone, UseJoeAsDistraction, FollowSignal, InspectSignaledArea
 };
 
 // 0..100; initial values are supplied by authored character data, not invented here.

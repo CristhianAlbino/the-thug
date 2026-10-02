@@ -200,7 +200,7 @@ Option CompanionCore::ChooseAmong(const std::vector<Option>& options) {
   double total = 0;
   for (const auto& option : options) {
     const bool routeGoal = option.goal == Goal::ShareRoute || option.goal == Goal::EscapeAlone;
-    if (option.goal < Goal::StayHidden || option.goal > Goal::UseJoeAsDistraction ||
+    if (option.goal < Goal::StayHidden || option.goal > Goal::InspectSignaledArea ||
         !std::isfinite(option.weight) || option.weight <= 0 ||
         routeGoal != bool(option.routeId) || (option.routeId && !knownRoutes_.count(*option.routeId)) ||
         (option.goal == Goal::EscapeAlone && difficulty_ == Difficulty::Easy) ||

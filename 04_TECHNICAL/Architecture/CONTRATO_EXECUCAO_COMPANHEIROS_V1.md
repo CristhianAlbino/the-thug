@@ -27,7 +27,7 @@ O serial precisa ser o da tarefa atual. Um callback de tarefa cancelada não con
 
 Durante a tarefa, o inventário do executor fica indisponível para outras transferências/operações. Outro ator também não pode transferir itens para esse inventário. Coleta e esconderijo reservam um alvo contra tarefas concorrentes e ações de Joe. Os itens permanecem no mundo/no inventário até o commit final. Falha na conclusão conserva a tarefa em `Ready`: a ponte cancela, corrige o contexto ou retenta com a ocorrência apropriada. Cura recebida de outro ator permanece possível.
 
-## Efeitos dos seis objetivos
+## Efeitos dos objetivos
 
 | Objetivo | Efeito na conclusão |
 | --- | --- |
@@ -37,6 +37,10 @@ Durante a tarefa, o inventário do executor fica indisponível para outras trans
 | Compartilhar rota | Comunica a rota conhecida a Joe; registra `JoeKnownRoutes()` e descoberta de mundo aplicável. Não inventa inspeções, pistas de teclado ou leitura de documentos. |
 | Fugir sozinho | Exige conhecimento, caminho, rota pronta e travessia concluída. Registra apenas `escapedAlone` daquele NPC; não encerra a campanha de Joe. Indisponível no Fácil. |
 | Usar Joe como distração | Revalida condições percebidas e traços; gera `CompanionSignal` na fonte real do executor. Prova testemunhada por Joe pode registrar a ação concreta para o epílogo. Disponível apenas nos dois modos superiores sob os requisitos da política. |
+| Seguir sinal | Ordem percebida/aceita ainda válida, viagem concluída e Joe presente no destino. Não transfere inventário nem conhecimento. |
+| Investigar área sinalizada | Ordem percebida/aceita ainda válida, viagem e inspeção física concluídas. Não encontra recurso ou rota automaticamente. |
+
+O runtime v7 amplia os seis objetivos originais com estes dois planos e acrescenta silêncio, gestos e pressão temporal. Ver [contrato das interações](CONTRATO_INTERACOES_REGISTRO_V1.md) para autoria, prazos, provas e registro pessoal.
 
 Sinais de distração, porta e circuito não chamam `Hear` automaticamente. A ponte emite uma vez e envia à percepção com fonte, distância e oclusão reais. Uma intenção de traição não equivale a revelar, capturar ou matar Joe.
 

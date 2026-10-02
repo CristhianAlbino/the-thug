@@ -7,6 +7,7 @@
 #include "HunterRuntime.h"
 #include "CombatRuntime.h"
 #include "SpecialRuntime.h"
+#include "InteractionRuntime.h"
 
 #include <cstdint>
 #include <iosfwd>
@@ -76,6 +77,11 @@ struct HunterResult {
   std::optional<bool> inspectedHideOccupied{};
 };
 
+struct InteractionResult {
+  Status status;
+  bool accepted = false; // A perceived request can be refused without a task.
+  std::optional<world::WorldSignal> signal{};
+};
 // Sole mutable owner of the pure campaign. All public views are value copies;
 // successful commands swap a fully staged state, rejected commands swap none.
 // Single simulation thread. This is not an Unreal actor/navigation controller.
@@ -116,6 +122,12 @@ class CampaignCore {
   bool SmokeOccludes(hunter::Vec3 from, hunter::Vec3 to) const;
   Status ApplySpecial(const SpecialCommand&, const SpecialContext&);
   SpecialRuntimeSnapshot SpecialRuntime() const;
+  InteractionResult ApplyInteraction(const InteractionCommand&, const InteractionContext&);
+  InteractionRuntimeSnapshot Interactions() const;
+  std::optional<NightVariation> VariationFor(const std::string&) const;
+  std::optional<director::Cue> InteractionCue(const InteractionCommand&) const;
+  std::vector<NightRecordEntry> NightRecord() const;
+  std::map<std::string, std::string> KnownCompanionFates() const;
   // Observation must describe the current clock/act/difficulty and actual
   // physical context. Presentation ACK confirms a heard line/completed gesture.
   ActionResult ApplyNarrative(const Action&, const director::Observation&);
@@ -138,7 +150,7 @@ class CampaignCore {
   std::string HidingPlace() const;
   std::size_t AppliedActionCount() const;
 
-  // Runtime v6 adds rare endings/appearances to combat, individual bodies and Hunter tactics
+  // Runtime v7 adds party signals, wedges and optional night variations
   // around StorySave. Legacy core/story files require an explicit migration.
   save::Result Save(std::ostream&) const;
   save::Result Load(std::istream&);
@@ -188,6 +200,13 @@ class CampaignCore {
   Status ExecuteSpecial(State&, const SpecialCommand&, const SpecialContext&);
   void WriteSpecial(std::ostream&, const State&) const;
   bool ReadSpecial(std::istream&, State&) const;
+  bool InteractionStaticValid(const InteractionCommand&) const;
+  InteractionResult ExecuteInteraction(State&, const InteractionCommand&, const InteractionContext&);
+  bool InteractionCoherent(const State&) const;
+  void WriteInteractions(std::ostream&, const State&) const;
+  bool ReadInteractions(std::istream&, State&) const;
+  bool RestoreInteractions(State&) const;
+  bool QuietBanter(const State&, const std::string&) const;
 };
 
 } // namespace thug::campaign

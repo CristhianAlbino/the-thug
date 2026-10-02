@@ -12,11 +12,12 @@
 - Envelope de checkpoint que conserva pausa, ocupação de Joe e recibos de ações, além do StorySave completo. Carregamento rejeitado preserva a campanha viva.
 - Diretor narrativo C++ ligado à sessão: sequência de falas/gestos, confirmação por entrada, prioridade/suspensão, diário de materiais inspecionados e epílogos condicionais.
 - Entrada nativa de teclado, com tentativa real e abertura conjunta de mundo/regra; conhecimento prévio não inventa documentos lidos.
-- Inventários e saúde individuais; auxílio e transferência de qualquer recurso do catálogo; seis objetivos com escolha, chegada, conclusão, reserva/cancelamento e retomada.
+- Inventários e saúde individuais; auxílio e transferência de qualquer recurso do catálogo; oito objetivos com escolha, chegada, conclusão, reserva/cancelamento e retomada.
+- Sinais percebidos com aceitação/recusa, silêncio opcional, gestos pessoais com recurso real, calço recuperável/ruptura pelo Hunter, variações opcionais persistentes e registro pessoal da noite.
 - Hunter com alvos individuais percebidos, agressividade por eventos testemunhados, busca por setores, passagem observada e ações físicas sobre dispositivos, com oportunidade de reação.
 - Escrita/leitura de arquivo com temporário validado, sincronização, backup, substituição, recuperação explícita e bloqueio de slot.
 
-Isso acrescenta o primeiro ciclo tático P05, entrega P01, o núcleo P03, o escritor P04 e amplia P02/P06 com recursos individuais e a primeira execução dos seis objetivos. Cooperação simultânea, medo/estresse temporal, mentiras/manipulação e planos mais ricos continuam abertos. Encenação final P09, política/validação humana P10 e restauração física no editor continuam pendentes. Ver [DirectorCore](../DirectorCore/README.md) e [contrato de arquivo](../../04_TECHNICAL/Architecture/CONTRATO_ARQUIVO_CHECKPOINT_V1.md).
+Isso entrega P01, o núcleo P03, o escritor P04 e os primeiros ciclos P05/P07/P08. P02/P06 agora incluem recursos individuais, oito objetivos, sinais/gestos, calma após ameaça percebida e as cinco extensões aprovadas. Cooperação simultânea com duração/reserva entre participantes, inventário derrubado, mentiras/manipulação e planos mais ricos continuam abertos. Encenação final P09, política/validação humana P10 e restauração física no editor continuam pendentes. Ver [interações e registro](../../04_TECHNICAL/Architecture/CONTRATO_INTERACOES_REGISTRO_V1.md), [DirectorCore](../DirectorCore/README.md) e [contrato de arquivo](../../04_TECHNICAL/Architecture/CONTRATO_ARQUIVO_CHECKPOINT_V1.md).
 
 ## Dados de autoria
 
@@ -70,7 +71,7 @@ Portas e circuitos podem devolver `WorldSignal`. A ponte emite som uma vez e o e
 
 ## Checkpoint e limites
 
-`Save(std::ostream&)` / `Load(std::istream&)` usam `THE_THUG_RUNTIME_CAMPAIGN 6`: StorySave v1 aninhado, identidade de conteúdo, pausa, ocupação de Joe, planos/seriais de apresentação, corpos/recursos/tarefas individuais, memória/agressividade/tática/RNG do Hunter, armas/tiros/projéteis/fumaça/oxigênio, fases/instalações/encontros especiais e até 10.000 recibos. Limite de 4 MiB; checksum FNV-1a 64 identifica corrupção acidental, sem proteção contra adulteração intencional. Falha de formato, versão, configuração ou coerência rejeita o arquivo inteiro. Runtime v1/v2/v3/v4/v5 e formatos inferiores não são convertidos silenciosamente. RNG prossegue do estado salvo; identidade inclui autoria narrativa e não depende da semente do construtor.
+`Save(std::ostream&)` / `Load(std::istream&)` usam `THE_THUG_RUNTIME_CAMPAIGN 7`: StorySave v1 aninhado, identidade de conteúdo, pausa, ocupação de Joe, planos/seriais de apresentação, corpos/recursos/tarefas individuais, memória/agressividade/tática/RNG do Hunter, armas/tiros/projéteis/fumaça/oxigênio, fases/instalações/encontros especiais, perfil/serial de interações e até 10.000 recibos. Pedidos, cooldowns, calços e conhecimento pessoal são derivados do registro confirmado e reconciliados antes da troca de sessão. Limite de 4 MiB; checksum FNV-1a 64 identifica corrupção acidental, sem proteção contra adulteração intencional. Falha de formato, versão, configuração ou coerência rejeita o arquivo inteiro. Runtime v1–v6 e formatos inferiores não são convertidos silenciosamente. RNG prossegue do estado salvo; identidade inclui autoria narrativa/variações e não depende da semente do construtor.
 
 Para disco, usar `checkpoint::SaveFile/LoadFile` de `CheckpointFile.h`; o stream sozinho não oferece garantia de arquivo. Recuperação retorna `RecoveredBackup`, indicando progresso anterior. Uma falha posterior à substituição retorna `CommittedUnconfirmed`. Restauração de atores/animações e integração da política de checkpoint ficam para a engine. Não usar serializadores inferiores como checkpoint completo da sessão.
 
@@ -79,6 +80,8 @@ Para disco, usar `checkpoint::SaveFile/LoadFile` de `CheckpointFile.h`; o stream
 Cada ação/atualização/sensor aceito prepara uma cópia dos estados. A correção transacional está ensaiada, mas custo com campanha longa e frequência de sensores precisa de benchmark antes da integração definitiva. Uso em uma thread de simulação; sem promessa de 60 Hz ou duração de campanha comprovada.
 
 ## Verificação
+
+`interaction_tests` cobre as cinco extensões, pedidos não percebidos/recusados, viagem e expiração, gestos/medicina/recursos individuais, pressão temporal, silêncio com retomada e prioridade principal, capacidade para recuperar calço, ruptura e corrida de recuperação, variação sem reroll, registro sem conhecimento onisciente e rejeição atômica. Consultas `InteractionCue/VariationFor` preparam apresentação; `ApplyInteraction` confirma o marco físico. `NightRecord/KnownCompanionFates` são consultas pessoais, separadas do epílogo autoral.
 
 ```sh
 bash Tools/CampaignCore/run-tests.sh
