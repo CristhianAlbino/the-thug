@@ -167,6 +167,7 @@ CombatResult CampaignCore::ApplyCombat(const CombatCommand& c, const CombatConte
   if (Ending() != rules::Ending::None) return {Status::Finished};
   if (c.atSeconds != Now()) return {Status::InvalidTime};
   if (!context.physicallyVerified || !definition_->nodes.count(context.actualJoeNode)) return {Status::InvalidAction};
+  if (!state_->hidingPlace.empty() && context.actualJoeNode != Find(definition_->hides, state_->hidingPlace)->atNode) return {Status::MissingRequirement};
   const bool worldEffect = c.kind == CombatOp::ResolveShot || c.kind == CombatOp::Detonate;
   if (!worldEffect && (c.node != context.actualJoeNode ||
       (!state_->hidingPlace.empty() && c.node != Find(definition_->hides, state_->hidingPlace)->atNode))) return {Status::MissingRequirement};
@@ -294,6 +295,7 @@ CombatResult CampaignCore::ExecuteCombat(State& s, const CombatCommand& c, const
             const auto& o = story.outcomes.at(hit.target);
             if (o.dead || o.captured || o.escapedAlone || o.together) return denied;
             auto& body = s.bodies.at(hit.target);
+            if (!body.hidingPlace.empty() && Find(definition_->hides, body.hidingPlace)->atNode != hit.node) return denied;
             body.survival.ApplyInjury(hit.injury);
             body.lastNode = hit.node;
             body.Stop(TaskStop::Injured);

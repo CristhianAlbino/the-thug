@@ -1,5 +1,6 @@
 #include "CampaignCore.h"
 #include "CampaignData.generated.h"
+#include "CompanionData.generated.h"
 #include "CombatIO.h"
 #include <cmath>
 #include <iostream>
@@ -254,8 +255,12 @@ void InterruptionsAndSimultaneousFuses() {
   RoundTrip(c,rules::Difficulty::Hard);
   Reload(c);
   const auto hide=campaign::data::Hospital().hides.front();
+  const auto pendingShot=*Apply(c,Command(c,CombatOp::Fire)).shot;
   campaign::Action enter{Id(),campaign::ActionKind::EnterHide,hide.id,hide.atNode,c.Now(),0,true};
   Check(c.Apply(enter).status==Status::Applied,"Physical hide fixture occupied");
+  const auto wrong=hide.atNode=="F4_START"?"F3_EXAMS":"F4_START";
+  Rejected(c,Command(c,CombatOp::ResolveShot,"miss",pendingShot.serial),Status::MissingRequirement,Context(wrong));
+  Apply(c,Command(c,CombatOp::ResolveShot,"miss",pendingShot.serial),Context(hide.atNode));
   auto hidden=Command(c,CombatOp::Fire);hidden.node=hide.atNode;
   Rejected(c,hidden,Status::MissingRequirement,Context(hide.atNode));
   auto hold=Command(c,CombatOp::HoldBreath,"joe");hold.node=hide.atNode;Apply(c,hold,Context(hide.atNode));
@@ -313,9 +318,34 @@ void CompletionReceiptBudget() {
   Check(c.AppliedActionCount()==10000&&c.CombatRuntime().thrown.empty()&&c.Tick(1,survival::Activity::Rest).status==Status::Applied,"Reserved receipts resolve live grenade even at the session ledger limit");
   Bytes(c);
 }
+void HiddenCompanionBlastProof() {
+  campaign::CampaignCore c(rules::Difficulty::Hard);
+  const auto hide=campaign::data::Hospital().hides.front();
+  campaign::CompanionContext context;
+  context.actors["harley"]={hide.atNode,true};context.reachableNodes={hide.atNode};
+  context.actionCompleted=context.movementCompleted=true;
+  campaign::CompanionCommand command;
+  command.eventId=Id();command.kind=campaign::CompanionOp::ObserveHide;command.actor="harley";
+  command.target=hide.id;command.node=hide.atNode;command.atSeconds=c.Now();command.physicallyVerified=true;
+  Check(c.ApplyCompanion(command,context).status==Status::Applied,"Harley sees physical hide");
+  command.eventId=Id();command.kind=campaign::CompanionOp::BeginTask;
+  const auto begin=c.ApplyCompanion(command,context);Check(begin.status==Status::Applied&&begin.task.has_value(),"Harley prepares observed hide");
+  command.eventId=Id();command.kind=campaign::CompanionOp::Arrive;command.taskSerial=begin.task->serial;
+  Check(c.ApplyCompanion(command,context).status==Status::Applied,"Harley reaches hide");
+  c.Tick(campaign::partydata::InteractionSeconds[0],survival::Activity::Rest);
+  command.eventId=Id();command.kind=campaign::CompanionOp::Complete;command.atSeconds=c.Now();
+  Check(c.ApplyCompanion(command,context).status==Status::Applied,"Harley occupies hide");
+  auto grenade=Throw(c,"grenade");ReachFuse(c,grenade);
+  auto blast=Detonate(c,grenade);
+  blast.contacts={{"harley",hide.atNode=="F4_START"?"F3_EXAMS":"F4_START",grenade.position,survival::Injury::Moderate}};
+  Rejected(c,blast,Status::MissingRequirement);
+  blast.contacts[0].node=hide.atNode;Apply(c,blast);
+  Check(c.CompanionRuntime(companion::Character::Harley).hidingPlace==hide.id,"Valid hit preserves the hidden companion's physical location");
+  RoundTrip(c,rules::Difficulty::Hard);
+}
 }
 int main() {
-  try { WeaponAndReload();ReservationsAndPhysicalProof();HunterInterrupts();GrenadesSmokeAndCheckpoint();Destructibles();BreathingAndTiming();CorruptionAndEnding();InterruptionsAndSimultaneousFuses();CompletionReceiptBudget(); }
+  try { WeaponAndReload();ReservationsAndPhysicalProof();HunterInterrupts();GrenadesSmokeAndCheckpoint();Destructibles();BreathingAndTiming();CorruptionAndEnding();InterruptionsAndSimultaneousFuses();CompletionReceiptBudget();HiddenCompanionBlastProof(); }
   catch(const std::exception& error) { std::cerr<<"Combat check "<<checks<<" failed: "<<error.what()<<'\n';return 1; }
   std::cout<<"Campaign combat: "<<checks<<" checks passed\n";
 }
