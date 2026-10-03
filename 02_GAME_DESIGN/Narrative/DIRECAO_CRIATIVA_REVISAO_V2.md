@@ -20,7 +20,7 @@ Quando a variante narrativa permitir uma reação cruel, usar atraso: os demais 
 
 **Gesto proposto para a revelação já prevista:** Jack alisa a lapela/forro com dois dedos, abandona por um instante a postura de cúmplice e encara Joe com um sorriso deliberado. A iluminação revela o detalhe da roupa que já estava presente. Joe recua; ninguém confirma com uma fala aquilo que não testemunhou. O gesto acompanha a frase autorada existente, sem acrescentar uma palestra ou obrigar Joe a permanecer.
 
-Esse gesto só existe na variante que autoriza a revelação. Fora dela, o gesto, a roupa específica e a montagem não entram. Se Jack estiver ausente ou indisponível, sua posição não é inventada para produzir o momento.
+Esse gesto só existe na variante que autoriza a revelação. Fora dela, o gesto e o enquadramento revelador não entram. Jack mantém a roupa distinta já aprovada em todos os modos, sem usá-la como confirmação de identidade. Se Jack estiver ausente ou indisponível, sua posição não é inventada para produzir o momento.
 
 ## Joe, Harley e Bartholomeu: ações primeiro
 
