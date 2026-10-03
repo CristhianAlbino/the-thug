@@ -32,6 +32,21 @@ CombatTuning CombatProfile(rules::Difficulty mode) {
 }
 
 CombatRuntimeSnapshot CampaignCore::CombatRuntime() const { return state_->combat; }
+bool CampaignCore::WeaponBusy(const State& s,const std::string& actor) const {
+  return actor!="joe" && s.combat.companions.count(actor) && bool(s.combat.companions.at(actor).task);
+}
+std::vector<CombatOp> CampaignCore::CompanionCombatOffers(const std::string& actor,const CombatContext& ctx) const {
+  std::vector<CombatOp> offers;
+  if(!detail::Person(actor) || !ctx.actualActorNodes.count(actor) || Paused() || Ending()!=rules::Ending::None) return offers;
+  for(auto kind:{CombatOp::BeginReload,CombatOp::Fire}) {
+    CombatCommand c; c.eventId="combat_offer"; c.kind=kind; c.actor=actor; c.target="rifle";
+    c.node=ctx.actualActorNodes.at(actor); c.atSeconds=Now(); c.vector=kind==CombatOp::Fire ? hunter::Vec3{1,0,0} : hunter::Vec3{};
+    if(!CombatStaticValid(c) || RescueBusy(*state_,actor)) continue;
+    auto candidate=std::make_unique<State>(*state_);
+    if(ExecuteCombat(*candidate,c,ctx).status==Status::Applied) offers.push_back(kind);
+  }
+  return offers;
+}
 BreathingEffects CampaignCore::Breathing() const {
   const auto& r = state_->combat;
   const auto p = CombatProfile(state_->routes.DifficultyLevel());
@@ -81,6 +96,8 @@ bool CampaignCore::CombatItemAvailable(const State& s, const std::string& item, 
     (void)actor;
     if (capture.release && capture.release->helper == "joe" && capture.release->item == item) ++reserved;
   }
+  if(s.strategy.joint && s.strategy.joint->peer=="joe")
+    for(const auto& use:definition_->uses) if(use.id==s.strategy.joint->target && use.item==item) reserved+=use.quantity;
   return s.inventory.Quantity(item) - reserved >= quantity;
 }
 void CampaignCore::ReconcileCombat(State& s) const {
@@ -89,6 +106,12 @@ void CampaignCore::ReconcileCombat(State& s) const {
     s.combat.holdingBreath = false;
   }
   ReconcileRescue(s);
+  ReconcileStrategy(s);
+  const auto story=s.narrative.CaptureSnapshot();
+  for(auto& [actor,w]:s.combat.companions) {
+    const auto& o=story.outcomes.at(actor); const auto h=s.bodies.at(actor).survival.CurrentEffects();
+    if(o.dead || o.captured || o.together || o.escapedAlone || h.dead || h.collapsed || RescueBusy(s,actor)) w.task.reset();
+  }
 }
 bool CampaignCore::AdvanceCombat(State& s, double elapsed, survival::Activity activity) {
   auto& r = s.combat;
@@ -126,7 +149,7 @@ bool CampaignCore::AdvanceCombat(State& s, double elapsed, survival::Activity ac
 }
 
 bool CampaignCore::CombatStaticValid(const CombatCommand& c) const {
-  if (!detail::Token(c.eventId) || !definition_->nodes.count(c.node) ||
+  if (!Actor(c.actor) || !detail::Token(c.eventId) || !definition_->nodes.count(c.node) ||
       !std::isfinite(c.atSeconds) || c.atSeconds < 0 || c.kind < CombatOp::BeginReload ||
       c.kind > CombatOp::ReleaseBreath || !detail::CombatFinite(c.position) ||
       !detail::CombatFinite(c.vector) || c.contacts.size() > 16 ||
@@ -141,7 +164,7 @@ bool CampaignCore::CombatStaticValid(const CombatCommand& c) const {
       return c.target == "rifle";
     case CombatOp::BeginThrow: case CombatOp::ReleaseThrow: case CombatOp::CancelThrow:
       return c.target == "grenade" || c.target == "smoke";
-    case CombatOp::HoldBreath: case CombatOp::ReleaseBreath: return c.target == "joe";
+    case CombatOp::HoldBreath: case CombatOp::ReleaseBreath: return c.actor=="joe" && c.target == "joe";
     case CombatOp::ResolveShot:
       return c.target == "miss" || c.target == "hunter" || Find(definition_->destructibles, c.target);
     case CombatOp::Detonate: {
@@ -174,15 +197,17 @@ CombatResult CampaignCore::ApplyCombat(const CombatCommand& c, const CombatConte
       (state_->special.phase == SpecialPhase::Confronting && Now() >= state_->special.boundaryAt)) return {Status::AwaitingPhysics};
   if (c.atSeconds != Now()) return {Status::InvalidTime};
   if (!context.physicallyVerified || !definition_->nodes.count(context.actualJoeNode)) return {Status::InvalidAction};
-  if (!state_->hidingPlace.empty() && context.actualJoeNode != Find(definition_->hides, state_->hidingPlace)->atNode) return {Status::MissingRequirement};
+  if(context.actualActorNodes.size()>3) return {Status::InvalidAction};
+  for(const auto& [actor,node]:context.actualActorNodes) if(!detail::Person(actor) || !definition_->nodes.count(node)) return {Status::InvalidAction};
+  if (c.actor=="joe" && !state_->hidingPlace.empty() && context.actualJoeNode != Find(definition_->hides, state_->hidingPlace)->atNode) return {Status::MissingRequirement};
   const bool worldEffect = c.kind == CombatOp::ResolveShot || c.kind == CombatOp::Detonate;
-  if (!worldEffect && RescueBusy(*state_, "joe")) return {Status::MissingRequirement};
-  if (!worldEffect && (c.node != context.actualJoeNode ||
-      (!state_->hidingPlace.empty() && c.node != Find(definition_->hides, state_->hidingPlace)->atNode))) return {Status::MissingRequirement};
-  std::size_t reserved = detail::CombatReservedReceipts(state_->combat) + detail::SpecialReservedReceipts(state_->special) + detail::RescueReservedReceipts(state_->rescue);
+  const auto actorNode=c.actor=="joe" ? context.actualJoeNode :
+    context.actualActorNodes.count(c.actor) ? context.actualActorNodes.at(c.actor) : std::string{};
+  if (!worldEffect && (actorNode!=c.node || RescueBusy(*state_,c.actor))) return {Status::MissingRequirement};
+  std::size_t reserved = detail::CombatReservedReceipts(state_->combat) + detail::SpecialReservedReceipts(state_->special) + detail::RescueReservedReceipts(state_->rescue) + detail::StrategyReservedReceipts(state_->strategy);
   if (c.kind == CombatOp::BeginReload) ++reserved;
   if (c.kind == CombatOp::BeginThrow) reserved += 2;
-  const auto& task = state_->combat.task;
+  const auto& task = c.actor=="joe" ? state_->combat.task : state_->combat.companions.at(c.actor).task;
   if (task && task->serial == c.serial &&
       ((task->kind == CombatOp::BeginReload && (c.kind == CombatOp::CompleteReload || c.kind == CombatOp::CancelReload)) ||
        (task->kind == CombatOp::BeginThrow && task->item == c.target && (c.kind == CombatOp::ReleaseThrow || c.kind == CombatOp::CancelThrow)))) {
@@ -201,14 +226,32 @@ CombatResult CampaignCore::ApplyCombat(const CombatCommand& c, const CombatConte
   return result;
 }
 
-CombatResult CampaignCore::ExecuteCombat(State& s, const CombatCommand& c, const CombatContext& context) {
+CombatResult CampaignCore::ExecuteCombat(State& s, const CombatCommand& c, const CombatContext& context) const {
   auto& r = s.combat;
   const auto p = CombatProfile(s.routes.DifficultyLevel());
   const CombatResult denied{Status::MissingRequirement};
-  const auto effects = s.survival.CurrentEffects();
+  auto& stock=c.actor=="joe" ? s.inventory : s.bodies.at(c.actor).inventory;
+  auto& task=c.actor=="joe" ? r.task : r.companions.at(c.actor).task;
+  auto& loaded=c.actor=="joe" ? r.loadedRounds : r.companions.at(c.actor).loadedRounds;
+  auto& lastShot=c.actor=="joe" ? r.lastShotAt : r.companions.at(c.actor).lastShotAt;
+  const auto effects = c.actor=="joe" ? s.survival.CurrentEffects() : s.bodies.at(c.actor).survival.CurrentEffects();
   const bool worldEffect = c.kind == CombatOp::ResolveShot || c.kind == CombatOp::Detonate;
   if (!worldEffect && (effects.dead || effects.collapsed)) return denied;
-  if (!worldEffect && !s.hidingPlace.empty() && c.kind != CombatOp::HoldBreath &&
+  if (!worldEffect && c.actor!="joe") {
+    const auto story=s.narrative.CaptureSnapshot(); const auto& fate=story.outcomes.at(c.actor);
+    if(fate.dead || fate.captured || fate.together || fate.escapedAlone || s.bodies.at(c.actor).task) return denied;
+    if(s.special.recruited.count(c.actor) && (s.special.phase==SpecialPhase::Confronting || s.special.phase==SpecialPhase::Opportunity)) return denied;
+    if(c.kind==CombatOp::Fire && !context.hunterPerceived && !context.distractionIntended) return denied;
+    s.bodies.at(c.actor).lastNode=c.node;
+  }
+  const auto available=[&](const std::string& item) { return c.actor=="joe" ? CombatItemAvailable(s,item,1) : stock.Quantity(item)>=1; };
+  const auto syncAmmo=[&] {
+    if(c.actor=="joe") return true;
+    auto person=s.Person(*detail::Person(c.actor)).CaptureSnapshot(); int count=0;
+    for(const auto& [id,n]:stock.Contents()) if(stock.IsCategory(id,survival::ItemCategory::Ammunition)) count+=n;
+    person.traits.ammunition=count; return s.Person(*detail::Person(c.actor)).RestoreSnapshot(person);
+  };
+  if (!worldEffect && (c.actor=="joe" ? !s.hidingPlace.empty() : !s.bodies.at(c.actor).hidingPlace.empty()) && c.kind != CombatOp::HoldBreath &&
       c.kind != CombatOp::ReleaseBreath && c.kind != CombatOp::CancelReload && c.kind != CombatOp::CancelThrow) return denied;
   CombatResult result{Status::Applied};
   const auto interrupt = [&](double duration) {
@@ -231,44 +274,47 @@ CombatResult CampaignCore::ExecuteCombat(State& s, const CombatCommand& c, const
   };
   switch (c.kind) {
     case CombatOp::BeginReload: case CombatOp::BeginThrow: {
-      if (r.task) return {Status::Conflict};
+      if (task) return {Status::Conflict};
       if (r.serial == std::numeric_limits<std::uint64_t>::max()) return {Status::LogFull};
       const bool reload = c.kind == CombatOp::BeginReload;
       const std::string item = reload ? "magazine" : c.target;
-      if (!CombatItemAvailable(s, item, 1) || (reload && (s.inventory.Quantity("rifle") != 1 || r.loadedRounds == p.magazineRounds))) return denied;
-      r.task = CombatTask{++r.serial, c.kind, item, c.eventId, c.node, c.atSeconds,
+      if (!available(item) || (reload && (stock.Quantity("rifle") != 1 || loaded == p.magazineRounds))) return denied;
+      task = CombatTask{++r.serial, c.kind, item, c.eventId, c.node, c.atSeconds,
         c.atSeconds + (reload ? p.reloadSeconds : p.throwSeconds)};
-      result.task = r.task;
+      result.task = task;
       break;
     }
     case CombatOp::CompleteReload: case CombatOp::CancelReload: case CombatOp::ReleaseThrow: case CombatOp::CancelThrow: {
       const bool reload = c.kind == CombatOp::CompleteReload || c.kind == CombatOp::CancelReload;
-      if (!r.task || r.task->serial != c.serial || r.task->kind != (reload ? CombatOp::BeginReload : CombatOp::BeginThrow) ||
-          r.task->item != (reload ? "magazine" : c.target)) return denied;
+      if (!task || task->serial != c.serial || task->kind != (reload ? CombatOp::BeginReload : CombatOp::BeginThrow) ||
+          task->item != (reload ? "magazine" : c.target)) return denied;
       const bool cancel = c.kind == CombatOp::CancelReload || c.kind == CombatOp::CancelThrow;
       if (!cancel) {
-        if (!context.animationCompleted || c.atSeconds < r.task->readyAt ||
-            (reload && s.inventory.Quantity("rifle") != 1) ||
+        if (!context.animationCompleted || c.atSeconds < task->readyAt ||
+            (reload && stock.Quantity("rifle") != 1) ||
             (!reload && r.thrown.size() + r.smoke.size() >= 16) ||
-            !s.inventory.Remove(r.task->item, 1, survival::RemovalReason::Consume)) return denied;
-        if (reload) r.loadedRounds = p.magazineRounds; // Old partially used magazine is discarded, never refilled into stock.
+            !stock.Remove(task->item, 1, survival::RemovalReason::Consume)) return denied;
+        if (reload) loaded = p.magazineRounds; // Old partially used magazine is discarded, never refilled into stock.
         else {
           ThrownItem item{c.serial, c.eventId, c.target, c.node, c.atSeconds,
             c.atSeconds + (c.target == "grenade" ? p.grenadeFuse : p.smokeFuse), c.position, c.vector};
+          item.actor=c.actor;
           r.thrown.emplace(c.serial, item);
           result.thrown = item;
         }
       }
-      r.task.reset();
+      task.reset();
+      if(!syncAmmo()) return denied;
       break;
     }
     case CombatOp::Fire: {
-      if (r.task) return {Status::Conflict};
-      if (s.inventory.Quantity("rifle") != 1 || r.loadedRounds <= 0 || r.shots.size() >= 16 ||
-          (r.lastShotAt >= 0 && c.atSeconds - r.lastShotAt < p.shotInterval)) return denied;
+      if (task) return {Status::Conflict};
+      if (stock.Quantity("rifle") != 1 || loaded <= 0 || r.shots.size() >= 16 ||
+          (lastShot >= 0 && c.atSeconds - lastShot < p.shotInterval)) return denied;
       if (r.serial == std::numeric_limits<std::uint64_t>::max()) return {Status::LogFull};
-      --r.loadedRounds; r.lastShotAt = c.atSeconds;
+      --loaded; lastShot = c.atSeconds;
       Shot shot{++r.serial, c.eventId, c.node, c.atSeconds, c.atSeconds + p.shotLifetime, c.position, c.vector};
+      shot.actor=c.actor;
       r.shots.emplace(shot.serial, shot);
       result.shot = shot;
       result.sound = perception::SoundEvent{perception::SoundKind::Gunshot, c.position, c.atSeconds, 1};
@@ -276,7 +322,7 @@ CombatResult CampaignCore::ExecuteCombat(State& s, const CombatCommand& c, const
     }
     case CombatOp::ResolveShot: {
       const auto shot = r.shots.find(c.serial);
-      if (!context.collisionVerified || shot == r.shots.end() || c.atSeconds >= shot->second.expiresAt) return denied;
+      if (!context.collisionVerified || shot == r.shots.end() || shot->second.actor!=c.actor || c.atSeconds >= shot->second.expiresAt) return denied;
       if (c.target == "hunter") interrupt(p.shotInterrupt);
       else if (c.target != "miss" && !destroy(c.target, false, c.node)) return denied;
       r.shots.erase(shot);
@@ -284,7 +330,7 @@ CombatResult CampaignCore::ExecuteCombat(State& s, const CombatCommand& c, const
     }
     case CombatOp::Detonate: {
       const auto item = r.thrown.find(c.serial);
-      if (!context.collisionVerified || item == r.thrown.end() || item->second.item != c.target ||
+      if (!context.collisionVerified || item == r.thrown.end() || item->second.actor!=c.actor || item->second.item != c.target ||
           c.atSeconds != item->second.detonateAt || item->second.node != c.node ||
           detail::CombatDistance(item->second.position, c.position) > 1e-6) return denied;
       if (c.target == "smoke") {
@@ -306,6 +352,7 @@ CombatResult CampaignCore::ExecuteCombat(State& s, const CombatCommand& c, const
             auto& body = s.bodies.at(hit.target);
             if (!body.hidingPlace.empty() && Find(definition_->hides, body.hidingPlace)->atNode != hit.node) return denied;
             body.survival.ApplyInjury(hit.injury);
+            r.companions.at(hit.target).task.reset();
             body.lastNode = hit.node;
             body.Stop(TaskStop::Injured);
             s.Person(*person).SetInjured(body.survival.CurrentInjury() != survival::Injury::None, c.atSeconds);

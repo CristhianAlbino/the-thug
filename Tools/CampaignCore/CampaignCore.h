@@ -9,6 +9,7 @@
 #include "SpecialRuntime.h"
 #include "InteractionRuntime.h"
 #include "RescueRuntime.h"
+#include "StrategyRuntime.h"
 
 #include <cstdint>
 #include <iosfwd>
@@ -115,6 +116,7 @@ class CampaignCore {
   HunterRuntimeSnapshot HunterRuntime() const;
   CombatResult ApplyCombat(const CombatCommand&, const CombatContext&);
   CombatRuntimeSnapshot CombatRuntime() const;
+  std::vector<CombatOp> CompanionCombatOffers(const std::string&, const CombatContext&) const;
   // Continuous physical tracking is bounded state, not a durable action receipt.
   bool TrackThrown(std::uint64_t serial, const std::string& actualNode,
                    hunter::Vec3 position, hunter::Vec3 velocity, bool physicallyVerified);
@@ -128,6 +130,12 @@ class CampaignCore {
   Status ApplyRescue(const RescueCommand&, const RescueContext&);
   RescueRuntimeSnapshot RescueRuntime() const;
   std::vector<RescueOffer> RescueOffers(const std::string& actor, const RescueContext&) const;
+  InteractionResult ApplyStrategy(const StrategyCommand&, const StrategyContext&);
+  StrategyRuntimeSnapshot StrategyRuntime() const;
+  std::vector<KnownReport> KnownReports(const std::string& actor) const;
+  std::map<std::string, KnownDrop> KnownDrops(const std::string& actor) const;
+  std::vector<AnswerKind> QuestionOptions() const;
+  std::vector<HunterPlanOffer> HunterPlanOffers(const StrategyContext&) const;
   std::optional<NightVariation> VariationFor(const std::string&) const;
   std::optional<director::Cue> InteractionCue(const InteractionCommand&) const;
   std::vector<NightRecordEntry> NightRecord() const;
@@ -154,7 +162,7 @@ class CampaignCore {
   std::string HidingPlace() const;
   std::size_t AppliedActionCount() const;
 
-  // Runtime v8 adds temporary capture and interrupted joint release tasks
+  // Runtime v9 adds resources, information, cooperation and individual weapons
   // around StorySave. Legacy core/story files require an explicit migration.
   save::Result Save(std::ostream&) const;
   save::Result Load(std::istream&);
@@ -193,9 +201,10 @@ class CampaignCore {
   bool ReadCompanions(std::istream&, State&) const;
   bool CombatStaticValid(const CombatCommand&) const;
   bool CombatCoherent(const State&) const;
-  CombatResult ExecuteCombat(State&, const CombatCommand&, const CombatContext&);
+  CombatResult ExecuteCombat(State&, const CombatCommand&, const CombatContext&) const;
   bool AdvanceCombat(State&, double, survival::Activity);
   bool CombatItemAvailable(const State&, const std::string&, int quantity) const;
+  bool WeaponBusy(const State&, const std::string&) const;
   void ReconcileCombat(State&) const;
   void WriteCombat(std::ostream&, const State&) const;
   bool ReadCombat(std::istream&, State&) const;
@@ -220,6 +229,22 @@ class CampaignCore {
   void ReconcileRescue(State&) const;
   void WriteRescue(std::ostream&, const State&) const;
   bool ReadRescue(std::istream&, State&) const;
+  bool StrategyStaticValid(const StrategyCommand&) const;
+  InteractionResult ExecuteStrategy(State&, const StrategyCommand&, const StrategyContext&) const;
+  bool ReplayStrategy(StrategyRuntimeSnapshot&, const StrategyCommand&, std::uint64_t, bool,
+                      std::uint64_t, std::uint64_t) const;
+  bool StrategyBusy(const State&, const std::string&) const;
+  void ReconcileStrategy(State&) const;
+  bool StrategyCoherent(const State&) const;
+  bool ResourceCoherent(const State&) const;
+  void WriteStrategy(std::ostream&, const State&) const;
+  bool ReadStrategy(std::istream&, State&) const;
+  bool RestoreStrategy(State&) const;
+  bool AdaptiveStaticValid(const StrategyCommand&) const;
+  InteractionResult ExecuteAdaptive(State&, const StrategyCommand&, const StrategyContext&) const;
+  bool ReplayAdaptive(StrategyRuntimeSnapshot&, const StrategyCommand&, std::uint64_t, std::uint64_t) const;
+  void ReconcileAdaptive(State&) const;
+  std::vector<HunterPlanOffer> HunterPlanOffers(const State&, const StrategyContext&) const;
 };
 
 } // namespace thug::campaign

@@ -70,6 +70,8 @@ Runtime v1/v2 e serializadores inferiores não são checkpoints completos desta 
 
 ## Próximas extensões
 
-Medo/estresse com evolução temporal, mentiras/manipulação e objetivos adicionais, cooperação simultânea em obstáculos, planos com múltiplas etapas, inventário derrubado/corpos, restauração física e atuação continuam abertos. As tarefas atuais não fornecem Animation Blueprint, Behavior Tree, navmesh nem personagens prontos para importar.
+Pressão temporal, oito objetivos, relatos falíveis, uso conjunto e pilhas derrubadas têm base nativa nos contratos complementares de interações e estratégia v9. Saque automático de cadáveres, cooperação física não autorada, restauração espacial e atuação não são entregues por essas APIs. As tarefas atuais não fornecem Animation Blueprint, Behavior Tree, navmesh nem personagens prontos para importar.
 
-O runtime v8 acrescenta [captura temporária e soltura conjunta/própria](CONTRATO_CAPTURA_RESGATE_V1.md). Contidos/helpers não executam objetivos habituais até libertação/cancelamento. Recursos continuam individuais; soltar não concede rota ou deslocamento.
+O runtime v9 acrescenta [captura temporária e soltura conjunta/própria](CONTRATO_CAPTURA_RESGATE_V1.md). Contidos/helpers não executam objetivos habituais até libertação/cancelamento. Recursos continuam individuais; soltar não concede rota ou deslocamento.
+
+**Atualização v9:** pilhas/informação/interrogação/usos conjuntos, armas dos NPCs e planos observados usam o [contrato complementar](CONTRATO_RECURSOS_INFORMACAO_PLANOS_V1.md). Os limites físicos deste documento permanecem.

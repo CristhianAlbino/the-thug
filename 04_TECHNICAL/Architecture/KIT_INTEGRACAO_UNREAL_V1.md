@@ -21,7 +21,11 @@
 | Mundo → companheiro | Joe/rota/recurso/Hunter realmente percebidos, alcance físico | `Situation`, transferência e influência com ID único; destino via navmesh, sem teleporte. |
 | Diretor narrativo | Nó, atores ativos/presentes, perigo, prova testemunhada e relógio da campanha | `ApplyNarrative` + `CurrentPresentation`; confirmar owner/serial/índice/cueId entregue. Elegibilidade não marca conclusão. Observações temporárias não entram no diário. |
 | Combate/respiração | `ApplyCombat`, provas de animação/colisão e pose/velocidade rastreadas; `BreathingSound` | Consumir retornos uma vez, resolver cada fusível antes de seguir o delta, aplicar janela de interrupção ao ator Hunter. [Contrato P07](CONTRATO_COMBATE_RESPIRACAO_V1.md). |
-| Save | Runtime v5 (StorySave + pausa/ocupação/recibos/planos + corpos/inventários/tarefas + memória/tática/RNG Hunter + combate/respiração) + reconciliação dos atores/UI | `SaveFile/LoadFile` valida e protege arquivo, com recuperação explícita. Restauração física de atores/animações continua no editor. |
+| Save | Runtime v9 (StorySave + pausa/ocupação/recibos/planos + corpos/inventários/tarefas + memória/tática/RNG Hunter + combate/respiração por pessoa, finais/participações, interações/resgate, pilhas/relatos/usos conjuntos/planos) + reconciliação dos atores/UI | `SaveFile/LoadFile` valida e protege arquivo, com recuperação explícita. Restauração física de atores/animações continua no editor. |
+
+## Extensões v9 e restauração
+
+Conectar `ApplyStrategy`, `KnownDrops/KnownReports`, `HunterPlanOffers` e `CombatCommand.actor` pelo [contrato v9](CONTRATO_RECURSOS_INFORMACAO_PLANOS_V1.md). Restaurar pilhas físicas e armas/munição de cada executor antes de reativar sensores. A UI lê conhecimento pessoal datado, não o runtime global. Interromper/cancelar perguntas, usos, resgates e planos se contato, acesso ou animação contínua não puderem ser restabelecidos. Limpar tarefas interrompidas antes da apresentação terminal. `ArrivePlan` exige viagem real; o relógio não move atores.
 
 ## Conteúdo e desempenho — hipótese inicial
 

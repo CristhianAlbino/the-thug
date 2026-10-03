@@ -34,6 +34,7 @@ std::string Identity(const WorldDefinition& d, const survival::Tuning& t) {
   std::ostringstream out;
   out.imbue(std::locale::classic());
   out << std::setprecision(std::numeric_limits<double>::max_digits10) << data::Revision
+      << StrategyRevision << QuestionSeconds << JointSeconds << ReportFreshSeconds
       << RescueRuntimeRevision << ' ' << RestrainSeconds << ' ' << ManualReleaseSeconds << ' ' << ToolReleaseSeconds
       << ' ' << SelfReleaseSeconds << ' ' << CaptureTransferSeconds
       << InteractionRuntimeRevision << SpecialRuntimeRevision << CombatRuntimeRevision << HunterRuntimeRevision << partydata::Revision << director::Content().revision << std::quoted(d.levelId);
@@ -369,7 +370,7 @@ ActionResult CampaignCore::Apply(const Action& a) {
   if (!ValidLocation(a) || (!state_->hidingPlace.empty() &&
       a.node != Find(definition_->hides, state_->hidingPlace)->atNode))
     return {Status::MissingRequirement, {}};
-  if (state_->receipts.size() + detail::CombatReservedReceipts(state_->combat) + detail::SpecialReservedReceipts(state_->special) + detail::RescueReservedReceipts(state_->rescue) >= detail::MaxReceipts) return {Status::LogFull, {}};
+  if (state_->receipts.size() + detail::CombatReservedReceipts(state_->combat) + detail::SpecialReservedReceipts(state_->special) + detail::RescueReservedReceipts(state_->rescue) + detail::StrategyReservedReceipts(state_->strategy) >= detail::MaxReceipts) return {Status::LogFull, {}};
   auto next = std::make_unique<State>(*state_);
   const auto result = Execute(*next, a);
   if (result.status != Status::Applied) return result;
@@ -565,7 +566,7 @@ bool CampaignCore::Consistent(const State& s) const {
       s.harley.CaptureSnapshot().nowSeconds != now || s.bartholomeu.CaptureSnapshot().nowSeconds != now ||
       s.jack.CaptureSnapshot().nowSeconds != now || s.narrative.CaptureSnapshot().nowSeconds != now ||
       s.receipts.size() > detail::MaxReceipts || s.narrative.CaptureSnapshot().joeEscaped != escaped ||
-      !director::ValidPresentation(s.narrative.CaptureSnapshot(), s.presentation) || !NarrativeCoherent(s) || !CompanionCoherent(s) || !HunterCoherent(s) || !CombatCoherent(s) || !SpecialCoherent(s) || !InteractionCoherent(s) || !RescueCoherent(s)) return false;
+      !director::ValidPresentation(s.narrative.CaptureSnapshot(), s.presentation) || !NarrativeCoherent(s) || !CompanionCoherent(s) || !HunterCoherent(s) || !CombatCoherent(s) || !SpecialCoherent(s) || !InteractionCoherent(s) || !RescueCoherent(s) || !StrategyCoherent(s) || !ResourceCoherent(s)) return false;
   if (!s.hidingPlace.empty()) {
     if (!Find(definition_->hides, s.hidingPlace)) return false;
     const auto* object = s.world.Find(s.hidingPlace);
@@ -580,6 +581,7 @@ bool CampaignCore::Consistent(const State& s) const {
     if (!object || !object->present || (object->stateId != u.before && object->stateId != u.after)) return false;
   }
   for (const auto& [id, signature] : s.receipts) {
+    if (signature.rfind("Q ", 0) == 0) continue; // Validated by StrategyCoherent.
     if (signature.rfind("R ", 0) == 0) continue; // Validated by RescueCoherent.
     if (signature.rfind("I ", 0) == 0) continue; // Validated by InteractionCoherent.
     if (signature.rfind("S ", 0) == 0) continue; // Validated by SpecialCoherent.

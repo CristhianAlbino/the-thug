@@ -1,0 +1,373 @@
+{
+  "schema": 1,
+  "assets": [
+    {
+      "id": "SFX_SlowFootstep",
+      "kind": "sound",
+      "label": "SlowFootstep",
+      "sources": [
+        "Tools/PerceptionCore/PerceptionCore.h"
+      ],
+      "status": "planned",
+      "production_file": null
+    },
+    {
+      "id": "SFX_WalkFootstep",
+      "kind": "sound",
+      "label": "WalkFootstep",
+      "sources": [
+        "Tools/PerceptionCore/PerceptionCore.h"
+      ],
+      "status": "planned",
+      "production_file": null
+    },
+    {
+      "id": "SFX_SprintFootstep",
+      "kind": "sound",
+      "label": "SprintFootstep",
+      "sources": [
+        "Tools/PerceptionCore/PerceptionCore.h"
+      ],
+      "status": "planned",
+      "production_file": null
+    },
+    {
+      "id": "SFX_Door",
+      "kind": "sound",
+      "label": "Door",
+      "sources": [
+        "Tools/PerceptionCore/PerceptionCore.h"
+      ],
+      "status": "planned",
+      "production_file": null
+    },
+    {
+      "id": "SFX_BrokenObject",
+      "kind": "sound",
+      "label": "BrokenObject",
+      "sources": [
+        "Tools/PerceptionCore/PerceptionCore.h"
+      ],
+      "status": "planned",
+      "production_file": null
+    },
+    {
+      "id": "SFX_Fall",
+      "kind": "sound",
+      "label": "Fall",
+      "sources": [
+        "Tools/PerceptionCore/PerceptionCore.h"
+      ],
+      "status": "planned",
+      "production_file": null
+    },
+    {
+      "id": "SFX_Gunshot",
+      "kind": "sound",
+      "label": "Gunshot",
+      "sources": [
+        "Tools/PerceptionCore/PerceptionCore.h"
+      ],
+      "status": "planned",
+      "production_file": null
+    },
+    {
+      "id": "SFX_Explosion",
+      "kind": "sound",
+      "label": "Explosion",
+      "sources": [
+        "Tools/PerceptionCore/PerceptionCore.h"
+      ],
+      "status": "planned",
+      "production_file": null
+    },
+    {
+      "id": "SFX_Breathing",
+      "kind": "sound",
+      "label": "Breathing",
+      "sources": [
+        "Tools/PerceptionCore/PerceptionCore.h"
+      ],
+      "status": "planned",
+      "production_file": null
+    },
+    {
+      "id": "SFX_Distraction",
+      "kind": "sound",
+      "label": "Distraction",
+      "sources": [
+        "Tools/PerceptionCore/PerceptionCore.h"
+      ],
+      "status": "planned",
+      "production_file": null
+    },
+    {
+      "id": "MUSIC_Exploration",
+      "kind": "music",
+      "label": "Exploration",
+      "sources": [
+        "06_AUDIO/README.md"
+      ],
+      "status": "planned",
+      "production_file": null
+    },
+    {
+      "id": "MUSIC_Tension",
+      "kind": "music",
+      "label": "Tension",
+      "sources": [
+        "06_AUDIO/README.md"
+      ],
+      "status": "planned",
+      "production_file": null
+    },
+    {
+      "id": "MUSIC_Investigation",
+      "kind": "music",
+      "label": "Investigation",
+      "sources": [
+        "06_AUDIO/README.md"
+      ],
+      "status": "planned",
+      "production_file": null
+    },
+    {
+      "id": "MUSIC_HunterNear",
+      "kind": "music",
+      "label": "HunterNear",
+      "sources": [
+        "06_AUDIO/README.md"
+      ],
+      "status": "planned",
+      "production_file": null
+    },
+    {
+      "id": "MUSIC_Pursuit",
+      "kind": "music",
+      "label": "Pursuit",
+      "sources": [
+        "06_AUDIO/README.md"
+      ],
+      "status": "planned",
+      "production_file": null
+    },
+    {
+      "id": "MUSIC_Hiding",
+      "kind": "music",
+      "label": "Hiding",
+      "sources": [
+        "06_AUDIO/README.md"
+      ],
+      "status": "planned",
+      "production_file": null
+    },
+    {
+      "id": "MUSIC_Recovery",
+      "kind": "music",
+      "label": "Recovery",
+      "sources": [
+        "06_AUDIO/README.md"
+      ],
+      "status": "planned",
+      "production_file": null
+    },
+    {
+      "id": "AUD01",
+      "kind": "recording_script",
+      "label": "Roteiro AUD01 e variantes autorizadas",
+      "sources": [
+        "02_GAME_DESIGN/Narrative/PACOTE_TEXTO_CAMPANHA_V1.md",
+        "Tools/NarrativeCore/variants.json"
+      ],
+      "status": "planned",
+      "production_file": null
+    },
+    {
+      "id": "AUD02",
+      "kind": "recording_script",
+      "label": "Roteiro AUD02 e variantes autorizadas",
+      "sources": [
+        "02_GAME_DESIGN/Narrative/PACOTE_TEXTO_CAMPANHA_V1.md",
+        "Tools/NarrativeCore/variants.json"
+      ],
+      "status": "planned",
+      "production_file": null
+    },
+    {
+      "id": "AUD03",
+      "kind": "recording_script",
+      "label": "Roteiro AUD03 e variantes autorizadas",
+      "sources": [
+        "02_GAME_DESIGN/Narrative/PACOTE_TEXTO_CAMPANHA_V1.md",
+        "Tools/NarrativeCore/variants.json"
+      ],
+      "status": "planned",
+      "production_file": null
+    },
+    {
+      "id": "AUD04",
+      "kind": "recording_script",
+      "label": "Roteiro AUD04 e variantes autorizadas",
+      "sources": [
+        "02_GAME_DESIGN/Narrative/PACOTE_TEXTO_CAMPANHA_V1.md",
+        "Tools/NarrativeCore/variants.json"
+      ],
+      "status": "planned",
+      "production_file": null
+    },
+    {
+      "id": "AUD05",
+      "kind": "recording_script",
+      "label": "Roteiro AUD05 e variantes autorizadas",
+      "sources": [
+        "02_GAME_DESIGN/Narrative/PACOTE_TEXTO_CAMPANHA_V1.md",
+        "Tools/NarrativeCore/variants.json"
+      ],
+      "status": "planned",
+      "production_file": null
+    },
+    {
+      "id": "AUD06",
+      "kind": "recording_script",
+      "label": "Roteiro AUD06 e variantes autorizadas",
+      "sources": [
+        "02_GAME_DESIGN/Narrative/PACOTE_TEXTO_CAMPANHA_V1.md",
+        "Tools/NarrativeCore/variants.json"
+      ],
+      "status": "planned",
+      "production_file": null
+    },
+    {
+      "id": "AUD07",
+      "kind": "recording_script",
+      "label": "Roteiro AUD07 e variantes autorizadas",
+      "sources": [
+        "02_GAME_DESIGN/Narrative/PACOTE_TEXTO_CAMPANHA_V1.md",
+        "Tools/NarrativeCore/variants.json"
+      ],
+      "status": "planned",
+      "production_file": null
+    },
+    {
+      "id": "AUD08",
+      "kind": "recording_script",
+      "label": "Roteiro AUD08 e variantes autorizadas",
+      "sources": [
+        "02_GAME_DESIGN/Narrative/PACOTE_TEXTO_CAMPANHA_V1.md",
+        "Tools/NarrativeCore/variants.json"
+      ],
+      "status": "planned",
+      "production_file": null
+    },
+    {
+      "id": "ACTOR_joe",
+      "kind": "character",
+      "label": "joe",
+      "sources": [
+        "02_GAME_DESIGN/Narrative/BIBLIA_PERSONAGENS_V1.md",
+        "02_GAME_DESIGN/Visual/BIBLIA_VISUAL_HOSPITAL.md"
+      ],
+      "status": "planned",
+      "production_file": null
+    },
+    {
+      "id": "ACTOR_harley",
+      "kind": "character",
+      "label": "harley",
+      "sources": [
+        "02_GAME_DESIGN/Narrative/BIBLIA_PERSONAGENS_V1.md",
+        "02_GAME_DESIGN/Visual/BIBLIA_VISUAL_HOSPITAL.md"
+      ],
+      "status": "planned",
+      "production_file": null
+    },
+    {
+      "id": "ACTOR_bartholomeu",
+      "kind": "character",
+      "label": "bartholomeu",
+      "sources": [
+        "02_GAME_DESIGN/Narrative/BIBLIA_PERSONAGENS_V1.md",
+        "02_GAME_DESIGN/Visual/BIBLIA_VISUAL_HOSPITAL.md"
+      ],
+      "status": "planned",
+      "production_file": null
+    },
+    {
+      "id": "ACTOR_jack",
+      "kind": "character",
+      "label": "jack",
+      "sources": [
+        "02_GAME_DESIGN/Narrative/BIBLIA_PERSONAGENS_V1.md",
+        "02_GAME_DESIGN/Visual/BIBLIA_VISUAL_HOSPITAL.md"
+      ],
+      "status": "planned",
+      "production_file": null
+    },
+    {
+      "id": "ACTOR_thomas",
+      "kind": "character",
+      "label": "thomas",
+      "sources": [
+        "02_GAME_DESIGN/Narrative/BIBLIA_PERSONAGENS_V1.md",
+        "02_GAME_DESIGN/Visual/BIBLIA_VISUAL_HOSPITAL.md"
+      ],
+      "status": "planned",
+      "production_file": null
+    },
+    {
+      "id": "ACTOR_hunter",
+      "kind": "character",
+      "label": "hunter",
+      "sources": [
+        "02_GAME_DESIGN/Narrative/BIBLIA_PERSONAGENS_V1.md",
+        "02_GAME_DESIGN/Visual/BIBLIA_VISUAL_HOSPITAL.md"
+      ],
+      "status": "planned",
+      "production_file": null
+    },
+    {
+      "id": "KIT_HOSPITAL",
+      "kind": "environment",
+      "label": "Kit modular e leitura do hospital",
+      "sources": [
+        "02_GAME_DESIGN/Visual/BIBLIA_VISUAL_HOSPITAL.md",
+        "Tools/MapCore/hospital_graph.json"
+      ],
+      "status": "planned",
+      "production_file": null
+    },
+    {
+      "id": "PROPS_SYSTEMIC",
+      "kind": "prop",
+      "label": "Portas, circuitos, câmeras, esconderijos e recursos",
+      "sources": [
+        "Tools/CampaignCore/campaign_initial.json",
+        "Tools/MapCore/hospital_graph.json"
+      ],
+      "status": "planned",
+      "production_file": null
+    },
+    {
+      "id": "ANIM_CUSTODY_JOINT",
+      "kind": "animation",
+      "label": "Contenção, soltura, recusa, pergunta e uso conjunto",
+      "sources": [
+        "04_TECHNICAL/Architecture/CONTRATO_CAPTURA_RESGATE_V1.md",
+        "04_TECHNICAL/Architecture/CONTRATO_RECURSOS_INFORMACAO_PLANOS_V1.md"
+      ],
+      "status": "planned",
+      "production_file": null
+    },
+    {
+      "id": "UI_JOURNAL_REPORTS",
+      "kind": "interface",
+      "label": "Legendas, diário, última observação e relato não conferido",
+      "sources": [
+        "02_GAME_DESIGN/UX/INTERFACE_FLUXOS_V1.md",
+        "04_TECHNICAL/Architecture/CONTRATO_RECURSOS_INFORMACAO_PLANOS_V1.md"
+      ],
+      "status": "planned",
+      "production_file": null
+    }
+  ]
+}

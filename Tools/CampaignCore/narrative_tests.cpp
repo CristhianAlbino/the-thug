@@ -50,7 +50,7 @@ void ResumeAndReceipts(){
   const auto old=Ack(restarted,o);const auto view=*restarted.CurrentPresentation(o);auto cancel=Command(restarted,ActionKind::CancelScene,"N01",o.joeNode);cancel.presentationSerial=view.serial;
   Check(restarted.ApplyNarrative(cancel,o).status==Status::Applied,"Cancellation does not mark scene seen");Apply(restarted,ActionKind::BeginScene,"N01",o);
   Rejected(restarted,old,o,Status::MissingRequirement);
-  Check(Bytes(resumed).find("THE_THUG_RUNTIME_CAMPAIGN 8")==0,"Runtime uses explicit version for selected plans");
+  Check(Bytes(resumed).find("THE_THUG_RUNTIME_CAMPAIGN 9")==0,"Runtime uses explicit version for selected plans");
 }
 void ReadingAndAuthority(){
   campaign::CampaignCore c(rules::Difficulty::Hard);Check(c.JournalText("DOC01").empty(),"Unread text remains unavailable");

@@ -79,7 +79,7 @@ Status CampaignCore::ApplySpecial(const SpecialCommand& c, const SpecialContext&
   if (r.phase == SpecialPhase::Confronting && Now() >= r.boundaryAt && c.kind != SpecialOp::ResolveConfrontation) return Status::AwaitingPhysics;
   const bool finishing = c.kind == SpecialOp::CompletePlant || c.kind == SpecialOp::CancelPlant ||
       c.kind == SpecialOp::ResolveConfrontation || c.kind == SpecialOp::ResolveCollapse || c.kind == SpecialOp::ConfrontationEscape;
-  const auto reserved = detail::CombatReservedReceipts(state_->combat) + detail::SpecialReservedReceipts(r) + detail::RescueReservedReceipts(state_->rescue);
+  const auto reserved = detail::CombatReservedReceipts(state_->combat) + detail::SpecialReservedReceipts(r) + detail::RescueReservedReceipts(state_->rescue) + detail::StrategyReservedReceipts(state_->strategy);
   const std::size_t extra = c.kind == SpecialOp::StartConfrontation ? 2 : c.kind == SpecialOp::BeginPlant || c.kind == SpecialOp::DetonateCollapse ? 1 : 0;
   if (state_->receipts.size() + reserved + extra - (finishing && reserved ? 1 : 0) >= detail::MaxReceipts) return Status::LogFull;
   auto next = std::make_unique<State>(*state_);
@@ -111,7 +111,7 @@ Status CampaignCore::ExecuteSpecial(State& s, const SpecialCommand& c, const Spe
   if (mode != (confrontation ? rules::Difficulty::Easy : rules::Difficulty::Punitive) || story.act != 5) return deny;
   const auto viable = [&](const std::string& actor) {
     const auto& body = s.bodies.at(actor);
-    return !RescueBusy(s,actor) && Active(story, actor) && Present(context, actor, c.node) && !body.task && body.hidingPlace.empty() &&
+    return !RescueBusy(s,actor) && !WeaponBusy(s,actor) && Active(story, actor) && Present(context, actor, c.node) && !body.task && body.hidingPlace.empty() &&
         !body.survival.CurrentEffects().collapsed && body.survival.CurrentInjury() < survival::Injury::Moderate && s.Person(*detail::Person(actor)).CurrentTraits().trust >= d.minimumTrust;
   };
   switch (c.kind) {
@@ -200,6 +200,7 @@ Status CampaignCore::ExecuteSpecial(State& s, const SpecialCommand& c, const Spe
     } else if (fate == SpecialFate::Captured) outcome.captured = true;
     else outcome.together = true;
     body.lastNode = c.node; body.Stop(fate == SpecialFate::Injured ? TaskStop::Injured : TaskStop::Outcome);
+    s.combat.companions.at(actor).task.reset();
     if (fate != SpecialFate::Injured) outcome.lastContactNode = c.node;
     SyncBody(s.Person(*detail::Person(actor)), body);
   }

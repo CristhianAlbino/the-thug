@@ -17,14 +17,14 @@ sources=( \
   "$root/../WorldCore/WorldCore.cpp" "$root/CampaignCore.cpp" \
   "$root/CampaignSave.cpp" "$root/CampaignNarrative.cpp" "$root/../DirectorCore/DirectorCore.cpp" \
   "$root/CheckpointFile.cpp" "$root/CampaignCompanions.cpp" "$root/CampaignCompanionSave.cpp" "$root/CampaignHunter.cpp" "$root/CampaignHunterSave.cpp" "$root/CampaignCombat.cpp" "$root/CampaignCombatSave.cpp" "$root/CampaignSpecial.cpp" "$root/CampaignSpecialSave.cpp" "$root/CampaignInteractions.cpp" "$root/CampaignInteractionSave.cpp" )
-sources+=("$root/CampaignRescue.cpp" "$root/CampaignRescueSave.cpp")
+sources+=("$root/CampaignRescue.cpp" "$root/CampaignRescueSave.cpp" "$root/CampaignStrategy.cpp" "$root/CampaignStrategySave.cpp" "$root/CampaignResources.cpp" "$root/CampaignAdaptive.cpp")
 objects=()
 for source in "${sources[@]}"; do
   object="$build_dir/$(basename "$source" .cpp).o"
   c++ -std=c++17 -Wall -Wextra -Wpedantic -Werror -c "$source" -o "$object"
   objects+=("$object")
 done
-for suite in tests rescue_tests interaction_tests special_tests combat_tests hunter_tests companion_tests narrative_tests checkpoint_tests checkpoint_driver; do
+for suite in tests extension_tests strategy_tests rescue_tests interaction_tests special_tests combat_tests hunter_tests companion_tests narrative_tests checkpoint_tests checkpoint_driver; do
   c++ -std=c++17 -Wall -Wextra -Wpedantic -Werror "$root/$suite.cpp" "${objects[@]}" -o "$build_dir/$suite"
   if [[ "$suite" != checkpoint_driver ]]; then "$build_dir/$suite"; fi
 done

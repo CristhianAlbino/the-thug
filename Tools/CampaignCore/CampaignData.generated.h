@@ -5,7 +5,7 @@
 #include <array>
 #include <stdexcept>
 namespace thug::campaign::data {
-inline constexpr const char* Revision = "52cc4af2fcc63d9beb4a0e943f49b51b67c923cb8506c8ef375543e311e8350a";
+inline constexpr const char* Revision = "1c5bd235b15d7a468d9570cf52cfb46ff39cff1cda1ca07a7d0fdfe93d9262be";
 struct Profile { int capacity; std::optional<double> dawnSeconds;
   std::array<companion::Traits, 3> companions; std::map<std::string, int> loadout; };
 inline std::vector<survival::ItemDefinition> Items() { return {
@@ -208,6 +208,7 @@ d.objects.push_back({"RADIO_LINK", "interaction", {"offline", {}, {}, true}});
 d.objects.push_back({"GARAGE_GATE", "interaction", {"closed", {}, {}, true}});
 d.objects.push_back({"WINDOW_ACCESS", "interaction", {"blocked", {}, {}, true}});
 d.objects.push_back({"RADIO_INTERFERENCE", "interaction", {"blocked", {}, {}, true}});
+d.objects.push_back({"P_SMOKE_RESERVE", "pickup", {"available", {}, {}, true}});
 d.objects.push_back({"P_TREATMENT", "pickup", {"available", {}, {}, true}});
 d.objects.push_back({"P_MAGAZINE", "pickup", {"available", {}, {}, true}});
 d.objects.push_back({"P_RADIO", "pickup", {"available", {}, {}, true}});
@@ -215,6 +216,7 @@ d.objects.push_back({"P_BATTERY", "pickup", {"available", {}, {}, true}});
 d.objects.push_back({"P_WINDOW_TOOL", "pickup", {"available", {}, {}, true}});
 d.objects.push_back({"P_GARAGE_KEY", "pickup", {"available", {}, {}, true}});
 d.objects.push_back({"P_SERVICE_KEY", "pickup", {"available", {}, {}, true}});
+d.pickups.push_back({"P_SMOKE_RESERVE", "F3_EXAMS", "smoke", 1, std::nullopt, {}});
 d.pickups.push_back({"P_TREATMENT", "F1_PHARMACY", "treatment", 1, std::nullopt, {}});
 d.pickups.push_back({"P_MAGAZINE", "F2_SUPPLY", "magazine", 1, std::nullopt, {}});
 d.pickups.push_back({"P_RADIO", "F1_RADIO", "radio", 1, rules::Event::RadioFound, {}});

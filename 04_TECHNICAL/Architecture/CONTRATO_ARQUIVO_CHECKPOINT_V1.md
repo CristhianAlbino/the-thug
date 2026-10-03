@@ -1,6 +1,6 @@
 # The Thug — arquivo de checkpoint v1
 
-**Estado:** escritor/leitor C++17 implementado em `Tools/CampaignCore/CheckpointFile.*`, com backends POSIX e Windows. Este documento não contém soluções de pistas nem parâmetros de vitória. O formato interno da sessão é runtime v8; a versão deste contrato descreve a API de arquivo.
+**Estado:** escritor/leitor C++17 implementado em `Tools/CampaignCore/CheckpointFile.*`, com backends POSIX e Windows. Este documento não contém soluções de pistas nem parâmetros de vitória. O formato interno da sessão é runtime v9; a versão deste contrato descreve a API de arquivo.
 
 ## API e uso
 
@@ -33,3 +33,5 @@ Há ensaios de cancelamento e encerramento abrupto do **processo** em seis etapa
 O observador de etapas existe para injeção de falha/telemetria controlada. Ele roda com o slot bloqueado: não deve lançar exceção nem chamar esta API novamente. Cancelamento depois da etapa final não desfaz uma gravação concluída. Não usar o observador como widget de confirmação.
 
 Referências primárias do backend Windows: [FlushFileBuffers](https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-flushfilebuffers), [MoveFileExW](https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-movefileexw) e [LockFileEx](https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-lockfileex).
+
+**Atualização v9:** pilhas/informação/interrogação/usos conjuntos, armas dos NPCs e planos observados usam o [contrato complementar](CONTRATO_RECURSOS_INFORMACAO_PLANOS_V1.md). Os limites físicos deste documento permanecem.

@@ -57,6 +57,7 @@ bool CampaignCore::NarrativeCoherent(const State& s) const {
   std::set<int> sceneConfirmed, banterConfirmed;
   for (const auto& [id, signature] : s.receipts) {
     (void)id;
+    if (signature.rfind("Q ", 0) == 0) continue;
     if (signature.rfind("R ", 0) == 0) continue;
     if (signature.rfind("I ", 0) == 0) continue;
     if (signature.rfind("S ", 0) == 0) continue;
@@ -157,7 +158,7 @@ director::Observation CampaignCore::NarrativeContext(const director::Observation
   if (run.result == rules::Ending::BitterDestruction) o.facts.insert("rare_destruction");
   for (const auto& id : s.special.appearances) o.facts.insert("appearance:" + id);
   for (auto& [name, actor] : o.companions) {
-    if (RescueBusy(s,name)) actor.active=false;
+    if (RescueBusy(s,name) || WeaponBusy(s,name)) actor.active=false;
     const auto found = story.outcomes.find(name);
     if (found != story.outcomes.end() && (found->second.dead || found->second.captured || found->second.escapedAlone ||
         (run.result == rules::Ending::CoordinatedEscape && !found->second.together) ||
@@ -190,7 +191,7 @@ ActionResult CampaignCore::ApplyNarrative(const Action& a, const director::Obser
       !((a.kind == ActionKind::BeginScene || a.kind == ActionKind::SceneCue) && TerminalScene(a.target))) return {Status::Finished, {}};
   if (!state_->hidingPlace.empty() && a.node != std::find_if(definition_->hides.begin(), definition_->hides.end(),
       [&](const auto& hide) { return hide.id == state_->hidingPlace; })->atNode) return {Status::MissingRequirement, {}};
-  if (state_->receipts.size() + detail::CombatReservedReceipts(state_->combat) + detail::SpecialReservedReceipts(state_->special) + detail::RescueReservedReceipts(state_->rescue) >= detail::MaxReceipts) return {Status::LogFull, {}};
+  if (state_->receipts.size() + detail::CombatReservedReceipts(state_->combat) + detail::SpecialReservedReceipts(state_->special) + detail::RescueReservedReceipts(state_->rescue) + detail::StrategyReservedReceipts(state_->strategy) >= detail::MaxReceipts) return {Status::LogFull, {}};
   auto next = std::make_unique<State>(*state_);
   auto story = next->narrative.CaptureSnapshot();
   const auto context = NarrativeContext(input, *next);

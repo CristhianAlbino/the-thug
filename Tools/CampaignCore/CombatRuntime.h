@@ -12,7 +12,7 @@
 namespace thug::campaign {
 
 // All values are playtest hypotheses. Changing them requires a new revision.
-inline constexpr const char* CombatRuntimeRevision = "combat-breathing-1";
+inline constexpr const char* CombatRuntimeRevision = "combat-actors-2";
 struct CombatTuning {
   int magazineRounds = 30;
   double reloadSeconds = 2.5, throwSeconds = .5, shotInterval = .12;
@@ -43,12 +43,15 @@ struct CombatCommand {
   std::uint64_t serial = 0;
   hunter::Vec3 position{}, vector{}; // Muzzle/direction or throw position/velocity, meters.
   std::vector<BlastContact> contacts{}; // Verified complete blast query, never inferred from room occupancy.
+  std::string actor = "joe";
 };
 struct CombatContext {
   std::string actualJoeNode;
   bool physicallyVerified = false;
   bool animationCompleted = false;
   bool collisionVerified = false;
+  std::map<std::string, std::string> actualActorNodes{};
+  bool hunterPerceived = false, distractionIntended = false;
 };
 struct CombatTask {
   std::uint64_t serial = 0;
@@ -61,18 +64,25 @@ struct Shot {
   std::string eventId, node;
   double firedAt = 0, expiresAt = 0;
   hunter::Vec3 origin{}, direction{};
+  std::string actor = "joe";
 };
 struct ThrownItem {
   std::uint64_t serial = 0;
   std::string eventId, item, node;
   double releasedAt = 0, detonateAt = 0;
   hunter::Vec3 position{}, velocity{};
+  std::string actor = "joe";
 };
 struct SmokeCloud {
   std::uint64_t serial = 0;
   std::string eventId, node;
   double startedAt = 0, expiresAt = 0;
   hunter::Vec3 center{};
+};
+struct ActorCombatState {
+  int loadedRounds = 0;
+  double lastShotAt = -1;
+  std::optional<CombatTask> task;
 };
 struct CombatRuntimeSnapshot {
   int loadedRounds = 0; // Initial magazines remain in inventory until the first completed reload.
@@ -85,6 +95,7 @@ struct CombatRuntimeSnapshot {
   std::map<std::uint64_t, Shot> shots;
   std::map<std::uint64_t, ThrownItem> thrown;
   std::map<std::uint64_t, SmokeCloud> smoke;
+  std::map<std::string, ActorCombatState> companions;
 };
 struct BreathingEffects {
   double oxygen = 0, capacity = 0;

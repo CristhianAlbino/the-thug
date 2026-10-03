@@ -30,7 +30,7 @@ Robin tem episódio breve no Punitivo, nos túneis. Este ciclo fornece gatilho e
 
 ## Persistência e limites
 
-Runtime v6 introduziu fase/marco, participantes, suprimentos, pontos, instalação/serial e encontros/bilhete; o runtime v8 conserva esses estados e acrescenta as [interações/registro](CONTRATO_INTERACOES_REGISTRO_V1.md). StorySave v1 mantém sua gramática e os valores de resultado conhecidos. O wrapper atual exige identidade integral de conteúdo. Runtime v1–v7 é recusado: migração não foi implementada.
+Runtime v6 introduziu fase/marco, participantes, suprimentos, pontos, instalação/serial e encontros/bilhete; o runtime v9 conserva esses estados e acrescenta as [interações/registro](CONTRATO_INTERACOES_REGISTRO_V1.md). StorySave v1 mantém sua gramática e os valores de resultado conhecidos. O wrapper atual exige identidade integral de conteúdo. Runtime v1–v8 é recusado: migração não foi implementada.
 
 Fatos `appearance:*` não pertencem ao conjunto livre de fatos narrativos, nem quando constam de um arquivo com checksum válido. Toda apresentação especial ativa/concluída precisa ter o encontro correspondente no registro autorado. O loader reconstrói a sequência especial por recibos ordenados, verifica estados de objetos, tarefa/reserva, dificuldade, resultado e fatos protegidos antes de substituir a sessão. Checksum identifica corrupção acidental; não autentica um save contra adulteração deliberada. O limite compartilhado de 10.000 recibos reserva a resolução de instalações/colapso e **resolução mais travessia** do confronto já iniciado. Epílogo é consulta sem recibo; N33 usa o orçamento restante de apresentação como as outras cenas.
 
@@ -39,3 +39,5 @@ Após carregar, a ponte precisa reconstruir cargas instaladas, trabalho pendente
 ## Verificação
 
 `special_tests.cpp` cobre quatro modos, autoridade de fatos, recursos individuais, presença/avisos, preparação/cancelamento, resolução física, janela expirada, morte individual, fuga parcial, sobrevivência/morte no colapso, cenas/epílogos, retomada com outra semente, aparições opcionais, corrupção sem mutação e orçamento reservado. `run_rules_tests.cpp` verifica resultados terminais e dificuldade; paridade narrativa inclui os cinco blocos de participação. CMake/CTest e o workflow existente incluem a nova suíte em Linux e Windows/MSVC. São ensaios de regras com provas simuladas, não campanhas jogadas ou validação da destruição física.
+
+**Atualização v9:** pilhas/informação/interrogação/usos conjuntos, armas dos NPCs e planos observados usam o [contrato complementar](CONTRATO_RECURSOS_INFORMACAO_PLANOS_V1.md). Os limites físicos deste documento permanecem.

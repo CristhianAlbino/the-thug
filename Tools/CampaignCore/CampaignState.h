@@ -32,6 +32,7 @@ struct CampaignCore::State {
     const auto party = partydata::For(difficulty);
     int i = 0;
     for (const auto& name : {"harley", "bartholomeu", "jack"}) {
+      combat.companions.emplace(name,ActorCombatState{});
       auto [entry, inserted] = bodies.emplace(std::piecewise_construct,
         std::forward_as_tuple(name), std::forward_as_tuple(party.capacities[i], data::Items(), tuning));
       (void)inserted;
@@ -95,6 +96,7 @@ struct CampaignCore::State {
       special.plant.reset();
       if (special.phase == SpecialPhase::Confronting || special.phase == SpecialPhase::Opportunity || special.phase == SpecialPhase::Collapsing) { special.phase = SpecialPhase::Failed; special.boundaryAt = -1; }
       combat.task.reset();
+      for(auto& [actor,weapon]:combat.companions) { (void)actor; weapon.task.reset(); }
       combat.shots.clear();
       combat.thrown.clear();
       combat.smoke.clear();
@@ -131,6 +133,8 @@ struct CampaignCore::State {
   SpecialRuntimeSnapshot special;
   InteractionRuntimeSnapshot interactions;
   RescueRuntimeSnapshot rescue;
+  StrategyRuntimeSnapshot strategy;
+  std::string loadedStrategyFingerprint;
 };
 
 } // namespace thug::campaign

@@ -187,7 +187,7 @@ void WitnessedRecordAndRejection() {
   const auto good = Bytes(c); auto invalid = good; const auto mark = invalid.find("INTERACTIONS "); invalid[mark + std::string("INTERACTIONS ").size()] = '9';
   const auto checksum = invalid.rfind("CHECKSUM "); invalid = invalid.substr(0,checksum) + "CHECKSUM " + detail::Hash(invalid.substr(0,checksum)) + '\n';
   std::istringstream corrupt(invalid); Check(c.Load(corrupt) != save::Result::Ok && Bytes(c) == good, "Even with recomputed checksum, invalid variation is rejected atomically");
-  auto old = good; old.replace(0,std::string("THE_THUG_RUNTIME_CAMPAIGN 8").size(),"THE_THUG_RUNTIME_CAMPAIGN 6"); std::istringstream legacy(old);
+  auto old = good; old.replace(0,std::string("THE_THUG_RUNTIME_CAMPAIGN 9").size(),"THE_THUG_RUNTIME_CAMPAIGN 6"); std::istringstream legacy(old);
   Check(c.Load(legacy) == save::Result::UnsupportedVersion && Bytes(c) == good, "Runtime v6 cannot silently discard new interaction state");
   CampaignCore escape(rules::Difficulty::Normal, 111); Joe(escape, ActionKind::Trigger, "find_tunnel", "B1_TUNNEL"); Joe(escape, ActionKind::Trigger, "tunnel_exit", "X_TUNNEL");
   CompanionCommand together{Id(), CompanionOp::Outcome, "harley", "outcome", "X_TUNNEL", escape.Now()}; together.argument = static_cast<int>(CompanionOutcome::Together); together.physicallyVerified = true;

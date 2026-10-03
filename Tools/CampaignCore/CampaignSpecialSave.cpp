@@ -51,7 +51,7 @@ bool CampaignCore::SpecialCoherent(const State& s) const {
   // free narrative fact set (including after loading a checksum-valid file).
   for (const auto& fact : story.durableFacts) if (fact.rfind("appearance:", 0) == 0) return false;
   if (actual.appearanceTicket >= 1000 || !std::isfinite(actual.boundaryAt) ||
-      s.receipts.size() + detail::CombatReservedReceipts(s.combat) + detail::SpecialReservedReceipts(actual) + detail::RescueReservedReceipts(s.rescue) > detail::MaxReceipts) return false;
+      s.receipts.size() + detail::CombatReservedReceipts(s.combat) + detail::SpecialReservedReceipts(actual) + detail::RescueReservedReceipts(s.rescue) + detail::StrategyReservedReceipts(s.strategy) > detail::MaxReceipts) return false;
   std::map<std::uint64_t, SpecialCommand> commands;
   for (const auto& [id, signature] : s.receipts) if (signature.rfind("S ", 0) == 0) {
     SpecialCommand c; c.eventId = id; std::uint64_t order;

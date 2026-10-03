@@ -45,3 +45,12 @@ add_test(NAME runtime_interactions COMMAND runtime_interaction_tests)
 add_executable(runtime_rescue_tests rescue_tests.cpp)
 target_link_libraries(runtime_rescue_tests PRIVATE the_thug_campaign)
 add_test(NAME runtime_rescue COMMAND runtime_rescue_tests)
+
+target_sources(the_thug_campaign PRIVATE CampaignStrategy.cpp CampaignStrategySave.cpp CampaignResources.cpp CampaignAdaptive.cpp)
+add_executable(runtime_strategy_tests strategy_tests.cpp)
+target_link_libraries(runtime_strategy_tests PRIVATE the_thug_campaign)
+add_test(NAME runtime_strategy COMMAND runtime_strategy_tests)
+
+add_executable(runtime_extension_tests extension_tests.cpp)
+target_link_libraries(runtime_extension_tests PRIVATE the_thug_campaign)
+add_test(NAME runtime_extensions COMMAND runtime_extension_tests)

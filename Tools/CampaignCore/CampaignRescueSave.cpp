@@ -106,7 +106,7 @@ bool CampaignCore::RescueCoherent(const State& s) const {
   }
   ReconcileRescue(*expected);
   if (Fingerprint(r) != Fingerprint(s.rescue) || s.receipts.size() + detail::CombatReservedReceipts(s.combat) +
-      detail::SpecialReservedReceipts(s.special) + detail::RescueReservedReceipts(r) > detail::MaxReceipts) return false;
+      detail::SpecialReservedReceipts(s.special) + detail::RescueReservedReceipts(r) + detail::StrategyReservedReceipts(s.strategy) > detail::MaxReceipts) return false;
   const auto story = s.narrative.CaptureSnapshot();
   std::set<std::string> helpers;
   for (const auto& [actor, t] : r.captures) {

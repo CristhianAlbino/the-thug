@@ -14,7 +14,9 @@ inline constexpr std::size_t MaxRuntimeBytes = 4 * 1024 * 1024;
 // Keep completion receipts available for work already committed/prepared.
 // Shots can expire; a live grenade must be resolvable at its fuse boundary.
 inline std::size_t CombatReservedReceipts(const CombatRuntimeSnapshot& r) {
-  return r.thrown.size() + (r.task ? (r.task->kind == CombatOp::BeginThrow ? 2 : 1) : 0);
+  std::size_t count=r.thrown.size() + (r.task ? (r.task->kind == CombatOp::BeginThrow ? 2 : 1) : 0);
+  for(const auto& [actor,weapon]:r.companions) { (void)actor; if(weapon.task) count+=weapon.task->kind==CombatOp::BeginThrow ? 2 : 1; }
+  return count;
 }
 inline std::size_t SpecialReservedReceipts(const SpecialRuntimeSnapshot& r) {
   return (r.plant ? 1 : 0) + (r.phase == SpecialPhase::Confronting ? 2 :
@@ -37,6 +39,10 @@ inline std::size_t RescueReservedReceipts(const RescueRuntimeSnapshot& r) {
     if (t.release) ++count;
   }
   return count;
+}
+inline std::size_t StrategyReservedReceipts(const StrategyRuntimeSnapshot& r) {
+  const auto plan=r.hunterPlan ? 2*((r.hunterPlan->kind==StrategyOp::BeginTrap ? 3 : 1)-r.hunterPlan->step)-(r.hunterPlan->arrivedAt>=0 ? 1 : 0) : 0;
+  return (r.question ? 1 : 0) + (r.joint ? 1 : 0) + plan;
 }
 
 inline std::string Hash(const std::string& value) {

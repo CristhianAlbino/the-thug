@@ -247,7 +247,7 @@ void PersistenceAndBudget() {
   auto line=bad.substr(release,end-release); const auto ready=line.rfind(" 2 12 0 0"); Check(ready!=std::string::npos,"Fixture preserves explicit release times");
   line.replace(ready,10," 2 3 0 0"); bad.replace(release,end-release,line); reject(bad);
   bad=good; const auto capture=bad.find("CAPTURE \"bartholomeu\" 1"); bad.replace(capture,std::string("CAPTURE \"bartholomeu\" 1").size(),"CAPTURE \"bartholomeu\" 3"); reject(bad);
-  bad=good; bad.replace(0,std::string("THE_THUG_RUNTIME_CAMPAIGN 8").size(),"THE_THUG_RUNTIME_CAMPAIGN 7");
+  bad=good; bad.replace(0,std::string("THE_THUG_RUNTIME_CAMPAIGN 9").size(),"THE_THUG_RUNTIME_CAMPAIGN 7");
   std::istringstream legacy(bad); Check(c.Load(legacy)==save::Result::UnsupportedVersion,"Prior version is explicitly rejected");
   CampaignCore budget(rules::Difficulty::Normal); See(budget,"bartholomeu");
   auto bytes=Bytes(budget); const auto start=bytes.find("RECEIPTS "); const auto stop=bytes.find('\n',start);

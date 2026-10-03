@@ -62,6 +62,7 @@ std::vector<HunterOffer> CampaignCore::HunterOffers(const HunterContext& ctx)con
 }
 std::vector<HunterOffer> CampaignCore::HunterOffers(const State& s,const HunterContext& ctx)const{
   std::vector<HunterOffer> offers;
+  if(s.strategy.question || s.strategy.hunterPlan) return offers;
   for (const auto& [actor,t] : s.rescue.captures) { (void)actor; if(t.phase==CapturePhase::Restraining) return offers; }
   if(s.world.NowSeconds()<s.combat.hunterBlockedUntil)return offers;
   if(s.special.phase==SpecialPhase::Opportunity && s.world.NowSeconds()<s.special.boundaryAt)return offers;
@@ -82,6 +83,12 @@ std::vector<HunterOffer> CampaignCore::HunterOffers(const State& s,const HunterC
     if(Live(t,now,p))add(HunterGoal::Pursue,actor,t.node,(actor=="joe"?3.0:2.0)+(t.threatening?6:0));
   }
   if(!offers.empty())return offers;
+  for(const auto& [id,report]:s.strategy.reports) {
+    (void)id;
+    const auto checked=r.searched.find(report.node);
+    if(report.recipient=="hunter" && !report.route.empty() && now-report.atSeconds<=s.hunter.CaptureSnapshot().tuning.locationLifetimeSeconds &&
+        (checked==r.searched.end() || checked->second<report.atSeconds)) add(HunterGoal::Investigate,report.node,report.node,1);
+  }
   const auto intent=s.hunter.CurrentIntent();
   if(intent.destination)for(const auto& [node,center]:ctx.searchSectors){
     const auto visited=r.searched.find(node);
@@ -144,6 +151,7 @@ bool CampaignCore::SenseHunter(const HunterCommand& sample,const HunterContext& 
   if(c.kind==HunterOp::LoseActor&&c.node!=ctx.actualHunterNode)return false;
   auto next=std::make_unique<State>(*state_);
   if(ExecuteHunter(*next,c,ctx).status!=Status::Applied)return false;
+  ReconcileStrategy(*next);
   state_.swap(next);
   return true;
 }
@@ -162,16 +170,18 @@ HunterResult CampaignCore::ApplyHunter(const HunterCommand& c,const HunterContex
   if(c.atSeconds!=Now())return {Status::InvalidTime};
   if(!ctx.physicallyVerified||!definition_->nodes.count(ctx.actualHunterNode))return {Status::InvalidAction};
   if(c.kind!=HunterOp::SeeActor&&c.node!=ctx.actualHunterNode)return {Status::MissingRequirement};
-  if(state_->receipts.size()+detail::CombatReservedReceipts(state_->combat) + detail::SpecialReservedReceipts(state_->special) + detail::RescueReservedReceipts(state_->rescue)>=detail::MaxReceipts)return {Status::LogFull};
+  if(state_->receipts.size()+detail::CombatReservedReceipts(state_->combat) + detail::SpecialReservedReceipts(state_->special) + detail::RescueReservedReceipts(state_->rescue) + detail::StrategyReservedReceipts(state_->strategy)>=detail::MaxReceipts)return {Status::LogFull};
   auto next=std::make_unique<State>(*state_);
   auto result=ExecuteHunter(*next,c,ctx);
   if(result.status!=Status::Applied)return result;
   const auto plan=c.kind==HunterOp::Choose?next->hunterRuntime.task:std::optional<HunterTask>{};
   next->receipts.emplace(c.eventId,detail::Signature(c,plan));
+  ReconcileStrategy(*next);
   state_.swap(next);
   return result;
 }
 HunterResult CampaignCore::ExecuteHunter(State& s,const HunterCommand& c,const HunterContext& ctx){
+  if((s.strategy.question || s.strategy.hunterPlan) && (c.kind==HunterOp::Choose || c.kind==HunterOp::Arrive || c.kind==HunterOp::Complete)) return {Status::MissingRequirement};
   if (c.kind==HunterOp::Choose || c.kind==HunterOp::Arrive || c.kind==HunterOp::Complete)
     for (const auto& [actor,t] : s.rescue.captures) { (void)actor; if(t.phase==CapturePhase::Restraining) return {Status::MissingRequirement}; }
   if((c.atSeconds<s.combat.hunterBlockedUntil || (s.special.phase==SpecialPhase::Opportunity && c.atSeconds<s.special.boundaryAt)) &&

@@ -1,6 +1,6 @@
 # The Thug — primeiro ciclo tático do Hunter
 
-**Estado:** C++17 ligado a CampaignCore, independente da engine. Hunter continua sendo Batman na visão dos bandidos. Este ciclo implementa decisão/percepção/memória e transações de ambiente; não produz navegação, animação, combate ou um inimigo jogável sozinho. O fluxo de captura temporária/soltura está no [contrato de resgate](CONTRATO_CAPTURA_RESGATE_V1.md); representação física, interrogação, armadilhas encadeadas e retirada tática continuam abertas. Áudio/assets finais e Extremo/Joker permanecem posteriores.
+**Estado:** C++17 ligado a CampaignCore, independente da engine. Hunter continua sendo Batman na visão dos bandidos. Este ciclo implementa decisão/percepção/memória e transações de ambiente; não produz navegação, animação, combate ou um inimigo jogável sozinho. O fluxo de captura temporária/soltura está no [contrato de resgate](CONTRATO_CAPTURA_RESGATE_V1.md); interrogação, armadilhas encadeadas e retirada tática têm [base v9](CONTRATO_RECURSOS_INFORMACAO_PLANOS_V1.md); representação física continua pendente. Áudio/assets finais e Extremo/Joker permanecem posteriores.
 
 ## Autoridade e percepção
 
@@ -48,8 +48,10 @@ A escala de agressividade é 0–100. Tiro soma 12 (intervalo mínimo 1 s), expl
 
 ## Persistência e integração
 
-Runtime **v8** conserva a camada StorySave v1 e acrescenta pressão/decadência, quatro memórias visuais e suas últimas amostras, perdas explícitas, passagens observadas, setores inspecionados, vigia/cooldown, RNG separado, serial e tarefa em viagem/janela de reação. O loader valida vínculos, relógios, amostras, ocorrência de origem/chegada, resultados de inspeção/vigia e agressividade reconstruída dos eventos. Falha preserva a sessão atual. Runtime v1–v7 exige migração explícita ou nova campanha; não descartar a nova camada ao usar um serializador inferior.
+Runtime **v9** conserva a camada StorySave v1 e acrescenta pressão/decadência, quatro memórias visuais e suas últimas amostras, perdas explícitas, passagens observadas, setores inspecionados, vigia/cooldown, RNG separado, serial e tarefa em viagem/janela de reação. O loader valida vínculos, relógios, amostras, ocorrência de origem/chegada, resultados de inspeção/vigia e agressividade reconstruída dos eventos. Falha preserva a sessão atual. Runtime v1–v8 exige migração explícita ou nova campanha; não descartar a nova camada ao usar um serializador inferior.
 
 Na Unreal, parar sensores durante load; restaurar mundo/navegação/atores e representar a tarefa salva antes de retomar relógio/percepção. Uma tarefa em viagem retoma a navegação; não transportar Batman até o destino. Uma tarefa com chegada confirmada retoma a preparação e o tempo restante. Reconciliar a apresentação do aviso salvo sem confirmá-lo duas vezes. Aplicar sinais e alterações de dispositivos somente após resultado confirmado; `AlreadyApplied` não devolve sinal novo. Fontes de som do próprio Batman não são encaminhadas automaticamente como evidência de Joe.
 
 Compilar `CampaignHunter.cpp` e `CampaignHunterSave.cpp` com os demais arquivos de CampaignCore. `hunter_tests.cpp` cobre quatro dificuldades, alvo diferente de Joe, expiração em delta longo, renovação contínua, 12.000 amostras sem consumo de recibos, buscas vazias/incertas, pressão, ambiente, aviso/reação, alteração concorrente, callback velho, retomada/RNG e arquivo inconsistente. CMake expõe alvo `runtime_hunter_tests` sem colidir com HunterCore. O custo de cópias/validação e o orçamento de recibos da campanha completa ainda precisam de benchmark; nenhuma medição de 60 fps ou três horas jogáveis foi produzida por estes testes.
+
+**Atualização v9:** pilhas/informação/interrogação/usos conjuntos, armas dos NPCs e planos observados usam o [contrato complementar](CONTRATO_RECURSOS_INFORMACAO_PLANOS_V1.md). Os limites físicos deste documento permanecem.

@@ -61,6 +61,8 @@ Comum aos modos: 30 disparos por carregador; intervalo 0,12 s; preparo 0,5 s; fu
 
 ## Persistência e teste
 
-Runtime v5 introduziu os campos de combate; runtime v8 mantém StorySave v1 e acrescenta disparos carregados, sequência de comandos/criações, reserva/tarefa, tiros pendentes, granadas/pose/velocidade/fusível, nuvens, interrupção/imunidade e oxigênio/controle/gasp. O loader valida limites, origem/ordem/seriais, consumo lógico, munição reconstruída, ocorrências de impacto, destruição, tempos e consistência com fim da campanha antes de trocar a sessão. Runtime v1–v7 exige nova campanha ou migração específica; não descartar campos silenciosamente.
+Runtime v5 introduziu os campos de combate; runtime v9 mantém StorySave v1 e acrescenta disparos carregados, sequência de comandos/criações, reserva/tarefa, tiros pendentes, granadas/pose/velocidade/fusível, nuvens, interrupção/imunidade e oxigênio/controle/gasp. O loader valida limites, origem/ordem/seriais, consumo lógico, munição reconstruída, ocorrências de impacto, destruição, tempos e consistência com fim da campanha antes de trocar a sessão. Runtime v1–v8 exige nova campanha ou migração específica; não descartar campos silenciosamente.
 
 Compilar `CampaignCombat.cpp` e `CampaignCombatSave.cpp` com os demais arquivos de CampaignCore. `combat_tests.cpp` e CMake `runtime_combat` cobrem quatro modos, reserva disputada, retentativa, recarga interrompida, limite de munição, provas rejeitadas, impactos, imunidade, fumaça, ferimentos individuais, fusíveis simultâneos, save em fases distintas, fronteira fatal, oxigênio, corrupção/incompatibilidade e limite de recibos. Esses ensaios não são partidas humanas, física Unreal, medição de desempenho ou teste de três horas.
+
+**Atualização v9:** pilhas/informação/interrogação/usos conjuntos, armas dos NPCs e planos observados usam o [contrato complementar](CONTRATO_RECURSOS_INFORMACAO_PLANOS_V1.md). Os limites físicos deste documento permanecem.

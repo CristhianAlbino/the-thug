@@ -15,6 +15,7 @@ on:
       - 'Tools/CampaignCore/**'
       - 'Tools/DirectorCore/**'
       - 'Tools/NarrativeCore/**'
+      - 'Tools/ProductionCore/**'
       - '02_GAME_DESIGN/Narrative/**'
       - '.github/workflows/core-rules.yml'
   push:
@@ -32,6 +33,7 @@ on:
       - 'Tools/CampaignCore/**'
       - 'Tools/DirectorCore/**'
       - 'Tools/NarrativeCore/**'
+      - 'Tools/ProductionCore/**'
       - '02_GAME_DESIGN/Narrative/**'
       - '.github/workflows/core-rules.yml'
 
@@ -63,6 +65,8 @@ jobs:
           done
       - name: Validate hospital graph and escape routes
         run: python3 Tools/MapCore/validate_map.py
+      - name: Verify source-linked production index
+        run: python3 Tools/ProductionCore/build_manifest.py --check
       - name: Replay map and C++ route scenarios
         run: bash Tools/ScenarioLab/run-tests.sh
   windows-campaign:

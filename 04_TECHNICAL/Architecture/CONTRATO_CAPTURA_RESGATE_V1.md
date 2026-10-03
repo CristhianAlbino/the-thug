@@ -1,6 +1,6 @@
 # Captura temporária e soltura conjunta — v1
 
-**Estado:** primeiro ciclo nativo C++17 de P02/P05/P06, integrado a CampaignCore/runtime v8 em 03/10/2026. Sustenta o [Resgate no escuro](../../02_GAME_DESIGN/Narrative/IDEIA_RESGATE_NO_ESCURO_RASCUNHO.md). O encontro ainda precisa de atores, navegação, colisão, visada, som, animação, interface e teste humano na Unreal. Interrogação e armadilhas encadeadas continuam abertas.
+**Estado:** primeiro ciclo nativo C++17 de P02/P05/P06, integrado a CampaignCore/runtime v9 em 03/10/2026. Sustenta o [Resgate no escuro](../../02_GAME_DESIGN/Narrative/IDEIA_RESGATE_NO_ESCURO_RASCUNHO.md). O encontro ainda precisa de atores, navegação, colisão, visada, som, animação, interface e teste humano na Unreal. Interrogação e planos encadeados estão no [contrato v9](CONTRATO_RECURSOS_INFORMACAO_PLANOS_V1.md); a execução espacial continua pendente.
 
 ## Contenção e destino
 
@@ -40,11 +40,11 @@ Distração e fumaça conservam os sistemas existentes: sons só alcançam senso
 
 NightRecord descreve contenção concluída como alguém imobilizado, sem confirmar destino final. Soltura própria ou por terceiro só entra se Joe testemunhou; sua própria ajuda é conhecimento da ação. Testemunho exige `joeWitnessedAction` e Joe presente. FinalizeCapture fora da sua percepção mantém paradeiro desconhecido. `KnownCompanionFates` confirma apenas captura final testemunhada; libertar não garante fuga futura. Epílogo autoral permanece separado.
 
-Runtime v8 grava fases/local/tempos/seriais/tarefa em `RESCUE/CAPTURE/RELEASE`. Recibos `R` preservam ordem, origem, participantes, item e marcos de saúde. Loader reconstrói o ciclo e reconcilia interrupções antes da troca de sessão; rejeita fase/tempo/tarefa/serial sem prova, corpo deslocado enquanto preso, destino incompatível, item faltante ou reservas excessivas. Checksum detecta corrupção acidental, sem autenticar adulteração intencional.
+Runtime v9 grava fases/local/tempos/seriais/tarefa em `RESCUE/CAPTURE/RELEASE`. Recibos `R` preservam ordem, origem, participantes, item e marcos de saúde. Loader reconstrói o ciclo e reconcilia interrupções antes da troca de sessão; rejeita fase/tempo/tarefa/serial sem prova, corpo deslocado enquanto preso, destino incompatível, item faltante ou reservas excessivas. Checksum detecta corrupção acidental, sem autenticar adulteração intencional.
 
 Início de contenção reserva conclusão/cancelamento e transferência/libertação; tarefa conjunta reserva conclusão/cancelamento. Todas as famílias de comandos respeitam essas vagas. Retentativa antiga não atua sobre serial novo. Captura terminal existente não pode ser revertida como contenção temporária.
 
-Runtime v1–v7 e formatos inferiores exigem nova campanha ou migração explícita, ainda não implementada. Identidade inclui revisão e tempos. CheckpointFile mantém validação integral, sincronização, backup/recovery e troca POSIX/Windows.
+Runtime v1–v8 e formatos inferiores exigem nova campanha ou migração explícita, ainda não implementada. Identidade inclui revisão e tempos. CheckpointFile mantém validação integral, sincronização, backup/recovery e troca POSIX/Windows.
 Antes de apresentar a cena final, a ponte cancela tarefas de soltura ainda interrompidas pelo término. Esse cancelamento limpa reserva/serial mesmo sem o ator presente e não cria uma ação nova no registro de Joe. A contenção da outra pessoa mantém seu estado físico e não vira captura/morte por essa limpeza.
 
 ## Verificação
@@ -52,3 +52,5 @@ Antes de apresentar a cena final, a ponte cancela tarefas de soltura ainda inter
 Testes nativos cobrem quatro modos/três pessoas, percepção/contato/serial ausentes, contenção cancelada, resgate manual/ferramenta, bolsa individual, pausa/save parcial, concorrência, lesão/medicina/reinício, própria soltura, ajuda/recusa, transferência terminal durante resgate, destino desconhecido, adulteração semântica com checksum recalculado e orçamento de recibos. São asserções de lógica com prova física fornecida pelo teste.
 
 Aceite jogável exige entender risco antes da aproximação, ouvir fonte espacial coerente, poder interromper/sair, preservar alternativa, perceber recusa e restaurar contato no save. Testar distração percebida/não percebida, fumaça, falta de ferramenta, abandono e alternativa fechando. Encenação, calibração e teste humano continuam pendentes.
+
+**Atualização v9:** pilhas/informação/interrogação/usos conjuntos, armas dos NPCs e planos observados usam o [contrato complementar](CONTRATO_RECURSOS_INFORMACAO_PLANOS_V1.md). Os limites físicos deste documento permanecem.

@@ -107,7 +107,7 @@ bool CampaignCore::CompanionContextValid(const CompanionCommand& a,const Compani
 std::vector<CompanionOffer> CampaignCore::Offers(const State& s,const std::string& actor,const std::string& node,const CompanionContext& c) const {
   if(!detail::Person(actor)||!Active(s.narrative.CaptureSnapshot(),actor)||!Present(c,actor,node))return {};
   const auto& body=s.bodies.at(actor);
-  if(RescueBusy(s,actor)||body.task||!body.hidingPlace.empty()||body.survival.CurrentEffects().dead||body.survival.CurrentEffects().collapsed)return {};
+  if(RescueBusy(s,actor)||WeaponBusy(s,actor)||body.task||!body.hidingPlace.empty()||body.survival.CurrentEffects().dead||body.survival.CurrentEffects().collapsed)return {};
   companion::Situation situation;
   situation.hunterPerceivedNearby=c.hunterPerceived;
   situation.joePerceivedNearby=Perceived(c,"joe");
@@ -157,7 +157,7 @@ CompanionResult CampaignCore::ApplyCompanion(const CompanionCommand& a,const Com
   if(a.atSeconds!=Now())return {Status::InvalidTime};
   if(!a.physicallyVerified||!CompanionContextValid(a,c))return {Status::InvalidAction};
   if(Ending()!=rules::Ending::None&&a.kind!=CompanionOp::Outcome&&a.kind!=CompanionOp::Cancel)return {Status::Finished};
-  if(state_->receipts.size()+detail::CombatReservedReceipts(state_->combat) + detail::SpecialReservedReceipts(state_->special) + detail::RescueReservedReceipts(state_->rescue)>=detail::MaxReceipts)return {Status::LogFull};
+  if(state_->receipts.size()+detail::CombatReservedReceipts(state_->combat) + detail::SpecialReservedReceipts(state_->special) + detail::RescueReservedReceipts(state_->rescue) + detail::StrategyReservedReceipts(state_->strategy)>=detail::MaxReceipts)return {Status::LogFull};
   auto next=std::make_unique<State>(*state_);
   const auto result=ExecuteCompanion(*next,a,c);
   if(result.status!=Status::Applied)return result;
@@ -167,7 +167,7 @@ CompanionResult CampaignCore::ApplyCompanion(const CompanionCommand& a,const Com
 
 CompanionResult CampaignCore::ExecuteCompanion(State& s,const CompanionCommand& a,const CompanionContext& c) {
   const CompanionResult denied{Status::MissingRequirement};
-  if (RescueBusy(s,a.actor) && a.kind!=CompanionOp::Injury && a.kind!=CompanionOp::Cancel &&
+  if ((RescueBusy(s,a.actor) || WeaponBusy(s,a.actor)) && a.kind!=CompanionOp::Injury && a.kind!=CompanionOp::Cancel &&
       !(a.kind==CompanionOp::Outcome && a.argument==static_cast<int>(CompanionOutcome::Dead))) return denied;
   if (!RescueLocation(s,a.actor,a.node)) return denied;
   if (a.kind==CompanionOp::Outcome && a.argument!=static_cast<int>(CompanionOutcome::Dead) && RescueBusy(s,a.actor)) return denied;
@@ -189,7 +189,7 @@ CompanionResult CampaignCore::ExecuteCompanion(State& s,const CompanionCommand& 
     delta.ammunition=Ammo(s.bodies.at(name).inventory)-person.CurrentTraits().ammunition;
     return delta.ammunition==0||person.ApplyInfluence(delta,a.eventId,a.atSeconds);
   };
-  const auto syncHealth=[&](const std::string& name){if(name!="joe")s.Person(*detail::Person(name)).SetInjured(s.bodies.at(name).survival.CurrentInjury()!=survival::Injury::None,a.atSeconds);};
+  const auto syncHealth=[&](const std::string& name){if(name!="joe") { s.combat.companions.at(name).task.reset(); s.Person(*detail::Person(name)).SetInjured(s.bodies.at(name).survival.CurrentInjury()!=survival::Injury::None,a.atSeconds); }};
   const auto releaseHide=[&](const std::string& name){auto& b=s.bodies.at(name);if(!b.hidingPlace.empty()){if(!devices.LeaveHide(b.hidingPlace,a.atSeconds))return false;b.hidingPlace.clear();}return true;};
   const auto reachableRecipient=[&](const std::string& name){
     if(!Present(c,name,a.node)||!Active(story,name)||!RescueLocation(s,name,a.node))return false;
@@ -252,10 +252,10 @@ CompanionResult CampaignCore::ExecuteCompanion(State& s,const CompanionCommand& 
     }
     case CompanionOp::Transfer:{
       if(!c.actionCompleted||!reachableRecipient(a.target)||
-          (a.target!="joe"&&s.bodies.at(a.target).task))return denied;
+          (a.target!="joe"&&(s.bodies.at(a.target).task || WeaponBusy(s,a.target))))return denied;
       auto& target=a.target=="joe"?s.inventory:s.bodies.at(a.target).inventory;
       if(a.actor=="joe"&&!CombatItemAvailable(s,a.item,a.quantity))return denied;
-      if(a.actor=="joe"&&a.item=="rifle"&&(s.combat.loadedRounds||s.combat.task))return denied;
+      if(a.item=="rifle" && (a.actor=="joe" ? s.combat.loadedRounds>0 || bool(s.combat.task) : s.combat.companions.at(a.actor).loadedRounds>0)) return denied;
       if(!source.TransferTo(target,a.item,a.quantity))return denied;
       if(a.actor=="joe"&&a.item=="magazine"){
         companion::Influence delta{20,0,0,10,0,0,a.quantity};if(!s.Person(*detail::Person(a.target)).ApplyInfluence(delta,a.eventId,a.atSeconds))return denied;

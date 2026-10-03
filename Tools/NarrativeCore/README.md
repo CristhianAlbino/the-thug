@@ -36,4 +36,4 @@ Esses IDs são contrato para futuras cenas e saves, **não** um gerador de víde
 - `inspect_document` e `inspect_audio` recebem `Observation` para conferir dificuldade. DOC16/AUD08 ficam em Difícil/Punitivo; AUD07 só Punitivo. A inspeção física vem do chamador; estar no nó não equivale a ler/ouvir.
 - Fatos transitórios enumerados em `TRANSIENT_FACTS` não entram em `durable_facts`. Clues usam exclusivamente `witnessed_clues`; não duplicar J1–J4 no conjunto genérico. O `NarrativeState` C++ aplica as mesmas restrições, também ao restaurar cena ainda ativa. Novos tipos de fato precisam declarar sua duração no contrato.
 
-N33 ainda tem **elegibilidade e intenção de roteiro**, mas os dois finais raros não têm eventos/resultados próprios em RunRules. Não emitir `rare_confrontation`/`rare_destruction` como se houvesse uma vitória implementada.
+N33 agora se liga aos resultados próprios de RunRules pelo fluxo Special de CampaignCore. Preparação, recursos, resolução física e prova individual são obrigatórios; elegibilidade ou fala isolada não concede vitória. Ver o [contrato dos finais/participações](../../04_TECHNICAL/Architecture/CONTRATO_FINAIS_PARTICIPACOES_V1.md).

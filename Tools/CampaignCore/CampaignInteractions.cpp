@@ -101,7 +101,7 @@ InteractionResult CampaignCore::ApplyInteraction(const InteractionCommand& a, co
     if (!hide.empty() && actor.node != Find(definition_->hides, hide)->atNode) return {Status::MissingRequirement};
   }
   for (const auto& node : c.reachableNodes) if (!definition_->nodes.count(node)) return {Status::InvalidAction};
-  if (state_->receipts.size() + detail::CombatReservedReceipts(state_->combat) + detail::SpecialReservedReceipts(state_->special) + detail::RescueReservedReceipts(state_->rescue) >= detail::MaxReceipts ||
+  if (state_->receipts.size() + detail::CombatReservedReceipts(state_->combat) + detail::SpecialReservedReceipts(state_->special) + detail::RescueReservedReceipts(state_->rescue) + detail::StrategyReservedReceipts(state_->strategy) >= detail::MaxReceipts ||
       state_->interactions.serial == std::numeric_limits<std::uint64_t>::max()) return {Status::LogFull};
   auto next = std::make_unique<State>(*state_);
   const auto result = ExecuteInteraction(*next, a, c);
@@ -114,8 +114,8 @@ InteractionResult CampaignCore::ApplyInteraction(const InteractionCommand& a, co
 InteractionResult CampaignCore::ExecuteInteraction(State& s, const InteractionCommand& a, const InteractionContext& c) {
   const InteractionResult denied{Status::MissingRequirement};
   if (!RescueLocation(s,a.actor,a.node)) return denied;
-  if (RescueBusy(s,a.actor) && a.kind!=InteractionOp::PerceiveThreat && a.kind!=InteractionOp::WitnessFate) return denied;
-  if (detail::Person(a.target) && RescueBusy(s,a.target) &&
+  if ((RescueBusy(s,a.actor) || WeaponBusy(s,a.actor)) && a.kind!=InteractionOp::PerceiveThreat && a.kind!=InteractionOp::WitnessFate) return denied;
+  if (detail::Person(a.target) && (RescueBusy(s,a.target) || WeaponBusy(s,a.target)) &&
       (a.kind==InteractionOp::Signal || a.kind==InteractionOp::Gesture || a.kind==InteractionOp::Banter)) return denied;
   const auto story = s.narrative.CaptureSnapshot();
   if (!Available(story, a.actor)) return denied;

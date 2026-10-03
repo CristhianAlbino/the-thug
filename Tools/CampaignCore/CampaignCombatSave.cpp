@@ -1,5 +1,6 @@
 #include "CampaignState.h"
 #include "CombatIO.h"
+#include "CompanionIO.h"
 #include <algorithm>
 
 namespace thug::campaign {
@@ -23,16 +24,24 @@ void CampaignCore::WriteCombat(std::ostream& out, const State& s) const {
     out << t.serial << ' ' << static_cast<int>(t.kind) << ' ' << std::quoted(t.item) << ' '
         << std::quoted(t.startEventId) << ' ' << std::quoted(t.node) << ' ' << t.startedAt << ' ' << t.readyAt << '\n';
   }
+  out << "ACTOR_COMBAT " << r.companions.size() << '\n';
+  for(const auto& [actor,w]:r.companions) {
+    out << std::quoted(actor) << ' ' << w.loadedRounds << ' ' << w.lastShotAt << ' ' << bool(w.task) << '\n';
+    if(w.task) { const auto& t=*w.task;
+      out << t.serial << ' ' << static_cast<int>(t.kind) << ' ' << std::quoted(t.item) << ' '
+        << std::quoted(t.startEventId) << ' ' << std::quoted(t.node) << ' ' << t.startedAt << ' ' << t.readyAt << '\n';
+    }
+  }
   out << "SHOTS " << r.shots.size() << '\n';
   for (const auto& [id, shot] : r.shots) {
     out << id << ' ' << std::quoted(shot.eventId) << ' ' << std::quoted(shot.node) << ' ' << shot.firedAt << ' ' << shot.expiresAt << ' ';
-    detail::WriteVector(out, shot.origin); out << ' '; detail::WriteVector(out, shot.direction); out << '\n';
+    detail::WriteVector(out, shot.origin); out << ' '; detail::WriteVector(out, shot.direction); out << ' ' << std::quoted(shot.actor); out << '\n';
   }
   out << "THROWN " << r.thrown.size() << '\n';
   for (const auto& [id, item] : r.thrown) {
     out << id << ' ' << std::quoted(item.eventId) << ' ' << std::quoted(item.item) << ' ' << std::quoted(item.node)
         << ' ' << item.releasedAt << ' ' << item.detonateAt << ' ';
-    detail::WriteVector(out, item.position); out << ' '; detail::WriteVector(out, item.velocity); out << '\n';
+    detail::WriteVector(out, item.position); out << ' '; detail::WriteVector(out, item.velocity); out << ' ' << std::quoted(item.actor); out << '\n';
   }
   out << "SMOKE " << r.smoke.size() << '\n';
   for (const auto& [id, cloud] : r.smoke) {
@@ -55,17 +64,27 @@ bool CampaignCore::ReadCombat(std::istream& in, State& s) const {
     t.kind = static_cast<CombatOp>(kind); r.task = std::move(t);
   }
   std::size_t count;
+  if(!Tag(in,"ACTOR_COMBAT") || !(in>>count) || count!=3) return false;
+  for(std::size_t i=0;i<count;++i) {
+    std::string actor; ActorCombatState w; int pending;
+    if(!(in>>std::quoted(actor)>>w.loadedRounds>>w.lastShotAt>>pending) || pending<0 || pending>1) return false;
+    if(pending) { CombatTask t; int kind;
+      if(!(in>>t.serial>>kind>>std::quoted(t.item)>>std::quoted(t.startEventId)>>std::quoted(t.node)>>t.startedAt>>t.readyAt) || (kind!=0 && kind!=5)) return false;
+      t.kind=static_cast<CombatOp>(kind); w.task=t;
+    }
+    if(!r.companions.emplace(actor,w).second) return false;
+  }
   if (!Tag(in, "SHOTS") || !(in >> count) || count > 16) return false;
   for (std::size_t i = 0; i < count; ++i) {
     Shot shot;
     if (!(in >> shot.serial >> std::quoted(shot.eventId) >> std::quoted(shot.node) >> shot.firedAt >> shot.expiresAt) ||
-        !detail::ReadVector(in, shot.origin) || !detail::ReadVector(in, shot.direction) || !r.shots.emplace(shot.serial, shot).second) return false;
+        !detail::ReadVector(in, shot.origin) || !detail::ReadVector(in, shot.direction) || !(in>>std::quoted(shot.actor)) || !r.shots.emplace(shot.serial, shot).second) return false;
   }
   if (!Tag(in, "THROWN") || !(in >> count) || count > 16) return false;
   for (std::size_t i = 0; i < count; ++i) {
     ThrownItem item;
     if (!(in >> item.serial >> std::quoted(item.eventId) >> std::quoted(item.item) >> std::quoted(item.node) >> item.releasedAt >> item.detonateAt) ||
-        !detail::ReadVector(in, item.position) || !detail::ReadVector(in, item.velocity) || !r.thrown.emplace(item.serial, item).second) return false;
+        !detail::ReadVector(in, item.position) || !detail::ReadVector(in, item.velocity) || !(in>>std::quoted(item.actor)) || !r.thrown.emplace(item.serial, item).second) return false;
   }
   if (!Tag(in, "SMOKE") || !(in >> count) || count > 16) return false;
   for (std::size_t i = 0; i < count; ++i) {
@@ -83,12 +102,16 @@ bool CampaignCore::CombatCoherent(const State& s) const {
   const double now = s.world.NowSeconds();
   const bool finished = s.routes.Result() != rules::Ending::None;
   const auto effects = s.survival.CurrentEffects();
+  if (r.companions.size()!=3) return false;
+  for(const auto& [actor,w]:r.companions) {
+    if(!detail::Person(actor) || w.loadedRounds<0 || w.loadedRounds>p.magazineRounds || (w.loadedRounds && s.bodies.at(actor).inventory.Quantity("rifle")!=1) || (finished && w.task)) return false;
+  }
   if (r.loadedRounds < 0 || r.loadedRounds > p.magazineRounds || (r.loadedRounds && s.inventory.Quantity("rifle") != 1) ||
       !std::isfinite(r.oxygen) || r.oxygen < 0 || r.oxygen > p.oxygenCapacity ||
       !std::isfinite(r.gaspUntil) || r.gaspUntil < 0 || r.gaspUntil > now + p.gaspSeconds + 1e-8 ||
       (r.holdingBreath && (r.oxygen <= 0 || r.gaspUntil > now || effects.collapsed || effects.dead || finished)) ||
       r.shots.size() > 16 || r.thrown.size() + r.smoke.size() > 16 ||
-      s.receipts.size() + detail::CombatReservedReceipts(r) + detail::SpecialReservedReceipts(s.special) + detail::RescueReservedReceipts(s.rescue) > detail::MaxReceipts ||
+      s.receipts.size() + detail::CombatReservedReceipts(r) + detail::SpecialReservedReceipts(s.special) + detail::RescueReservedReceipts(s.rescue) + detail::StrategyReservedReceipts(s.strategy) > detail::MaxReceipts ||
       (finished && (r.task || !r.shots.empty() || !r.thrown.empty() || !r.smoke.empty())) ||
       ((effects.collapsed || effects.dead || !s.hidingPlace.empty()) && r.task)) return false;
   std::map<std::uint64_t, CombatCommand> commands, created;
@@ -107,8 +130,9 @@ bool CampaignCore::CombatCoherent(const State& s) const {
   for (const auto& [serial, c] : created) { (void)c; if (serial != ++index) return false; }
   index = 0;
   std::uint64_t creationsSeen = 0;
-  int rounds = 0;
-  double lastTime = 0, lastShot = -1, blocked = 0, immune = 0;
+  std::map<std::string,int> rounds;
+  std::map<std::string,double> lastShots{{"joe",-1},{"harley",-1},{"bartholomeu",-1},{"jack",-1}};
+  double lastTime = 0, blocked = 0, immune = 0;
   for (const auto& [order, c] : commands) {
     if (order != ++index || c.atSeconds < lastTime) return false;
     lastTime = c.atSeconds;
@@ -117,13 +141,14 @@ bool CampaignCore::CombatCoherent(const State& s) const {
       if (expected.eventId != c.eventId) return false;
     }
     if (c.kind == CombatOp::Fire) {
-      if (rounds <= 0 || (lastShot >= 0 && c.atSeconds-lastShot < p.shotInterval)) return false;
-      --rounds; lastShot = c.atSeconds;
+      if (rounds[c.actor] <= 0 || (lastShots.at(c.actor) >= 0 && c.atSeconds-lastShots.at(c.actor) < p.shotInterval)) return false;
+      --rounds[c.actor]; lastShots[c.actor] = c.atSeconds;
     }
     if (c.serial) {
       const auto start = created.find(c.serial);
       if (start == created.end() || c.serial > creationsSeen || start->second.atSeconds > c.atSeconds) return false;
       const auto& began = start->second;
+      if(began.actor!=c.actor) return false;
       if (c.kind == CombatOp::ResolveShot) {
         if (began.kind != CombatOp::Fire || c.atSeconds >= began.atSeconds + p.shotLifetime ||
             !resolutions.emplace(c.serial, c).second) return false;
@@ -151,7 +176,7 @@ bool CampaignCore::CombatCoherent(const State& s) const {
         if (c.kind == CombatOp::CompleteReload || c.kind == CombatOp::ReleaseThrow) {
           if (c.atSeconds < began.atSeconds + (reload ? p.reloadSeconds : p.throwSeconds)) return false;
           completed.emplace(c.serial, c);
-          if (reload) rounds = p.magazineRounds;
+          if (reload) rounds[c.actor] = p.magazineRounds;
         }
       }
     }
@@ -162,23 +187,29 @@ bool CampaignCore::CombatCoherent(const State& s) const {
       immune = blocked + p.interruptImmunity;
     }
   }
-  if (rounds != r.loadedRounds || lastShot != r.lastShotAt || blocked != r.hunterBlockedUntil || immune != r.hunterImmuneUntil) return false;
-  if (r.task) {
-    const auto& t = *r.task;
+  for(const auto& [actor,w]:r.companions) if(rounds[actor]!=w.loadedRounds || lastShots[actor]!=w.lastShotAt) return false;
+  if (rounds["joe"] != r.loadedRounds || lastShots["joe"] != r.lastShotAt || blocked != r.hunterBlockedUntil || immune != r.hunterImmuneUntil) return false;
+  const auto validTask=[&](const std::optional<CombatTask>& task,const std::string& actor) {
+    if(!task) return true;
+    const auto& t = *task;
+    const auto& inventory=actor=="joe" ? s.inventory : s.bodies.at(actor).inventory;
     const auto found = created.find(t.serial);
-    if (found == created.end() || t.serial != r.serial || terminal.count(t.serial) || !Time(t.startedAt, now)) return false;
+    if (found == created.end() || terminal.count(t.serial) || !Time(t.startedAt, now)) return false;
     const auto& c = found->second;
     const bool reload = c.kind == CombatOp::BeginReload;
-    if ((c.kind != CombatOp::BeginReload && c.kind != CombatOp::BeginThrow) || t.kind != c.kind ||
+    if ((c.kind != CombatOp::BeginReload && c.kind != CombatOp::BeginThrow) || t.kind != c.kind || c.actor!=actor ||
         t.item != (reload ? "magazine" : c.target) || t.node != c.node || t.startEventId != c.eventId ||
         t.startedAt != c.atSeconds || t.readyAt != c.atSeconds+(reload ? p.reloadSeconds : p.throwSeconds) ||
-        s.inventory.Quantity(t.item) < 1 || (reload && s.inventory.Quantity("rifle") != 1)) return false;
-  }
+        inventory.Quantity(t.item) < 1 || (reload && inventory.Quantity("rifle") != 1)) return false;
+      return true;
+  };
+  if(!validTask(r.task,"joe")) return false;
+  for(const auto& [actor,w]:r.companions) if(!validTask(w.task,actor)) return false;
   for (const auto& [id, shot] : r.shots) {
     const auto found = created.find(id);
     if (found == created.end() || found->second.kind != CombatOp::Fire || resolutions.count(id)) return false;
     const auto& c = found->second;
-    if (shot.serial != id || shot.eventId != c.eventId || shot.node != c.node || shot.firedAt != c.atSeconds ||
+    if (shot.actor!=c.actor || shot.serial != id || shot.eventId != c.eventId || shot.node != c.node || shot.firedAt != c.atSeconds ||
         shot.expiresAt != c.atSeconds+p.shotLifetime || shot.expiresAt <= now || !Same(shot.origin,c.position) || !Same(shot.direction,c.vector)) return false;
   }
   for (const auto& [id, c] : created) if (c.kind == CombatOp::Fire && !finished &&
@@ -187,7 +218,7 @@ bool CampaignCore::CombatCoherent(const State& s) const {
     const auto found = completed.find(id);
     if (found == completed.end() || found->second.kind != CombatOp::ReleaseThrow || detonations.count(id)) return false;
     const auto& c = found->second;
-    if (item.serial != id || item.eventId != c.eventId || item.item != c.target || !definition_->nodes.count(item.node) ||
+    if (item.actor!=c.actor || item.serial != id || item.eventId != c.eventId || item.item != c.target || !definition_->nodes.count(item.node) ||
         !detail::CombatFinite(item.position) || !detail::CombatFinite(item.velocity) || item.releasedAt != c.atSeconds ||
         item.detonateAt != c.atSeconds+(c.target == "grenade" ? p.grenadeFuse : p.smokeFuse) || now > item.detonateAt) return false;
   }

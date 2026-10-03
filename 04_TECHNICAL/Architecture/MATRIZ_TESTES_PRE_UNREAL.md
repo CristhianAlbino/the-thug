@@ -25,7 +25,7 @@
 | T19 | Difícil/Punitivo ignoram necrotério | Coda prova ao público; Joe não ganha conhecimento. | NarrativeCore; cutscene pendente. |
 | T20 | Punitivo perde J1 mas vê J2+J3 | J4 pode ocorrer se Jack presente; fora Punitivo não. | NarrativeCore; figurino/áudio pendentes. |
 | T21 | Punitivo amanhece | Sem vitória automática; fuga/abandono ainda valem. | RunRules; iluminação/tempo pendentes. |
-| T22 | Save durante perseguição/ferimento/companheiros separados | Estado/restauração atômicos, sem duplicar recursos nem pistas. | SaveCore parcial; atores Unreal pendentes. |
+| T22 | Save durante perseguição/ferimento/companheiros separados | Estado/restauração atômicos, sem duplicar recursos nem pistas. | CampaignCore v9/CheckpointFile; atores Unreal pendentes. |
 | T23 | Hunter abandona busca de esconderijo | Vitória só após estado/rota/percepção compatíveis. | Contrato; nav e limiar D-08 pendentes. |
 | T24 | Joins/paths após energia e rota falha | Sem softlock ou teleporte, com indicação de motivo. | Map/Scenario; blockout pendente. |
 | T25 | Thomas/Bartholomeu/Harley antes e depois de N03 | Banter pré-ruptura só com Thomas presente; após N03 a ausência não dispara voz, e nenhum modo conclui destino por essa conversa. | Banter/Narrative; atores e VO pendentes. |
@@ -54,3 +54,31 @@
 | T46 | Registro quase cheio com granada já preparada/lançada | Reserva de recibos permite concluir detonação; demais operações recebem LogFull; nenhum fusível fica impossível de confirmar. | CampaignCombat; orçamento da campanha real pendente. |
 
 **Gate de revisão geral:** nenhuma afirmação de “campanha 3h” até medir playthrough Difícil completo; nenhuma cena N01–N34 pode depender de NPC morto/ausente ou câmera impossível. Cada novo bug ganha seed, passo de reprodução e regressão apropriada ao sistema; não duplicar testes que apenas reproduzem a mesma tabela.
+
+## Extensões de campanha e runtime v9
+
+Os casos abaixo acrescentam critérios aos ciclos anteriores. Provas físicas nos executáveis são fixtures; a coluna de editor continua pendente.
+
+| ID | Situação | Resultado exigido | Hoje / editor |
+| --- | --- | --- | --- |
+| T47 | Final raro iniciado, aviso/conclusão física ausentes ou save no marco | Intenção/fala não concede resultado; recursos, consequências individuais e marco retomam sem repetir custo. | CampaignSpecial; destruição/atores/atuação pendentes. |
+| T48 | Convidado ausente, encontro repetido ou prova antiga | Não teleportar, duplicar entrega nem inventar destino; ACK e serial validam o encontro. | CampaignSpecial; convidados físicos pendentes. |
+| T49 | Pedido não ouvido, recusado ou feito durante silêncio | Sem obrigação automática; tarefa aceita tem viagem/prova e contexto; recusa/silêncio não gera informação. | CampaignInteractions; sinais/voz/nav pendentes. |
+| T50 | Calço instalado, bolsa cheia na recuperação, Hunter rompe ou corrida de alteração | Ferramenta real conservada; falha sem consumo; ruptura exige chegada/aviso/tempo/confirmação. | CampaignInteractions; porta/colisão/animação pendentes. |
+| T51 | Contenção temporária, transferência terminal e tentativa de soltura | Estados distintos; relógio não captura/mata; contato contínuo, tarefa/seriais e ferramenta conferidos. | CampaignRescue; amarras/contato/movimento pendentes. |
+| T52 | Ferimento, medicina, captura de quem ajuda ou término durante soltura | Progresso interrompido, reserva liberada por cancelamento; destino só após prova. Joe não recebe notícia não testemunhada. | CampaignRescue; atuação/feedback pendentes. |
+| T53 | Pilha genérica, coleta parcial, capacidade insuficiente e retentativa após load | Balanço de bolsas/pilha conserva quantidade; falha/repetição não duplica. | CampaignStrategy/ResourceCoherent; objeto físico pendente. |
+| T54 | NPC pega item sem Joe ver; Joe consulta diário e depois revisita | Última observação pessoal permanece até inspeção; mundo privado não atualiza registro remotamente. | CampaignStrategy; UI/visada pendentes. |
+| T55 | Relato verdadeiro antigo, mentira, fonte ausente e conferência atual | Distinguir relato/observação; não revelar intenção privada; informação velha não prova mentira só por movimento. | CampaignStrategy; voz/legibilidade pendentes. |
+| T56 | NPC mente para Joe e Joe confere sem falar com ele | Contradição registrada para Joe; não alterar automaticamente confiança do NPC em Joe. | CampaignStrategy; resposta do jogador/atuação pendentes. |
+| T57 | Perguntar ao contido: recusa, rota conhecida e engano permitido | Sem tortura/execução automática, sem posição privada de Joe, sem pista da rota concedida a Joe; Hunter pode investigar lugar errado. | CampaignStrategy/Hunter; cena/proximidade/voz pendentes. |
+| T58 | Soltura começa e é cancelada durante pergunta; load ou callback antigo | Custódia/serial/saúde invalidam a pergunta antiga, sem restaurar progresso por cancelar soltura. | CampaignStrategy/Rescue; continuidade física pendente. |
+| T59 | Uso conjunto recusado, sem recurso, interrompido por lesão ou cancelado | Sem custo antecipado; participantes/bolsa reservados; conclusão aplica mundo/regra/custo juntos e só uma vez. | CampaignStrategy; obstáculo/pose/contato pendentes. |
+| T60 | Dois NPCs recarregam/disparam; transferir rifle carregado; interrupção | Estado/estoque por executor, seriais compartilhados válidos; sem duplicar/perder munição; rifle carregado não muda de dono. | CampaignExtensions/Combat; raycast/animação pendentes. |
+| T61 | Tiro NPC sem alvo percebido e sem intenção de distração | Não disparar por informação privada; som/impacto precisam de fontes reais e provas. | CampaignExtensions; escolha física/acústica pendentes. |
+| T62 | Hunter percebe duas nuvens diferentes ou a mesma nuvem repetidamente | Aprendizado requer duas ocorrências observadas e recentes; vigia usa somente bordas vistas/alcançáveis. | CampaignExtensions/Adaptive; fumaça/visada/nav pendentes. |
+| T63 | Armadilha de energia/porta/vigia, alternativa ausente e alteração concorrente | Cada etapa exige deslocamento/reação/prova e revalida estado; não fechar passagem sem desvio nem capturar por chegada. | CampaignExtensions; cenário/nav/aviso pendentes. |
+| T64 | Retirada após pressão percebida, novo contato visual ou dano no plano | Só abrigo observado; contato/dano interrompem, cancelamento libera plano; não cura HP nem conhece Joe oculto. | CampaignExtensions; cover físico/atuação pendentes. |
+| T65 | Registro quase cheio com plano Q já iniciado; arquivo corrompido/incompatível | Reservas permitem concluir/cancelar; outras famílias recebem LogFull; load inválido não muda sessão. | CampaignExtensions/Strategy/Checkpoint; restauração de atores pendente. |
+
+[Protocolo de teste humano](../../01_PROJECT/Reviews/PROTOCOLO_TESTE_HUMANO_PRE_UNREAL_V1.md): a sessão ainda precisa ser realizada. [Catálogo de produção](../../Tools/ProductionCore/README.md): o índice é verificado por origem/ID/hash, sem afirmar gravações ou assets prontos.

@@ -121,6 +121,12 @@
   ],
   "pickups": [
     {
+      "id": "P_SMOKE_RESERVE",
+      "node": "F3_EXAMS",
+      "item": "smoke",
+      "quantity": 1
+    },
+    {
       "id": "P_TREATMENT",
       "node": "F1_PHARMACY",
       "item": "treatment",

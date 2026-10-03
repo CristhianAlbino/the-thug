@@ -20,6 +20,7 @@ bool Active(const save::NarrativeSnapshot& s, const std::string& actor) {
 }
 RescueRuntimeSnapshot CampaignCore::RescueRuntime() const { return state_->rescue; }
 bool CampaignCore::RescueBusy(const State& s, const std::string& actor) const {
+  if (StrategyBusy(s,actor)) return true;
   for (const auto& [victim, t] : s.rescue.captures) {
     if (victim == actor && (t.phase == CapturePhase::Restraining || t.phase == CapturePhase::Contained)) return true;
     if (t.release && t.release->helper == actor) return true;
@@ -40,6 +41,8 @@ bool CampaignCore::RescueStaticValid(const RescueCommand& c) const {
   return true;
 }
 bool CampaignCore::RescueLocation(const State& s, const std::string& actor, const std::string& node) const {
+  for (const auto* task : {&s.strategy.question,&s.strategy.joint})
+    if (*task && ((**task).actor==actor || (**task).peer==actor) && (**task).node!=node) return false;
   for (const auto& [victim, t] : s.rescue.captures) {
     if ((victim == actor && (t.phase == CapturePhase::Restraining || t.phase == CapturePhase::Contained)) ||
         (t.release && t.release->helper == actor)) if (t.node != node) return false;
@@ -61,6 +64,7 @@ std::uint64_t CampaignCore::RescueHarmCount(const State& s, const std::string& a
       CombatCommand c; std::uint64_t order, created;
       if (!detail::ParseCombat(signature, c, order, created)) continue;
       at = c.atSeconds;
+      if (c.kind == CombatOp::ResolveShot && actor=="hunter" && c.target=="hunter") harm=true;
       if (c.kind == CombatOp::Detonate) for (const auto& hit : c.contacts) if (hit.target == actor) harm = true;
     } else if (signature.rfind("S ", 0) == 0) {
       SpecialCommand c; std::uint64_t order;
@@ -135,7 +139,7 @@ Status CampaignCore::ApplyRescue(const RescueCommand& c, const RescueContext& co
   if (result != Status::Applied) return result;
   // Admit against the resulting reservations, including this command's receipt.
   if (next->receipts.size() + 1 + detail::CombatReservedReceipts(next->combat) +
-      detail::SpecialReservedReceipts(next->special) + detail::RescueReservedReceipts(next->rescue) > detail::MaxReceipts) return Status::LogFull;
+      detail::SpecialReservedReceipts(next->special) + detail::RescueReservedReceipts(next->rescue) + detail::StrategyReservedReceipts(next->strategy) > detail::MaxReceipts) return Status::LogFull;
   // Post-ending cancellation is resource cleanup, not a new narrated action.
   const bool witnessed = Ending()==rules::Ending::None &&
       (c.actor == "joe" || (context.joeWitnessedAction && At(context, "joe", c.node)));
@@ -146,6 +150,7 @@ Status CampaignCore::ApplyRescue(const RescueCommand& c, const RescueContext& co
   return Status::Applied;
 }
 Status CampaignCore::ExecuteRescue(State& s, const RescueCommand& c, const RescueContext& context) const {
+  if(c.kind==RescueOp::BeginContainment && s.strategy.hunterPlan) return Status::MissingRequirement;
   const auto denied = Status::MissingRequirement;
   auto story = s.narrative.CaptureSnapshot();
   auto& captures = s.rescue.captures;
@@ -216,7 +221,7 @@ Status CampaignCore::ExecuteRescue(State& s, const RescueCommand& c, const Rescu
     t.release.reset(); t.phase = CapturePhase::Released;
     return Status::Applied;
   }
-  if (t.release || (!self && RescueBusy(s, c.actor))) return denied;
+  if (t.release || (!self && (RescueBusy(s, c.actor) || WeaponBusy(s,c.actor)))) return denied;
   if (c.actor == "joe") {
     if (!s.hidingPlace.empty() || s.combat.task || s.special.plant ||
         s.special.phase == SpecialPhase::Confronting || s.special.phase == SpecialPhase::Opportunity) return denied;

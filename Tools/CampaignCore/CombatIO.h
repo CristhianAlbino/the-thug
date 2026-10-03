@@ -17,7 +17,7 @@ inline std::string Signature(const CombatCommand& c) {
       << "W " << static_cast<int>(c.kind) << ' ' << std::quoted(c.node) << ' '
       << std::quoted(c.target) << ' ' << c.atSeconds << ' ' << c.serial << ' ';
   WriteVector(out, c.position); out << ' '; WriteVector(out, c.vector);
-  out << ' ' << c.contacts.size();
+  out << ' ' << std::quoted(c.actor) << ' ' << c.contacts.size();
   for (const auto& h : c.contacts) {
     out << ' ' << std::quoted(h.target) << ' ' << std::quoted(h.node) << ' ';
     WriteVector(out, h.position); out << ' ' << static_cast<int>(h.injury);
@@ -37,7 +37,7 @@ inline bool ParseCombat(const std::string& signature, CombatCommand& c,
   std::size_t count;
   if (!(in >> tag >> kind >> std::quoted(c.node) >> std::quoted(c.target) >> c.atSeconds >> c.serial) ||
       tag != "W" || kind < 0 || kind > static_cast<int>(CombatOp::ReleaseBreath) ||
-      !ReadVector(in, c.position) || !ReadVector(in, c.vector) || !(in >> count) || count > 16) return false;
+      !ReadVector(in, c.position) || !ReadVector(in, c.vector) || !(in >> std::quoted(c.actor) >> count) || count > 16) return false;
   c.kind = static_cast<CombatOp>(kind);
   c.contacts.clear();
   for (std::size_t i = 0; i < count; ++i) {
