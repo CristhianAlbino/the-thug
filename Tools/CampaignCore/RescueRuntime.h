@@ -3,7 +3,7 @@
 
 namespace thug::campaign {
 // Prototype timings: physical contact/animation proofs still come from the engine.
-inline constexpr const char* RescueRuntimeRevision = "temporary-capture-1";
+inline constexpr const char* RescueRuntimeRevision = "temporary-capture-2";
 inline constexpr double RestrainSeconds = 2, ManualReleaseSeconds = 10,
     ToolReleaseSeconds = 4, SelfReleaseSeconds = 12, CaptureTransferSeconds = 8;
 enum class RescueOp { BeginContainment, FinishContainment, CancelContainment,

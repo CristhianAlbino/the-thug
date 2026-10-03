@@ -45,6 +45,7 @@ Runtime v8 grava fases/local/tempos/seriais/tarefa em `RESCUE/CAPTURE/RELEASE`. 
 Início de contenção reserva conclusão/cancelamento e transferência/libertação; tarefa conjunta reserva conclusão/cancelamento. Todas as famílias de comandos respeitam essas vagas. Retentativa antiga não atua sobre serial novo. Captura terminal existente não pode ser revertida como contenção temporária.
 
 Runtime v1–v7 e formatos inferiores exigem nova campanha ou migração explícita, ainda não implementada. Identidade inclui revisão e tempos. CheckpointFile mantém validação integral, sincronização, backup/recovery e troca POSIX/Windows.
+Antes de apresentar a cena final, a ponte cancela tarefas de soltura ainda interrompidas pelo término. Esse cancelamento limpa reserva/serial mesmo sem o ator presente e não cria uma ação nova no registro de Joe. A contenção da outra pessoa mantém seu estado físico e não vira captura/morte por essa limpeza.
 
 ## Verificação
 

@@ -212,7 +212,9 @@ void InjuryAndFinalCapture() {
   Joe(joeCaught,ActionKind::Trigger,"captured",node);
   Check(joeCaught.Ending()==rules::Ending::Captured && joeCaught.RescueRuntime().captures.at("bartholomeu").release->interrupted,"Joe has no capture immunity while helping");
   Reject(joeCaught,Cmd(joeCaught,RescueOp::CompleteRelease,"joe","bartholomeu",working),Context(),Status::Finished);
+  const auto terminalRecord=joeCaught.NightRecord().size();
   Apply(joeCaught,Cmd(joeCaught,RescueOp::CancelRelease,"joe","bartholomeu",working),Context());
+  Check(joeCaught.NightRecord().size()==terminalRecord,"Technical cleanup after ending never narrates a new Joe action");
   Check(!joeCaught.Narrative().outcomes.at("bartholomeu").dead && !joeCaught.Narrative().outcomes.at("bartholomeu").captured,"Joe's defeat does not invent a companion's fate");
   Resume(joeCaught);
   CampaignCore interrupted(rules::Difficulty::Normal); Contain(interrupted);

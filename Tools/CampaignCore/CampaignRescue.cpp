@@ -136,7 +136,9 @@ Status CampaignCore::ApplyRescue(const RescueCommand& c, const RescueContext& co
   // Admit against the resulting reservations, including this command's receipt.
   if (next->receipts.size() + 1 + detail::CombatReservedReceipts(next->combat) +
       detail::SpecialReservedReceipts(next->special) + detail::RescueReservedReceipts(next->rescue) > detail::MaxReceipts) return Status::LogFull;
-  const bool witnessed = c.actor == "joe" || (context.joeWitnessedAction && At(context, "joe", c.node));
+  // Post-ending cancellation is resource cleanup, not a new narrated action.
+  const bool witnessed = Ending()==rules::Ending::None &&
+      (c.actor == "joe" || (context.joeWitnessedAction && At(context, "joe", c.node)));
   next->receipts.emplace(c.eventId, detail::Signature(c, ++next->rescue.serial, witnessed,
       c.actor == "hunter" ? 0 : RescueHarmCount(*next, c.actor), RescueHarmCount(*next, c.target)));
   next->SyncEnding(); ReconcileCombat(*next); ReconcileRescue(*next);
