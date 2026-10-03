@@ -112,6 +112,40 @@ void Confrontation() {
   resolve = Command(failed,SpecialOp::ResolveConfrontation,"confrontation",d.confrontationNode); resolve.fates["bartholomeu"] = SpecialFate::Dead; Apply(failed,resolve); Resume(failed);
   Check(failed.Ending() == rules::Ending::None && failed.Narrative().outcomes.at("bartholomeu").dead && !failed.Narrative().outcomes.at("harley").dead,"Failure keeps individual physically witnessed consequences");
 }
+void RescueConcurrency() {
+  const auto d=*campaign::data::Hospital().finale;
+  campaign::CampaignCore c(rules::Difficulty::Easy); Opening(c); PrepareConfrontation(c);
+  campaign::HunterContext hunter; hunter.actualHunterNode=d.confrontationNode;
+  hunter.physicallyVerified=hunter.lineOfSightVerified=true;
+  campaign::HunterCommand sample; sample.kind=campaign::HunterOp::SeeActor; sample.actor="jack";
+  sample.node=d.confrontationNode; sample.atSeconds=c.Now();
+  Check(c.SenseHunter(sample,hunter),"Real third participant observed");
+  campaign::RescueContext context; context.actualHunterNode=d.confrontationNode;
+  context.contactVerified=context.continuousContactVerified=context.actionCompleted=context.openingVerified=true;
+  for(const auto& actor:{"joe","harley","bartholomeu","jack"})context.actors.emplace(actor,director::Actor{d.confrontationNode,true});
+  const auto command=[&](campaign::RescueOp kind,const std::string& actor,std::uint64_t serial=0) {
+    campaign::RescueCommand a; a.eventId="joint-"+std::to_string(++events); a.kind=kind; a.actor=actor;
+    a.target="jack"; a.node=d.confrontationNode; a.atSeconds=c.Now(); a.serial=serial; a.physicallyVerified=true; return a;
+  };
+  Check(c.ApplyRescue(command(campaign::RescueOp::BeginContainment,"hunter"),context)==Status::Applied,"Third participant temporarily contained");
+  const auto held=c.RescueRuntime().captures.at("jack").serial;
+  c.Tick(campaign::RestrainSeconds,survival::Activity::Rest); sample.atSeconds=c.Now();
+  Check(c.SenseHunter(sample,hunter),"Contact verified again at physical restraint completion");
+  Check(c.ApplyRescue(command(campaign::RescueOp::FinishContainment,"hunter",held),context)==Status::Applied,"Containment completed before other plan");
+  context.actualHunterNode="F4_START";
+  Check(c.ApplyRescue(command(campaign::RescueOp::BeginRelease,"harley"),context)==Status::Applied,"Recruitment intention alone does not lock helper");
+  const auto helping=c.RescueRuntime().captures.at("jack").release->serial;
+  Rejected(c,Command(c,SpecialOp::StartConfrontation,"confrontation",d.confrontationNode),Context(d.confrontationNode),Status::MissingRequirement);
+  Check(c.ApplyRescue(command(campaign::RescueOp::CancelRelease,"harley",helping),context)==Status::Applied,"Helper stops before joining another committed action");
+  Apply(c,Command(c,SpecialOp::StartConfrontation,"confrontation",d.confrontationNode));
+  const auto before=Bytes(c);
+  Check(c.RescueOffers("harley",context).empty(),"Committed participant has no simultaneous rescue offer");
+  Check(c.ApplyRescue(command(campaign::RescueOp::BeginRelease,"harley"),context)==Status::MissingRequirement && Bytes(c)==before,"Committed participant cannot perform two joint actions"); Resume(c);
+  c.Tick(d.confrontationSeconds,survival::Activity::Rest);
+  auto resolve=Command(c,SpecialOp::ResolveConfrontation,"confrontation",d.confrontationNode); resolve.argument=1; Apply(c,resolve);
+  Check(c.ApplyRescue(command(campaign::RescueOp::BeginRelease,"harley"),context)==Status::MissingRequirement,"Participant remains committed through physical opportunity");
+  Resume(c);
+}
 void PlantAll(campaign::CampaignCore& c) {
   const auto d = *campaign::data::Hospital().finale;
   for (std::size_t i = 0; i < d.sites.size(); ++i) {
@@ -211,7 +245,7 @@ void Corruption() {
   auto bad=valid; const auto at=bad.find("PLANTED 0"); Check(at!=std::string::npos,"Fixture contains no completed charge"); bad.replace(at,9,"PLANTED 1 \"RARE_SITE_A\""); reject(bad);
   bad=valid; const auto serial=bad.find("SPECIAL 2 1 "); Check(serial!=std::string::npos,"Fixture has two special receipts"); bad.replace(serial,12,"SPECIAL 3 1 "); reject(bad);
   bad=valid; const auto task=bad.find("PLANT 1\n"); Check(task!=std::string::npos,"Fixture reserves a plant task"); const auto end=bad.find('\n',task+8); bad.erase(task,end-task+1); bad.insert(task,"PLANT 0\n"); reject(bad);
-  auto legacy=valid; legacy.replace(0,std::string("THE_THUG_RUNTIME_CAMPAIGN 7").size(),"THE_THUG_RUNTIME_CAMPAIGN 5"); std::istringstream old(legacy);
+  auto legacy=valid; legacy.replace(0,std::string("THE_THUG_RUNTIME_CAMPAIGN 8").size(),"THE_THUG_RUNTIME_CAMPAIGN 5"); std::istringstream old(legacy);
   Check(c.Load(old)==save::Result::UnsupportedVersion,"Runtime v5 cannot silently lose rare finale state");
 }
 void ReceiptBudget() {
@@ -261,5 +295,5 @@ void ForgedAppearance() {
   reject(bad);
 }
 }
-int main() { try { AuthorityAndPlant(); Confrontation(); Destruction(); Appearances(); Corruption(); ReceiptBudget(); ForgedAppearance(); std::cout<<"CampaignSpecial: "<<checks<<" checks passed\n"; }
+int main() { try { AuthorityAndPlant(); Confrontation(); RescueConcurrency(); Destruction(); Appearances(); Corruption(); ReceiptBudget(); ForgedAppearance(); std::cout<<"CampaignSpecial: "<<checks<<" checks passed\n"; }
   catch(const std::exception& e) { std::cerr<<"After "<<checks<<" checks: "<<e.what()<<'\n'; return 1; } }

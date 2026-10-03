@@ -130,6 +130,7 @@ struct CampaignCore::State {
   CombatRuntimeSnapshot combat;
   SpecialRuntimeSnapshot special;
   InteractionRuntimeSnapshot interactions;
+  RescueRuntimeSnapshot rescue;
 };
 
 } // namespace thug::campaign

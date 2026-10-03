@@ -1,6 +1,6 @@
 # Interações, variações e registro da noite — v1
 
-**Estado:** primeiro ciclo C++17 de P02/P06, com as cinco extensões aprovadas por Cristhian em 02/10/2026. Integrado a CampaignCore e ao runtime v7. Atores, animações, navegação, propagação sonora e interface continuam dependentes da Unreal. Valores são hipóteses de playtest. Áudio/assets finais e Extremo/Joker seguem posteriores.
+**Estado:** primeiro ciclo C++17 de P02/P06, com as cinco extensões aprovadas por Cristhian em 02/10/2026. Integrado a CampaignCore e ao runtime v8. Atores, animações, navegação, propagação sonora e interface continuam dependentes da Unreal. Valores são hipóteses de playtest. Áudio/assets finais e Extremo/Joker seguem posteriores.
 
 ## Uma sessão, recursos individuais
 
@@ -56,7 +56,7 @@ Texto completo de documento/gravação permanece na consulta habitual após insp
 
 ## Persistência e aceite
 
-`THE_THUG_RUNTIME_CAMPAIGN 7` conserva o perfil e serial de interações; pedidos, cooldowns, calços, falas/ocorrências e conhecimento pessoal são derivados do registro confirmado, evitando cópias divergentes. O carregamento valida autoria, ordem/tempo, vínculos, provas de tarefas, balanço de instalações/recuperações/rupturas, estado das portas e destinos antes de trocar a sessão. Traits, bolsas, ferimentos, RNG e demais sistemas continuam nos envelopes existentes. Runtime v1–v6 exige migração explícita ou nova campanha.
+`THE_THUG_RUNTIME_CAMPAIGN 8` conserva o perfil e serial de interações; pedidos, cooldowns, calços, falas/ocorrências e conhecimento pessoal são derivados do registro confirmado, evitando cópias divergentes. O carregamento valida autoria, ordem/tempo, vínculos, provas de tarefas, balanço de instalações/recuperações/rupturas, estado das portas e destinos antes de trocar a sessão. Traits, bolsas, ferimentos, RNG e demais sistemas continuam nos envelopes existentes. Runtime v1–v7 exige migração explícita ou nova campanha.
 
 Testes nativos cobrem quatro modos, sinal não percebido, recusa, viagem retomada, Joe ausente, expiração, suspensão/retomada de fala, prioridade principal, recurso individual, cooldown/pressão temporal, calço e inventário cheio, ruptura retomada, corrida de recuperação, ocorrência opcional, conhecimento limitado e rejeição sem mutação com checksum recalculado. O checksum identifica corrupção acidental; não autentica uma partida.
 

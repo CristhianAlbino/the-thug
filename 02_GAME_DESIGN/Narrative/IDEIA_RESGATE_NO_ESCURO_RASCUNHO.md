@@ -1,6 +1,6 @@
 # Resgate no escuro — proposta de momento impactante
 
-**Estado:** proposta nova apresentada a Cristhian em 02/10/2026, distinta das cinco melhorias já aprovadas e implementadas no primeiro ciclo nativo. Não existe ainda um encontro jogável nem um sistema de resgate/captura temporária pronto. A frente de captura de P05/P06 continua aberta.
+**Estado:** proposta apresentada a Cristhian em 02/10/2026 e desenvolvimento continuado com sua autorização. O primeiro ciclo nativo de captura temporária, soltura conjunta/própria, reserva/interrupção e save está implementado em CampaignCore/runtime v8 (03/10). Ver o [contrato](../../04_TECHNICAL/Architecture/CONTRATO_CAPTURA_RESGATE_V1.md). Ainda não existe o encontro encenado/jogável na Unreal. Interrogação e armadilhas encadeadas de P05/P06 continuam abertas.
 
 Joe ouve Bartholomeu chamando baixo do outro lado de uma área escura. Antes de entrar, consegue perceber sinais suficientes para desconfiar: um movimento interrompido, a voz vindo de um lugar coerente, uma silhueta que teve tempo físico de chegar. Hunter capturou um bandido e está vigiando o caminho de quem pode voltar por ele. O medo surge da decisão de se aproximar, sem congelar o jogador num susto inevitável.
 
@@ -10,13 +10,13 @@ O resgate precisa de uma sequência física interrompível. Uma distração vál
 
 Batman não ganha conhecimento por script nem mata o refém como punição automática. A isca vem da observação de um reencontro possível, não de tortura ou informação inventada. Recusar o resgate mantém caminhos de fuga; tentar ajudar deve ter contrajogo legível e possibilidade real de sucesso.
 
-## Implementação necessária
+## Base entregue e integração necessária
 
-1. Captura temporária distinta de destino terminal: contenção iniciada, contido, tentativa de soltura, libertado ou captura consumada. O comando atual de destino confirmado não deve ser revertido casualmente para simular um resgate.
-2. Interações conjuntas com participantes, recursos reservados, duração, serial e cancelamento; ferimento/perda de contato pode interromper sem duplicar custo.
-3. Hunter percebe contato, caminho e distração por sensores reais; chega/vigia por navegação e tem janela de reação.
-4. Companheiro mantém inventário, medo, agência e memória própria. Sua tentativa não revela Joe nem concede saída não explorada.
-5. Save conserva estágio e tempo, sem concluir captura ou resgate pela intenção. Sem morte automática fora da simulação.
+1. **Entregue:** contenção iniciada, contido, soltura, libertado e captura consumada são distintos. Destino confirmado não é revertido para simular resgate.
+2. **Entregue no núcleo:** participantes, reserva, duração, serial e cancelamento; ferimento/medicina invalidam progresso. A ponte cancela após perda de contato/oportunidade e recomeça sem reutilizar tempo antigo.
+3. **Base entregue; ponte pendente:** conter exige vítima vista/contato; Hunter conserva tática perceptiva. Vigiar, seguir distração e retornar exigem navegação e atuação espacial, sem consultar Joe oculto.
+4. **Entregue no núcleo:** bolsas individuais e ofertas de ajuda/recusa/tentativa própria. Soltar não concede saída; a pessoa continua com sua memória e opções habituais. Seleção e execução espacial das ofertas cabem à integração.
+5. **Entregue:** save conserva etapa, tempo, recurso e serial; intenção não conclui resgate/captura. Abandonar não causa morte como punição automática.
 
 ## Testes que decidirão se funciona
 

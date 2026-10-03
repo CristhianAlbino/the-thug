@@ -279,7 +279,7 @@ void CheckpointFailureAndIdentity() {
   Reject(changed, save::Result::Corrupt);
   Reject(clean + "EXTRA", save::Result::Malformed);
   changed = clean;
-  changed.replace(0, std::string("THE_THUG_RUNTIME_CAMPAIGN 7").size(), "THE_THUG_RUNTIME_CAMPAIGN 8");
+  changed.replace(0, std::string("THE_THUG_RUNTIME_CAMPAIGN 8").size(), "THE_THUG_RUNTIME_CAMPAIGN 9");
   Reject(changed, save::Result::UnsupportedVersion);
   changed = clean;
   const auto offset = changed.find("CONTENT ") + 8;

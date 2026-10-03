@@ -29,6 +29,15 @@ inline bool Token(const std::string& value) {
       return false;
   return true;
 }
+inline std::size_t RescueReservedReceipts(const RescueRuntimeSnapshot& r) {
+  std::size_t count = 0;
+  for (const auto& [actor, t] : r.captures) {
+    (void)actor;
+    count += t.phase == CapturePhase::Restraining ? 2 : t.phase == CapturePhase::Contained ? 1 : 0;
+    if (t.release) ++count;
+  }
+  return count;
+}
 
 inline std::string Hash(const std::string& value) {
   std::uint64_t hash = 14695981039346656037ULL;

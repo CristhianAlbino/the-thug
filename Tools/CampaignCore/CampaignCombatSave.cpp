@@ -88,7 +88,7 @@ bool CampaignCore::CombatCoherent(const State& s) const {
       !std::isfinite(r.gaspUntil) || r.gaspUntil < 0 || r.gaspUntil > now + p.gaspSeconds + 1e-8 ||
       (r.holdingBreath && (r.oxygen <= 0 || r.gaspUntil > now || effects.collapsed || effects.dead || finished)) ||
       r.shots.size() > 16 || r.thrown.size() + r.smoke.size() > 16 ||
-      s.receipts.size() + detail::CombatReservedReceipts(r) + detail::SpecialReservedReceipts(s.special) > detail::MaxReceipts ||
+      s.receipts.size() + detail::CombatReservedReceipts(r) + detail::SpecialReservedReceipts(s.special) + detail::RescueReservedReceipts(s.rescue) > detail::MaxReceipts ||
       (finished && (r.task || !r.shots.empty() || !r.thrown.empty() || !r.smoke.empty())) ||
       ((effects.collapsed || effects.dead || !s.hidingPlace.empty()) && r.task)) return false;
   std::map<std::uint64_t, CombatCommand> commands, created;

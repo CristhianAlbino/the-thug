@@ -2,6 +2,7 @@
 #include "InteractionIO.h"
 #include "CompanionIO.h"
 #include "HunterIO.h"
+#include "RescueIO.h"
 #include <algorithm>
 #include <limits>
 
@@ -100,17 +101,22 @@ InteractionResult CampaignCore::ApplyInteraction(const InteractionCommand& a, co
     if (!hide.empty() && actor.node != Find(definition_->hides, hide)->atNode) return {Status::MissingRequirement};
   }
   for (const auto& node : c.reachableNodes) if (!definition_->nodes.count(node)) return {Status::InvalidAction};
-  if (state_->receipts.size() + detail::CombatReservedReceipts(state_->combat) + detail::SpecialReservedReceipts(state_->special) >= detail::MaxReceipts ||
+  if (state_->receipts.size() + detail::CombatReservedReceipts(state_->combat) + detail::SpecialReservedReceipts(state_->special) + detail::RescueReservedReceipts(state_->rescue) >= detail::MaxReceipts ||
       state_->interactions.serial == std::numeric_limits<std::uint64_t>::max()) return {Status::LogFull};
   auto next = std::make_unique<State>(*state_);
   const auto result = ExecuteInteraction(*next, a, c);
   if (result.status != Status::Applied) return result;
-  next->SyncEnding(); ReconcileCombat(*next);
+  next->SyncEnding();
   next->receipts.emplace(a.eventId, detail::Signature(a, ++next->interactions.serial, result.accepted));
+  ReconcileCombat(*next);
   state_.swap(next); return result;
 }
 InteractionResult CampaignCore::ExecuteInteraction(State& s, const InteractionCommand& a, const InteractionContext& c) {
   const InteractionResult denied{Status::MissingRequirement};
+  if (!RescueLocation(s,a.actor,a.node)) return denied;
+  if (RescueBusy(s,a.actor) && a.kind!=InteractionOp::PerceiveThreat && a.kind!=InteractionOp::WitnessFate) return denied;
+  if (detail::Person(a.target) && RescueBusy(s,a.target) &&
+      (a.kind==InteractionOp::Signal || a.kind==InteractionOp::Gesture || a.kind==InteractionOp::Banter)) return denied;
   const auto story = s.narrative.CaptureSnapshot();
   if (!Available(story, a.actor)) return denied;
   if (a.actor == "joe") {
@@ -237,13 +243,28 @@ std::map<std::string, std::string> CampaignCore::KnownCompanionFates() const {
       known->second == WitnessedFate::Captured ? "captura testemunhada" : known->second == WitnessedFate::Dead ? "morte testemunhada" :
       known->second == WitnessedFate::LeftAlone ? "partiu sozinho; destino não confirmado" : "saiu comigo";
   }
+  for (const auto& [id, signature] : state_->receipts) if (signature.rfind("R ",0)==0) {
+    (void)id; RescueCommand c; std::uint64_t order, helper, target; bool witnessed;
+    if (detail::ParseRescue(signature,c,order,witnessed,helper,target) && witnessed &&
+        c.kind==RescueOp::FinalizeCapture && !state_->interactions.knownFates.count(c.target))
+      fates[c.target]="captura testemunhada";
+  }
   return fates;
 }
 std::vector<NightRecordEntry> CampaignCore::NightRecord() const {
   std::vector<NightRecordEntry> entries;
   for (const auto& [id, signature] : state_->receipts) {
     std::string text, actor = "joe", node; double at = 0;
-    if (signature.rfind("I ", 0) == 0) {
+    if (signature.rfind("R ", 0) == 0) {
+      RescueCommand c; std::uint64_t order, helper, target; bool witnessed;
+      if (!detail::ParseRescue(signature,c,order,witnessed,helper,target) || !witnessed) continue;
+      actor=c.actor; node=c.node; at=c.atSeconds;
+      if (c.kind==RescueOp::FinishContainment) text="Vi "+Name(c.target)+" imobilizado; ainda estava ali.";
+      if (c.kind==RescueOp::CompleteRelease) text=c.actor=="joe" ? "Soltei "+Name(c.target)+"." :
+          c.actor==c.target ? "Vi "+Name(c.target)+" se soltar por conta própria." : Name(c.actor)+" soltou "+Name(c.target)+".";
+      if (c.kind==RescueOp::CancelRelease && c.actor=="joe") text="Interrompi a tentativa de soltar "+Name(c.target)+".";
+      if (c.kind==RescueOp::FinalizeCapture) text="Vi "+Name(c.target)+" ser levado após a captura.";
+    } else if (signature.rfind("I ", 0) == 0) {
       InteractionCommand a; std::uint64_t order; bool accepted;
       if (!detail::ParseInteraction(signature, a, order, accepted) || a.kind == InteractionOp::PerceiveThreat) continue;
       actor = a.actor; node = a.node; at = a.atSeconds;

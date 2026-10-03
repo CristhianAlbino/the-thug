@@ -39,7 +39,7 @@ O hash das fontes de autoria e a configuração completa de mundo/tuning identif
 
 Pausar a aplicação de eventos antes de capturar o checkpoint. O envelope runtime acrescenta pausa, ocupação e recibos ao StorySave. Relógios contínuos devem coincidir, ações históricas devem usar vínculos válidos e o resultado narrativo precisa corresponder à fuga confirmada. O carregamento prepara todos os estados antes de trocar a sessão em memória.
 
-Depois de validar, restaurar atores/colisão/câmeras, reconciliar apresentação e somente então retomar sensores. Um checkpoint pausado restaura pausado; o menu decide quando retomar. Runtime v7 inclui planos/seriais de apresentação, recursos/corpos/tarefas individuais, combate/respiração finais/participações especiais e interações/variações/registro pessoal, e `checkpoint::SaveFile/LoadFile` implementa arquivo validado, backup e recuperação explícita. O stream sozinho não garante durabilidade. Seguir o [contrato de arquivo](CONTRATO_ARQUIVO_CHECKPOINT_V1.md), incluindo tratamento de `RecoveredBackup` e `CommittedUnconfirmed`.
+Depois de validar, restaurar atores/colisão/câmeras, reconciliar apresentação e somente então retomar sensores. Um checkpoint pausado restaura pausado; o menu decide quando retomar. Runtime v8 inclui planos/seriais de apresentação, recursos/corpos/tarefas individuais, combate/respiração finais/participações especiais e interações/variações/registro pessoal e captura temporária/soltura conjunta, e `checkpoint::SaveFile/LoadFile` implementa arquivo validado, backup e recuperação explícita. O stream sozinho não garante durabilidade. Seguir o [contrato de arquivo](CONTRATO_ARQUIVO_CHECKPOINT_V1.md), incluindo tratamento de `RecoveredBackup` e `CommittedUnconfirmed`.
 
 ## Critério de integração
 

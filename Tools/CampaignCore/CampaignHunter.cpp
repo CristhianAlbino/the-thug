@@ -62,6 +62,7 @@ std::vector<HunterOffer> CampaignCore::HunterOffers(const HunterContext& ctx)con
 }
 std::vector<HunterOffer> CampaignCore::HunterOffers(const State& s,const HunterContext& ctx)const{
   std::vector<HunterOffer> offers;
+  for (const auto& [actor,t] : s.rescue.captures) { (void)actor; if(t.phase==CapturePhase::Restraining) return offers; }
   if(s.world.NowSeconds()<s.combat.hunterBlockedUntil)return offers;
   if(s.special.phase==SpecialPhase::Opportunity && s.world.NowSeconds()<s.special.boundaryAt)return offers;
   if(!definition_->nodes.count(ctx.actualHunterNode))return offers;
@@ -161,7 +162,7 @@ HunterResult CampaignCore::ApplyHunter(const HunterCommand& c,const HunterContex
   if(c.atSeconds!=Now())return {Status::InvalidTime};
   if(!ctx.physicallyVerified||!definition_->nodes.count(ctx.actualHunterNode))return {Status::InvalidAction};
   if(c.kind!=HunterOp::SeeActor&&c.node!=ctx.actualHunterNode)return {Status::MissingRequirement};
-  if(state_->receipts.size()+detail::CombatReservedReceipts(state_->combat) + detail::SpecialReservedReceipts(state_->special)>=detail::MaxReceipts)return {Status::LogFull};
+  if(state_->receipts.size()+detail::CombatReservedReceipts(state_->combat) + detail::SpecialReservedReceipts(state_->special) + detail::RescueReservedReceipts(state_->rescue)>=detail::MaxReceipts)return {Status::LogFull};
   auto next=std::make_unique<State>(*state_);
   auto result=ExecuteHunter(*next,c,ctx);
   if(result.status!=Status::Applied)return result;
@@ -171,6 +172,8 @@ HunterResult CampaignCore::ApplyHunter(const HunterCommand& c,const HunterContex
   return result;
 }
 HunterResult CampaignCore::ExecuteHunter(State& s,const HunterCommand& c,const HunterContext& ctx){
+  if (c.kind==HunterOp::Choose || c.kind==HunterOp::Arrive || c.kind==HunterOp::Complete)
+    for (const auto& [actor,t] : s.rescue.captures) { (void)actor; if(t.phase==CapturePhase::Restraining) return {Status::MissingRequirement}; }
   if((c.atSeconds<s.combat.hunterBlockedUntil || (s.special.phase==SpecialPhase::Opportunity && c.atSeconds<s.special.boundaryAt)) &&
      (c.kind==HunterOp::Choose||c.kind==HunterOp::Arrive||c.kind==HunterOp::Complete))return {Status::MissingRequirement};
   auto& r=s.hunterRuntime;

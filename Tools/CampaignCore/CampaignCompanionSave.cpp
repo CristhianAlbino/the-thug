@@ -1,6 +1,7 @@
 #include "CampaignState.h"
 #include "CombatIO.h"
 #include "SpecialIO.h"
+#include "RescueIO.h"
 #include "CompanionIO.h"
 #include <algorithm>
 
@@ -65,6 +66,12 @@ bool CampaignCore::CompanionCoherent(const State& s) const {
   std::set<std::string> joeRoutes,medicalFacts,capturedProof,togetherProof,escapedProof,deathProof;
   bool abandonedHarley=false,barthDistraction=false;
   for(const auto& [id,signature]:s.receipts){
+    if(signature.rfind("R ",0)==0){
+      RescueCommand c; std::uint64_t order, helper, target; bool witnessed;
+      if(!detail::ParseRescue(signature,c,order,witnessed,helper,target))return false;
+      if(c.kind==RescueOp::FinalizeCapture)capturedProof.insert(c.target);
+      continue;
+    }
     if(signature.rfind("S ",0)==0){
       SpecialCommand command;command.eventId=id;std::uint64_t order;
       if(!detail::ParseSpecial(signature,command,order))return false;

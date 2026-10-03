@@ -71,3 +71,5 @@ Runtime v1/v2 e serializadores inferiores não são checkpoints completos desta 
 ## Próximas extensões
 
 Medo/estresse com evolução temporal, mentiras/manipulação e objetivos adicionais, cooperação simultânea em obstáculos, planos com múltiplas etapas, inventário derrubado/corpos, restauração física e atuação continuam abertos. As tarefas atuais não fornecem Animation Blueprint, Behavior Tree, navmesh nem personagens prontos para importar.
+
+O runtime v8 acrescenta [captura temporária e soltura conjunta/própria](CONTRATO_CAPTURA_RESGATE_V1.md). Contidos/helpers não executam objetivos habituais até libertação/cancelamento. Recursos continuam individuais; soltar não concede rota ou deslocamento.

@@ -31,7 +31,7 @@ void Recovery(){
   Write(backup,first);fs::remove(slot);Check(disk::LoadFile(loaded,slot).status==disk::Status::RecoveredBackup,"Missing primary can recover");
   Write(slot,std::string(campaign::detail::MaxRuntimeBytes+1,'x'));Check(disk::LoadFile(loaded,slot).status==disk::Status::RecoveredBackup,"Oversized primary is bounded and recovers");
   Check(disk::SaveFile(core,slot).status==disk::Status::Ok && Read(backup)==first,"Saving over damage preserves valid backup");
-  auto future=latest;future.replace(0,std::string("THE_THUG_RUNTIME_CAMPAIGN 7").size(),"THE_THUG_RUNTIME_CAMPAIGN 8");Write(slot,future);
+  auto future=latest;future.replace(0,std::string("THE_THUG_RUNTIME_CAMPAIGN 8").size(),"THE_THUG_RUNTIME_CAMPAIGN 9");Write(slot,future);
   const auto unchanged=Bytes(loaded);auto result=disk::LoadFile(loaded,slot);
   Check(result.status==disk::Status::InvalidCheckpoint && result.checkpoint==save::Result::UnsupportedVersion && Bytes(loaded)==unchanged,"Future version cannot silently roll back progress");
   Check(disk::SaveFile(core,slot).status==disk::Status::InvalidCheckpoint && Read(slot)==future,"Future primary is never overwritten");

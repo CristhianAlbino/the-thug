@@ -37,7 +37,7 @@ save::Result CampaignCore::Save(std::ostream& output) const {
   const auto nested = story.str();
   std::ostringstream out;
   out.imbue(std::locale::classic());
-  out << "THE_THUG_RUNTIME_CAMPAIGN 7\nCONTENT " << contentIdentity_
+  out << "THE_THUG_RUNTIME_CAMPAIGN 8\nCONTENT " << contentIdentity_
       << "\nPAUSED " << state_->paused << "\nHIDE " << std::quoted(state_->hidingPlace)
       << "\nSTORY " << nested.size() << '\n' << nested
       << "PRESENTATION " << state_->presentation.serial << ' ' << state_->presentation.sceneSerial
@@ -49,6 +49,7 @@ save::Result CampaignCore::Save(std::ostream& output) const {
   WriteCombat(out, *state_);
   WriteSpecial(out, *state_);
   WriteInteractions(out, *state_);
+  WriteRescue(out, *state_);
   out << "RECEIPTS " << state_->receipts.size() << '\n';
   for (const auto& [id, signature] : state_->receipts)
     out << "RECEIPT " << std::quoted(id) << ' ' << std::quoted(signature) << '\n';
@@ -72,7 +73,7 @@ save::Result CampaignCore::Load(std::istream& input) {
   in.imbue(std::locale::classic());
   int version;
   if (!Tag(in, "THE_THUG_RUNTIME_CAMPAIGN") || !(in >> version)) return save::Result::Malformed;
-  if (version != 7) return save::Result::UnsupportedVersion;
+  if (version != 8) return save::Result::UnsupportedVersion;
   std::string identity, hide;
   int paused;
   std::size_t length, count;
@@ -87,7 +88,7 @@ save::Result CampaignCore::Load(std::istream& input) {
   if (!in.read(story.data(), static_cast<std::streamsize>(length)) ||
       !Tag(in, "PRESENTATION") || !(in >> presentation.serial >> presentation.sceneSerial >> presentation.banterSerial) ||
       !ReadPlan(in, "SCENE_PLAN", presentation.scenePlan) || !ReadPlan(in, "BANTER_PLAN", presentation.banterPlan) || !ReadCompanions(in, *next) || !ReadHunter(in, *next) || !ReadCombat(in, *next) || !ReadSpecial(in, *next) ||
-      !ReadInteractions(in, *next) || !Tag(in, "RECEIPTS") || !(in >> count) || count > detail::MaxReceipts) return save::Result::Malformed;
+      !ReadInteractions(in, *next) || !ReadRescue(in, *next) || !Tag(in, "RECEIPTS") || !(in >> count) || count > detail::MaxReceipts) return save::Result::Malformed;
   std::map<std::string, std::string> receipts;
   for (std::size_t i = 0; i < count; ++i) {
     std::string id, signature;

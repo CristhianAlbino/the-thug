@@ -1,6 +1,6 @@
 # The Thug — arquivo de checkpoint v1
 
-**Estado:** escritor/leitor C++17 implementado em `Tools/CampaignCore/CheckpointFile.*`, com backends POSIX e Windows. Este documento não contém soluções de pistas nem parâmetros de vitória. O formato interno da sessão é runtime v5; a versão deste contrato descreve a API de arquivo.
+**Estado:** escritor/leitor C++17 implementado em `Tools/CampaignCore/CheckpointFile.*`, com backends POSIX e Windows. Este documento não contém soluções de pistas nem parâmetros de vitória. O formato interno da sessão é runtime v8; a versão deste contrato descreve a API de arquivo.
 
 ## API e uso
 

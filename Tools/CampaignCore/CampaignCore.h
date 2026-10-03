@@ -8,6 +8,7 @@
 #include "CombatRuntime.h"
 #include "SpecialRuntime.h"
 #include "InteractionRuntime.h"
+#include "RescueRuntime.h"
 
 #include <cstdint>
 #include <iosfwd>
@@ -124,6 +125,9 @@ class CampaignCore {
   SpecialRuntimeSnapshot SpecialRuntime() const;
   InteractionResult ApplyInteraction(const InteractionCommand&, const InteractionContext&);
   InteractionRuntimeSnapshot Interactions() const;
+  Status ApplyRescue(const RescueCommand&, const RescueContext&);
+  RescueRuntimeSnapshot RescueRuntime() const;
+  std::vector<RescueOffer> RescueOffers(const std::string& actor, const RescueContext&) const;
   std::optional<NightVariation> VariationFor(const std::string&) const;
   std::optional<director::Cue> InteractionCue(const InteractionCommand&) const;
   std::vector<NightRecordEntry> NightRecord() const;
@@ -150,7 +154,7 @@ class CampaignCore {
   std::string HidingPlace() const;
   std::size_t AppliedActionCount() const;
 
-  // Runtime v7 adds party signals, wedges and optional night variations
+  // Runtime v8 adds temporary capture and interrupted joint release tasks
   // around StorySave. Legacy core/story files require an explicit migration.
   save::Result Save(std::ostream&) const;
   save::Result Load(std::istream&);
@@ -207,6 +211,15 @@ class CampaignCore {
   bool ReadInteractions(std::istream&, State&) const;
   bool RestoreInteractions(State&) const;
   bool QuietBanter(const State&, const std::string&) const;
+  bool RescueStaticValid(const RescueCommand&) const;
+  Status ExecuteRescue(State&, const RescueCommand&, const RescueContext&) const;
+  bool RescueCoherent(const State&) const;
+  bool RescueBusy(const State&, const std::string&) const;
+  bool RescueLocation(const State&, const std::string&, const std::string&) const;
+  std::uint64_t RescueHarmCount(const State&, const std::string&, double before = -1) const;
+  void ReconcileRescue(State&) const;
+  void WriteRescue(std::ostream&, const State&) const;
+  bool ReadRescue(std::istream&, State&) const;
 };
 
 } // namespace thug::campaign

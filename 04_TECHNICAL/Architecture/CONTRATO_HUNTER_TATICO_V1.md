@@ -1,6 +1,6 @@
 # The Thug — primeiro ciclo tático do Hunter
 
-**Estado:** C++17 ligado a CampaignCore, independente da engine. Hunter continua sendo Batman na visão dos bandidos. Este ciclo implementa decisão/percepção/memória e transações de ambiente; não produz navegação, animação, combate ou um inimigo jogável sozinho. Interrogação, armadilhas encadeadas, retirada tática e captura física continuam abertos. Áudio/assets finais e Extremo/Joker permanecem posteriores.
+**Estado:** C++17 ligado a CampaignCore, independente da engine. Hunter continua sendo Batman na visão dos bandidos. Este ciclo implementa decisão/percepção/memória e transações de ambiente; não produz navegação, animação, combate ou um inimigo jogável sozinho. O fluxo de captura temporária/soltura está no [contrato de resgate](CONTRATO_CAPTURA_RESGATE_V1.md); representação física, interrogação, armadilhas encadeadas e retirada tática continuam abertas. Áudio/assets finais e Extremo/Joker permanecem posteriores.
 
 ## Autoridade e percepção
 
@@ -33,7 +33,7 @@ Sem alvo confirmado alcançável, o Hunter pode investigar setores de uma estima
 
 Postura de emboscada e manipulação do ambiente são metas distintas. `WatchPassage` só posiciona/vigia depois de viagem, aviso e reação; a postura expira e possui cooldown. Não bloqueia a passagem por teleporte nem captura quem a cruza. Abrir/fechar porta, desligar circuito e colocar câmera em interferência usam WorldCore, estado físico confirmado e transação. Dispositivos não vistos não entram na decisão por consulta ao estado global. Uma alteração de outra pessoa durante a viagem faz a conclusão falhar, preservando a tarefa para reavaliação/cancelamento. Após a própria alteração, Batman atualiza o baseline sem atribuir seu próprio efeito a Joe.
 
-Chegar ao alvo ou inspecionar um esconderijo não é ataque: não aplica dano/captura, não revela identidade do ocupante e não confirma destino narrativo. A ponte precisa emitir novas percepções quando alguém for realmente identificado e confirmar eventual contato/captura pelo fluxo de campanha/companheiro apropriado. Inventários ou resultados privados dos companheiros não são entradas de percepção; pessoas retiradas da simulação deixam de ser alvos ativos, mantendo a memória de região para uma busca possível.
+Chegar ao alvo ou inspecionar um esconderijo não é ataque: não aplica dano/captura, não revela identidade do ocupante e não confirma destino narrativo. A ponte precisa emitir novas percepções quando alguém for realmente identificado e confirmar eventual contato/captura por ApplyRescue e suas provas físicas/seriais. Inventários ou resultados privados dos companheiros não são entradas de percepção; pessoas retiradas da simulação deixam de ser alvos ativos, mantendo a memória de região para uma busca possível.
 
 ## Hipóteses iniciais por dificuldade
 
@@ -48,7 +48,7 @@ A escala de agressividade é 0–100. Tiro soma 12 (intervalo mínimo 1 s), expl
 
 ## Persistência e integração
 
-Runtime **v5** conserva a camada StorySave v1 e acrescenta pressão/decadência, quatro memórias visuais e suas últimas amostras, perdas explícitas, passagens observadas, setores inspecionados, vigia/cooldown, RNG separado, serial e tarefa em viagem/janela de reação. O loader valida vínculos, relógios, amostras, ocorrência de origem/chegada, resultados de inspeção/vigia e agressividade reconstruída dos eventos. Falha preserva a sessão atual. Runtime v1/v2/v3/v4 exige migração explícita ou nova campanha; não descartar a nova camada ao usar um serializador inferior.
+Runtime **v8** conserva a camada StorySave v1 e acrescenta pressão/decadência, quatro memórias visuais e suas últimas amostras, perdas explícitas, passagens observadas, setores inspecionados, vigia/cooldown, RNG separado, serial e tarefa em viagem/janela de reação. O loader valida vínculos, relógios, amostras, ocorrência de origem/chegada, resultados de inspeção/vigia e agressividade reconstruída dos eventos. Falha preserva a sessão atual. Runtime v1–v7 exige migração explícita ou nova campanha; não descartar a nova camada ao usar um serializador inferior.
 
 Na Unreal, parar sensores durante load; restaurar mundo/navegação/atores e representar a tarefa salva antes de retomar relógio/percepção. Uma tarefa em viagem retoma a navegação; não transportar Batman até o destino. Uma tarefa com chegada confirmada retoma a preparação e o tempo restante. Reconciliar a apresentação do aviso salvo sem confirmá-lo duas vezes. Aplicar sinais e alterações de dispositivos somente após resultado confirmado; `AlreadyApplied` não devolve sinal novo. Fontes de som do próprio Batman não são encaminhadas automaticamente como evidência de Joe.
 

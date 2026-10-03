@@ -57,6 +57,7 @@ bool CampaignCore::NarrativeCoherent(const State& s) const {
   std::set<int> sceneConfirmed, banterConfirmed;
   for (const auto& [id, signature] : s.receipts) {
     (void)id;
+    if (signature.rfind("R ", 0) == 0) continue;
     if (signature.rfind("I ", 0) == 0) continue;
     if (signature.rfind("S ", 0) == 0) continue;
     if (signature.rfind("H ", 0) == 0) continue;
@@ -156,6 +157,7 @@ director::Observation CampaignCore::NarrativeContext(const director::Observation
   if (run.result == rules::Ending::BitterDestruction) o.facts.insert("rare_destruction");
   for (const auto& id : s.special.appearances) o.facts.insert("appearance:" + id);
   for (auto& [name, actor] : o.companions) {
+    if (RescueBusy(s,name)) actor.active=false;
     const auto found = story.outcomes.find(name);
     if (found != story.outcomes.end() && (found->second.dead || found->second.captured || found->second.escapedAlone ||
         (run.result == rules::Ending::CoordinatedEscape && !found->second.together) ||
@@ -182,11 +184,13 @@ ActionResult CampaignCore::ApplyNarrative(const Action& a, const director::Obser
       (state_->special.phase == SpecialPhase::Confronting && Now() >= state_->special.boundaryAt)) return {Status::AwaitingPhysics, {}};
   if (a.atSeconds != Now() || !ValidObservation(input) || a.node != input.joeNode) return {Status::InvalidTime, {}};
   if (!a.physicallyVerified) return {Status::InvalidAction, {}};
+  if (!RescueLocation(*state_,"joe",a.node) || (RescueBusy(*state_,"joe") &&
+      a.kind!=ActionKind::CancelScene && a.kind!=ActionKind::CancelBanter)) return {Status::MissingRequirement,{}};
   if (Ending() != rules::Ending::None && a.kind != ActionKind::CancelScene && a.kind != ActionKind::CancelBanter &&
       !((a.kind == ActionKind::BeginScene || a.kind == ActionKind::SceneCue) && TerminalScene(a.target))) return {Status::Finished, {}};
   if (!state_->hidingPlace.empty() && a.node != std::find_if(definition_->hides.begin(), definition_->hides.end(),
       [&](const auto& hide) { return hide.id == state_->hidingPlace; })->atNode) return {Status::MissingRequirement, {}};
-  if (state_->receipts.size() + detail::CombatReservedReceipts(state_->combat) + detail::SpecialReservedReceipts(state_->special) >= detail::MaxReceipts) return {Status::LogFull, {}};
+  if (state_->receipts.size() + detail::CombatReservedReceipts(state_->combat) + detail::SpecialReservedReceipts(state_->special) + detail::RescueReservedReceipts(state_->rescue) >= detail::MaxReceipts) return {Status::LogFull, {}};
   auto next = std::make_unique<State>(*state_);
   auto story = next->narrative.CaptureSnapshot();
   const auto context = NarrativeContext(input, *next);
@@ -237,7 +241,7 @@ ActionResult CampaignCore::ApplyNarrative(const Action& a, const director::Obser
   next->receipts.emplace(a.eventId, signature); state_.swap(next); return {Status::Applied, {}};
 }
 std::optional<director::Presentation> CampaignCore::CurrentPresentation(const director::Observation& o, const std::string& locale) const {
-  if (Paused() || !ValidObservation(o)) return std::nullopt;
+  if (Paused() || RescueBusy(*state_,"joe") || !ValidObservation(o)) return std::nullopt;
   const auto story = state_->narrative.CaptureSnapshot();
   if (story.activeScene.empty() && QuietBanter(*state_, story.activeBanter)) return std::nullopt;
   return director::Current(NarrativeContext(o, *state_), state_->narrative.CaptureSnapshot(), state_->presentation, locale);

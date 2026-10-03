@@ -107,7 +107,7 @@ bool CampaignCore::CompanionContextValid(const CompanionCommand& a,const Compani
 std::vector<CompanionOffer> CampaignCore::Offers(const State& s,const std::string& actor,const std::string& node,const CompanionContext& c) const {
   if(!detail::Person(actor)||!Active(s.narrative.CaptureSnapshot(),actor)||!Present(c,actor,node))return {};
   const auto& body=s.bodies.at(actor);
-  if(body.task||!body.hidingPlace.empty()||body.survival.CurrentEffects().dead||body.survival.CurrentEffects().collapsed)return {};
+  if(RescueBusy(s,actor)||body.task||!body.hidingPlace.empty()||body.survival.CurrentEffects().dead||body.survival.CurrentEffects().collapsed)return {};
   companion::Situation situation;
   situation.hunterPerceivedNearby=c.hunterPerceived;
   situation.joePerceivedNearby=Perceived(c,"joe");
@@ -157,7 +157,7 @@ CompanionResult CampaignCore::ApplyCompanion(const CompanionCommand& a,const Com
   if(a.atSeconds!=Now())return {Status::InvalidTime};
   if(!a.physicallyVerified||!CompanionContextValid(a,c))return {Status::InvalidAction};
   if(Ending()!=rules::Ending::None&&a.kind!=CompanionOp::Outcome&&a.kind!=CompanionOp::Cancel)return {Status::Finished};
-  if(state_->receipts.size()+detail::CombatReservedReceipts(state_->combat) + detail::SpecialReservedReceipts(state_->special)>=detail::MaxReceipts)return {Status::LogFull};
+  if(state_->receipts.size()+detail::CombatReservedReceipts(state_->combat) + detail::SpecialReservedReceipts(state_->special) + detail::RescueReservedReceipts(state_->rescue)>=detail::MaxReceipts)return {Status::LogFull};
   auto next=std::make_unique<State>(*state_);
   const auto result=ExecuteCompanion(*next,a,c);
   if(result.status!=Status::Applied)return result;
@@ -167,6 +167,10 @@ CompanionResult CampaignCore::ApplyCompanion(const CompanionCommand& a,const Com
 
 CompanionResult CampaignCore::ExecuteCompanion(State& s,const CompanionCommand& a,const CompanionContext& c) {
   const CompanionResult denied{Status::MissingRequirement};
+  if (RescueBusy(s,a.actor) && a.kind!=CompanionOp::Injury && a.kind!=CompanionOp::Cancel &&
+      !(a.kind==CompanionOp::Outcome && a.argument==static_cast<int>(CompanionOutcome::Dead))) return denied;
+  if (!RescueLocation(s,a.actor,a.node)) return denied;
+  if (a.kind==CompanionOp::Outcome && a.argument!=static_cast<int>(CompanionOutcome::Dead) && RescueBusy(s,a.actor)) return denied;
   const auto actor=detail::Person(a.actor);
   auto story=s.narrative.CaptureSnapshot();
   if((!Active(story,a.actor)||(actor&&story.outcomes.at(a.actor).together))&&a.kind!=CompanionOp::Cancel)return denied;
@@ -188,7 +192,7 @@ CompanionResult CampaignCore::ExecuteCompanion(State& s,const CompanionCommand& 
   const auto syncHealth=[&](const std::string& name){if(name!="joe")s.Person(*detail::Person(name)).SetInjured(s.bodies.at(name).survival.CurrentInjury()!=survival::Injury::None,a.atSeconds);};
   const auto releaseHide=[&](const std::string& name){auto& b=s.bodies.at(name);if(!b.hidingPlace.empty()){if(!devices.LeaveHide(b.hidingPlace,a.atSeconds))return false;b.hidingPlace.clear();}return true;};
   const auto reachableRecipient=[&](const std::string& name){
-    if(!Present(c,name,a.node)||!Active(story,name))return false;
+    if(!Present(c,name,a.node)||!Active(story,name)||!RescueLocation(s,name,a.node))return false;
     if(name=="joe")return s.hidingPlace.empty()||Find(definition_->hides,s.hidingPlace)->atNode==a.node;
     const auto& recipient=s.bodies.at(name);
     return !story.outcomes.at(name).together&&(recipient.hidingPlace.empty()||Find(definition_->hides,recipient.hidingPlace)->atNode==a.node);

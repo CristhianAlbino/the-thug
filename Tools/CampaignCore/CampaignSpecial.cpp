@@ -79,7 +79,7 @@ Status CampaignCore::ApplySpecial(const SpecialCommand& c, const SpecialContext&
   if (r.phase == SpecialPhase::Confronting && Now() >= r.boundaryAt && c.kind != SpecialOp::ResolveConfrontation) return Status::AwaitingPhysics;
   const bool finishing = c.kind == SpecialOp::CompletePlant || c.kind == SpecialOp::CancelPlant ||
       c.kind == SpecialOp::ResolveConfrontation || c.kind == SpecialOp::ResolveCollapse || c.kind == SpecialOp::ConfrontationEscape;
-  const auto reserved = detail::CombatReservedReceipts(state_->combat) + detail::SpecialReservedReceipts(r);
+  const auto reserved = detail::CombatReservedReceipts(state_->combat) + detail::SpecialReservedReceipts(r) + detail::RescueReservedReceipts(state_->rescue);
   const std::size_t extra = c.kind == SpecialOp::StartConfrontation ? 2 : c.kind == SpecialOp::BeginPlant || c.kind == SpecialOp::DetonateCollapse ? 1 : 0;
   if (state_->receipts.size() + reserved + extra - (finishing && reserved ? 1 : 0) >= detail::MaxReceipts) return Status::LogFull;
   auto next = std::make_unique<State>(*state_);
@@ -96,6 +96,10 @@ Status CampaignCore::ExecuteSpecial(State& s, const SpecialCommand& c, const Spe
   auto story = s.narrative.CaptureSnapshot();
   const auto mode = s.routes.DifficultyLevel();
   const auto deny = Status::MissingRequirement;
+  for (const auto& [actor,fate] : c.fates)
+    if (!RescueLocation(s,actor,c.node) || (RescueBusy(s,actor) &&
+        fate!=SpecialFate::Injured && fate!=SpecialFate::Dead)) return deny;
+  if (RescueBusy(s,"joe") && c.kind!=SpecialOp::ResolveCollapse && c.kind!=SpecialOp::ResolveConfrontation) return deny;
   if (c.kind == SpecialOp::WitnessAppearance) {
     const auto& a = *Find(definition_->appearances, c.target);
     if (!(a.modes & (1u << static_cast<int>(mode))) || story.act < a.minimumAct ||
@@ -107,7 +111,7 @@ Status CampaignCore::ExecuteSpecial(State& s, const SpecialCommand& c, const Spe
   if (mode != (confrontation ? rules::Difficulty::Easy : rules::Difficulty::Punitive) || story.act != 5) return deny;
   const auto viable = [&](const std::string& actor) {
     const auto& body = s.bodies.at(actor);
-    return Active(story, actor) && Present(context, actor, c.node) && !body.task && body.hidingPlace.empty() &&
+    return !RescueBusy(s,actor) && Active(story, actor) && Present(context, actor, c.node) && !body.task && body.hidingPlace.empty() &&
         !body.survival.CurrentEffects().collapsed && body.survival.CurrentInjury() < survival::Injury::Moderate && s.Person(*detail::Person(actor)).CurrentTraits().trust >= d.minimumTrust;
   };
   switch (c.kind) {

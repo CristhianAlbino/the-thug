@@ -76,7 +76,11 @@ bool CampaignCore::TrackThrown(std::uint64_t serial, const std::string& node,
   return true;
 }
 bool CampaignCore::CombatItemAvailable(const State& s, const std::string& item, int quantity) const {
-  const int reserved = (s.combat.task && s.combat.task->item == item ? 1 : 0) + (s.special.plant && item == "structural_charge" ? 1 : 0);
+  int reserved = (s.combat.task && s.combat.task->item == item ? 1 : 0) + (s.special.plant && item == "structural_charge" ? 1 : 0);
+  for (const auto& [actor, capture] : s.rescue.captures) {
+    (void)actor;
+    if (capture.release && capture.release->helper == "joe" && capture.release->item == item) ++reserved;
+  }
   return s.inventory.Quantity(item) - reserved >= quantity;
 }
 void CampaignCore::ReconcileCombat(State& s) const {
@@ -84,6 +88,7 @@ void CampaignCore::ReconcileCombat(State& s) const {
     s.combat.task.reset();
     s.combat.holdingBreath = false;
   }
+  ReconcileRescue(s);
 }
 bool CampaignCore::AdvanceCombat(State& s, double elapsed, survival::Activity activity) {
   auto& r = s.combat;
@@ -171,9 +176,10 @@ CombatResult CampaignCore::ApplyCombat(const CombatCommand& c, const CombatConte
   if (!context.physicallyVerified || !definition_->nodes.count(context.actualJoeNode)) return {Status::InvalidAction};
   if (!state_->hidingPlace.empty() && context.actualJoeNode != Find(definition_->hides, state_->hidingPlace)->atNode) return {Status::MissingRequirement};
   const bool worldEffect = c.kind == CombatOp::ResolveShot || c.kind == CombatOp::Detonate;
+  if (!worldEffect && RescueBusy(*state_, "joe")) return {Status::MissingRequirement};
   if (!worldEffect && (c.node != context.actualJoeNode ||
       (!state_->hidingPlace.empty() && c.node != Find(definition_->hides, state_->hidingPlace)->atNode))) return {Status::MissingRequirement};
-  std::size_t reserved = detail::CombatReservedReceipts(state_->combat) + detail::SpecialReservedReceipts(state_->special);
+  std::size_t reserved = detail::CombatReservedReceipts(state_->combat) + detail::SpecialReservedReceipts(state_->special) + detail::RescueReservedReceipts(state_->rescue);
   if (c.kind == CombatOp::BeginReload) ++reserved;
   if (c.kind == CombatOp::BeginThrow) reserved += 2;
   const auto& task = state_->combat.task;
@@ -285,6 +291,7 @@ CombatResult CampaignCore::ExecuteCombat(State& s, const CombatCommand& c, const
         r.smoke.emplace(c.serial, SmokeCloud{c.serial, c.eventId, c.node, c.atSeconds, c.atSeconds+p.smokeSeconds, c.position});
       } else {
         for (const auto& hit : c.contacts) {
+          if ((hit.target=="joe" || detail::Person(hit.target)) && !RescueLocation(s,hit.target,hit.node)) return denied;
           if (detail::CombatDistance(hit.position, c.position) > p.blastRadius) return denied;
           if (hit.target == "hunter") interrupt(p.blastInterrupt);
           else if (hit.target == "joe") {
