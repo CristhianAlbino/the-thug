@@ -1,6 +1,6 @@
 # Preparação da produção — 03/10/2026
 
-Esta frente pode começar fora da Unreal. O catálogo indexado foi preparado; gravações, modelos, animações e avaliação final ainda não foram realizados. A ordem do criador continua: textos/contratos, revisão geral, produção de áudio e assets. Não interpretar a autorização para desenvolver como aprovação automática de cada atuação.
+Esta frente pode começar fora da Unreal. O catálogo indexado foi preparado; gravações e assets finais ainda não foram produzidos. Em 07/10/2026 foi gerado um [kit 3D procedural de protótipo](../../05_ART/PrototypeKit_v01/README.md), com malhas, UVs, materiais, rig e clips reais, ainda com aparência simplificada e sem aprovação artística ou importação no editor. A ordem atual do criador é: assets/modelos/texturas/rig/animações primeiro; **vozes por último antes da Unreal**. Não interpretar a autorização para desenvolver como aprovação automática de cada atuação.
 
 ## Entregas preparadas
 
@@ -10,11 +10,11 @@ O [manifesto interno](../../Tools/ProductionCore/README.md) liga os 314 cues atu
 | --- | --- | --- | --- |
 | 1 | Revisão de direção | [Thomas, Jack, vínculos e leitura por ID](../../02_GAME_DESIGN/Narrative/DIRECAO_CRIATIVA_REVISAO_V2.md) | Criador registra manter/ajustar; sem mudar regra de dificuldade ou inventar conhecimento. |
 | 2 | Primeiros dez minutos | Personagens provisórios, corredor, portas/circuitos, passos/respiração, abertura e legendas | A ameaça é compreensível e a navegação legível no blockout. Arte final entra após esse teste. |
-| 3 | Voz pt-BR e gravações | Takes separados por cue/variante, locutor e versão; AUD01–08 segundo seus roteiros | Leitura natural, linguagem permitida, pausa/recusa perceptível e variação coerente com ações. Sem confirmar segredo por áudio fora das condições. |
-| 4 | Foley, sinais e ambiente | Passos por material, portas, ferramentas, tiros, explosões, respiração, aviso de contenção e soltura | Fonte espacial coincide com ação física; som de produção não cria um segundo evento lógico. Distância/oclusão calibradas na Unreal. |
-| 5 | Personagens e gestos | Silhueta/roupa identificáveis, ferimentos, contenção e ajuda; gestos do catálogo | Animação mantém mãos/apoios e tempo da tarefa; cancelamento libera pose sem concluir ação. |
-| 6 | Hospital e objetos | Kit modular, props funcionais e pistas legíveis conforme bíblia visual | Dimensão/colisão/visada aprovadas no blockout; detalhe visual não esconde informação necessária. |
-| 7 | Música e mix | Exploração, tensão, investigação, proximidade, perseguição, esconderijo e recuperação | Mix preserva passos, avisos e fala útil; mudanças seguem percepção real e não revelam posição escondida. |
+| 3 | Personagens e gestos | Base procedural v01 produzida; refinar rosto/anatomia/roupas, texturas e movimentos conforme direção visual e gestos do catálogo | Animação mantém mãos/apoios e tempo da tarefa; cancelamento libera pose sem concluir ação. |
+| 4 | Hospital e objetos | Porta, quadro e cama de protótipo produzidos; ampliar kit modular e pistas legíveis conforme bíblia visual | Dimensão/colisão/visada aprovadas no blockout; detalhe visual não esconde informação necessária. |
+| 5 | Foley, sinais e ambiente | Passos por material, portas, ferramentas, tiros, explosões, respiração, aviso de contenção e soltura | Fonte espacial coincide com ação física; som de produção não cria um segundo evento lógico. Distância/oclusão calibradas na Unreal. |
+| 6 | Música e mix | Exploração, tensão, investigação, proximidade, perseguição, esconderijo e recuperação | Mix preserva passos, avisos e fala útil; mudanças seguem percepção real e não revelam posição escondida. |
+| 7 | Voz pt-BR e gravações — último lote antes da Unreal | Takes separados por cue/variante, locutor e versão; AUD01–08 segundo seus roteiros | Leitura natural, linguagem permitida, pausa/recusa perceptível e variação coerente com ações. Sem confirmar segredo por áudio fora das condições. |
 
 ## Organização para produção
 
@@ -27,7 +27,7 @@ Cada arquivo produzido recebe responsável/origem, versão da fonte, status de r
 ## Pendências reais
 
 - Revisão de direção com o autor e leitura em voz alta.
-- Sessão independente conforme [protocolo sem solução prévia](../Reviews/PROTOCOLO_TESTE_HUMANO_PRE_UNREAL_V1.md).
+- Leitura/sessão de mesa opcional conforme [protocolo sem solução prévia](../Reviews/PROTOCOLO_TESTE_HUMANO_PRE_UNREAL_V1.md); não é um playtest de gameplay nem bloqueia o início na Unreal. Gameplay humano requer build jogável na Unreal.
 - Gravação/produção e avaliação dos arquivos acima.
 - Ensaio espacial, atuação, acústica, interface, desempenho e duração no editor.
 

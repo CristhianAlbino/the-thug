@@ -1,0 +1,152 @@
+{
+  "version": 1,
+  "stage": "procedural_prototype_not_final",
+  "voices_produced": 0,
+  "characters": [
+    {
+      "id": "Joe",
+      "file": "05_ART/PrototypeKit_v01/Characters/SK_Joe_v01.glb",
+      "height_m": 1.78,
+      "height_source": "prototype_assumption",
+      "bones": 54,
+      "meshes": 78,
+      "vertices": 7142,
+      "triangles": 12984,
+      "animations": [
+        "Idle_Breath",
+        "Walk_InPlace",
+        "Crouch_Hold",
+        "Look_Over_Shoulder",
+        "Help_Reach",
+        "Stop_Signal"
+      ],
+      "status": "prototype_unreviewed",
+      "sha256": "7b35abb3dcd5fd8aba48d6a72714d20402faacfa52064f1dac9940e92da40620"
+    },
+    {
+      "id": "Harley",
+      "file": "05_ART/PrototypeKit_v01/Characters/SK_Harley_v01.glb",
+      "height_m": 1.65,
+      "height_source": "prototype_assumption",
+      "bones": 54,
+      "meshes": 96,
+      "vertices": 6704,
+      "triangles": 11928,
+      "animations": [
+        "Idle_Breath",
+        "Walk_InPlace",
+        "Crouch_Hold",
+        "Look_Over_Shoulder",
+        "Help_Reach",
+        "Stop_Signal"
+      ],
+      "status": "prototype_unreviewed",
+      "sha256": "3b340e7c8d7c3badd7fe09c1c4b5a6566c7ad0a8919c61fe76c9452162e43866"
+    },
+    {
+      "id": "Jack_Standard",
+      "file": "05_ART/PrototypeKit_v01/Characters/SK_Jack_Standard_v01.glb",
+      "height_m": 1.79,
+      "height_source": "prototype_assumption",
+      "bones": 54,
+      "meshes": 83,
+      "vertices": 6182,
+      "triangles": 11096,
+      "animations": [
+        "Idle_Breath",
+        "Walk_InPlace",
+        "Crouch_Hold",
+        "Look_Over_Shoulder",
+        "Help_Reach",
+        "Stop_Signal"
+      ],
+      "status": "prototype_unreviewed",
+      "sha256": "e5afa9e85a355ed0fb835f6492c67366a45ec232acf01b608e98b22598a2c970"
+    },
+    {
+      "id": "Jack_Punitive",
+      "file": "05_ART/PrototypeKit_v01/Characters/SK_Jack_Punitive_v01.glb",
+      "height_m": 1.79,
+      "height_source": "prototype_assumption",
+      "bones": 54,
+      "meshes": 92,
+      "vertices": 7020,
+      "triangles": 12546,
+      "animations": [
+        "Idle_Breath",
+        "Walk_InPlace",
+        "Crouch_Hold",
+        "Look_Over_Shoulder",
+        "Help_Reach",
+        "Stop_Signal"
+      ],
+      "status": "prototype_unreviewed",
+      "sha256": "a00a60de3673ca7dbf47c7421e312b927a7a46735246f2c22fa894b52f3ff321"
+    },
+    {
+      "id": "Thomas",
+      "file": "05_ART/PrototypeKit_v01/Characters/SK_Thomas_v01.glb",
+      "height_m": 1.97,
+      "height_source": "author_confirmed",
+      "bones": 54,
+      "meshes": 93,
+      "vertices": 7023,
+      "triangles": 12536,
+      "animations": [
+        "Idle_Breath",
+        "Walk_InPlace",
+        "Crouch_Hold",
+        "Look_Over_Shoulder",
+        "Help_Reach",
+        "Stop_Signal"
+      ],
+      "status": "prototype_unreviewed",
+      "sha256": "babc37eedf9a8f486cb58e44574c6dc2e90e175c3c9a397d5af42590a94eac6e"
+    },
+    {
+      "id": "Bartolomeu",
+      "file": "05_ART/PrototypeKit_v01/Characters/SK_Bartolomeu_v01.glb",
+      "height_m": 1.72,
+      "height_source": "prototype_value_for_author_at_least_about_1_70",
+      "bones": 54,
+      "meshes": 89,
+      "vertices": 6624,
+      "triangles": 11804,
+      "animations": [
+        "Idle_Breath",
+        "Walk_InPlace",
+        "Crouch_Hold",
+        "Look_Over_Shoulder",
+        "Help_Reach",
+        "Stop_Signal"
+      ],
+      "status": "prototype_unreviewed",
+      "sha256": "dbac8cb70567b174663af136d51409bc8050eef7e18799158a0d567381aa1b4d"
+    }
+  ],
+  "props": [
+    {
+      "id": "Hospital_Door",
+      "file": "05_ART/PrototypeKit_v01/Props/SM_Hospital_Door_v01.glb",
+      "status": "prototype_unreviewed",
+      "sha256": "164a95d56b244ac40ae47815ccffd799e6c1b7803140f23eb9fe942b6a0f1c3d"
+    },
+    {
+      "id": "Electrical_Cabinet",
+      "file": "05_ART/PrototypeKit_v01/Props/SM_Electrical_Cabinet_v01.glb",
+      "status": "prototype_unreviewed",
+      "sha256": "5baaa0ace2516999c9d0ba249ea5fd2a71e2679a15ef707e8482c941ef3e7cf7"
+    },
+    {
+      "id": "Hospital_Bed",
+      "file": "05_ART/PrototypeKit_v01/Props/SM_Hospital_Bed_v01.glb",
+      "status": "prototype_unreviewed",
+      "sha256": "335c4ab5b0217763d43e3266503ae51c3060a8d719620df909b0afb7c6f3052c"
+    }
+  ],
+  "material_count": 30,
+  "texture_maps": 90,
+  "source": "Tools/ArtPipeline/build_kit.py",
+  "deterministic_seed": true,
+  "author_visual_specs": "Tools/ArtPipeline/characters.json"
+}
