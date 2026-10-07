@@ -1,0 +1,14 @@
+{
+  "status": "procedural_prototype_v01",
+  "units": "meters",
+  "voices": "last_before_unreal_per_author_2026_10_07",
+  "characters": [
+    {"id":"Joe","label":"Joe","height":1.78,"height_source":"prototype_assumption","age":"mature","build":0.96,"skin":[0.56,0.40,0.29],"hair":[0.07,0.045,0.028],"style":"joe","description":"Rosto maduro e angular, cabelo castanho, boina, sobretudo escuro, gola alta; referência aprovada de Joe."},
+    {"id":"Harley","label":"Harley","height":1.65,"height_source":"prototype_assumption","age":"adult","build":0.78,"skin":[0.78,0.60,0.49],"hair":[0.61,0.46,0.23],"style":"harley","description":"Loira com raízes escuras e pontas rosadas, jaqueta preta, moletom vinho, choker e calça escura."},
+    {"id":"Jack_Standard","label":"Jack · padrão","height":1.79,"height_source":"prototype_assumption","age":"adult","build":0.85,"skin":[0.64,0.49,0.36],"hair":[0.035,0.025,0.020],"style":"jack","description":"Magro, cabelo escuro ondulado, jaqueta e camisa escura; mesma cabeça da variante Punitivo."},
+    {"id":"Jack_Punitive","label":"Jack · Punitivo","height":1.79,"height_source":"prototype_assumption","age":"adult","build":0.85,"skin":[0.64,0.49,0.36],"hair":[0.035,0.025,0.020],"style":"jack_punitive","description":"Mesmo corpo e rosto de Jack padrão; jaleco claro gasto, colete vinho, gravata verde e corrente."},
+    {"id":"Thomas","label":"Thomas","height":1.97,"height_source":"author_confirmed","mass_kg":120,"mass_source":"author_design_target_not_simulated","age":"adult","build":1.45,"skin":[0.16,0.080,0.045],"hair":[0.025,0.017,0.012],"style":"thomas","description":"Negro de pele escura, musculoso, dreads, barba viking grande, braços tatuados e expressão acolhedora."},
+    {"id":"Bartolomeu","label":"Bartolomeu","height":1.72,"height_source":"prototype_value_for_author_at_least_about_1_70","age":"young_adult","build":0.82,"skin":[0.74,0.53,0.37],"hair":[0.40,0.11,0.028],"style":"bart","description":"20 e poucos anos, ruivo, esguio atlético, óculos, traços asiáticos sutis e olhar atento."}
+  ],
+  "excluded": {"Hunter":"Visual adiado pelo autor; não produzir nova imagem ou modelo nesta frente.","voices":"Nenhuma voz gerada neste lote."}
+}

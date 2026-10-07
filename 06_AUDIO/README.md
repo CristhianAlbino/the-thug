@@ -2,6 +2,8 @@
 
 Audio design is a core gameplay system in **The Thug**.
 
+Ordem do autor atualizada em 07/10/2026: **assets/modelos/texturas/rig/animações antes; vozes no último lote antes da Unreal**. Nenhuma voz foi gerada no kit 3D v01.
+
 Planned areas:
 - Music
 - SFX

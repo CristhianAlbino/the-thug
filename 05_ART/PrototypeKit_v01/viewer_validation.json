@@ -1,0 +1,9 @@
+{
+  "passed": true,
+  "assets": 9,
+  "pose_samples": 199,
+  "node_matrix_comparisons": 26594,
+  "max_absolute_matrix_error": 4.0641882015357567e-7,
+  "scope": "complete_JS_syntax_and_actual_viewer_GLTF_parser_transform_math",
+  "browser_WebGL_rendering_tested": false
+}

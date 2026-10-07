@@ -1,0 +1,31 @@
+name: Art prototype files
+
+on:
+  pull_request:
+    paths:
+      - 'Tools/ArtPipeline/**'
+      - '05_ART/PrototypeKit_v01/**'
+      - '.github/workflows/art-prototype.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'Tools/ArtPipeline/**'
+      - '.github/workflows/art-prototype.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  generated-3d:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Install generator dependencies
+        run: python3 -m pip install -r Tools/ArtPipeline/requirements.txt
+      - name: Generate and validate real 3D files
+        run: |
+          python3 Tools/ArtPipeline/build_kit.py
+          python3 Tools/ArtPipeline/validate_kit.py
+          node Tools/ArtPipeline/qa_viewer.js
+          python3 Tools/ArtPipeline/build_viewer.py
+          python3 -m compileall -q Tools/ArtPipeline
