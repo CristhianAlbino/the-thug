@@ -44,3 +44,6 @@ Desktop.ini
 .env
 .env.*
 !.env.example
+# Python validation tools
+__pycache__/
+*.py[cod]

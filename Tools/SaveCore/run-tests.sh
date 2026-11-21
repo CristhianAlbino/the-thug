@@ -23,3 +23,15 @@ c++ -std=c++17 -Wall -Wextra -Wpedantic -Werror \
   "$root/SaveCore.cpp" "$root/WorldState.cpp" "$root/campaign_tests.cpp" \
   -o "${TMPDIR:-/tmp}/the-thug-campaign-tests"
 "${TMPDIR:-/tmp}/the-thug-campaign-tests"
+c++ -std=c++17 -Wall -Wextra -Wpedantic -Werror \
+  "$root/../CompanionCore/CompanionCore.cpp" \
+  "$root/../HunterCore/HunterCore.cpp" \
+  "$root/../HunterCore/RunRules.cpp" \
+  "$root/../PerceptionCore/PerceptionCore.cpp" \
+  "$root/../SurvivalCore/Inventory.cpp" \
+  "$root/../SurvivalCore/SurvivalCore.cpp" \
+  "$root/../IntegrationCore/IntegrationCore.cpp" \
+  "$root/SaveCore.cpp" "$root/WorldState.cpp" \
+  "$root/NarrativeState.cpp" "$root/StorySave.cpp" "$root/story_tests.cpp" \
+  -o "${TMPDIR:-/tmp}/the-thug-story-tests"
+"${TMPDIR:-/tmp}/the-thug-story-tests"

@@ -1,5 +1,9 @@
 # The Thug — Roadmap
 
+## Engine-independent implementation status
+
+CampaignCore runtime v9 provides the shared session, native director, checkpoint writer, individual resources/tasks, temporary capture/rescue, generic dropped stacks, dated information/deception, interrogation, joint uses, companion weapons and observed Hunter smoke/trap/retreat plans. See the [current review](../Reviews/REVISAO_GERAL_2026_10_01.md) and [v9 contract](../../04_TECHNICAL/Architecture/CONTRATO_RECURSOS_INFORMACAO_PLANOS_V1.md). The identified native implementation list is delivered; author review, a real blind human session, production audio/assets and engine milestones remain. [Rescue in the dark](../../02_GAME_DESIGN/Narrative/IDEIA_RESGATE_NO_ESCURO_RASCUNHO.md) has a native foundation, with its physical encounter still pending.
+
 ## M00 — Pre-Production
 - Consolidate GDD
 - Define project/repository architecture

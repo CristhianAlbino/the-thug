@@ -249,6 +249,13 @@ bool ClockConsistent(const WorldSnapshot& world,
          jack.nowSeconds <= now && evidence.nowSeconds <= now;
 }
 
+bool OutcomeConsistent(const survival::SurvivalSnapshot& survival,
+                       const rules::RunSnapshot& routes) {
+  // Other causes can end Joe's run without fatal blood loss, but the reverse
+  // cannot be saved before the coordinator has delivered JoeDied.
+  return !survival.dead || routes.result == rules::Ending::Died;
+}
+
 void WriteHunter(std::ostream& out, const hunter::HunterSnapshot& s) {
   const auto& t = s.tuning;
   out << "HUNTER " << static_cast<int>(s.state) << ' ' << s.nowSeconds << ' '
@@ -339,7 +346,7 @@ bool ReadRules(std::istream& in, rules::RunSnapshot& s) {
   bool deadline;
   if (!Tag(in, "RUN") || !(in >> difficulty >> ending >> s.nowSeconds) ||
       !ReadBool(in, deadline) || !ValidDifficulty(difficulty) ||
-      ending < 0 || ending > 8) return false;
+      ending < 0 || ending > static_cast<int>(rules::Ending::BitterDestruction)) return false;
   s.difficulty = static_cast<rules::Difficulty>(difficulty);
   s.result = static_cast<rules::Ending>(ending);
   if (!Tag(in, "GARAGE") || !ReadBool(in, s.safeOpened) ||
@@ -574,7 +581,8 @@ Result SaveCampaign(std::ostream& output, const Campaign& campaign) {
   const auto evidence = campaign.evidence.CaptureSnapshot();
   const auto world = campaign.world.CaptureSnapshot();
   if (!ClockConsistent(world, hunter, routes, harley, bartholomeu,
-                       jack, evidence)) return Result::IncompatibleRoster;
+                       jack, evidence) || !OutcomeConsistent(survival, routes))
+    return Result::IncompatibleRoster;
   if (!FitsFormat(inventory, harley, bartholomeu, jack) ||
       !FitsCampaign(hunter, hearing, evidence, world)) return Result::TooLarge;
 
@@ -639,7 +647,8 @@ Result LoadCampaign(std::istream& input, Campaign campaign) {
           static_cast<std::size_t>(checksumOffset)))) return Result::Corrupt;
 
   if (!ClockConsistent(world, hunter, routes, harley, bartholomeu,
-                       jack, evidence)) return Result::IncompatibleRoster;
+                       jack, evidence) || !OutcomeConsistent(survival, routes))
+    return Result::IncompatibleRoster;
 
   auto stagedJoe = campaign.party.joe;
   auto stagedHarley = campaign.party.harley;

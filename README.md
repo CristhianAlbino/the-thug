@@ -65,7 +65,9 @@ The [C++17 game rules](Tools/HunterCore/README.md) now implement a testable Hunt
 
 ## Current next step
 
-Follow the [24-day pre-Unreal plan](01_PROJECT/Roadmap/PLANO_PRE_UNREAL_24_DIAS.md) through October 23, 2026. The [Day 1 Unreal setup](01_PROJECT/Roadmap/DIA_1_UNREAL.md) applies once the editor is available. Open design questions are tracked in [Decisions](01_PROJECT/Decisions/DECISOES_ABERTAS.md). The [complete master GDD](02_GAME_DESIGN/GDD/GDD_MASTER.md) is the design source of truth. GitHub updates require a commit and push; editor saves are local.
+The new [CampaignCore](Tools/CampaignCore/README.md) coordinates time, pause, authored starting profiles, atomic Joe/world interactions and persistent action receipts. [DirectorCore](Tools/DirectorCore/README.md) adds conditional runtime text and confirmed line/gesture progression, while the checkpoint file backend provides validated writes, backups and explicit recovery. Read the [full review and remaining implementation work (Portuguese, spoiler-free)](01_PROJECT/Reviews/REVISAO_GERAL_2026_10_01.md). Runtime v9 adds temporary capture/rescue, dropped items, fallible reports and interrogation, joint uses, individual NPC weapons and staged Hunter plans. These native extensions are tested; creative review, independent human validation, final asset/audio production and physical integration remain open. No Unreal project or playable build exists yet.
+
+Follow the [24-day pre-Unreal plan](01_PROJECT/Roadmap/PLANO_PRE_UNREAL_24_DIAS.md) through October 23, 2026. The [production plan](01_PROJECT/Roadmap/PLANO_PRODUCAO_PRE_UNREAL_V1.md) and [production cue index](Tools/ProductionCore/README.md) prepare the remaining creative and asset work. The [Day 1 Unreal setup](01_PROJECT/Roadmap/DIA_1_UNREAL.md) applies once the editor is available. Open design questions are tracked in [Decisions](01_PROJECT/Decisions/DECISOES_ABERTAS.md). The [complete master GDD](02_GAME_DESIGN/GDD/GDD_MASTER.md) is the design source of truth. GitHub updates require a commit and push; editor saves are local.
 
 ---
 **Working title:** The Thug

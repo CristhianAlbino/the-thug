@@ -54,7 +54,7 @@ void DynamicWorld() {
             f.core.CanTraverse("D_F2_SERVER"), "Powered access opens");
   Check(f.core.SetCircuit("C_SECURITY", false, 2).has_value() &&
             !f.core.ReadCamera("CAM_LOBBY") &&
-            !f.core.CanTraverse("D_F2_SERVER"), "Blackout removes live feed and powered access");
+            f.core.CanTraverse("D_F2_SERVER"), "Blackout removes feed, not an already open passage");
   Check(f.core.CloseDoor("D_F2_SERVER", 3) &&
             !f.core.OpenDoor("D_F2_SERVER", 4), "Closed door cannot reopen while unpowered");
   Check(f.core.OpenDoor("D_F2_SERVER", 4, true).has_value() &&
@@ -90,11 +90,35 @@ void DynamicWorld() {
         "All transitions live in existing serializable WorldState");
 }
 
+void MissingObjects() {
+  Fixture f;
+  double now = 0;
+  const auto Remove = [&](const char* id) {
+    auto object = *f.state.Find(id);
+    object.present = false;
+    Check(f.state.SetObject(id, object, ++now), "Object absence persists");
+  };
+  Remove("D_F2_SERVER");
+  Check(!f.core.OpenDoor("D_F2_SERVER", ++now, true) &&
+        !f.core.JamDoor("D_F2_SERVER", ++now) &&
+        !f.core.CanTraverse("D_F2_SERVER"), "Absent door exposes no interaction or managed passage");
+  Remove("CAM_LOBBY");
+  Check(!f.core.ReadCamera("CAM_LOBBY") &&
+        !f.core.SetCameraState("CAM_LOBBY", "looped", ++now), "Absent camera cannot show a feed");
+  Remove("C_SECURITY");
+  Check(!f.core.Powered("C_SECURITY") &&
+        !f.core.SetCircuit("C_SECURITY", false, ++now), "Absent circuit cannot power or switch devices");
+  Remove("H_F3_ISOLATION");
+  Check(!f.core.EnterHide("H_F3_ISOLATION", ++now) &&
+        !f.core.Occupied("H_F3_ISOLATION"), "Absent hiding place cannot shelter an actor");
+}
+
 } // namespace
 
 int main() {
   try {
     DynamicWorld();
+    MissingObjects();
     std::cout << "WorldCore: " << checks << " checks passed\n";
   } catch (const std::exception& error) {
     std::cerr << "WorldCore failed after " << checks << " checks: "

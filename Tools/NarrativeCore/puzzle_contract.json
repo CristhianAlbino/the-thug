@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "garage": {
+    "code": "410723",
+    "correct_prior_knowledge_allowed": true,
+    "wrong_attempts_never_lock": true,
+    "order_document": "DOC05",
+    "fragments": [
+      {"document": "DOC01", "node": "F4_NURSE", "flag": "code_a", "pair": "41"},
+      {"document": "DOC02", "node": "F2_ARCHIVE", "flag": "code_b", "pair": "07"},
+      {"document": "DOC03", "node": "B1_GENERATOR", "flag": "code_c", "pair": "23"}
+    ],
+    "key_discovery": {"document": "DOC04", "node": "F1_SECURITY", "flag": "key_known"},
+    "safe_discovery": {"document": "DOC05", "node": "F2_SECURITY", "flag": "safe_known"}
+  }
+}

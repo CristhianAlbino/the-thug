@@ -2,7 +2,7 @@
 
 **Estado: direção narrativa v0.2.** As decisões do criador registradas em 30/09/2026 na seção seguinte estão fixadas; encenação, ordem fina, falas e gatilhos continuam rascunho para acompanhamento. O [GDD Mestre](../GDD/GDD_MASTER.md) fixa a premissa, cinco personagens, Batman como Hunter, quatro fugas e os cinco atos conceituais. Este documento propõe uma sequência extensa e dinâmica para o Difícil, conectada ao [mapa lógico](../World/MAPA_LOGICO_HOSPITAL.md) e à [bíblia visual](../Visual/BIBLIA_VISUAL_HOSPITAL.md). IDs de cena são estáveis para roteiro e implementação; durações são **hipóteses**, sem playtest.
 
-As cenas N01–N11 receberam uma [primeira passada de roteiro jogável](ROTEIRO_ATOS_1_2_RASCUNHO.md), com condições, alternativas e falas para revisão próxima. N12–N34 têm [roteiro de trabalho dos atos 3 a 5](ROTEIRO_ATOS_3_5_RASCUNHO.md), com rotas, dilemas, Thomas, J4 e epílogos; detalhes de implementação/encenação seguem em revisão.
+As cenas N01–N11 receberam uma [primeira passada de roteiro jogável](ROTEIRO_ATOS_1_2_RASCUNHO.md), com condições, alternativas e falas para revisão próxima. N12–N34 têm [roteiro de trabalho dos atos 3 a 5](ROTEIRO_ATOS_3_5_RASCUNHO.md), com rotas, dilemas, Thomas, J4 e epílogos. O [pacote de texto v1](PACOTE_TEXTO_CAMPANHA_V1.md) traz falas, documentos, roteiros de gravações e epílogos para revisão; a [bíblia de personagens](BIBLIA_PERSONAGENS_V1.md) orienta vozes e consequências. As [conversas ambientais](DIALOGOS_AMBIENTAIS_V1.md) ampliam a convivência entre cenas. Encenação e atuação seguem em revisão.
 
 ## Diretrizes confirmadas por Cristhian
 
@@ -13,6 +13,7 @@ As cenas N01–N11 receberam uma [primeira passada de roteiro jogável](ROTEIRO_
 | Jack | No Punitivo, apresenta roupa distinta, humor deslocado e risadas macabras cada vez mais perceptíveis ao longo da noite. A cadeia de pistas sustenta a revelação secreta do GDD; nos outros modos, não antecipar essa versão. |
 | Hospital | Contar pelo ambiente, sem explicação expositiva. **Proposta aceita como possibilidade de direção:** ala clínica desativada associada ao antigo Asilo Arkham, sugerida por placas, arquivos e infraestrutura, sujeita ao blockout. |
 | Companheiros | Harley, Bartholomeu e Jack têm histórias e epílogos individuais. Ações de Joe podem criar dilemas reais de ajudar, deixar para trás ou aceitar risco para salvar alguém. O jogador deve ter tempo de conhecê-los antes de enfrentar o custo. |
+| Vozes e passado | Joe matou os pais Wayne anos antes; a equipe não deduz automaticamente a identidade do Hunter. Harley cuida de Bartholomeu como irmão, desconfia de Jack; Bartholomeu é amigo de Joe e Thomas é forte e carinhoso. Jack encontrou Batman antes e ri quando fala da sobrevivência em todos os modos; os risos cruéis J1–J3 pertencem apenas ao Punitivo. Sem palavrões fortes. |
 
 O Batman desta versão pode matar Thomas, embora suas derrotas usuais contra Joe continuem sendo captura/incapacitação. A morte é uma **exceção estabelecida pelo criador**, não licença para transformar o Hunter num assassino onipresente ou para informar Joe sobre ela no Fácil/Normal. O uso público dos personagens permanece na decisão D-10.
 
@@ -69,7 +70,7 @@ São **faixas de observação para playtest**, não bloqueios por relógio. Quem
 | --- | --- | --- |
 | N12 · Medicamentos | `F1_LOBBY` → `F1_PHARMACY` · O/C | Tratamento visível através do átrio exposto. Um Joe ferido mede custo de atravessar; sem ferimento, o local vira recurso opcional. A câmera do lobby pode ajudar, enganar ou estar apagada. |
 | N13 · A chave existe | `F1_SECURITY` · O/M garagem | Registro liga um veículo de serviço a uma chave guardada na Administração. Revela **existência**, não o código. |
-| N14 · O cofre | `F2_SECURITY` / `F2_SAFE` · O/M garagem | Joe localiza o cofre e cruza três fragmentos de combinação: `F4_NURSE`, `F2_ARCHIVE`, `B1_GENERATOR`. Os seis dígitos e os textos finais continuam em aberto; cada pista tem referência espacial e segunda camada narrativa. |
+| N14 · O cofre | `F2_SECURITY` / `F2_SAFE` · O/M garagem | Joe localiza o cofre e cruza três fragmentos de combinação: `F4_NURSE`, `F2_ARCHIVE`, `B1_GENERATOR`. A hipótese de seis dígitos `410723` e os textos estão no [pacote de pistas](../World/PISTAS_ROTAS_V1.md), sujeitos a playtest de descoberta. |
 | N15 · Bartholomeu | `F2_ADMIN`, `B1_PUMP` ou ligação entre ambos · C | Bartholomeu procura saída e recursos. Se vir túneis ou receber informação verificável, `LearnRoute("tunnel")`. Pode contar a Joe apenas se o encontrar e escolher compartilhar. Entregar munição é ação física: inventário de Joe diminui, Bartholomeu guarda a unidade e o vínculo muda. |
 | N16 · Descenso industrial | `B1_CENTRAL` → `B1_GENERATOR` · M para energia | Tubos, água e gerador identificável pelo som. Restaurar `C_SERVICE` abre possibilidades de portão/câmera, mas pode produzir sinal audível ao Batman se estiver em alcance. Apagar `C_SECURITY` corta certas câmeras e uma porta elétrica; existe desvio pelo almoxarifado. |
 | N17 · Prumada | `B1_PIPE` ↔ `F1_SERVICE` ↔ `F2_SERVICE` ↔ `F3_PIPE` · O/C | O mesmo duto reconhecível permite retorno inteligente. Joe entra devagar; o Hunter não atravessa a aresta estreita se ela não comporta seu corpo, mas pode investigar uma boca ou contornar por escada. |
@@ -117,7 +118,7 @@ São **faixas de observação para playtest**, não bloqueios por relógio. Quem
 | Jack | Exames/câmeras, investigando padrão | Informação incompleta, utilidade e desconfiança; no Punitivo aparência, risos e humor mudam progressivamente | Aliado pragmático, mentiroso, ausente; revelação secreta Punitivo condicionada a pistas, nunca trava a fuga |
 | Thomas | N03 em toda dificuldade; N34 apenas Difícil/Punitivo | Sua morte causada por Batman é fato do mundo, mas não conhecimento automático do jogador | Fácil/Normal terminam sem confirmação; Difícil/Punitivo revelam durante a exploração ou em coda se ele não viu a prova |
 
-O sistema de companheiros parte de **variáveis separadas** de confiança, medo, estresse, lealdade, autopreservação e relacionamento; valores iniciais continuam na decisão D-02. O roteiro não declara “Harley sempre salva Joe” nem “Bartholomeu trai no minuto 140”. Os mesmos encontros podem mudar falas, prioridades e recursos de acordo com o estado. Nenhum NPC sabe uma rota porque Joe a descobriu: precisa de testemunho, observação ou comunicação.
+O sistema de companheiros parte de **variáveis separadas** de confiança, medo, estresse, lealdade, autopreservação e relacionamento; [valores iniciais v1](../Balance/BALANCE_INICIAL_V1.md) são hipóteses de playtest da decisão D-02. O roteiro não declara “Harley sempre salva Joe” nem “Bartholomeu trai no minuto 140”. Os mesmos encontros podem mudar falas, prioridades e recursos de acordo com o estado. Nenhum NPC sabe uma rota porque Joe a descobriu: precisa de testemunho, observação ou comunicação.
 
 ### Fazer o jogador se importar antes do dilema
 
@@ -150,11 +151,11 @@ O jogo primeiro resolve **como Joe saiu** (ou não); depois monta blocos individ
 
 | Pessoa | Estado registrado | Batida emocional proposta |
 | --- | --- | --- |
-| Harley | Sai com Joe e confiança preservada | Ela lembra o momento em que Joe escolheu voltar; nos três primeiros modos pode cobrar as vezes em que ele a tratou como plano secundário. No Punitivo, a preocupação recíproca aparece sem tornar o final perfeito. |
-| Harley | Escapa separada ou rompe vínculo | Ela age por conta própria. Joe sobrevive, mas a ausência dela tem peso específico; a relação não é restaurada só porque ambos vivem. |
+| Harley | Sai com Joe e confiança preservada | Ela só lembra um retorno se Joe realmente voltou; nos três primeiros modos pode cobrar pedidos concretos que ele ouviu e ignorou. No Punitivo, a preocupação recíproca aparece sem tornar o final perfeito. |
+| Harley | Escapa separada ou rompe vínculo | Ela age por conta própria. Se Joe também sobreviveu, a distância tem peso; a fuga de Harley não prova sobrevivência de Joe nem restaura automaticamente o vínculo. |
 | Harley | Capturada, morta ou paradeiro desconhecido | Três variantes distintas e condicionadas a fatos; o jogador vê qual escolha/consequência levou à última informação disponível. Evitar punir uma decisão cuidadosa com morte inevitável roteirizada. |
 | Bartholomeu | Coopera e sai com Joe | Seu medo continua humano; a munição/ajuda compartilhada pode receber reconhecimento concreto. |
-| Bartholomeu | Escapa sozinho após abandono ou conflito | Joe sabe que sobreviveram separados, mas não sabe se o outro o entregaria. Falas diferentes se houve traição testemunhada. |
+| Bartholomeu | Escapa sozinho após abandono ou conflito | Se Joe sobreviveu e recebeu prova, sabe da fuga separada. Sem comunicação, a confirmação pertence somente à coda do público. Falas diferentes se houve traição testemunhada. |
 | Bartholomeu | Capturado, morto ou desconhecido | Registrar o último encontro e evitar atribuir culpa automática se Joe nunca poderia alcançá-lo. |
 | Jack | Ajuda, foge sozinho, é capturado ou desaparece | O epílogo responde ao que Joe de fato viu. No Punitivo, J4 altera a leitura de suas ações; sem J4, só indícios permanecem. |
 | Thomas | Qualquer saída | Fácil/Normal: ausência sem resolução. Difícil/Punitivo: morte por Batman mostrada em N34 ou coda; epílogo distingue se Joe viu a prova. |
@@ -175,14 +176,14 @@ O jogo primeiro resolve **como Joe saiu** (ou não); depois monta blocos individ
 | DOC08 · Chamadas falhas | `F1_RADIO` | Por que baterias e interferência importam | Só para telhado |
 | DOC09 · Tela antiga | `F2_CAMERAS` | Distinguir câmera online de loop | Opcional/segurança |
 | DOC10 · Nota da clínica | `F3_EXAMS` | Possibilidade física do anexo | Só para janela |
-| DOC11 · Ocorrência de porta | `F2_SERVER` | Regra de fechamento em queda de energia | Opcional/planejamento |
+| DOC11 · Ocorrência de porta | `F2_SERVER` | Regra de abertura motorizada sem energia e alternativa manual | Opcional/planejamento |
 | DOC12 · Entrada policial | `F1_LOBBY` | Quarteirão cercado; sair não significa segurança imediata | Opcional/ambiente |
 | DOC13 · Transferência apagada | `F2_ARCHIVE` | Formulário antigo com origem clínica parcialmente raspada e carimbo de Arkham | Opcional/ambiente; não é explicação completa |
 | DOC14 · Placa reaproveitada | `F3_HALL_W` | Duas camadas de sinalização sugerem que a ala mudou de administração antes do fechamento | Opcional/ambiente |
 | DOC15 · Inventário antigo | `B1_STORAGE` | Equipamentos e tubulações numerados por um sistema diferente do hospital atual | Opcional/ambiente |
 | DOC16 · Thomas (prova) | `B1_MORGUE` ou registro verificável em `F2_SECURITY` | Corrobora N34 e a autoria de Batman sem depender de câmera em loop | **Somente Difícil/Punitivo**; alternativa de coda garante revelação ao público |
 
-Documentos opcionais ampliam o hospital e permitem suspeitar que houve uso recente. DOC13–DOC15 podem sugerir que o prédio foi uma **extensão clínica desativada do antigo Asilo Arkham**, sem um texto que resolva toda sua história. DOC16 não existe ou não revela a conclusão no Fácil/Normal; não usar o mesmo prontuário com texto “censurado” de modo artificial. Pistas obrigatórias de **uma rota escolhida** são rastreáveis e continuam acessíveis mesmo quando outra rota falha. A redação exata e a combinação de seis dígitos são pendências de coautoria.
+Documentos opcionais ampliam o hospital e permitem suspeitar que houve uso recente. DOC13–DOC15 podem sugerir que o prédio foi uma **extensão clínica desativada do antigo Asilo Arkham**, sem um texto que resolva toda sua história. DOC16 não existe ou não revela a conclusão no Fácil/Normal; não usar o mesmo prontuário com texto “censurado” de modo artificial. Pistas obrigatórias de **uma rota escolhida** são rastreáveis e continuam acessíveis mesmo quando outra rota falha. Redação e combinação `410723` têm uma primeira versão para revisão no [pacote de texto](PACOTE_TEXTO_CAMPANHA_V1.md); legibilidade ainda precisa de playtest.
 
 ### Gravações e falas de ambiente — ideias de primeira passada
 
@@ -241,7 +242,7 @@ O subtexto de Jack depende de ele ter visto as duas ocasiões. Se não viu, esta
 
 > Joe: “É o Thomas.”  
 > [Joe confere a evidência e entende o que Batman fez.]  
-> Joe: “Ele não levou o Thomas daqui. Ele o matou.”
+> Joe: “Foi o Batman. Ele matou o Thomas.”
 
 O texto só toca quando Joe presenciou prova inequívoca. Se a revelação vier apenas pela coda, Joe não pronuncia uma conclusão que nunca aprendeu. A cena final deve mostrar ao público o ato/resultado de forma conclusiva, sem atribuir a Joe conhecimento retroativo.
 
@@ -264,4 +265,4 @@ O texto só toca quando Joe presenciou prova inequívoca. Se a revelação vier 
 | Hospital | Possível ala clínica desativada associada a Arkham, narrada pelo ambiente. **Pendente:** sinais físicos exatos no blockout. | Arquivos, placas e materiais |
 | Companheiros | Epílogos individuais e dilemas de ajudar/abandonar/sacrificar. **Pendente:** condições específicas de captura, morte, separação e último testemunho. | Variantes de cena e estado persistido |
 
-As diretrizes da primeira seção estão aprovadas; o restante continua rascunho para revisão de encenação e ritmo com Cristhian. Redigir cenas completas, falas condicionais, documentos e gravações por ID; cruzar cada gatilho com flags, estados do mundo e testes. A duração final depende de playtest.
+As diretrizes da primeira seção estão aprovadas; o restante continua rascunho para revisão de encenação e ritmo com Cristhian. A primeira passada de cenas, falas condicionais, documentos e transcrições está no [pacote de texto v1](PACOTE_TEXTO_CAMPANHA_V1.md), com IDs cruzados com mapa e regras no NarrativeCore. Revisar em conjunto, testar gatilhos no editor e medir duração em playtest.

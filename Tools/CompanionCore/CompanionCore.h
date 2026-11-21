@@ -14,7 +14,7 @@ enum class Difficulty { Easy, Normal, Hard, Punitive };
 enum class Experience { JoeSharedAmmo, JoeAbandonedCompanion };
 enum class Goal {
   StayHidden, SearchResources, HelpJoe, ShareRoute,
-  EscapeAlone, UseJoeAsDistraction
+  EscapeAlone, UseJoeAsDistraction, FollowSignal, InspectSignaledArea
 };
 
 // 0..100; initial values are supplied by authored character data, not invented here.
@@ -69,6 +69,7 @@ struct CompanionSnapshot {
 // must validate events and spatial reachability before calling this core.
 class CompanionCore {
 public:
+  friend void swap(CompanionCore&, CompanionCore&) noexcept;
   CompanionCore(Character character, Difficulty difficulty, Traits initial,
                 std::uint64_t seed = 1);
 
@@ -92,6 +93,11 @@ public:
 
   std::vector<Option> AvailableOptions(const Situation& situation) const;
   Option Choose(const Situation& situation);
+  // Coordinator filters physical targets before choosing with the same RNG.
+  Option ChooseAmong(const std::vector<Option>& executableOptions);
+
+  // The campaign owns the shared simulation clock even when no event occurs.
+  void AdvanceTo(double atSeconds);
 
   CompanionSnapshot CaptureSnapshot() const;
   // Accepts older game time when loading an earlier save; rejects mismatched
@@ -101,7 +107,6 @@ public:
 private:
   static bool ValidTraits(const Traits& traits);
   static double Clamp(double value);
-  void AdvanceTo(double atSeconds);
 
   Character character_;
   Difficulty difficulty_;

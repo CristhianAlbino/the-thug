@@ -83,6 +83,42 @@ std::string Save(Scene& scene) {
   return stream.str();
 }
 
+void AudibleGameplay(std::uint64_t seed) {
+  Scene s(seed);
+  hunter::HunterCore normal(hunter::Difficulty::Normal);
+  const auto door = s.world.OpenDoor("D_F2_SERVER", 1);
+  Check(door.has_value(), "Normal door opening produces a world sound");
+  const perception::SoundEvent doorSound{
+      door->sound, door->positionMeters, door->atSeconds, door->energy};
+  auto heard = s.hearing.Hear(doorSound, {{7, 0, 0}, 1, 0});
+  Check(heard && normal.Observe(*heard) &&
+        normal.CurrentState() == hunter::State::Investigating,
+        "Ordinary nearby door can actually trigger Normal Hunter investigation");
+  Check(!s.hearing.Hear(doorSound, {{7, 0, 0}, 0, 0}),
+        "Fully occluded ordinary door still provides no information");
+  heard = s.hearing.Hear({perception::SoundKind::WalkFootstep, {5, 0, 0}, 2, 1},
+                        {{0, 0, 0}, 1, 0});
+  Check(heard && s.batman.Observe(*heard) &&
+        s.batman.CurrentState() == hunter::State::Investigating,
+        "Walking at real nonzero distance can trigger Hard Hunter");
+
+  hunter::HunterCore calm(hunter::Difficulty::Normal), injured(hunter::Difficulty::Normal);
+  const auto breath = perception::MakeBreathingEvent(
+      {2, 0, 0}, 3, s.survival.CurrentEffects().breathingLoudnessMultiplier);
+  const auto quiet = s.hearing.Hear(breath, {{0, 0, 0}, 1, 0});
+  Check(quiet && calm.Observe(*quiet) && calm.CurrentState() == hunter::State::Patrol,
+        "Calm breathing remains below Normal reaction threshold");
+  Check(s.survival.ApplyInjury(survival::Injury::Severe), "Joe suffers an actual severe injury");
+  heard = s.hearing.Hear(perception::MakeBreathingEvent(
+      {2, 0, 0}, 4, s.survival.CurrentEffects().breathingLoudnessMultiplier),
+      {{0, 0, 0}, 1, 0});
+  Check(heard && heard->strength > quiet->strength && injured.Observe(*heard) &&
+        injured.CurrentState() == hunter::State::Investigating,
+        "Survival injury amplifies breathing enough to change Hunter behavior");
+  Check(!s.hearing.Hear(perception::MakeBreathingEvent({100, 0, 0}, 5, 3),
+                       {{0, 0, 0}, 1, 0}), "Even labored breathing fades at distance");
+}
+
 void Stage(Scene& s) {
   Check(s.joe.Add("magazine", 2), "Joe has transferable ammunition");
   const auto nearbyRoute = companion::Situation{
@@ -186,6 +222,7 @@ void Continue(Scene& s) {
 int main(int argc, char** argv) {
   try {
     const std::uint64_t seed = argc > 1 ? std::stoull(argv[1]) : 42;
+    AudibleGameplay(seed);
     Scene initial(seed);
     Stage(initial);
     const auto bytes = Save(initial);

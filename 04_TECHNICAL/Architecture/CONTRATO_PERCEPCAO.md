@@ -18,7 +18,9 @@ Fonte: [GDD Mestre](../../02_GAME_DESIGN/GDD/GDD_MASTER.md), seções 9–13. C�
 | Tiro / explosão | extremo | alcance e setores do hospital |
 | Distração | depende do objeto | duração e credibilidade |
 
-O multiplicador de respiração do [SurvivalCore](CONTRATO_SOBREVIVENCIA.md) pode elevar a energia do evento, com limite de 0 a 1. A validação de paredes/andares e a produção do som audível pertencem à Unreal; os valores atuais são parâmetros provisórios.
+Usar `MakeBreathingEvent(source, time, effects.breathingLoudnessMultiplier)` com o multiplicador do [SurvivalCore](CONTRATO_SOBREVIVENCIA.md). A função aceita 1–3 e normaliza para energia 1/3–1: respiração calma tem intensidade de origem 0,12; ferimento e fadiga podem elevá-la até 0,36. Multiplicar uma energia já igual a 1 e limitar novamente a 1 apagaria o efeito do ferimento. O chamador ainda decide a cadência. Na sessão, usar `CampaignCore::BreathingSound` para incluir silêncio voluntário, oxigênio e recuperação ofegante do [P07](CONTRATO_COMBATE_RESPIRACAO_V1.md); o helper isolado não conhece esses estados.
+
+Após a revisão de 01/10, limiares provisórios de reação do Hunter são Fácil 0,30; Normal 0,14; Difícil 0,08; Punitivo 0,05. O mínimo audível do sensor continua 0,02. O ensaio integrado verifica que uma porta comum próxima, caminhada e respiração agravada podem produzir a reação prevista, e que oclusão total continua impedindo percepção. Esses valores corrigem sons que antes nunca alcançavam o limiar; não constituem balanceamento aprovado. Paredes/andares, frequência de emissão e som audível precisam ser medidos na Unreal.
 
 ## Evidência visual do ambiente
 

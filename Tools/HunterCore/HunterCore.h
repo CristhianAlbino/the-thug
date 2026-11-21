@@ -57,7 +57,7 @@ struct Stimulus {
 
 struct Tuning {
   double minimumSoundRadiusMeters = 4;
-  double soundThreshold = 0.25;
+  double soundThreshold = 0.08;
   double searchSeconds = 40;
   double investigateSeconds = 16;
   double memoryHalfLifeSeconds = 300;
@@ -96,6 +96,7 @@ struct HunterSnapshot {
 // damage remain the responsibility of the Unreal integration layer.
 class HunterCore {
 public:
+  friend void swap(HunterCore&, HunterCore&) noexcept;
   explicit HunterCore(Difficulty difficulty, std::uint64_t seed = 1);
   explicit HunterCore(Tuning tuning, std::uint64_t seed = 1);
 

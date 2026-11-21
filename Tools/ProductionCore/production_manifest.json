@@ -1,0 +1,5218 @@
+{
+  "schema": 1,
+  "locale": "pt-BR",
+  "status": "production_preparation",
+  "sources_sha256": {
+    "Tools/DirectorCore/runtime_ptbr.json": "64dfeb9d447bff8b82e5142156b30ef2621815d6e77fddd5135fb00b791d3224",
+    "Tools/NarrativeCore/banter_ptbr.json": "1081541ed95980a985b4a0e219f545f782ecfe530d64c764ea40c37819970328",
+    "Tools/ProductionCore/requirements.json": "5195ff4179beffe37a002a766af5397bc3f2ccfc9b00b02edc24e9f90ad366e3"
+  },
+  "summary": {
+    "runtime_cues": 314,
+    "kinds": {
+      "document": 14,
+      "epilogue": 26,
+      "gesture": 28,
+      "recording": 6,
+      "speech": 240
+    },
+    "requirements": 35,
+    "produced_files": 0
+  },
+  "cues": [
+    {
+      "id": "N01:0",
+      "block": "N01",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/0/cues/0",
+      "content": {
+        "kind": "speech",
+        "speaker": "joe",
+        "text": "A polícia não vai subir até aqui. Temos alguns minutos.",
+        "id": "N01:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N01:1",
+      "block": "N01",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/0/cues/1",
+      "content": {
+        "kind": "speech",
+        "speaker": "bartholomeu",
+        "text": "A porta não fecha.",
+        "id": "N01:1"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N01:2",
+      "block": "N01",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/0/cues/2",
+      "content": {
+        "kind": "speech",
+        "speaker": "thomas",
+        "text": "Olha pra mim, pequeno. No três a gente empurra junto.",
+        "actors": [
+          "bartholomeu"
+        ],
+        "id": "N01:2"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N01:3",
+      "block": "N01",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/0/cues/3",
+      "content": {
+        "kind": "speech",
+        "speaker": "harley",
+        "text": "Você deixou isso. De novo.",
+        "id": "N01:3"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N01:4",
+      "block": "N01",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/0/cues/4",
+      "content": {
+        "kind": "speech",
+        "speaker": "joe",
+        "text": "Guarda. Conversamos lá em cima.",
+        "actors": [
+          "harley"
+        ],
+        "id": "N01:4"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N01:5",
+      "block": "N01",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/0/cues/5",
+      "content": {
+        "kind": "speech",
+        "speaker": "harley",
+        "text": "Você sempre promete.",
+        "id": "N01:5"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N01:6",
+      "block": "N01",
+      "kind": "gesture",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/0/cues/6",
+      "content": {
+        "kind": "gesture",
+        "asset": "thomas_checks_barth_hand",
+        "text": "",
+        "actors": [
+          "thomas",
+          "bartholomeu"
+        ],
+        "id": "N01:6"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N02:0",
+      "block": "N02",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/1/cues/0",
+      "content": {
+        "kind": "speech",
+        "speaker": "thomas",
+        "text": "É só um morcego fantasiado. Relaxa. Quando a gente sair, pago café pra todo mundo.",
+        "delivered_fact": "thomas_promised_coffee",
+        "id": "N02:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N02:1",
+      "block": "N02",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/1/cues/1",
+      "content": {
+        "kind": "speech",
+        "speaker": "bartholomeu",
+        "text": "Você disse isso na última vez.",
+        "actors": [
+          "thomas"
+        ],
+        "id": "N02:1"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N02:2",
+      "block": "N02",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/1/cues/2",
+      "content": {
+        "kind": "speech",
+        "speaker": "thomas",
+        "text": "Paguei, não paguei?",
+        "actors": [
+          "bartholomeu"
+        ],
+        "id": "N02:2"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N02:3",
+      "block": "N02",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/1/cues/3",
+      "content": {
+        "kind": "speech",
+        "speaker": "harley",
+        "text": "Eu não ficaria na janela.",
+        "id": "N02:3"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N02:4",
+      "block": "N02",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/1/cues/4",
+      "content": {
+        "kind": "speech",
+        "speaker": "joe",
+        "text": "Sai daí, Thomas.",
+        "actors": [
+          "thomas"
+        ],
+        "id": "N02:4"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N02:5",
+      "block": "N02",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/1/cues/5",
+      "content": {
+        "kind": "speech",
+        "speaker": "jack",
+        "text": "Já cruzei com ele. Saí vivo. A janela não é o único lugar por onde alguém entra.",
+        "delivered_fact": "jack_previous_encounter_heard",
+        "id": "N02:5"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N02:6",
+      "block": "N02",
+      "kind": "gesture",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/1/cues/6",
+      "content": {
+        "kind": "gesture",
+        "asset": "distant_batsignal",
+        "text": "",
+        "id": "N02:6"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N03:0",
+      "block": "N03",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/2/cues/0",
+      "content": {
+        "kind": "speech",
+        "speaker": "thomas",
+        "text": "Merda, que foi isso—",
+        "id": "N03:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N03:1",
+      "block": "N03",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/2/cues/1",
+      "content": {
+        "kind": "speech",
+        "speaker": "joe",
+        "text": "Thomas?!",
+        "id": "N03:1"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N03:2",
+      "block": "N03",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/2/cues/2",
+      "content": {
+        "kind": "speech",
+        "speaker": "harley",
+        "text": "Barth, vem comigo. Joe, olha pra mim. Agora anda.",
+        "actors": [
+          "bartholomeu"
+        ],
+        "id": "N03:2"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N03:3",
+      "block": "N03",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/2/cues/3",
+      "content": {
+        "kind": "speech",
+        "speaker": "joe",
+        "text": "Não foi a polícia.",
+        "id": "N03:3"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N04:0",
+      "block": "N04",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/3/cues/0",
+      "content": {
+        "kind": "speech",
+        "speaker": "joe",
+        "text": "Foi o carrinho. Preciso sair daqui.",
+        "all": [
+          "joe_cart_noise_observed"
+        ],
+        "id": "N04:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N04:1",
+      "block": "N04",
+      "kind": "gesture",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/3/cues/1",
+      "content": {
+        "kind": "gesture",
+        "asset": "quiet_corridor",
+        "text": "",
+        "all": [
+          "quiet_corridor_observed"
+        ],
+        "id": "N04:1"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N05:0",
+      "block": "N05",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/4/cues/0",
+      "content": {
+        "kind": "speech",
+        "speaker": "joe",
+        "text": "Ele passou aqui?",
+        "all": [
+          "ambiguous_trace_observed"
+        ],
+        "id": "N05:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N05:1",
+      "block": "N05",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/4/cues/1",
+      "content": {
+        "kind": "speech",
+        "speaker": "joe",
+        "text": "Registro de frota. Vou guardar.",
+        "all": [
+          "doc01_read"
+        ],
+        "none": [
+          "doc05_read"
+        ],
+        "id": "N05:1"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N05:2",
+      "block": "N05",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/4/cues/2",
+      "content": {
+        "kind": "speech",
+        "speaker": "joe",
+        "text": "Uma das referências. Ainda preciso conferir as outras.",
+        "all": [
+          "doc01_read",
+          "doc05_read"
+        ],
+        "id": "N05:2"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N06:0",
+      "block": "N06",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/5/cues/0",
+      "content": {
+        "kind": "speech",
+        "speaker": "joe",
+        "text": "O mesmo cano. Esse andar volta para o outro lado.",
+        "all": [
+          "pipe_landmark_observed"
+        ],
+        "id": "N06:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N06:1",
+      "block": "N06",
+      "kind": "gesture",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/5/cues/1",
+      "content": {
+        "kind": "gesture",
+        "asset": "ambient_navigation",
+        "text": "",
+        "id": "N06:1"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N07:0",
+      "block": "N07",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/6/cues/0",
+      "content": {
+        "kind": "speech",
+        "speaker": "harley",
+        "text": "Você tá sangrando.",
+        "all": [
+          "joe_bleeding"
+        ],
+        "id": "N07:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N07:1",
+      "block": "N07",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/6/cues/1",
+      "content": {
+        "kind": "speech",
+        "speaker": "joe",
+        "text": "Não é nada.",
+        "all": [
+          "joe_bleeding"
+        ],
+        "id": "N07:1"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N07:2",
+      "block": "N07",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/6/cues/2",
+      "content": {
+        "kind": "speech",
+        "speaker": "harley",
+        "text": "Não mente pra mim. Já vi você mentir melhor.",
+        "all": [
+          "joe_bleeding"
+        ],
+        "id": "N07:2"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N07:3",
+      "block": "N07",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/6/cues/3",
+      "content": {
+        "kind": "speech",
+        "speaker": "harley",
+        "text": "Ouvi a porta bater, não vi quem entrou.",
+        "all": [
+          "harley_heard_unseen_door"
+        ],
+        "none": [
+          "joe_injured"
+        ],
+        "id": "N07:3"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N07:4",
+      "block": "N07",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/6/cues/4",
+      "content": {
+        "kind": "speech",
+        "speaker": "joe",
+        "text": "Você consegue andar?",
+        "all": [
+          "harley_injured"
+        ],
+        "modes": [
+          "Easy",
+          "Normal",
+          "Hard"
+        ],
+        "id": "N07:4"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N07:5",
+      "block": "N07",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/6/cues/5",
+      "content": {
+        "kind": "speech",
+        "speaker": "harley",
+        "text": "Consigo. Era só isso?",
+        "all": [
+          "harley_injured"
+        ],
+        "modes": [
+          "Easy",
+          "Normal",
+          "Hard"
+        ],
+        "id": "N07:5"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N07:6",
+      "block": "N07",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/6/cues/6",
+      "content": {
+        "kind": "speech",
+        "speaker": "joe",
+        "text": "Deixa eu ver. Se ficar pior, eu volto por você.",
+        "all": [
+          "harley_injured"
+        ],
+        "modes": [
+          "Punitive"
+        ],
+        "id": "N07:6"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N07:7",
+      "block": "N07",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/6/cues/7",
+      "content": {
+        "kind": "speech",
+        "speaker": "harley",
+        "text": "Então me diz por onde.",
+        "all": [
+          "harley_injured"
+        ],
+        "modes": [
+          "Punitive"
+        ],
+        "id": "N07:7"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N08:0",
+      "block": "N08",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/7/cues/0",
+      "content": {
+        "kind": "speech",
+        "speaker": "jack",
+        "text": "Na primeira, veio pelo barulho. Na segunda, pela escada.",
+        "all": [
+          "jack_two_encounters_observed"
+        ],
+        "id": "N08:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N08:1",
+      "block": "N08",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/7/cues/1",
+      "content": {
+        "kind": "speech",
+        "speaker": "joe",
+        "text": "Ele sabe o caminho?",
+        "all": [
+          "jack_two_encounters_observed"
+        ],
+        "id": "N08:1"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N08:2",
+      "block": "N08",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/7/cues/2",
+      "content": {
+        "kind": "speech",
+        "speaker": "jack",
+        "text": "Sabe o que você mostrou.",
+        "all": [
+          "jack_two_encounters_observed"
+        ],
+        "id": "N08:2"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N08:3",
+      "block": "N08",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/7/cues/3",
+      "content": {
+        "kind": "speech",
+        "speaker": "jack",
+        "text": "A porta está aberta. O resto é palpite.",
+        "all": [
+          "jack_open_door_observed"
+        ],
+        "none": [
+          "jack_two_encounters_observed"
+        ],
+        "id": "N08:3"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N08:4",
+      "block": "N08",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/7/cues/4",
+      "content": {
+        "kind": "speech",
+        "speaker": "jack",
+        "text": "Esse hospital recebe muito bem.",
+        "all": [
+          "jack_heard_thomas_or_injury"
+        ],
+        "modes": [
+          "Punitive"
+        ],
+        "id": "N08:4"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N08:5",
+      "block": "N08",
+      "kind": "gesture",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/7/cues/5",
+      "content": {
+        "kind": "gesture",
+        "asset": "jack_j1_laugh",
+        "text": "",
+        "all": [
+          "jack_heard_thomas_or_injury"
+        ],
+        "modes": [
+          "Punitive"
+        ],
+        "actors": [
+          "jack"
+        ],
+        "id": "N08:5"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N09:0",
+      "block": "N09",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/8/cues/0",
+      "content": {
+        "kind": "speech",
+        "speaker": "joe",
+        "text": "A hora está andando.",
+        "all": [
+          "live_feed_observed"
+        ],
+        "id": "N09:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N09:1",
+      "block": "N09",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/8/cues/1",
+      "content": {
+        "kind": "speech",
+        "speaker": "joe",
+        "text": "O mesmo reflexo. Isso já aconteceu.",
+        "all": [
+          "loop_feed_observed"
+        ],
+        "id": "N09:1"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N09:2",
+      "block": "N09",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/8/cues/2",
+      "content": {
+        "kind": "speech",
+        "speaker": "joe",
+        "text": "Nada de imagem.",
+        "all": [
+          "offline_feed_observed"
+        ],
+        "id": "N09:2"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N10:0",
+      "block": "N10",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/9/cues/0",
+      "content": {
+        "kind": "speech",
+        "speaker": "joe",
+        "text": "A câmera mostrou o que havia, não o que há.",
+        "all": [
+          "camera_area_physically_checked"
+        ],
+        "id": "N10:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N10:1",
+      "block": "N10",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/9/cues/1",
+      "content": {
+        "kind": "speech",
+        "speaker": "joe",
+        "text": "Pode ser antigo.",
+        "none": [
+          "camera_area_physically_checked"
+        ],
+        "id": "N10:1"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N11:0",
+      "block": "N11",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/10/cues/0",
+      "content": {
+        "kind": "speech",
+        "speaker": "joe",
+        "text": "Pensa, Joe. Pensa.",
+        "id": "N11:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N11:1",
+      "block": "N11",
+      "kind": "gesture",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/10/cues/1",
+      "content": {
+        "kind": "gesture",
+        "asset": "hunter_arrival_physical",
+        "text": "",
+        "id": "N11:1"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N12:0",
+      "block": "N12",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/11/cues/0",
+      "content": {
+        "kind": "speech",
+        "speaker": "joe",
+        "text": "Tem remédio. O caminho até ele é o problema.",
+        "all": [
+          "joe_injured"
+        ],
+        "id": "N12:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N12:1",
+      "block": "N12",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/11/cues/1",
+      "content": {
+        "kind": "speech",
+        "speaker": "joe",
+        "text": "Posso precisar disso depois.",
+        "none": [
+          "joe_injured"
+        ],
+        "id": "N12:1"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N13:0",
+      "block": "N13",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/12/cues/0",
+      "content": {
+        "kind": "speech",
+        "speaker": "joe",
+        "text": "Tem carro. A chave ficou num cofre lá em cima.",
+        "all": [
+          "doc04_read"
+        ],
+        "id": "N13:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N14:0",
+      "block": "N14",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/13/cues/0",
+      "content": {
+        "kind": "speech",
+        "speaker": "joe",
+        "text": "Três referências. Leitos, arquivo, manutenção.",
+        "all": [
+          "doc05_read"
+        ],
+        "id": "N14:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N14:1",
+      "block": "N14",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/13/cues/1",
+      "content": {
+        "kind": "speech",
+        "speaker": "joe",
+        "text": "Agora a chave.",
+        "all": [
+          "key_inside_safe_observed"
+        ],
+        "id": "N14:1"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N14:2",
+      "block": "N14",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/13/cues/2",
+      "content": {
+        "kind": "speech",
+        "speaker": "joe",
+        "text": "Não abriu. Preciso conferir.",
+        "all": [
+          "keypad_failure_observed"
+        ],
+        "id": "N14:2"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N15:0",
+      "block": "N15",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/14/cues/0",
+      "content": {
+        "kind": "speech",
+        "speaker": "bartholomeu",
+        "text": "Vi uma entrada perto das bombas. Não vi saída. Você sempre me disse pra falar só do que vi, Joe.",
+        "all": [
+          "barth_tunnel_entry_observed"
+        ],
+        "id": "N15:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N15:1",
+      "block": "N15",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/14/cues/1",
+      "content": {
+        "kind": "speech",
+        "speaker": "joe",
+        "text": "Vem mostrar.",
+        "all": [
+          "joe_requested_tunnel_guidance"
+        ],
+        "id": "N15:1"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N15:2",
+      "block": "N15",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/14/cues/2",
+      "content": {
+        "kind": "speech",
+        "speaker": "joe",
+        "text": "Guarda isso pra você.",
+        "all": [
+          "joe_declined_tunnel_guidance"
+        ],
+        "id": "N15:2"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N15:3",
+      "block": "N15",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/14/cues/3",
+      "content": {
+        "kind": "speech",
+        "speaker": "bartholomeu",
+        "text": "Eu vou lembrar. É bom saber que você ainda confia em mim.",
+        "all": [
+          "joe_shared_ammo_with_bartholomeu"
+        ],
+        "id": "N15:3"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N15:4",
+      "block": "N15",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/14/cues/4",
+      "content": {
+        "kind": "speech",
+        "speaker": "bartholomeu",
+        "text": "Pode estar morto, Joe. Eu não vi.",
+        "all": [
+          "thomas_discussed"
+        ],
+        "modes": [
+          "Easy",
+          "Normal"
+        ],
+        "id": "N15:4"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N15:5",
+      "block": "N15",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/14/cues/5",
+      "content": {
+        "kind": "speech",
+        "speaker": "bartholomeu",
+        "text": "Thomas morreu",
+        "all": [
+          "barth_informed_of_thomas_proof"
+        ],
+        "modes": [
+          "Hard",
+          "Punitive"
+        ],
+        "id": "N15:5"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N15:6",
+      "block": "N15",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/14/cues/6",
+      "content": {
+        "kind": "speech",
+        "speaker": "jack",
+        "text": "Até o hospital deve ter desistido de achar esse homem.",
+        "all": [
+          "jack_act3_encounter",
+          "jack_heard_thomas_or_injury"
+        ],
+        "modes": [
+          "Punitive"
+        ],
+        "id": "N15:6"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N15:7",
+      "block": "N15",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/14/cues/7",
+      "content": {
+        "kind": "speech",
+        "speaker": "joe",
+        "text": "Não fala dele assim.",
+        "all": [
+          "jack_act3_encounter",
+          "jack_heard_thomas_or_injury"
+        ],
+        "modes": [
+          "Punitive"
+        ],
+        "actors": [
+          "jack"
+        ],
+        "id": "N15:7"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N15:8",
+      "block": "N15",
+      "kind": "gesture",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/14/cues/8",
+      "content": {
+        "kind": "gesture",
+        "asset": "jack_j2_laugh",
+        "text": "",
+        "all": [
+          "jack_act3_encounter",
+          "jack_heard_thomas_or_injury"
+        ],
+        "modes": [
+          "Punitive"
+        ],
+        "actors": [
+          "jack"
+        ],
+        "id": "N15:8"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N16:0",
+      "block": "N16",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/15/cues/0",
+      "content": {
+        "kind": "speech",
+        "speaker": "joe",
+        "text": "Se eu ligar isso, alguém vai ouvir.",
+        "all": [
+          "generator_heard"
+        ],
+        "id": "N16:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N17:0",
+      "block": "N17",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/16/cues/0",
+      "content": {
+        "kind": "speech",
+        "speaker": "joe",
+        "text": "Ele não passa por esse vão. Pode dar a volta.",
+        "all": [
+          "pipe_opening_assessed"
+        ],
+        "id": "N17:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N18:0",
+      "block": "N18",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/17/cues/0",
+      "content": {
+        "kind": "speech",
+        "speaker": "joe",
+        "text": "Ali é outro prédio.",
+        "all": [
+          "annex_seen"
+        ],
+        "id": "N18:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N18:1",
+      "block": "N18",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/17/cues/1",
+      "content": {
+        "kind": "speech",
+        "speaker": "joe",
+        "text": "Uma ida só.",
+        "all": [
+          "window_unblocked"
+        ],
+        "id": "N18:1"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N18:2",
+      "block": "N18",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/17/cues/2",
+      "content": {
+        "kind": "speech",
+        "speaker": "joe",
+        "text": "Preciso de algo que tire a trava.",
+        "all": [
+          "window_blocked_observed"
+        ],
+        "none": [
+          "window_unblocked"
+        ],
+        "id": "N18:2"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N19:0",
+      "block": "N19",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/18/cues/0",
+      "content": {
+        "kind": "speech",
+        "speaker": "radio",
+        "text": "Repete o ponto. Não pouso às cegas.",
+        "all": [
+          "radio_contact_established"
+        ],
+        "id": "N19:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N19:1",
+      "block": "N19",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/18/cues/1",
+      "content": {
+        "kind": "speech",
+        "speaker": "joe",
+        "text": "Telhado do hospital. Confirma.",
+        "all": [
+          "radio_contact_established"
+        ],
+        "id": "N19:1"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N19:2",
+      "block": "N19",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/18/cues/2",
+      "content": {
+        "kind": "speech",
+        "speaker": "radio",
+        "text": "Confirmado. Cinco minutos.",
+        "all": [
+          "helicopter_confirmed"
+        ],
+        "id": "N19:2"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N20:0",
+      "block": "N20",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/19/cues/0",
+      "content": {
+        "kind": "speech",
+        "speaker": "joe",
+        "text": "Água vai para algum lugar.",
+        "all": [
+          "water_current_observed"
+        ],
+        "id": "N20:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N20:1",
+      "block": "N20",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/19/cues/1",
+      "content": {
+        "kind": "speech",
+        "speaker": "bartholomeu",
+        "text": "Eu vi a entrada, agora ouvi o ar lá dentro.",
+        "all": [
+          "barth_tunnel_entry_observed",
+          "barth_tunnel_air_heard"
+        ],
+        "id": "N20:1"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N21:0",
+      "block": "N21",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/20/cues/0",
+      "content": {
+        "kind": "speech",
+        "speaker": "jack",
+        "text": "Ele parou de procurar o andar. Está esperando sua escada.",
+        "all": [
+          "jack_hunter_habit_observed"
+        ],
+        "id": "N21:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N21:1",
+      "block": "N21",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/20/cues/1",
+      "content": {
+        "kind": "speech",
+        "speaker": "joe",
+        "text": "Então mudamos de escada.",
+        "all": [
+          "jack_hunter_habit_observed"
+        ],
+        "actors": [
+          "jack"
+        ],
+        "id": "N21:1"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N22:0",
+      "block": "N22",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/21/cues/0",
+      "content": {
+        "kind": "speech",
+        "speaker": "joe",
+        "text": "Caiu a segurança.",
+        "all": [
+          "security_blackout_observed"
+        ],
+        "id": "N22:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N22:1",
+      "block": "N22",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/21/cues/1",
+      "content": {
+        "kind": "speech",
+        "speaker": "joe",
+        "text": "O controle da porta não responde",
+        "all": [
+          "closed_powered_door_attempt_failed"
+        ],
+        "id": "N22:1"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N22:2",
+      "block": "N22",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/21/cues/2",
+      "content": {
+        "kind": "speech",
+        "speaker": "joe",
+        "text": "Voltou a energia. Preciso conferir a imagem.",
+        "all": [
+          "security_power_restored_observed"
+        ],
+        "id": "N22:2"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N22:3",
+      "block": "N22",
+      "kind": "gesture",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/21/cues/3",
+      "content": {
+        "kind": "gesture",
+        "asset": "service_power_effect",
+        "text": "",
+        "all": [
+          "service_power_effect_observed"
+        ],
+        "id": "N22:3"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N23:0",
+      "block": "N23",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/22/cues/0",
+      "content": {
+        "kind": "speech",
+        "speaker": "harley",
+        "text": "Você ouviu quando pedi ajuda?",
+        "all": [
+          "joe_heard_harley_help_request"
+        ],
+        "modes": [
+          "Easy",
+          "Normal",
+          "Hard"
+        ],
+        "id": "N23:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N23:1",
+      "block": "N23",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/22/cues/1",
+      "content": {
+        "kind": "speech",
+        "speaker": "joe",
+        "text": "Ouvi. Estou vendo se dá pra passar.",
+        "all": [
+          "joe_heard_harley_help_request"
+        ],
+        "modes": [
+          "Easy",
+          "Normal",
+          "Hard"
+        ],
+        "id": "N23:1"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N23:2",
+      "block": "N23",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/22/cues/2",
+      "content": {
+        "kind": "speech",
+        "speaker": "harley",
+        "text": "Eu perguntei de mim.",
+        "all": [
+          "joe_heard_harley_help_request"
+        ],
+        "modes": [
+          "Easy",
+          "Normal",
+          "Hard"
+        ],
+        "id": "N23:2"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N23:3",
+      "block": "N23",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/22/cues/3",
+      "content": {
+        "kind": "speech",
+        "speaker": "harley",
+        "text": "Barth ainda está esperando por nós.",
+        "all": [
+          "harley_knows_barth_alive_waiting"
+        ],
+        "modes": [
+          "Easy",
+          "Normal",
+          "Hard"
+        ],
+        "id": "N23:3"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N23:4",
+      "block": "N23",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/22/cues/4",
+      "content": {
+        "kind": "speech",
+        "speaker": "harley",
+        "text": "Consigo ir. Você não precisa voltar.",
+        "modes": [
+          "Punitive"
+        ],
+        "id": "N23:4"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N23:5",
+      "block": "N23",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/22/cues/5",
+      "content": {
+        "kind": "speech",
+        "speaker": "joe",
+        "text": "Preciso saber que você chegou.",
+        "modes": [
+          "Punitive"
+        ],
+        "id": "N23:5"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N23:6",
+      "block": "N23",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/22/cues/6",
+      "content": {
+        "kind": "speech",
+        "speaker": "harley",
+        "text": "Eu vi você voltar",
+        "all": [
+          "joe_returned_for_harley"
+        ],
+        "id": "N23:6"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N23:7",
+      "block": "N23",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/22/cues/7",
+      "content": {
+        "kind": "speech",
+        "speaker": "harley",
+        "text": "Então vou por mim.",
+        "all": [
+          "joe_abandoned_harley"
+        ],
+        "id": "N23:7"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N24:0",
+      "block": "N24",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/23/cues/0",
+      "content": {
+        "kind": "speech",
+        "speaker": "bartholomeu",
+        "text": "Segurei a porta quando entramos. O Thomas me ajudou.",
+        "all": [
+          "barth_held_opening_door"
+        ],
+        "id": "N24:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N24:1",
+      "block": "N24",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/23/cues/1",
+      "content": {
+        "kind": "speech",
+        "speaker": "joe",
+        "text": "E agora?",
+        "all": [
+          "barth_held_opening_door"
+        ],
+        "id": "N24:1"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N24:2",
+      "block": "N24",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/23/cues/2",
+      "content": {
+        "kind": "speech",
+        "speaker": "bartholomeu",
+        "text": "Agora é você que decide se a deixa aberta. Eu já fiz isso por você, lembra?",
+        "all": [
+          "barth_held_opening_door"
+        ],
+        "id": "N24:2"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N24:3",
+      "block": "N24",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/23/cues/3",
+      "content": {
+        "kind": "speech",
+        "speaker": "bartholomeu",
+        "text": "Desculpa. Eu quero viver.",
+        "all": [
+          "barth_betrayal_executed"
+        ],
+        "id": "N24:3"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N25:0",
+      "block": "N25",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/24/cues/0",
+      "content": {
+        "kind": "speech",
+        "speaker": "jack",
+        "text": "Pelo servidor você corta caminho. Confira a tela se não confia.",
+        "all": [
+          "jack_verified_inference"
+        ],
+        "id": "N25:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N25:1",
+      "block": "N25",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/24/cues/1",
+      "content": {
+        "kind": "speech",
+        "speaker": "joe",
+        "text": "Você sabia que a porta não abria.",
+        "all": [
+          "joe_discovered_jack_lie"
+        ],
+        "id": "N25:1"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N25:2",
+      "block": "N25",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/24/cues/2",
+      "content": {
+        "kind": "speech",
+        "speaker": "jack",
+        "text": "Eu sabia que talvez não abrisse.",
+        "all": [
+          "joe_discovered_jack_lie"
+        ],
+        "id": "N25:2"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N25:3",
+      "block": "N25",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/24/cues/3",
+      "content": {
+        "kind": "speech",
+        "speaker": "jack",
+        "text": "Parece que reservaram um quarto pra ele.",
+        "all": [
+          "jack_perceived_companion_risk"
+        ],
+        "modes": [
+          "Punitive"
+        ],
+        "id": "N25:3"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N25:4",
+      "block": "N25",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/24/cues/4",
+      "content": {
+        "kind": "speech",
+        "speaker": "joe",
+        "text": "Isso é engraçado pra você?",
+        "all": [
+          "jack_perceived_companion_risk"
+        ],
+        "modes": [
+          "Punitive"
+        ],
+        "id": "N25:4"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N25:5",
+      "block": "N25",
+      "kind": "gesture",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/24/cues/5",
+      "content": {
+        "kind": "gesture",
+        "asset": "jack_j3_laugh",
+        "text": "",
+        "all": [
+          "jack_perceived_companion_risk"
+        ],
+        "modes": [
+          "Punitive"
+        ],
+        "actors": [
+          "jack"
+        ],
+        "id": "N25:5"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N26:garage:0",
+      "block": "N26:garage",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/25/cues/0",
+      "content": {
+        "kind": "speech",
+        "speaker": "joe",
+        "text": "O portão não vai subir.",
+        "id": "N26:garage:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N26:roof:0",
+      "block": "N26:roof",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/26/cues/0",
+      "content": {
+        "kind": "speech",
+        "speaker": "joe",
+        "text": "Foi embora.",
+        "id": "N26:roof:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N26:tunnel:0",
+      "block": "N26:tunnel",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/27/cues/0",
+      "content": {
+        "kind": "speech",
+        "speaker": "joe",
+        "text": "Está naquela passagem. Preciso de outra.",
+        "id": "N26:tunnel:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N26:window:0",
+      "block": "N26:window",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/28/cues/0",
+      "content": {
+        "kind": "speech",
+        "speaker": "joe",
+        "text": "Se eu cruzar agora, ele me vê.",
+        "id": "N26:window:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N27:0",
+      "block": "N27",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/29/cues/0",
+      "content": {
+        "kind": "speech",
+        "speaker": "joe",
+        "text": "Se ele não viu a porta…",
+        "all": [
+          "hide_access_observed"
+        ],
+        "id": "N27:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N28:0",
+      "block": "N28",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/30/cues/0",
+      "content": {
+        "kind": "speech",
+        "speaker": "joe",
+        "text": "Abre. Abre agora.",
+        "all": [
+          "garage_gate_released"
+        ],
+        "id": "N28:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N28:1",
+      "block": "N28",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/30/cues/1",
+      "content": {
+        "kind": "speech",
+        "speaker": "joe",
+        "text": "Falta alguma coisa no controle.",
+        "none": [
+          "garage_gate_released"
+        ],
+        "id": "N28:1"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N29:0",
+      "block": "N29",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/31/cues/0",
+      "content": {
+        "kind": "speech",
+        "speaker": "radio",
+        "text": "Estamos chegando.",
+        "all": [
+          "helicopter_confirmed"
+        ],
+        "none": [
+          "route_failed:roof"
+        ],
+        "id": "N29:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N29:1",
+      "block": "N29",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/31/cues/1",
+      "content": {
+        "kind": "speech",
+        "speaker": "radio",
+        "text": "Já saímos da área.",
+        "all": [
+          "route_failed:roof"
+        ],
+        "id": "N29:1"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N30:0",
+      "block": "N30",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/32/cues/0",
+      "content": {
+        "kind": "speech",
+        "speaker": "joe",
+        "text": "A corrente vem da esquerda.",
+        "all": [
+          "tunnel_left_current_observed"
+        ],
+        "id": "N30:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N30:1",
+      "block": "N30",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/32/cues/1",
+      "content": {
+        "kind": "speech",
+        "speaker": "joe",
+        "text": "Sem ar. Volta.",
+        "all": [
+          "dead_branch_air_absent"
+        ],
+        "id": "N30:1"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N31:0",
+      "block": "N31",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/33/cues/0",
+      "content": {
+        "kind": "speech",
+        "speaker": "joe",
+        "text": "Depois da ponte não tem volta.",
+        "all": [
+          "bridge_geometry_observed"
+        ],
+        "id": "N31:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N32:0",
+      "block": "N32",
+      "kind": "gesture",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/34/cues/0",
+      "content": {
+        "kind": "gesture",
+        "asset": "verified_hunter_departure",
+        "text": "",
+        "all": [
+          "hide_victory"
+        ],
+        "id": "N32:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N32:1",
+      "block": "N32",
+      "kind": "gesture",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/34/cues/1",
+      "content": {
+        "kind": "gesture",
+        "asset": "verified_dawn_exterior",
+        "text": "",
+        "all": [
+          "dawn_victory"
+        ],
+        "modes": [
+          "Easy",
+          "Normal",
+          "Hard"
+        ],
+        "id": "N32:1"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N33:0",
+      "block": "N33",
+      "kind": "gesture",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/35/cues/0",
+      "content": {
+        "id": "N33:0",
+        "kind": "gesture",
+        "asset": "rare_final_sequence",
+        "text": ""
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N33:1",
+      "block": "N33",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/35/cues/1",
+      "content": {
+        "id": "N33:1",
+        "kind": "speech",
+        "speaker": "joe",
+        "text": "A gente sai agora.",
+        "modes": [
+          "Easy"
+        ]
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N33:2",
+      "block": "N33",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/35/cues/2",
+      "content": {
+        "id": "N33:2",
+        "kind": "speech",
+        "speaker": "harley",
+        "text": "Anda, Joe. Ainda dá.",
+        "modes": [
+          "Easy"
+        ]
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N33:3",
+      "block": "N33",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/35/cues/3",
+      "content": {
+        "id": "N33:3",
+        "kind": "speech",
+        "speaker": "bartholomeu",
+        "text": "Eu tô aqui. Eu tô aqui.",
+        "modes": [
+          "Easy"
+        ]
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N33:4",
+      "block": "N33",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/35/cues/4",
+      "content": {
+        "id": "N33:4",
+        "kind": "speech",
+        "speaker": "jack",
+        "text": "Ainda estamos respirando.",
+        "modes": [
+          "Easy"
+        ]
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N33:5",
+      "block": "N33",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/35/cues/5",
+      "content": {
+        "id": "N33:5",
+        "kind": "speech",
+        "speaker": "joe",
+        "text": "Eu tô vivo...",
+        "modes": [
+          "Punitive"
+        ]
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N33:6",
+      "block": "N33",
+      "kind": "gesture",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/35/cues/6",
+      "content": {
+        "id": "N33:6",
+        "kind": "gesture",
+        "asset": "police_recovery_and_arrest",
+        "text": "",
+        "modes": [
+          "Punitive"
+        ]
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N34:0",
+      "block": "N34",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/36/cues/0",
+      "content": {
+        "kind": "speech",
+        "speaker": "joe",
+        "text": "É o Thomas.",
+        "id": "N34:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N34:1",
+      "block": "N34",
+      "kind": "gesture",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/36/cues/1",
+      "content": {
+        "kind": "gesture",
+        "asset": "thomas_identity_and_record",
+        "text": "",
+        "id": "N34:1"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N34:2",
+      "block": "N34",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/36/cues/2",
+      "content": {
+        "kind": "speech",
+        "speaker": "joe",
+        "text": "Foi o Batman. Ele matou o Thomas.",
+        "id": "N34:2"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N28:exit:0",
+      "block": "N28:exit",
+      "kind": "gesture",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/37/cues/0",
+      "content": {
+        "kind": "gesture",
+        "asset": "physical_exit_coda",
+        "text": "",
+        "id": "N28:exit:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N29:exit:0",
+      "block": "N29:exit",
+      "kind": "gesture",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/38/cues/0",
+      "content": {
+        "kind": "gesture",
+        "asset": "physical_exit_coda",
+        "text": "",
+        "id": "N29:exit:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N30:exit:0",
+      "block": "N30:exit",
+      "kind": "gesture",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/39/cues/0",
+      "content": {
+        "kind": "gesture",
+        "asset": "physical_exit_coda",
+        "text": "",
+        "id": "N30:exit:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "N31:exit:0",
+      "block": "N31:exit",
+      "kind": "gesture",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/40/cues/0",
+      "content": {
+        "kind": "gesture",
+        "asset": "physical_exit_coda",
+        "text": "",
+        "id": "N31:exit:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "J4:0",
+      "block": "J4",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/41/cues/0",
+      "content": {
+        "kind": "speech",
+        "speaker": "joe",
+        "text": "Quem diabos é você?",
+        "id": "J4:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "J4:1",
+      "block": "J4",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/41/cues/1",
+      "content": {
+        "kind": "speech",
+        "speaker": "jack",
+        "text": "Você passou a noite inteira olhando para o homem no teto.",
+        "id": "J4:1"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "J4:2",
+      "block": "J4",
+      "kind": "gesture",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/41/cues/2",
+      "content": {
+        "kind": "gesture",
+        "asset": "jack_costume_revelation",
+        "text": "",
+        "actors": [
+          "jack"
+        ],
+        "id": "J4:2"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "J4:3",
+      "block": "J4",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/41/cues/3",
+      "content": {
+        "kind": "speech",
+        "speaker": "jack",
+        "text": "Nunca olhou direito para quem estava ao seu lado.",
+        "id": "J4:3"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "DOC01:0",
+      "block": "DOC01",
+      "kind": "document",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/42/cues/0",
+      "content": {
+        "kind": "document",
+        "text": "Controle de frota — posto de leitos: 41. Repasse ao arquivo, depois manutenção. A ordem não muda com o turno.",
+        "id": "DOC01:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "DOC02:0",
+      "block": "DOC02",
+      "kind": "document",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/43/cues/0",
+      "content": {
+        "kind": "document",
+        "text": "Frota/segurança. Referência do arquivo: 07. Conferir o posto de leitos antes; manutenção encerra o registro.",
+        "id": "DOC02:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "DOC03:0",
+      "block": "DOC03",
+      "kind": "document",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/44/cues/0",
+      "content": {
+        "kind": "document",
+        "text": "Último par do controle de frota: 23. Registrar após leitos e arquivo. Equipamento de força fora desse registro.",
+        "id": "DOC03:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "DOC04:0",
+      "block": "DOC04",
+      "kind": "document",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/45/cues/0",
+      "content": {
+        "kind": "document",
+        "text": "Veículo de serviço mantido na garagem. Chave retirada do posto e guardada no cofre da Administração.",
+        "id": "DOC04:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "DOC05:0",
+      "block": "DOC05",
+      "kind": "document",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/46/cues/0",
+      "content": {
+        "kind": "document",
+        "text": "Cofre da Administração, porta ao lado da sala de arquivo. Sequência de seis dígitos: leitos → arquivo → manutenção. Conferir as três referências no local.",
+        "id": "DOC05:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "DOC06:0",
+      "block": "DOC06",
+      "kind": "document",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/47/cues/0",
+      "content": {
+        "kind": "document",
+        "text": "A linha pluvial continua além da casa de bombas. A entrada não aparece na planta de emergência; a válvula maior aponta para a derivação antiga.",
+        "id": "DOC06:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "DOC07:0",
+      "block": "DOC07",
+      "kind": "document",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/48/cues/0",
+      "content": {
+        "kind": "document",
+        "text": "Isolamento: acesso desviado para o corredor oeste após fechamento da sala de cirurgia. A placa antiga não foi retirada.",
+        "id": "DOC07:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "DOC08:0",
+      "block": "DOC08",
+      "kind": "document",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/49/cues/0",
+      "content": {
+        "kind": "document",
+        "text": "Rádio de cobertura: bateria removível. Interferência na central de segurança. Contato não é confirmação de pouso.",
+        "id": "DOC08:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "DOC09:0",
+      "block": "DOC09",
+      "kind": "document",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/50/cues/0",
+      "content": {
+        "kind": "document",
+        "text": "Ao perder quadro, o sistema pode repetir os últimos segundos gravados. Verifique relógio e continuidade antes de agir.",
+        "id": "DOC09:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "DOC10:0",
+      "block": "DOC10",
+      "kind": "document",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/51/cues/0",
+      "content": {
+        "kind": "document",
+        "text": "Anexo: acesso pela janela de serviço. Trava externa exige ferramenta de alavanca guardada no suprimento do 2º andar.",
+        "id": "DOC10:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "DOC11:0",
+      "block": "DOC11",
+      "kind": "document",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/52/cues/0",
+      "content": {
+        "kind": "document",
+        "text": "Sem energia, o comando de abertura do servidor fica indisponível. Uma folha já aberta exige fechamento manual. O acesso pelo suprimento e serviço não depende deste motor.",
+        "id": "DOC11:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "DOC12:0",
+      "block": "DOC12",
+      "kind": "document",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/53/cues/0",
+      "content": {
+        "kind": "document",
+        "text": "Ordem externa: manter perímetro. Nenhuma entrada ou saída pela recepção sem identificação.",
+        "id": "DOC12:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "DOC13:0",
+      "block": "DOC13",
+      "kind": "document",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/54/cues/0",
+      "content": {
+        "kind": "document",
+        "text": "Transferência clínica 19—. Origem: A—KH—M. Destino: ala de observação. A assinatura foi removida do formulário.",
+        "id": "DOC13:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "DOC14:0",
+      "block": "DOC14",
+      "kind": "document",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/55/cues/0",
+      "content": {
+        "kind": "document",
+        "text": "Ala de observação / acesso de serviço",
+        "id": "DOC14:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "DOC15:0",
+      "block": "DOC15",
+      "kind": "gesture",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/56/cues/0",
+      "content": {
+        "kind": "gesture",
+        "asset": "document_doc15",
+        "text": "",
+        "id": "DOC15:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "DOC16:0",
+      "block": "DOC16",
+      "kind": "gesture",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/57/cues/0",
+      "content": {
+        "kind": "gesture",
+        "asset": "document_doc16",
+        "text": "",
+        "id": "DOC16:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "AUD01:0",
+      "block": "AUD01",
+      "kind": "recording",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/58/cues/0",
+      "content": {
+        "kind": "recording",
+        "speaker": "recording",
+        "text": "A clínica caiu de novo. O relógio está correndo, mas o quadro repete a cortina. Confere com os olhos antes de mandar alguém lá.",
+        "id": "AUD01:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "AUD02:0",
+      "block": "AUD02",
+      "kind": "recording",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/59/cues/0",
+      "content": {
+        "kind": "recording",
+        "speaker": "recording",
+        "text": "Passa da bomba maior. Se o ar parar, pegou o braço morto. A corrente vem do ramal que segue.",
+        "id": "AUD02:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "AUD03:0",
+      "block": "AUD03",
+      "kind": "recording",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/60/cues/0",
+      "content": {
+        "kind": "recording",
+        "speaker": "recording",
+        "text": "A última ala foi evacuada? Não recebi lista. Se alguém ainda estiver lá, não desliguem a linha.",
+        "id": "AUD03:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "AUD04:0",
+      "block": "AUD04",
+      "kind": "recording",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/61/cues/0",
+      "content": {
+        "kind": "recording",
+        "speaker": "recording",
+        "text": "Perímetro mantido. Ninguém pela recepção. Repito: não entrem no edifício sem contato.",
+        "id": "AUD04:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "AUD05:0",
+      "block": "AUD05",
+      "kind": "recording",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/62/cues/0",
+      "content": {
+        "kind": "recording",
+        "speaker": "recording",
+        "text": "A movimentação mudou de andar. Confirme antes de concluir. Um ruído não é uma pessoa.",
+        "id": "AUD05:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "AUD06:0",
+      "block": "AUD06",
+      "kind": "recording",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/63/cues/0",
+      "content": {
+        "kind": "recording",
+        "speaker": "bartholomeu",
+        "text": "Joe, achei a casa de bombas. Vi uma entrada, não vi onde sai. Se ouvir isso, não me siga às cegas.",
+        "id": "AUD06:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "AUD07:0",
+      "block": "AUD07",
+      "kind": "gesture",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/64/cues/0",
+      "content": {
+        "kind": "gesture",
+        "asset": "recording_aud07",
+        "text": "",
+        "id": "AUD07:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "AUD08:0",
+      "block": "AUD08",
+      "kind": "gesture",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/65/cues/0",
+      "content": {
+        "kind": "gesture",
+        "asset": "recording_aud08",
+        "text": "",
+        "id": "AUD08:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "E_HARLEY_TOGETHER_ASYMMETRIC:0",
+      "block": "E_HARLEY_TOGETHER_ASYMMETRIC",
+      "kind": "epilogue",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/66/cues/0",
+      "content": {
+        "kind": "epilogue",
+        "text": "Ela saiu ao lado dele. Sobreviver juntos ainda não respondia tudo que havia entre os dois.",
+        "id": "E_HARLEY_TOGETHER_ASYMMETRIC:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "E_HARLEY_TOGETHER_RECIPROCAL:0",
+      "block": "E_HARLEY_TOGETHER_RECIPROCAL",
+      "kind": "epilogue",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/67/cues/0",
+      "content": {
+        "kind": "epilogue",
+        "text": "Do lado de fora, Harley procurou o olhar de Joe.",
+        "id": "E_HARLEY_TOGETHER_RECIPROCAL:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "E_HARLEY_ALONE:0",
+      "block": "E_HARLEY_ALONE",
+      "kind": "epilogue",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/68/cues/0",
+      "content": {
+        "kind": "epilogue",
+        "text": "Harley encontrou uma saída por conta própria. A travessia seguinte teria de ser dela.",
+        "id": "E_HARLEY_ALONE:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "E_HARLEY_CAPTURED:0",
+      "block": "E_HARLEY_CAPTURED",
+      "kind": "epilogue",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/69/cues/0",
+      "content": {
+        "kind": "epilogue",
+        "text": "Harley foi capturada. Depois disso, nenhuma notícia foi confirmada.",
+        "id": "E_HARLEY_CAPTURED:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "E_HARLEY_DEAD:0",
+      "block": "E_HARLEY_DEAD",
+      "kind": "epilogue",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/70/cues/0",
+      "content": {
+        "kind": "epilogue",
+        "text": "A voz que chamava os outros pelo nome não voltaria a responder.",
+        "id": "E_HARLEY_DEAD:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "E_HARLEY_UNKNOWN:0",
+      "block": "E_HARLEY_UNKNOWN",
+      "kind": "epilogue",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/71/cues/0",
+      "content": {
+        "kind": "epilogue",
+        "text": "Joe a perdeu de vista. Não chegou notícia de fuga, captura ou morte.",
+        "id": "E_HARLEY_UNKNOWN:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "E_BARTH_TOGETHER:0",
+      "block": "E_BARTH_TOGETHER",
+      "kind": "epilogue",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/72/cues/0",
+      "content": {
+        "kind": "epilogue",
+        "text": "Bartholomeu atravessou a saída ao lado de Joe. Ainda tremia. Estava vivo.",
+        "id": "E_BARTH_TOGETHER:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "E_BARTH_ALONE:0",
+      "block": "E_BARTH_ALONE",
+      "kind": "epilogue",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/73/cues/0",
+      "content": {
+        "kind": "epilogue",
+        "text": "Ele encontrou outra saída. Pela primeira vez naquela noite, teria de decidir o próximo passo sem Joe.",
+        "id": "E_BARTH_ALONE:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "E_BARTH_CAPTURED:0",
+      "block": "E_BARTH_CAPTURED",
+      "kind": "epilogue",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/74/cues/0",
+      "content": {
+        "kind": "epilogue",
+        "text": "Bartholomeu foi capturado antes de alcançar a saída.",
+        "id": "E_BARTH_CAPTURED:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "E_BARTH_DEAD:0",
+      "block": "E_BARTH_DEAD",
+      "kind": "epilogue",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/75/cues/0",
+      "content": {
+        "kind": "epilogue",
+        "text": "O amigo que tremia na escada não sairia do hospital.",
+        "id": "E_BARTH_DEAD:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "E_BARTH_UNKNOWN:0",
+      "block": "E_BARTH_UNKNOWN",
+      "kind": "epilogue",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/76/cues/0",
+      "content": {
+        "kind": "epilogue",
+        "text": "Depois do último contato, não houve resposta sobre Bartholomeu.",
+        "id": "E_BARTH_UNKNOWN:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "E_JACK_TOGETHER:0",
+      "block": "E_JACK_TOGETHER",
+      "kind": "epilogue",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/77/cues/0",
+      "content": {
+        "kind": "epilogue",
+        "text": "Jack saiu ao lado de Joe. Nem todas as perguntas saíram com uma resposta.",
+        "id": "E_JACK_TOGETHER:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "E_JACK_ALONE:0",
+      "block": "E_JACK_ALONE",
+      "kind": "epilogue",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/78/cues/0",
+      "content": {
+        "kind": "epilogue",
+        "text": "A fuga dele foi confirmada por caminho próprio.",
+        "id": "E_JACK_ALONE:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "E_JACK_CAPTURED:0",
+      "block": "E_JACK_CAPTURED",
+      "kind": "epilogue",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/79/cues/0",
+      "content": {
+        "kind": "epilogue",
+        "text": "O último fato confirmado é a captura.",
+        "id": "E_JACK_CAPTURED:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "E_JACK_DEAD:0",
+      "block": "E_JACK_DEAD",
+      "kind": "epilogue",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/80/cues/0",
+      "content": {
+        "kind": "epilogue",
+        "text": "A fuga de Jack terminou no hospital.",
+        "id": "E_JACK_DEAD:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "E_JACK_UNKNOWN:0",
+      "block": "E_JACK_UNKNOWN",
+      "kind": "epilogue",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/81/cues/0",
+      "content": {
+        "kind": "epilogue",
+        "text": "Sumiu dos trajetos que Joe podia verificar.",
+        "id": "E_JACK_UNKNOWN:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "E_THOMAS_UNCONFIRMED:0",
+      "block": "E_THOMAS_UNCONFIRMED",
+      "kind": "epilogue",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/82/cues/0",
+      "content": {
+        "kind": "epilogue",
+        "text": "Thomas desapareceu no quarto andar. Joe não recebeu uma resposta.",
+        "id": "E_THOMAS_UNCONFIRMED:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "E_THOMAS_JOE_KNOWS:0",
+      "block": "E_THOMAS_JOE_KNOWS",
+      "kind": "epilogue",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/83/cues/0",
+      "content": {
+        "kind": "epilogue",
+        "text": "Joe encontrou a prova: Batman matou Thomas.",
+        "id": "E_THOMAS_JOE_KNOWS:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "E_THOMAS_CODA_PLAYER_ONLY:0",
+      "block": "E_THOMAS_CODA_PLAYER_ONLY",
+      "kind": "gesture",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/84/cues/0",
+      "content": {
+        "kind": "gesture",
+        "asset": "thomas_proof_player_only",
+        "text": "",
+        "id": "E_THOMAS_CODA_PLAYER_ONLY:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "E_JACK_SECRET_REVEALED:0",
+      "block": "E_JACK_SECRET_REVEALED",
+      "kind": "gesture",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/85/cues/0",
+      "content": {
+        "kind": "gesture",
+        "asset": "jack_revelation_remembered",
+        "text": "",
+        "id": "E_JACK_SECRET_REVEALED:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "E_JACK_SECRET_NOT_WITNESSED:0",
+      "block": "E_JACK_SECRET_NOT_WITNESSED",
+      "kind": "gesture",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/86/cues/0",
+      "content": {
+        "kind": "gesture",
+        "asset": "jack_suspicion_unconfirmed",
+        "text": "",
+        "id": "E_JACK_SECRET_NOT_WITNESSED:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "E_JACK_BASELINE:0",
+      "block": "E_JACK_BASELINE",
+      "kind": "gesture",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/87/cues/0",
+      "content": {
+        "kind": "gesture",
+        "asset": "jack_unanswered_baseline",
+        "text": "",
+        "id": "E_JACK_BASELINE:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "E_JOE_WAYNE:0",
+      "block": "E_JOE_WAYNE",
+      "kind": "epilogue",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/88/cues/0",
+      "content": {
+        "kind": "epilogue",
+        "text": "Sobreviveu ao hospital. A lembrança do casal Wayne ainda estava com ele do lado de fora. A fuga não devolveu aquela família.",
+        "id": "E_JOE_WAYNE:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "E_HARLEY_RETURNED:0",
+      "block": "E_HARLEY_RETURNED",
+      "kind": "epilogue",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/89/cues/0",
+      "content": {
+        "kind": "epilogue",
+        "text": "Ela viu quando ele voltou.",
+        "id": "E_HARLEY_RETURNED:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "E_HARLEY_SHARED:0",
+      "block": "E_HARLEY_SHARED",
+      "kind": "epilogue",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/90/cues/0",
+      "content": {
+        "kind": "epilogue",
+        "text": "Ela guardou a lembrança do que ele dividiu.",
+        "id": "E_HARLEY_SHARED:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "E_HARLEY_IGNORED:0",
+      "block": "E_HARLEY_IGNORED",
+      "kind": "epilogue",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/91/cues/0",
+      "content": {
+        "kind": "epilogue",
+        "text": "Ela ainda esperava uma resposta",
+        "id": "E_HARLEY_IGNORED:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "E_BARTH_PROTECTED:0",
+      "block": "E_BARTH_PROTECTED",
+      "kind": "epilogue",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/92/cues/0",
+      "content": {
+        "kind": "epilogue",
+        "text": "O amigo que tremia na escada segurou uma porta até Joe atravessar.",
+        "id": "E_BARTH_PROTECTED:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "E_JACK_PAST:0",
+      "block": "E_JACK_PAST",
+      "kind": "epilogue",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/93/cues/0",
+      "content": {
+        "kind": "epilogue",
+        "text": "Jack havia dito que sobrevivera ao morcego uma vez; não disse tudo que sabia.",
+        "id": "E_JACK_PAST:0"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "SP_ROBIN:0",
+      "block": "SP_ROBIN",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/94/cues/0",
+      "content": {
+        "id": "SP_ROBIN:0",
+        "kind": "speech",
+        "speaker": "radio",
+        "text": "Estou nos túneis. O sinal aqui é ruim.",
+        "asset": "robin_brief_encounter"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "SP_ALFRED:0",
+      "block": "SP_ALFRED",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/95/cues/0",
+      "content": {
+        "id": "SP_ALFRED:0",
+        "kind": "speech",
+        "speaker": "radio",
+        "text": "Senhor, esse prédio não está seguro.",
+        "asset": "alfred_partial_radio"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "SP_GORDON:0",
+      "block": "SP_GORDON",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/96/cues/0",
+      "content": {
+        "id": "SP_GORDON:0",
+        "kind": "speech",
+        "speaker": "radio",
+        "text": "O quarteirão está isolado. Aguarde instruções.",
+        "asset": "gordon_exterior_radio"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "SP_ORACLE:0",
+      "block": "SP_ORACLE",
+      "kind": "speech",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/97/cues/0",
+      "content": {
+        "id": "SP_ORACLE:0",
+        "kind": "speech",
+        "speaker": "radio",
+        "text": "Seu sinal ficou instável. Vou tentar outra frequência.",
+        "asset": "oracle_partial_radio"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "SP_FLASH:0",
+      "block": "SP_FLASH",
+      "kind": "gesture",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/98/cues/0",
+      "content": {
+        "id": "SP_FLASH:0",
+        "kind": "gesture",
+        "speaker": "",
+        "text": "",
+        "asset": "flash_brief_reference"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "E_RARE_CONFRONTATION:0",
+      "block": "E_RARE_CONFRONTATION",
+      "kind": "epilogue",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/99/cues/0",
+      "content": {
+        "id": "E_RARE_CONFRONTATION:0",
+        "kind": "epilogue",
+        "text": "A resistência durou pouco. Joe saiu ferido. O hospital ficou para trás."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "E_RARE_DESTRUCTION:0",
+      "block": "E_RARE_DESTRUCTION",
+      "kind": "epilogue",
+      "source": "Tools/DirectorCore/runtime_ptbr.json",
+      "pointer": "/blocks/100/cues/0",
+      "content": {
+        "id": "E_RARE_DESTRUCTION:0",
+        "kind": "epilogue",
+        "text": "O hospital cedeu. Joe sobreviveu, gravemente ferido. Ao amanhecer, a polícia o encontrou e o prendeu. Ele não conseguiu confirmar o destino do Hunter sob os destroços."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN01:0",
+      "block": "BAN01",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/0/lines/0",
+      "content": {
+        "speaker": "thomas",
+        "text": "Barth, sua mão ficou presa?"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN01:1",
+      "block": "BAN01",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/0/lines/1",
+      "content": {
+        "speaker": "bartholomeu",
+        "text": "Não. Só tremendo."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN01:2",
+      "block": "BAN01",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/0/lines/2",
+      "content": {
+        "speaker": "thomas",
+        "text": "Então segura o outro lado. Eu seguro o peso."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN02:0",
+      "block": "BAN02",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/1/lines/0",
+      "content": {
+        "speaker": "harley",
+        "text": "Ei, irmãozinho, respira pelo nariz."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN02:1",
+      "block": "BAN02",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/1/lines/1",
+      "content": {
+        "speaker": "bartholomeu",
+        "text": "Você fala assim toda vez que eu fico com medo."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN02:2",
+      "block": "BAN02",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/1/lines/2",
+      "content": {
+        "speaker": "harley",
+        "text": "E você ainda fica vivo toda vez. Olha que método bom."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN03:0",
+      "block": "BAN03",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/2/lines/0",
+      "content": {
+        "speaker": "harley",
+        "text": "Você trouxe todo mundo para cá sem saber a saída?"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN03:1",
+      "block": "BAN03",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/2/lines/1",
+      "content": {
+        "speaker": "joe",
+        "text": "Eu sabia como sair da rua."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN03:2",
+      "block": "BAN03",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/2/lines/2",
+      "content": {
+        "speaker": "harley",
+        "text": "Com você, metade de um plano sempre vira aventura."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN04:0",
+      "block": "BAN04",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/3/lines/0",
+      "content": {
+        "speaker": "thomas",
+        "text": "Quando amanhecer, quero uma mesa grande e café para os cinco."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN04:1",
+      "block": "BAN04",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/3/lines/1",
+      "content": {
+        "speaker": "joe",
+        "text": "Você sempre planeja a sobremesa antes da fuga."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN04:2",
+      "block": "BAN04",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/3/lines/2",
+      "content": {
+        "speaker": "thomas",
+        "text": "Alguém precisa planejar a parte boa."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN05:0",
+      "block": "BAN05",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/4/lines/0",
+      "content": {
+        "speaker": "jack",
+        "text": "Já vi o morcego de perto. Saí vivo. Ha."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN05:1",
+      "block": "BAN05",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/4/lines/1",
+      "content": {
+        "speaker": "bartholomeu",
+        "text": "Por que você ri quando diz isso?"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN05:2",
+      "block": "BAN05",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/4/lines/2",
+      "content": {
+        "speaker": "jack",
+        "text": "Porque funcionou. Não pergunte o quanto corri."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN06:0",
+      "block": "BAN06",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/5/lines/0",
+      "content": {
+        "speaker": "jack",
+        "text": "Se os monitores ainda funcionam, podemos observar o corredor."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN06:1",
+      "block": "BAN06",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/5/lines/1",
+      "content": {
+        "speaker": "harley",
+        "text": "Boa ideia. Pena que foi você quem teve."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN06:2",
+      "block": "BAN06",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/5/lines/2",
+      "content": {
+        "speaker": "jack",
+        "text": "Guarde o elogio para quando estivermos fora."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN07:0",
+      "block": "BAN07",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/6/lines/0",
+      "content": {
+        "speaker": "bartholomeu",
+        "text": "Eu sabia que você escolheria a escada de serviço."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN07:1",
+      "block": "BAN07",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/6/lines/1",
+      "content": {
+        "speaker": "joe",
+        "text": "Você lembra melhor dos meus atalhos do que eu."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN07:2",
+      "block": "BAN07",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/6/lines/2",
+      "content": {
+        "speaker": "bartholomeu",
+        "text": "É por isso que ainda ando com você."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN08:0",
+      "block": "BAN08",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/7/lines/0",
+      "content": {
+        "speaker": "thomas",
+        "text": "Se aquele sinal é pra gente, eu faço o discurso."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN08:1",
+      "block": "BAN08",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/7/lines/1",
+      "content": {
+        "speaker": "harley",
+        "text": "Você faz cara de durão. Eu faço você sair da janela."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN08:2",
+      "block": "BAN08",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/7/lines/2",
+      "content": {
+        "speaker": "thomas",
+        "text": "Fechado, chefe."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN09:0",
+      "block": "BAN09",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/8/lines/0",
+      "content": {
+        "speaker": "harley",
+        "text": "Você está contando as portas ou evitando olhar pra mim?"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN09:1",
+      "block": "BAN09",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/8/lines/1",
+      "content": {
+        "speaker": "joe",
+        "text": "As portas."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN09:2",
+      "block": "BAN09",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/8/lines/2",
+      "content": {
+        "speaker": "harley",
+        "text": "Eu sabia. Estava torcendo pela outra resposta."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN10:0",
+      "block": "BAN10",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/9/lines/0",
+      "content": {
+        "speaker": "bartholomeu",
+        "text": "Eu devia ter puxado o Thomas."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN10:1",
+      "block": "BAN10",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/9/lines/1",
+      "content": {
+        "speaker": "harley",
+        "text": "Você mal conseguia ficar de pé. Não põe isso nas suas costas."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN10:2",
+      "block": "BAN10",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/9/lines/2",
+      "content": {
+        "speaker": "bartholomeu",
+        "text": "Ele não teria deixado ninguém para trás."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN11:0",
+      "block": "BAN11",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/10/lines/0",
+      "content": {
+        "speaker": "jack",
+        "text": "Na outra vez, o morcego esperou meu ruído passar. Eu saí vivo quando parei de repetir o caminho. Ha."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN11:1",
+      "block": "BAN11",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/10/lines/1",
+      "content": {
+        "speaker": "joe",
+        "text": "Você riu daquela vez também?"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN11:2",
+      "block": "BAN11",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/10/lines/2",
+      "content": {
+        "speaker": "jack",
+        "text": "Depois. Bem depois."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN12:0",
+      "block": "BAN12",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/11/lines/0",
+      "content": {
+        "speaker": "bartholomeu",
+        "text": "Joe, aquela história dos Wayne... você nunca terminou de contar."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN12:1",
+      "block": "BAN12",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/11/lines/1",
+      "content": {
+        "speaker": "joe",
+        "text": "Não tem final bom. Quando comecei nessa vida, matei um casal da família Wayne. O filho estava lá."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN12:2",
+      "block": "BAN12",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/11/lines/2",
+      "content": {
+        "speaker": "bartholomeu",
+        "text": "Você fala baixo agora. Eu queria que tivesse pensado nele antes."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN13:0",
+      "block": "BAN13",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/12/lines/0",
+      "content": {
+        "speaker": "harley",
+        "text": "Você nunca fala daquele casal Wayne quando tem luz acesa."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN13:1",
+      "block": "BAN13",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/12/lines/1",
+      "content": {
+        "speaker": "joe",
+        "text": "Matei os pais de um garoto. Apagar a luz não apaga isso."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN13:2",
+      "block": "BAN13",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/12/lines/2",
+      "content": {
+        "speaker": "harley",
+        "text": "Ainda bem que você sabe. Só não usa culpa como desculpa para abandonar quem está aqui."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN14:0",
+      "block": "BAN14",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/13/lines/0",
+      "content": {
+        "speaker": "jack",
+        "text": "A câmera repete o mesmo reflexo. Alguém quer que acreditemos nela."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN14:1",
+      "block": "BAN14",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/13/lines/1",
+      "content": {
+        "speaker": "harley",
+        "text": "Você pode estar certo. Eu detesto quando acontece."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN14:2",
+      "block": "BAN14",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/13/lines/2",
+      "content": {
+        "speaker": "jack",
+        "text": "Olhe o relógio. Depois pode me detestar de novo."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN15:0",
+      "block": "BAN15",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/14/lines/0",
+      "content": {
+        "speaker": "bartholomeu",
+        "text": "A gente saía dos apertos conversando. Hoje você só aponta portas."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN15:1",
+      "block": "BAN15",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/14/lines/1",
+      "content": {
+        "speaker": "joe",
+        "text": "Se eu falar demais, você ouve que estou com medo."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN15:2",
+      "block": "BAN15",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/14/lines/2",
+      "content": {
+        "speaker": "bartholomeu",
+        "text": "Eu já ouvi. Ainda estou do seu lado."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN16:0",
+      "block": "BAN16",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/15/lines/0",
+      "content": {
+        "speaker": "harley",
+        "text": "Barth, sua mão parou de tremer?"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN16:1",
+      "block": "BAN16",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/15/lines/1",
+      "content": {
+        "speaker": "bartholomeu",
+        "text": "Só quando seguro alguma coisa."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN16:2",
+      "block": "BAN16",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/15/lines/2",
+      "content": {
+        "speaker": "harley",
+        "text": "Joe, conversa com seu amigo um minuto."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN16:3",
+      "block": "BAN16",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/15/lines/3",
+      "content": {
+        "speaker": "joe",
+        "text": "Estou ouvindo, Barth."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN17:0",
+      "block": "BAN17",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/16/lines/0",
+      "content": {
+        "speaker": "jack",
+        "text": "O quadro da garagem parou. Repare no mesmo gotejo."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN17:1",
+      "block": "BAN17",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/16/lines/1",
+      "content": {
+        "speaker": "joe",
+        "text": "Então não sabemos quem está lá."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN17:2",
+      "block": "BAN17",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/16/lines/2",
+      "content": {
+        "speaker": "jack",
+        "text": "Agora você sabe exatamente o que não sabe."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN18:0",
+      "block": "BAN18",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/17/lines/0",
+      "content": {
+        "speaker": "jack",
+        "text": "Bartholomeu, você viu uma passagem?"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN18:1",
+      "block": "BAN18",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/17/lines/1",
+      "content": {
+        "speaker": "bartholomeu",
+        "text": "Vi uma porta. Não o outro lado."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN18:2",
+      "block": "BAN18",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/17/lines/2",
+      "content": {
+        "speaker": "harley",
+        "text": "Ele respondeu. Não começa a completar a história por ele, Jack."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN19:0",
+      "block": "BAN19",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/18/lines/0",
+      "content": {
+        "speaker": "harley",
+        "text": "Você chama isso de plano ou de pilha de papéis?"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN19:1",
+      "block": "BAN19",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/18/lines/1",
+      "content": {
+        "speaker": "joe",
+        "text": "Chamo de mais uma chance."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN19:2",
+      "block": "BAN19",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/18/lines/2",
+      "content": {
+        "speaker": "harley",
+        "text": "Então guarda uma chance pra quem está vindo atrás."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN20:0",
+      "block": "BAN20",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/19/lines/0",
+      "content": {
+        "speaker": "bartholomeu",
+        "text": "A bomba maior vibra diferente. Por ali o ar continua."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN20:1",
+      "block": "BAN20",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/19/lines/1",
+      "content": {
+        "speaker": "joe",
+        "text": "Você reparou antes de mim."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN20:2",
+      "block": "BAN20",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/19/lines/2",
+      "content": {
+        "speaker": "bartholomeu",
+        "text": "Fico olhando saída até quando falo com você."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN21:0",
+      "block": "BAN21",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/20/lines/0",
+      "content": {
+        "speaker": "jack",
+        "text": "O servidor fecha com a energia caída. O suprimento não usa o mesmo motor."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN21:1",
+      "block": "BAN21",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/20/lines/1",
+      "content": {
+        "speaker": "joe",
+        "text": "Você conferiu ou está apostando?"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN21:2",
+      "block": "BAN21",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/20/lines/2",
+      "content": {
+        "speaker": "jack",
+        "text": "Conferi a placa. A porta ainda pode emperrar."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN22:0",
+      "block": "BAN22",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/21/lines/0",
+      "content": {
+        "speaker": "bartholomeu",
+        "text": "Pode usar o remédio. Sua mão está pior."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN22:1",
+      "block": "BAN22",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/21/lines/1",
+      "content": {
+        "speaker": "harley",
+        "text": "Você tem pulso acelerado e está mentindo."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN22:2",
+      "block": "BAN22",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/21/lines/2",
+      "content": {
+        "speaker": "bartholomeu",
+        "text": "Aprendi com o Joe. Péssimo professor."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN23:0",
+      "block": "BAN23",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/22/lines/0",
+      "content": {
+        "speaker": "harley",
+        "text": "Eu te sigo porque escolho. Não porque você manda."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN23:1",
+      "block": "BAN23",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/22/lines/1",
+      "content": {
+        "speaker": "joe",
+        "text": "Eu sei."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN23:2",
+      "block": "BAN23",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/22/lines/2",
+      "content": {
+        "speaker": "harley",
+        "text": "Então pergunta antes de me deixar segurando a porta."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN24:0",
+      "block": "BAN24",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/23/lines/0",
+      "content": {
+        "speaker": "jack",
+        "text": "Se ele ouviu a escada, pode chegar por cima. Pode."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN24:1",
+      "block": "BAN24",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/23/lines/1",
+      "content": {
+        "speaker": "bartholomeu",
+        "text": "Você nunca diz uma coisa boa?"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN24:2",
+      "block": "BAN24",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/23/lines/2",
+      "content": {
+        "speaker": "jack",
+        "text": "A boa é que ainda temos outra escada. Ha."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN25:0",
+      "block": "BAN25",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/24/lines/0",
+      "content": {
+        "speaker": "bartholomeu",
+        "text": "Você me tirou de uma briga na rua anos atrás."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN25:1",
+      "block": "BAN25",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/24/lines/1",
+      "content": {
+        "speaker": "joe",
+        "text": "Você pagou de volta umas dez vezes."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN25:2",
+      "block": "BAN25",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/24/lines/2",
+      "content": {
+        "speaker": "bartholomeu",
+        "text": "Amigos não fazem conta. Você que me ensinou."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN26:0",
+      "block": "BAN26",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/25/lines/0",
+      "content": {
+        "speaker": "jack",
+        "text": "Mudei para outra câmera. Essa ainda está viva."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN26:1",
+      "block": "BAN26",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/25/lines/1",
+      "content": {
+        "speaker": "harley",
+        "text": "Mostra a hora. Não me vende corredor vazio gravado."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN26:2",
+      "block": "BAN26",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/25/lines/2",
+      "content": {
+        "speaker": "joe",
+        "text": "Ela tem razão. A gente confere o caminho."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN27:0",
+      "block": "BAN27",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/26/lines/0",
+      "content": {
+        "speaker": "harley",
+        "text": "Se eu disser corre, você corre primeiro."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN27:1",
+      "block": "BAN27",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/26/lines/1",
+      "content": {
+        "speaker": "bartholomeu",
+        "text": "Não vou te deixar sozinha."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN27:2",
+      "block": "BAN27",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/26/lines/2",
+      "content": {
+        "speaker": "harley",
+        "text": "Então corre comigo, irmãozinho."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN28:0",
+      "block": "BAN28",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/27/lines/0",
+      "content": {
+        "speaker": "harley",
+        "text": "Você pensou em pular sozinho, não pensou?"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN28:1",
+      "block": "BAN28",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/27/lines/1",
+      "content": {
+        "speaker": "joe",
+        "text": "Pensei em ver onde cai."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN28:2",
+      "block": "BAN28",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/27/lines/2",
+      "content": {
+        "speaker": "harley",
+        "text": "Olha também quem consegue atravessar. Eu não sou uma mala."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN29:0",
+      "block": "BAN29",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/28/lines/0",
+      "content": {
+        "speaker": "harley",
+        "text": "Eu cuido de você há anos. Hoje eu precisei pedir duas vezes."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN29:1",
+      "block": "BAN29",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/28/lines/1",
+      "content": {
+        "speaker": "joe",
+        "text": "Eu ouvi na primeira."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN29:2",
+      "block": "BAN29",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/28/lines/2",
+      "content": {
+        "speaker": "harley",
+        "text": "Ouvir e voltar são coisas diferentes."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN30:0",
+      "block": "BAN30",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/29/lines/0",
+      "content": {
+        "speaker": "joe",
+        "text": "Mostra o corte. Eu cubro a porta enquanto você trata."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN30:1",
+      "block": "BAN30",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/29/lines/1",
+      "content": {
+        "speaker": "harley",
+        "text": "Você está com medo por mim."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN30:2",
+      "block": "BAN30",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/29/lines/2",
+      "content": {
+        "speaker": "joe",
+        "text": "Estou. Não faz eu perder tempo negando."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN31:0",
+      "block": "BAN31",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/30/lines/0",
+      "content": {
+        "speaker": "bartholomeu",
+        "text": "Se você for pela frente, eu fecho atrás. Mas me espera na válvula."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN31:1",
+      "block": "BAN31",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/30/lines/1",
+      "content": {
+        "speaker": "joe",
+        "text": "Você aguenta?"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN31:2",
+      "block": "BAN31",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/30/lines/2",
+      "content": {
+        "speaker": "bartholomeu",
+        "text": "Com medo e tudo. Me espera."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN32:0",
+      "block": "BAN32",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/31/lines/0",
+      "content": {
+        "speaker": "jack",
+        "text": "Na primeira vez que cruzei com o morcego, fugi da rota que ele esperava. Ha."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN32:1",
+      "block": "BAN32",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/31/lines/1",
+      "content": {
+        "speaker": "joe",
+        "text": "Parece que ele aprendeu seus truques."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN32:2",
+      "block": "BAN32",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/31/lines/2",
+      "content": {
+        "speaker": "jack",
+        "text": "E nós aprendemos que ele pode aprender."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN33:0",
+      "block": "BAN33",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/32/lines/0",
+      "content": {
+        "speaker": "jack",
+        "text": "Sabe o que eu mais admiro nele? A pausa antes de abrir uma porta."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN33:1",
+      "block": "BAN33",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/32/lines/1",
+      "content": {
+        "speaker": "joe",
+        "text": "Você está sorrindo de novo."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN33:2",
+      "block": "BAN33",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/32/lines/2",
+      "content": {
+        "speaker": "jack",
+        "text": "Estou pensando numa saída. Ha... ha."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN34:0",
+      "block": "BAN34",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/33/lines/0",
+      "content": {
+        "speaker": "jack",
+        "text": "A escada oeste é mais curta."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN34:1",
+      "block": "BAN34",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/33/lines/1",
+      "content": {
+        "speaker": "harley",
+        "text": "E mais exposta. Barth, você viu o corredor?"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN34:2",
+      "block": "BAN34",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/33/lines/2",
+      "content": {
+        "speaker": "bartholomeu",
+        "text": "Vi a porta aberta. Não vi ele."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN34:3",
+      "block": "BAN34",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/33/lines/3",
+      "content": {
+        "speaker": "harley",
+        "text": "Pronto. Isso vale mais que certeza inventada."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN35:0",
+      "block": "BAN35",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/34/lines/0",
+      "content": {
+        "speaker": "bartholomeu",
+        "text": "Se você disser para eu ficar, eu fico. Só não some sem falar."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN35:1",
+      "block": "BAN35",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/34/lines/1",
+      "content": {
+        "speaker": "joe",
+        "text": "Eu vou dizer o que decidi."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN35:2",
+      "block": "BAN35",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/34/lines/2",
+      "content": {
+        "speaker": "bartholomeu",
+        "text": "É tudo que peço de um amigo."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN36:0",
+      "block": "BAN36",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/35/lines/0",
+      "content": {
+        "speaker": "harley",
+        "text": "Eu posso encontrar meu caminho. Só me diz onde você pretende ir."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN36:1",
+      "block": "BAN36",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/35/lines/1",
+      "content": {
+        "speaker": "joe",
+        "text": "Pela janela, se a passagem estiver livre. Você quer tentar comigo?"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN36:2",
+      "block": "BAN36",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/35/lines/2",
+      "content": {
+        "speaker": "harley",
+        "text": "É disso que eu precisava: uma escolha de verdade."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN37:0",
+      "block": "BAN37",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/36/lines/0",
+      "content": {
+        "speaker": "bartholomeu",
+        "text": "Eu tremi a noite toda e ainda estou aqui."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN37:1",
+      "block": "BAN37",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/36/lines/1",
+      "content": {
+        "speaker": "joe",
+        "text": "Você também me trouxe até aqui."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN37:2",
+      "block": "BAN37",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/36/lines/2",
+      "content": {
+        "speaker": "bartholomeu",
+        "text": "Então abre, amigo. Antes que eu comece de novo."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN38:0",
+      "block": "BAN38",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/37/lines/0",
+      "content": {
+        "speaker": "harley",
+        "text": "Se essa coisa pousar, a gente decide junto quem sobe."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN38:1",
+      "block": "BAN38",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/37/lines/1",
+      "content": {
+        "speaker": "joe",
+        "text": "Se não pousar, temos outra saída."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN38:2",
+      "block": "BAN38",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/37/lines/2",
+      "content": {
+        "speaker": "harley",
+        "text": "Olha só. Um plano inteiro. Estou orgulhosa."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN39:0",
+      "block": "BAN39",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/38/lines/0",
+      "content": {
+        "speaker": "bartholomeu",
+        "text": "O ar vem dali. Não digo que é seguro; digo que não acaba aqui."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN39:1",
+      "block": "BAN39",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/38/lines/1",
+      "content": {
+        "speaker": "joe",
+        "text": "Foi por isso que te trouxe."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN39:2",
+      "block": "BAN39",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/38/lines/2",
+      "content": {
+        "speaker": "bartholomeu",
+        "text": "Você me trouxe porque somos amigos. Eu encontrei o ar sozinho."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN40:0",
+      "block": "BAN40",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/39/lines/0",
+      "content": {
+        "speaker": "joe",
+        "text": "Você consegue atravessar?"
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN40:1",
+      "block": "BAN40",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/39/lines/1",
+      "content": {
+        "speaker": "harley",
+        "text": "Consigo decidir. Me diz quanto tempo temos."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN40:2",
+      "block": "BAN40",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/39/lines/2",
+      "content": {
+        "speaker": "joe",
+        "text": "Pouco. Mas vou esperar sua resposta."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN41:0",
+      "block": "BAN41",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/40/lines/0",
+      "content": {
+        "speaker": "jack",
+        "text": "Ele quase me pegou uma vez. Ainda rio quando lembro. Ha..."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN41:1",
+      "block": "BAN41",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/40/lines/1",
+      "content": {
+        "speaker": "joe",
+        "text": "Você ri como se tivesse gostado."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN41:2",
+      "block": "BAN41",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/40/lines/2",
+      "content": {
+        "speaker": "jack",
+        "text": "Talvez eu goste de chegar ao fim da história."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN42:0",
+      "block": "BAN42",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/41/lines/0",
+      "content": {
+        "speaker": "harley",
+        "text": "Se sairmos daqui, não quero que finja que esta noite não aconteceu."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN42:1",
+      "block": "BAN42",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/41/lines/1",
+      "content": {
+        "speaker": "joe",
+        "text": "Não vou esquecer o Thomas."
+      },
+      "status": "creative_review",
+      "production_file": null
+    },
+    {
+      "id": "BAN42:2",
+      "block": "BAN42",
+      "kind": "speech",
+      "source": "Tools/NarrativeCore/banter_ptbr.json",
+      "pointer": "/exchanges/41/lines/2",
+      "content": {
+        "speaker": "harley",
+        "text": "Nem ele, nem as pessoas que ainda estão aqui."
+      },
+      "status": "creative_review",
+      "production_file": null
+    }
+  ],
+  "requirements": [
+    {
+      "id": "SFX_SlowFootstep",
+      "kind": "sound",
+      "label": "SlowFootstep",
+      "sources": [
+        "Tools/PerceptionCore/PerceptionCore.h"
+      ],
+      "status": "planned",
+      "production_file": null
+    },
+    {
+      "id": "SFX_WalkFootstep",
+      "kind": "sound",
+      "label": "WalkFootstep",
+      "sources": [
+        "Tools/PerceptionCore/PerceptionCore.h"
+      ],
+      "status": "planned",
+      "production_file": null
+    },
+    {
+      "id": "SFX_SprintFootstep",
+      "kind": "sound",
+      "label": "SprintFootstep",
+      "sources": [
+        "Tools/PerceptionCore/PerceptionCore.h"
+      ],
+      "status": "planned",
+      "production_file": null
+    },
+    {
+      "id": "SFX_Door",
+      "kind": "sound",
+      "label": "Door",
+      "sources": [
+        "Tools/PerceptionCore/PerceptionCore.h"
+      ],
+      "status": "planned",
+      "production_file": null
+    },
+    {
+      "id": "SFX_BrokenObject",
+      "kind": "sound",
+      "label": "BrokenObject",
+      "sources": [
+        "Tools/PerceptionCore/PerceptionCore.h"
+      ],
+      "status": "planned",
+      "production_file": null
+    },
+    {
+      "id": "SFX_Fall",
+      "kind": "sound",
+      "label": "Fall",
+      "sources": [
+        "Tools/PerceptionCore/PerceptionCore.h"
+      ],
+      "status": "planned",
+      "production_file": null
+    },
+    {
+      "id": "SFX_Gunshot",
+      "kind": "sound",
+      "label": "Gunshot",
+      "sources": [
+        "Tools/PerceptionCore/PerceptionCore.h"
+      ],
+      "status": "planned",
+      "production_file": null
+    },
+    {
+      "id": "SFX_Explosion",
+      "kind": "sound",
+      "label": "Explosion",
+      "sources": [
+        "Tools/PerceptionCore/PerceptionCore.h"
+      ],
+      "status": "planned",
+      "production_file": null
+    },
+    {
+      "id": "SFX_Breathing",
+      "kind": "sound",
+      "label": "Breathing",
+      "sources": [
+        "Tools/PerceptionCore/PerceptionCore.h"
+      ],
+      "status": "planned",
+      "production_file": null
+    },
+    {
+      "id": "SFX_Distraction",
+      "kind": "sound",
+      "label": "Distraction",
+      "sources": [
+        "Tools/PerceptionCore/PerceptionCore.h"
+      ],
+      "status": "planned",
+      "production_file": null
+    },
+    {
+      "id": "MUSIC_Exploration",
+      "kind": "music",
+      "label": "Exploration",
+      "sources": [
+        "06_AUDIO/README.md"
+      ],
+      "status": "planned",
+      "production_file": null
+    },
+    {
+      "id": "MUSIC_Tension",
+      "kind": "music",
+      "label": "Tension",
+      "sources": [
+        "06_AUDIO/README.md"
+      ],
+      "status": "planned",
+      "production_file": null
+    },
+    {
+      "id": "MUSIC_Investigation",
+      "kind": "music",
+      "label": "Investigation",
+      "sources": [
+        "06_AUDIO/README.md"
+      ],
+      "status": "planned",
+      "production_file": null
+    },
+    {
+      "id": "MUSIC_HunterNear",
+      "kind": "music",
+      "label": "HunterNear",
+      "sources": [
+        "06_AUDIO/README.md"
+      ],
+      "status": "planned",
+      "production_file": null
+    },
+    {
+      "id": "MUSIC_Pursuit",
+      "kind": "music",
+      "label": "Pursuit",
+      "sources": [
+        "06_AUDIO/README.md"
+      ],
+      "status": "planned",
+      "production_file": null
+    },
+    {
+      "id": "MUSIC_Hiding",
+      "kind": "music",
+      "label": "Hiding",
+      "sources": [
+        "06_AUDIO/README.md"
+      ],
+      "status": "planned",
+      "production_file": null
+    },
+    {
+      "id": "MUSIC_Recovery",
+      "kind": "music",
+      "label": "Recovery",
+      "sources": [
+        "06_AUDIO/README.md"
+      ],
+      "status": "planned",
+      "production_file": null
+    },
+    {
+      "id": "AUD01",
+      "kind": "recording_script",
+      "label": "Roteiro AUD01 e variantes autorizadas",
+      "sources": [
+        "02_GAME_DESIGN/Narrative/PACOTE_TEXTO_CAMPANHA_V1.md",
+        "Tools/NarrativeCore/variants.json"
+      ],
+      "status": "planned",
+      "production_file": null
+    },
+    {
+      "id": "AUD02",
+      "kind": "recording_script",
+      "label": "Roteiro AUD02 e variantes autorizadas",
+      "sources": [
+        "02_GAME_DESIGN/Narrative/PACOTE_TEXTO_CAMPANHA_V1.md",
+        "Tools/NarrativeCore/variants.json"
+      ],
+      "status": "planned",
+      "production_file": null
+    },
+    {
+      "id": "AUD03",
+      "kind": "recording_script",
+      "label": "Roteiro AUD03 e variantes autorizadas",
+      "sources": [
+        "02_GAME_DESIGN/Narrative/PACOTE_TEXTO_CAMPANHA_V1.md",
+        "Tools/NarrativeCore/variants.json"
+      ],
+      "status": "planned",
+      "production_file": null
+    },
+    {
+      "id": "AUD04",
+      "kind": "recording_script",
+      "label": "Roteiro AUD04 e variantes autorizadas",
+      "sources": [
+        "02_GAME_DESIGN/Narrative/PACOTE_TEXTO_CAMPANHA_V1.md",
+        "Tools/NarrativeCore/variants.json"
+      ],
+      "status": "planned",
+      "production_file": null
+    },
+    {
+      "id": "AUD05",
+      "kind": "recording_script",
+      "label": "Roteiro AUD05 e variantes autorizadas",
+      "sources": [
+        "02_GAME_DESIGN/Narrative/PACOTE_TEXTO_CAMPANHA_V1.md",
+        "Tools/NarrativeCore/variants.json"
+      ],
+      "status": "planned",
+      "production_file": null
+    },
+    {
+      "id": "AUD06",
+      "kind": "recording_script",
+      "label": "Roteiro AUD06 e variantes autorizadas",
+      "sources": [
+        "02_GAME_DESIGN/Narrative/PACOTE_TEXTO_CAMPANHA_V1.md",
+        "Tools/NarrativeCore/variants.json"
+      ],
+      "status": "planned",
+      "production_file": null
+    },
+    {
+      "id": "AUD07",
+      "kind": "recording_script",
+      "label": "Roteiro AUD07 e variantes autorizadas",
+      "sources": [
+        "02_GAME_DESIGN/Narrative/PACOTE_TEXTO_CAMPANHA_V1.md",
+        "Tools/NarrativeCore/variants.json"
+      ],
+      "status": "planned",
+      "production_file": null
+    },
+    {
+      "id": "AUD08",
+      "kind": "recording_script",
+      "label": "Roteiro AUD08 e variantes autorizadas",
+      "sources": [
+        "02_GAME_DESIGN/Narrative/PACOTE_TEXTO_CAMPANHA_V1.md",
+        "Tools/NarrativeCore/variants.json"
+      ],
+      "status": "planned",
+      "production_file": null
+    },
+    {
+      "id": "ACTOR_joe",
+      "kind": "character",
+      "label": "joe",
+      "sources": [
+        "02_GAME_DESIGN/Narrative/BIBLIA_PERSONAGENS_V1.md",
+        "02_GAME_DESIGN/Visual/BIBLIA_VISUAL_HOSPITAL.md"
+      ],
+      "status": "planned",
+      "production_file": null
+    },
+    {
+      "id": "ACTOR_harley",
+      "kind": "character",
+      "label": "harley",
+      "sources": [
+        "02_GAME_DESIGN/Narrative/BIBLIA_PERSONAGENS_V1.md",
+        "02_GAME_DESIGN/Visual/BIBLIA_VISUAL_HOSPITAL.md"
+      ],
+      "status": "planned",
+      "production_file": null
+    },
+    {
+      "id": "ACTOR_bartholomeu",
+      "kind": "character",
+      "label": "bartholomeu",
+      "sources": [
+        "02_GAME_DESIGN/Narrative/BIBLIA_PERSONAGENS_V1.md",
+        "02_GAME_DESIGN/Visual/BIBLIA_VISUAL_HOSPITAL.md"
+      ],
+      "status": "planned",
+      "production_file": null
+    },
+    {
+      "id": "ACTOR_jack",
+      "kind": "character",
+      "label": "jack",
+      "sources": [
+        "02_GAME_DESIGN/Narrative/BIBLIA_PERSONAGENS_V1.md",
+        "02_GAME_DESIGN/Visual/BIBLIA_VISUAL_HOSPITAL.md"
+      ],
+      "status": "planned",
+      "production_file": null
+    },
+    {
+      "id": "ACTOR_thomas",
+      "kind": "character",
+      "label": "thomas",
+      "sources": [
+        "02_GAME_DESIGN/Narrative/BIBLIA_PERSONAGENS_V1.md",
+        "02_GAME_DESIGN/Visual/BIBLIA_VISUAL_HOSPITAL.md"
+      ],
+      "status": "planned",
+      "production_file": null
+    },
+    {
+      "id": "ACTOR_hunter",
+      "kind": "character",
+      "label": "hunter",
+      "sources": [
+        "02_GAME_DESIGN/Narrative/BIBLIA_PERSONAGENS_V1.md",
+        "02_GAME_DESIGN/Visual/BIBLIA_VISUAL_HOSPITAL.md"
+      ],
+      "status": "planned",
+      "production_file": null
+    },
+    {
+      "id": "KIT_HOSPITAL",
+      "kind": "environment",
+      "label": "Kit modular e leitura do hospital",
+      "sources": [
+        "02_GAME_DESIGN/Visual/BIBLIA_VISUAL_HOSPITAL.md",
+        "Tools/MapCore/hospital_graph.json"
+      ],
+      "status": "planned",
+      "production_file": null
+    },
+    {
+      "id": "PROPS_SYSTEMIC",
+      "kind": "prop",
+      "label": "Portas, circuitos, câmeras, esconderijos e recursos",
+      "sources": [
+        "Tools/CampaignCore/campaign_initial.json",
+        "Tools/MapCore/hospital_graph.json"
+      ],
+      "status": "planned",
+      "production_file": null
+    },
+    {
+      "id": "ANIM_CUSTODY_JOINT",
+      "kind": "animation",
+      "label": "Contenção, soltura, recusa, pergunta e uso conjunto",
+      "sources": [
+        "04_TECHNICAL/Architecture/CONTRATO_CAPTURA_RESGATE_V1.md",
+        "04_TECHNICAL/Architecture/CONTRATO_RECURSOS_INFORMACAO_PLANOS_V1.md"
+      ],
+      "status": "planned",
+      "production_file": null
+    },
+    {
+      "id": "UI_JOURNAL_REPORTS",
+      "kind": "interface",
+      "label": "Legendas, diário, última observação e relato não conferido",
+      "sources": [
+        "02_GAME_DESIGN/UX/INTERFACE_FLUXOS_V1.md",
+        "04_TECHNICAL/Architecture/CONTRATO_RECURSOS_INFORMACAO_PLANOS_V1.md"
+      ],
+      "status": "planned",
+      "production_file": null
+    }
+  ]
+}

@@ -53,6 +53,10 @@ struct EvidenceMemorySnapshot {
 
 SoundProfile ProfileFor(SoundKind kind);
 std::string SoundName(SoundKind kind);
+// Pass SurvivalCore::CurrentEffects().breathingLoudnessMultiplier, in [1, 3].
+// Keeps normalized energy while retaining amplification above calm breathing.
+SoundEvent MakeBreathingEvent(hunter::Vec3 source, double atSeconds,
+                             double loudnessMultiplier);
 
 class PerceptionCore {
 public:
@@ -73,6 +77,7 @@ private:
 // Stores only what the Hunter has actually inspected, never world-global state.
 class EvidenceMemory {
 public:
+  friend void swap(EvidenceMemory&, EvidenceMemory&) noexcept;
   // Caller guarantees line of sight to the object at inspection time.
   // First inspection establishes a baseline; only a later change raises evidence.
   std::optional<hunter::Stimulus> Inspect(

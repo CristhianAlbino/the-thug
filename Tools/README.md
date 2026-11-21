@@ -10,4 +10,8 @@ Engine-independent C++17 systems and test tooling:
 
 - [PerceptionCore](PerceptionCore/README.md) — uncertain sound and observed environmental evidence, with standalone tests.
 
-Other developer utilities can be added here as needed.
+- [CampaignCore](CampaignCore/README.md) — shared campaign clock/pause, authored initial profiles, individual resources/health, eight companion goals with reservations and confirmed completion, atomic interactions, native keypad and narrative commands, runtime v9 checkpoint receipts, rescue, fallible information, cooperation, individual weapons, adaptive plans and validated disk writes/recovery.
+
+- [DirectorCore](DirectorCore/README.md) — conditional pt-BR text, scene/banter priorities, confirmed cues, journal and epilogues; parity with the Python reference. Physical presentation remains an engine responsibility.
+
+- [ProductionCore](ProductionCore/README.md) — source-linked cue and asset requirement index; final production and creative approval remain pending.

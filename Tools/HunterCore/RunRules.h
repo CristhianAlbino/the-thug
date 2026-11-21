@@ -7,7 +7,7 @@ namespace thug::rules {
 enum class Difficulty { Easy, Normal, Hard, Punitive };
 enum class Ending {
   None, GarageEscape, RoofEscape, TunnelEscape, WindowEscape,
-  SurvivedDawn, HunterAbandoned, Captured, Died
+  SurvivedDawn, HunterAbandoned, Captured, Died, CoordinatedEscape, BitterDestruction
 };
 enum class Route { Garage, Roof, Tunnel, Window };
 enum class Event {
@@ -17,7 +17,8 @@ enum class Event {
   TunnelFound, TunnelExitReached,
   WindowFound, WindowToolsFound, WindowUnblocked, WindowCrossed,
   GarageBlocked, TunnelIntercepted, WindowDiscovered,
-  DawnReached, HunterAbandonedSearch, CapturedByHunter, JoeDied
+  DawnReached, HunterAbandonedSearch, CapturedByHunter, JoeDied,
+  CoordinatedEscapeConfirmed, CollapseSurvivalConfirmed
 };
 
 struct RouteState {

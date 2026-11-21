@@ -145,7 +145,7 @@ void ChoicesCanBeWrong() {
 
 void DifficultyIsBehavioral() {
   HunterCore easy(Difficulty::Easy), punitive(Difficulty::Punitive);
-  auto faint = Located(StimulusKind::Sound, Subject::Unknown, 0, 10, 0.3);
+  auto faint = Located(StimulusKind::Sound, Subject::Unknown, 0, 10, 0.2);
   Check(easy.Observe(faint) && punitive.Observe(faint),
         "Both cores receive the same sound");
   Check(easy.CurrentState() == State::Patrol,

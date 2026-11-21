@@ -1,0 +1,37 @@
+# Revisão pré-Unreal v1 — The Thug
+
+**Atualização:** resultados da revisão geral e pendências de implementação estão em [Revisão geral de 01/10 — sem spoilers](REVISAO_GERAL_2026_10_01.md). Este documento é o checklist histórico.
+
+**Estado:** checklist técnico e criativo para revisar com Cristhian, sem fechar o pacote como definitivo. As decisões narrativas D-11 permanecem aprovadas; falas, números, geometria, encenação e duração são versões para avaliação. Áudio e assets finais entram **depois** desta revisão. [Decisões abertas](../Decisions/DECISOES_ABERTAS.md) são a fonte do estado.
+
+## O que está preparado para ler e testar
+
+| Frente | Evidência versionada | Limite concreto |
+| --- | --- | --- |
+| Campanha | [34 cenas](../../02_GAME_DESIGN/Narrative/CAMPANHA_ATOS_RASCUNHO.md), [texto N01–N34, DOC01–16, AUD01–08 e epílogos](../../02_GAME_DESIGN/Narrative/PACOTE_TEXTO_CAMPANHA_V1.md), [42 conversas ambientais](../../02_GAME_DESIGN/Narrative/DIALOGOS_AMBIENTAIS_V1.md) e [bíblias](../../02_GAME_DESIGN/Narrative/BIBLIA_PERSONAGENS_V1.md) | D-14 confirmado: Joe/Wayne, vínculos, Jack e linguagem leve. D-12: atuação, J4, N34/coda e variantes dos finais ainda requerem leitura do criador. AUD são **roteiros**, sem áudio gerado. |
+| Regras e mapa | Núcleos C++17, [grafo de 88 áreas](../../02_GAME_DESIGN/World/MAPA_LOGICO_HOSPITAL.md), ScenarioLab e quatro fugas | A topologia valida caminhos abstratos, não metragem, vista de câmera, tempo de deslocamento ou IA em paredes reais. |
+| Balanceamento e pistas | [Matriz v1](../../02_GAME_DESIGN/Balance/BALANCE_INICIAL_V1.md), [`balance_initial.json`](../../Tools/NarrativeCore/balance_initial.json), [contratos de rotas](../../02_GAME_DESIGN/World/PISTAS_ROTAS_V1.md), [auditoria sem spoilers](AUDITORIA_CEGA_PRE_UNREAL.md), [checkpoint/esconderijo](../../04_TECHNICAL/Architecture/CONTRATO_CHECKPOINT_ESCONDERIJO_V1.md) | Coerência e alcançabilidade verificadas automaticamente; descoberta humana, geometria e tempos são hipóteses. Criador prefere evitar spoilers. |
+| Interface | [Fluxos e acessibilidade](../../02_GAME_DESIGN/UX/INTERFACE_FLUXOS_V1.md), [wireframe vetorial](../../02_GAME_DESIGN/UX/WIREFRAME_HUD_CAMERAS.svg) | UMG, controles, legibilidade e idiomas adicionais aguardam editor/testes. |
+| Integração | [Matriz T01–T33](../../04_TECHNICAL/Architecture/MATRIZ_TESTES_PRE_UNREAL.md), [contrato das pontes](../../04_TECHNICAL/Architecture/CONTRATO_ADAPTADORES_UNREAL_V1.md), [kit do primeiro dia](../../04_TECHNICAL/Architecture/KIT_INTEGRACAO_UNREAL_V1.md) | `StorySave` persiste os dez núcleos e estado narrativo em envelope versionado; diretor Python liga intenção e conclusão. Diretor nativo/paridade, coordenador v9 e escrita sincronizada/backup já estão entregues. Faltam adaptadores Unreal, atores físicos, widgets e apresentação. |
+| Expansão futura | [Modo Extremo/Joker](../../02_GAME_DESIGN/Backlog/MODO_EXTREMO_JOKER.md) | Só após campanha Punitivo jogável, revisão, áudio/assets e teste; não ativar quinto modo agora. |
+
+## Achados da revisão cruzada
+
+1. **Thomas:** a verdade do mundo é morte causada por Batman. Fácil/Normal encerram sem confirmação ao jogador; Difícil/Punitivo mostram N34 ou coda. A coda não ensina Joe. DOC16/AUD08 só aparecem nos dois últimos modos. A visada real de `CAM_F4_WEST` e a prova física ainda precisam de blockout.
+2. **Jack:** J1–J3 e J4 pertencem apenas ao Punitivo; J4 requer Jack fisicamente presente, pista J3 e outra testemunhada. Risada/roupa ganham força ao longo da campanha, sem virar teleporte nem posição do Hunter.
+3. **Companheiros:** abandono não prova morte; estados `together`, `escaped_alone`, `captured`, `dead` e `unknown` dependem de evidências. Joe/Harley mudam o tom no Punitivo, mas a ação do jogador ainda decide ajuda e consequência. Valores numéricos não substituem encenação.
+4. **Quatro fugas:** garagem exige entrada correta no teclado e chave; as pistas permitem descobrir a entrada, sem proibir conhecimento de outra partida; telhado depende de confirmação de rádio e prazo persistido; túnel distingue entrada de saída; janela exige ferramenta e travessia sinalizada. Falha de uma rota deixa alternativa verificável. O grafo não demonstra que um jogador achará pistas nem que uma perseguição será justa.
+5. **Informação confiável:** feed ao vivo, repetição, interferência e falta de energia têm rótulos separados. Hunter e companheiros só recebem o que observaram. O futuro gás do Modo Extremo exige camada própria de percepção falsa, sem alterar agora a verdade física.
+6. **Persistência avançou:** o envelope narrativo versionado já mantém IDs, leituras, conversas e fatos com os dez núcleos. CheckpointFile já entrega transação validada no disco com backup/recuperação. Restauração atômica **dos atores do editor** e ensaios de blockout continuam necessários.
+
+## Ordem de revisão com Cristhian
+
+1. Ler N01–N34, DOC01–16, AUD01–08 e epílogos; marcar linha por ID, sobretudo Joe/Harley, humor de Jack e prova N34/coda. Fechar D-12 após revisão, sem presumir aprovação pelo fato de o texto existir.
+2. Conferir primeiro playtest de pista da garagem e quatro fugas, sem explicar solução; ajustar texto/posição do que não for legível. Aceitar números D-02/D-04/D-06/D-07 só após observar teste.
+3. Revisar HUD e acessibilidade com tela real e controles; definir D-08 esconderijo por estados e limiar verificável. D-09 fica pendente até teste de UMG.
+4. No notebook, instalar Unreal, clonar o Git, criar o projeto C++ `TheThug.uproject` conforme o kit e integrar o primeiro corredor seguindo o kit. Validar T01–T24 no editor; medir desempenho e duração antes de declarar “3h” ou “100% pronto”.
+5. Depois da revisão geral, produzir/gravar áudio e selecionar/criar assets finais. Resolver direitos de uso público dos personagens e materiais (D-10) antes de qualquer distribuição.
+
+**Critério de fechamento deste documento:** apontamentos do criador incorporados; contratos e testes locais/CI verdes; tarefas dependentes da Unreal e de produção identificadas por nome. Isso fecha uma **preparação**, não um jogo pronto para lançamento.
+
+**Atualização de 03/10:** propostas de [direção v2](../../02_GAME_DESIGN/Narrative/DIRECAO_CRIATIVA_REVISAO_V2.md), [protocolo humano](PROTOCOLO_TESTE_HUMANO_PRE_UNREAL_V1.md) e [preparação da produção](../Roadmap/PLANO_PRODUCAO_PRE_UNREAL_V1.md) estão versionadas. Avaliação/produção continuam abertas.

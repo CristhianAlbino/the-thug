@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "status": "playtest_hypothesis",
+  "profiles": {
+    "Easy": {"harley": {"capacity": 8, "loadout": {"treatment": 1}}, "bartholomeu": {"capacity": 7, "loadout": {}}, "jack": {"capacity": 7, "loadout": {}}},
+    "Normal": {"harley": {"capacity": 7, "loadout": {}}, "bartholomeu": {"capacity": 6, "loadout": {}}, "jack": {"capacity": 6, "loadout": {}}},
+    "Hard": {"harley": {"capacity": 6, "loadout": {}}, "bartholomeu": {"capacity": 5, "loadout": {}}, "jack": {"capacity": 5, "loadout": {}}},
+    "Punitive": {"harley": {"capacity": 5, "loadout": {}}, "bartholomeu": {"capacity": 4, "loadout": {}}, "jack": {"capacity": 4, "loadout": {}}}
+  },
+  "interaction_seconds": {"StayHidden": 1, "SearchResources": 1, "HelpJoe": 3, "ShareRoute": 1, "EscapeAlone": 0, "UseJoeAsDistraction": 1, "FollowSignal": 1, "InspectSignaledArea": 1},
+  "joe_medical_help": {
+    "harley": {"trust": 10, "fear": -5, "stress": -8, "loyalty": 5, "selfPreservation": 0, "relationship": 8},
+    "bartholomeu": {"trust": 12, "fear": -8, "stress": -10, "loyalty": 6, "selfPreservation": 0, "relationship": 4},
+    "jack": {"trust": 5, "fear": 0, "stress": -4, "loyalty": 2, "selfPreservation": 0, "relationship": 1}
+  }
+}

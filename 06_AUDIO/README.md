@@ -26,3 +26,5 @@ Adaptive states:
 - Pursuit
 - Hiding
 - Recovery
+
+O [catálogo de produção](../Tools/ProductionCore/README.md) indexa cues/variantes e requisitos de som/música/AUD. A [preparação de produção](../01_PROJECT/Roadmap/PLANO_PRODUCAO_PRE_UNREAL_V1.md) define masters, takes e avaliação. Gravações finais ainda não foram produzidas.

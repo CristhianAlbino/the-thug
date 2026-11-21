@@ -6,8 +6,25 @@
 #include <locale>
 #include <sstream>
 #include <stdexcept>
+#include <type_traits>
+#include <utility>
 
 namespace thug::companion {
+
+void swap(CompanionCore& a, CompanionCore& b) noexcept {
+  static_assert(noexcept(a.knownRoutes_.swap(b.knownRoutes_)));
+  static_assert(noexcept(a.appliedEvents_.swap(b.appliedEvents_)));
+  static_assert(std::is_nothrow_swappable_v<Traits>);
+  static_assert(std::is_nothrow_swappable_v<std::mt19937_64>);
+  using std::swap;
+  swap(a.character_, b.character_);
+  swap(a.difficulty_, b.difficulty_);
+  swap(a.traits_, b.traits_);
+  a.knownRoutes_.swap(b.knownRoutes_);
+  a.appliedEvents_.swap(b.appliedEvents_);
+  swap(a.nowSeconds_, b.nowSeconds_);
+  swap(a.random_, b.random_);
+}
 namespace {
 
 bool InRange(double value) {
@@ -175,7 +192,23 @@ std::vector<Option> CompanionCore::AvailableOptions(
 }
 
 Option CompanionCore::Choose(const Situation& situation) {
-  const auto options = AvailableOptions(situation);
+  return ChooseAmong(AvailableOptions(situation));
+}
+
+Option CompanionCore::ChooseAmong(const std::vector<Option>& options) {
+  if (options.empty()) throw std::invalid_argument("Empty companion options");
+  double total = 0;
+  for (const auto& option : options) {
+    const bool routeGoal = option.goal == Goal::ShareRoute || option.goal == Goal::EscapeAlone;
+    if (option.goal < Goal::StayHidden || option.goal > Goal::InspectSignaledArea ||
+        !std::isfinite(option.weight) || option.weight <= 0 ||
+        routeGoal != bool(option.routeId) || (option.routeId && !knownRoutes_.count(*option.routeId)) ||
+        (option.goal == Goal::EscapeAlone && difficulty_ == Difficulty::Easy) ||
+        (option.goal == Goal::UseJoeAsDistraction && difficulty_ != Difficulty::Hard && difficulty_ != Difficulty::Punitive))
+      throw std::invalid_argument("Invalid executable companion option");
+    total += option.weight;
+  }
+  if (!std::isfinite(total)) throw std::invalid_argument("Invalid companion weights");
   std::vector<double> weights;
   weights.reserve(options.size());
   for (const auto& option : options) weights.push_back(option.weight);

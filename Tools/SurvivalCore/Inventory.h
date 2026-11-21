@@ -27,6 +27,7 @@ struct InventorySnapshot {
 
 class Inventory {
 public:
+  friend void swap(Inventory&, Inventory&) noexcept;
   Inventory(int capacitySlots, const std::vector<ItemDefinition>& definitions);
 
   bool CanAdd(const std::string& itemId, int quantity) const;

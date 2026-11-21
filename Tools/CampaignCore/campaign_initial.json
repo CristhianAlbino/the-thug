@@ -1,0 +1,468 @@
+{
+  "schema": 1,
+  "status": "playtest_hypothesis",
+  "items": [
+    {
+      "id": "rifle",
+      "category": "Weapon",
+      "slots": 3,
+      "max": 1,
+      "droppable": false
+    },
+    {
+      "id": "magazine",
+      "category": "Ammunition",
+      "slots": 1,
+      "max": 8,
+      "droppable": true
+    },
+    {
+      "id": "grenade",
+      "category": "Explosive",
+      "slots": 1,
+      "max": 4,
+      "droppable": true
+    },
+    {
+      "id": "smoke",
+      "category": "Explosive",
+      "slots": 1,
+      "max": 5,
+      "droppable": true
+    },
+    {
+      "id": "treatment",
+      "category": "Medical",
+      "slots": 2,
+      "max": 3,
+      "droppable": true
+    },
+    {
+      "id": "battery",
+      "category": "Utility",
+      "slots": 1,
+      "max": 2,
+      "droppable": true
+    },
+    {
+      "id": "radio",
+      "category": "Utility",
+      "slots": 1,
+      "max": 1,
+      "droppable": false
+    },
+    {
+      "id": "window_tool",
+      "category": "Utility",
+      "slots": 2,
+      "max": 1,
+      "droppable": false
+    },
+    {
+      "id": "garage_key",
+      "category": "Utility",
+      "slots": 1,
+      "max": 1,
+      "droppable": false
+    },
+    {
+      "id": "service_key",
+      "category": "Utility",
+      "slots": 1,
+      "max": 1,
+      "droppable": false
+    },
+    {
+      "id": "structural_charge",
+      "category": "Explosive",
+      "slots": 2,
+      "max": 3,
+      "droppable": true
+    },
+    {
+      "id": "structural_detonator",
+      "category": "Utility",
+      "slots": 1,
+      "max": 1,
+      "droppable": true
+    }
+  ],
+  "objects": [
+    {
+      "id": "SAFE_F2",
+      "type": "interaction",
+      "state": "closed"
+    },
+    {
+      "id": "RADIO_INSTALL",
+      "type": "interaction",
+      "state": "empty"
+    },
+    {
+      "id": "RADIO_LINK",
+      "type": "interaction",
+      "state": "offline"
+    },
+    {
+      "id": "GARAGE_GATE",
+      "type": "interaction",
+      "state": "closed"
+    },
+    {
+      "id": "WINDOW_ACCESS",
+      "type": "interaction",
+      "state": "blocked"
+    },
+    {
+      "id": "RADIO_INTERFERENCE",
+      "type": "interaction",
+      "state": "blocked"
+    }
+  ],
+  "pickups": [
+    {
+      "id": "P_SMOKE_RESERVE",
+      "node": "F3_EXAMS",
+      "item": "smoke",
+      "quantity": 1
+    },
+    {
+      "id": "P_TREATMENT",
+      "node": "F1_PHARMACY",
+      "item": "treatment",
+      "quantity": 1
+    },
+    {
+      "id": "P_MAGAZINE",
+      "node": "F2_SUPPLY",
+      "item": "magazine",
+      "quantity": 1
+    },
+    {
+      "id": "P_RADIO",
+      "node": "F1_RADIO",
+      "item": "radio",
+      "quantity": 1,
+      "event": "RadioFound"
+    },
+    {
+      "id": "P_BATTERY",
+      "node": "F2_SERVER",
+      "item": "battery",
+      "quantity": 1
+    },
+    {
+      "id": "P_WINDOW_TOOL",
+      "node": "F2_SUPPLY",
+      "item": "window_tool",
+      "quantity": 1,
+      "event": "WindowToolsFound"
+    },
+    {
+      "id": "P_GARAGE_KEY",
+      "node": "F2_SAFE",
+      "item": "garage_key",
+      "quantity": 1,
+      "event": "GarageKeyTaken",
+      "requires": [
+        [
+          "SAFE_F2",
+          "open"
+        ]
+      ]
+    },
+    {
+      "id": "P_SERVICE_KEY",
+      "node": "B1_STORAGE",
+      "item": "service_key",
+      "quantity": 1
+    }
+  ],
+  "uses": [
+    {
+      "id": "safe_code_accepted",
+      "node": "F2_SAFE",
+      "object": "SAFE_F2",
+      "before": "closed",
+      "after": "open",
+      "event": "SafeOpened"
+    },
+    {
+      "id": "install_battery",
+      "node": "F1_RADIO",
+      "object": "RADIO_INSTALL",
+      "before": "empty",
+      "after": "installed",
+      "item": "battery",
+      "quantity": 1,
+      "consume": true,
+      "event": "BatteriesInstalled"
+    },
+    {
+      "id": "radio_contact",
+      "node": "F1_RADIO",
+      "object": "RADIO_LINK",
+      "before": "offline",
+      "after": "connected",
+      "item": "radio",
+      "quantity": 1,
+      "event": "RadioContactEstablished",
+      "requires": [
+        [
+          "RADIO_INSTALL",
+          "installed"
+        ],
+        [
+          "C_SECURITY",
+          "on"
+        ],
+        [
+          "RADIO_INTERFERENCE",
+          "clear"
+        ]
+      ]
+    },
+    {
+      "id": "release_garage",
+      "node": "G_CONTROL",
+      "object": "GARAGE_GATE",
+      "before": "closed",
+      "after": "released",
+      "item": "garage_key",
+      "quantity": 1,
+      "event": "GarageGateReleased",
+      "requires": [
+        [
+          "C_SERVICE",
+          "on"
+        ]
+      ]
+    },
+    {
+      "id": "unblock_window",
+      "node": "F3_WINDOW",
+      "object": "WINDOW_ACCESS",
+      "before": "blocked",
+      "after": "unblocked",
+      "item": "window_tool",
+      "quantity": 1,
+      "event": "WindowUnblocked"
+    },
+    {
+      "id": "clear_interference",
+      "node": "F2_CAMERAS",
+      "object": "RADIO_INTERFERENCE",
+      "before": "blocked",
+      "after": "clear",
+      "requires": [
+        [
+          "C_SECURITY",
+          "on"
+        ]
+      ]
+    }
+  ],
+  "unlocks": [
+    {
+      "id": "unlock_exams",
+      "node": "F3_EXAMS",
+      "door": "D_F3_EXAMS",
+      "item": "service_key"
+    }
+  ],
+  "triggers": [
+    {
+      "id": "find_window",
+      "node": "F3_WINDOW",
+      "event": "WindowFound"
+    },
+    {
+      "id": "find_tunnel",
+      "node": "B1_TUNNEL",
+      "event": "TunnelFound"
+    },
+    {
+      "id": "helicopter_confirmed",
+      "node": "F1_RADIO",
+      "event": "HelicopterConfirmed",
+      "requires": [
+        [
+          "RADIO_LINK",
+          "connected"
+        ]
+      ]
+    },
+    {
+      "id": "garage_exit",
+      "node": "X_GARAGE",
+      "event": "GarageExitReached",
+      "requires": [
+        [
+          "GARAGE_GATE",
+          "released"
+        ]
+      ]
+    },
+    {
+      "id": "roof_exit",
+      "node": "X_ROOF",
+      "event": "RoofReached"
+    },
+    {
+      "id": "tunnel_exit",
+      "node": "X_TUNNEL",
+      "event": "TunnelExitReached"
+    },
+    {
+      "id": "window_exit",
+      "node": "X_WINDOW",
+      "event": "WindowCrossed",
+      "requires": [
+        [
+          "WINDOW_ACCESS",
+          "unblocked"
+        ]
+      ]
+    },
+    {
+      "id": "garage_blocked",
+      "node": "G_CONTROL",
+      "event": "GarageBlocked"
+    },
+    {
+      "id": "tunnel_intercepted",
+      "node": "B1_TUNNEL",
+      "event": "TunnelIntercepted"
+    },
+    {
+      "id": "window_discovered",
+      "node": "F3_WINDOW",
+      "event": "WindowDiscovered"
+    },
+    {
+      "id": "hunter_abandoned",
+      "node": "F3_ISOLATION",
+      "event": "HunterAbandonedSearch"
+    },
+    {
+      "id": "dawn_confirmed",
+      "node": "*",
+      "event": "DawnReached"
+    },
+    {
+      "id": "captured",
+      "node": "*",
+      "event": "CapturedByHunter"
+    }
+  ],
+  "finale": {
+    "confrontation_node": "F1_LOADING",
+    "confrontation_exit": "X_GARAGE",
+    "detonator_node": "F1_SERVICE",
+    "collapse_shelter": "F1_EMERGENCY",
+    "minimum_companions": 2,
+    "minimum_trust": 60,
+    "confrontation_seconds": 3,
+    "opportunity_seconds": 8,
+    "plant_seconds": 4,
+    "collapse_seconds": 12,
+    "sites": [
+      {
+        "id": "RARE_SITE_A",
+        "node": "F3_UTILITY"
+      },
+      {
+        "id": "RARE_SITE_B",
+        "node": "F2_SERVER"
+      },
+      {
+        "id": "RARE_SITE_C",
+        "node": "B1_GENERATOR"
+      }
+    ],
+    "supplies": [
+      {
+        "id": "RARE_SUPPLY_A",
+        "node": "B1_STORAGE",
+        "item": "structural_charge",
+        "quantity": 1
+      },
+      {
+        "id": "RARE_SUPPLY_B",
+        "node": "F2_SUPPLY",
+        "item": "structural_charge",
+        "quantity": 1
+      },
+      {
+        "id": "RARE_SUPPLY_C",
+        "node": "F3_UTILITY",
+        "item": "structural_charge",
+        "quantity": 1
+      },
+      {
+        "id": "RARE_DETONATOR",
+        "node": "B1_PUMP",
+        "item": "structural_detonator",
+        "quantity": 1
+      }
+    ]
+  },
+  "wedges": [
+    {"id": "D_F4_NURSE", "item": "window_tool", "resistance_seconds": 6},
+    {"id": "D_F2_SUPPLY", "item": "window_tool", "resistance_seconds": 6},
+    {"id": "D_F1_RADIO_E", "item": "window_tool", "resistance_seconds": 6}
+  ],
+  "variations": [
+    {"id": "V_TRIAGE", "node": "F1_TRIAGE", "speaker": "harley",
+     "ambient": ["Uma bandeja solta bate na maca.", "Uma roda de cadeira chia no corredor.", "Um copo de metal rola sob a bancada."],
+     "lines": ["Respira, Joe. Um passo de cada vez.", "Se encontrar o Barth, traz ele pra perto.", "Tá ouvindo? Melhor a gente baixar a voz."]},
+    {"id": "V_SERVICE", "node": "F2_SERVICE", "speaker": "bartholomeu",
+     "ambient": ["Uma tubulação estala atrás da parede.", "Um carrinho vazio encosta na grade.", "Uma placa frouxa vibra no duto."],
+     "lines": ["Eu tô com medo, Joe. Mas ainda tô aqui.", "Minha mão não para de tremer. Me dá um segundo.", "Se você ficar de olho, eu consigo procurar aqui."]},
+    {"id": "V_LOADING", "node": "F1_LOADING", "speaker": "jack",
+     "ambient": ["Uma corrente bate no portão.", "Uma lata vazia desliza pelo piso.", "A chapa de uma porta vibra com o vento."],
+     "lines": ["Tem alguém aí? Só tô conferindo.", "Eu até esperava vocês. Até.", "Se a gente sair daqui, eu vou rir disso. Depois."]}
+  ],
+  "appearances": [
+    {
+      "id": "robin",
+      "node": "B1_TUNNEL",
+      "block": "SP_ROBIN",
+      "modes": 8,
+      "minimum_act": 4,
+      "tickets": 1000
+    },
+    {
+      "id": "alfred",
+      "node": "F2_CAMERAS",
+      "block": "SP_ALFRED",
+      "modes": 15,
+      "minimum_act": 3,
+      "tickets": 1000
+    },
+    {
+      "id": "gordon",
+      "node": "F1_LOBBY",
+      "block": "SP_GORDON",
+      "modes": 15,
+      "minimum_act": 3,
+      "tickets": 1000
+    },
+    {
+      "id": "oracle",
+      "node": "F2_SECURITY",
+      "block": "SP_ORACLE",
+      "modes": 15,
+      "minimum_act": 3,
+      "tickets": 1000
+    },
+    {
+      "id": "flash",
+      "node": "R_LEDGE",
+      "block": "SP_FLASH",
+      "modes": 15,
+      "minimum_act": 4,
+      "tickets": 1
+    }
+  ]
+}

@@ -6,6 +6,17 @@
 #include <utility>
 
 namespace thug::save {
+
+void swap(WorldState& a, WorldState& b) noexcept {
+  static_assert(noexcept(a.levelId_.swap(b.levelId_)));
+  static_assert(noexcept(a.catalog_.swap(b.catalog_)));
+  static_assert(noexcept(a.objects_.swap(b.objects_)));
+  a.levelId_.swap(b.levelId_);
+  a.catalog_.swap(b.catalog_);
+  a.objects_.swap(b.objects_);
+  using std::swap;
+  swap(a.nowSeconds_, b.nowSeconds_);
+}
 namespace {
 
 bool Finite(const hunter::Vec3& value) {
