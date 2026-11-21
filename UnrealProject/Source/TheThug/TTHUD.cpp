@@ -86,6 +86,10 @@ void ATTHUD::DrawTitle()
 		Y += 40.f * UI;
 	}
 
+	const ATTGameMode* GM = GetGM(this);
+	const FString Diff = FString::Printf(TEXT("Dificuldade:  %s        (1 Fácil   2 Normal   3 Difícil   4 Punitivo)"), *TTDifficultyName(GM->GetDifficulty()));
+	DrawCentered(Diff, H * 0.72f, Medium, 1.05f * UI, Pale);
+
 	const float Pulse = 0.55f + 0.45f * FMath::Sin(GetWorld()->GetRealTimeSeconds() * 2.5f);
 	DrawCentered(TEXT("ENTER para começar        ESC para sair"), H * 0.80f, Medium, 1.2f * UI, FLinearColor(Pale.R, Pale.G, Pale.B, Pulse));
 	DrawCentered(TEXT("Protótipo M01"), H * 0.94f, Medium, 0.8f * UI, FLinearColor(0.3f, 0.3f, 0.3f));
@@ -165,8 +169,9 @@ void ATTHUD::DrawPlaying()
 	{
 		if (const ATTHunter* Hunter = GM->GetHunter())
 		{
-			const FString Debug = FString::Printf(TEXT("Hunter: %s  awareness %.2f  | Joe vis %.2f light %.2f"),
-				*Hunter->GetStateName(), Hunter->GetAwareness(), Player->GetVisibility(), Player->GetLightLevel());
+			const FString Debug = FString::Printf(TEXT("Hunter: %s  awareness %.2f  aggression %.2f  %s | Joe vis %.2f light %.2f"),
+				*Hunter->GetStateName(), Hunter->GetAwareness(), Hunter->GetAggression(), *Hunter->GetMemorySummary(),
+				Player->GetVisibility(), Player->GetLightLevel());
 			DrawText(Debug, FLinearColor::Yellow, 48.f * UI, H - 90.f * UI, Small, 1.2f * UI);
 		}
 	}

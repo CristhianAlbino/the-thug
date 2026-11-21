@@ -181,7 +181,7 @@ void ATTPlayerCharacter::UpdateMovement(float DeltaSeconds)
 		if (BreathTimer <= 0.f)
 		{
 			BreathTimer = 1.1f;
-			ReportNoise(0.22f);
+			ReportNoise(ETTNoise::Breath);
 		}
 	}
 
@@ -239,10 +239,10 @@ void ATTPlayerCharacter::UpdateFootsteps(float DeltaSeconds)
 	if (StepDistance >= Stride)
 	{
 		StepDistance = 0.f;
-		const float Loudness = bIsCrouched ? 0.04f : (bSprinting ? 0.5f : 0.16f);
+		const ETTNoise Kind = bIsCrouched ? ETTNoise::SlowStep : (bSprinting ? ETTNoise::SprintStep : ETTNoise::Step);
 		const float Volume = bIsCrouched ? 0.12f : (bSprinting ? 0.55f : 0.28f);
 		TTAudio::Play2D(this, ETTSfx::PlayerStep, Volume);
-		ReportNoise(Loudness);
+		ReportNoise(Kind);
 	}
 }
 
@@ -275,11 +275,11 @@ void ATTPlayerCharacter::UpdateHeartbeat(float DeltaSeconds)
 	}
 }
 
-void ATTPlayerCharacter::ReportNoise(float Loudness)
+void ATTPlayerCharacter::ReportNoise(ETTNoise Kind)
 {
 	if (ATTGameMode* GM = GetWorld()->GetAuthGameMode<ATTGameMode>())
 	{
-		GM->ReportNoise(GetActorLocation(), Loudness, this);
+		GM->ReportNoise(GetActorLocation(), Kind, this);
 	}
 }
 
@@ -350,6 +350,7 @@ void ATTPlayerCharacter::EnterLocker(ATTLocker* Locker)
 {
 	if (!Locker || bFrozen || IsHidden())
 	{
+		UE_LOG(LogTemp, Log, TEXT("[TT] EnterLocker refused (frozen %d, hidden %d)"), bFrozen ? 1 : 0, IsHidden() ? 1 : 0);
 		return;
 	}
 
@@ -377,7 +378,8 @@ void ATTPlayerCharacter::EnterLocker(ATTLocker* Locker)
 		C->SetControlRotation(FRotator(0.f, Locker->GetFacingYaw(), 0.f));
 	}
 
-	ReportNoise(0.08f);
+	ReportNoise(ETTNoise::Locker);
+	UE_LOG(LogTemp, Log, TEXT("[TT] Joe hid in %s"), *Locker->GetId());
 	if (ATTGameMode* GM = GetWorld()->GetAuthGameMode<ATTGameMode>())
 	{
 		GM->OnPlayerHid(Locker);
@@ -400,7 +402,12 @@ void ATTPlayerCharacter::ExitLocker()
 	SetActorEnableCollision(true);
 	SetActorLocation(Front, false, nullptr, ETeleportType::TeleportPhysics);
 	GetCharacterMovement()->SetMovementMode(MOVE_Walking);
-	ReportNoise(0.1f);
+	ReportNoise(ETTNoise::Locker);
+	UE_LOG(LogTemp, Log, TEXT("[TT] Joe left %s"), *Locker->GetId());
+	if (ATTGameMode* GM = GetWorld()->GetAuthGameMode<ATTGameMode>())
+	{
+		GM->OnPlayerLeftLocker(Locker);
+	}
 }
 
 float ATTPlayerCharacter::GetVisibility() const

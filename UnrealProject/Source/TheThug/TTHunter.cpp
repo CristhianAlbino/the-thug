@@ -12,18 +12,137 @@
 #include "TTPlayerCharacter.h"
 #include "TTShapes.h"
 
+THIRD_PARTY_INCLUDES_START
+#include "../../../Tools/HunterCore/HunterCore.h"
+#include "../../../Tools/PerceptionCore/PerceptionCore.h"
+THIRD_PARTY_INCLUDES_END
+
+namespace th = thug::hunter;
+namespace tp = thug::perception;
+
+/** The engine-independent brain, ears and evidence memory from /Tools. */
+struct FTTHunterMind
+{
+	th::HunterCore Brain;
+	tp::PerceptionCore Ears;
+	tp::EvidenceMemory Eyes;
+	th::Tuning Tuning;
+
+	FTTHunterMind(th::Difficulty InDifficulty, uint64 Seed)
+		: Brain(InDifficulty, Seed)
+		, Ears(tp::Tuning{}, Seed ^ 0x9E3779B97F4A7C15ull)
+		, Tuning(th::TuningFor(InDifficulty))
+	{
+	}
+};
+
 namespace HunterTuning
 {
 	constexpr float PatrolSpeed = 175.f;
 	constexpr float SearchSpeed = 215.f;
 	constexpr float InvestigateSpeed = 280.f;
-	constexpr float PursueSpeed = 455.f;
+	constexpr float PursueSpeed = 445.f;
 	constexpr float SightRange = 2400.f;
 	constexpr float PursueSightRange = 3200.f;
 	constexpr float CloseSense = 230.f;
 	constexpr float CaptureDistance = 145.f;
-	constexpr float HearingScale = 2600.f;
+	constexpr float FaintSoundStrength = 0.12f;
 }
+
+namespace
+{
+	th::Vec3 ToCore(const FVector& V)
+	{
+		return th::Vec3{ V.X / 100.0, V.Y / 100.0, V.Z / 100.0 };
+	}
+
+	FVector FromCore(const th::Vec3& V)
+	{
+		return FVector(V.x * 100.0, V.y * 100.0, V.z * 100.0);
+	}
+
+	th::Difficulty ToCore(ETTDifficulty D)
+	{
+		switch (D)
+		{
+		case ETTDifficulty::Easy: return th::Difficulty::Easy;
+		case ETTDifficulty::Hard: return th::Difficulty::Hard;
+		case ETTDifficulty::Punitive: return th::Difficulty::Punitive;
+		default: return th::Difficulty::Normal;
+		}
+	}
+
+	void ToCore(ETTNoise Kind, tp::SoundKind& OutKind, double& OutEnergy)
+	{
+		OutEnergy = 1.0;
+		switch (Kind)
+		{
+		case ETTNoise::SlowStep: OutKind = tp::SoundKind::SlowFootstep; break;
+		case ETTNoise::Step: OutKind = tp::SoundKind::WalkFootstep; break;
+		case ETTNoise::SprintStep: OutKind = tp::SoundKind::SprintFootstep; break;
+		case ETTNoise::Door: OutKind = tp::SoundKind::Door; break;
+		case ETTNoise::QuietDoor: OutKind = tp::SoundKind::Door; OutEnergy = 0.3; break;
+		case ETTNoise::Locker: OutKind = tp::SoundKind::Door; OutEnergy = 0.35; break;
+		case ETTNoise::Glass: OutKind = tp::SoundKind::BrokenObject; break;
+		case ETTNoise::Breath: OutKind = tp::SoundKind::Breathing; break;
+		}
+	}
+
+	std::string ToStd(const FString& S)
+	{
+		return std::string(TCHAR_TO_UTF8(*S));
+	}
+
+	const TCHAR* StateName(ETTHunterState S)
+	{
+		switch (S)
+		{
+		case ETTHunterState::Dormant: return TEXT("Dormant");
+		case ETTHunterState::Patrol: return TEXT("Patrol");
+		case ETTHunterState::LookAround: return TEXT("LookAround");
+		case ETTHunterState::Suspicious: return TEXT("Suspicious");
+		case ETTHunterState::Investigate: return TEXT("Investigate");
+		case ETTHunterState::Search: return TEXT("Search");
+		case ETTHunterState::Pursue: return TEXT("Pursue");
+		case ETTHunterState::CheckLocker: return TEXT("CheckLocker");
+		case ETTHunterState::Ambush: return TEXT("Ambush");
+		case ETTHunterState::SetTrap: return TEXT("SetTrap");
+		case ETTHunterState::Capturing: return TEXT("Capturing");
+		}
+		return TEXT("?");
+	}
+
+	bool IsDirectPathClear(const UWorld* World, const AActor* Self, const AActor* Ignore, const FVector& From, const FVector& To)
+	{
+		FCollisionQueryParams Query(SCENE_QUERY_STAT(TTHunterPath), false, Self);
+		if (Ignore)
+		{
+			Query.AddIgnoredActor(Ignore);
+		}
+		const FVector B(To.X, To.Y, From.Z);
+		return !World->SweepTestByChannel(From, B, FQuat::Identity, ECC_Pawn, FCollisionShape::MakeCapsule(38.f, 60.f), Query);
+	}
+
+	const FIntPoint Around[8] = {
+		FIntPoint(1, 0), FIntPoint(-1, 0), FIntPoint(0, 1), FIntPoint(0, -1),
+		FIntPoint(1, 1), FIntPoint(-1, 1), FIntPoint(1, -1), FIntPoint(-1, -1)
+	};
+
+	bool BrainObserve(FTTHunterMind& Mind, const th::Stimulus& Stimulus)
+	{
+		try
+		{
+			return Mind.Brain.Observe(Stimulus);
+		}
+		catch (...)
+		{
+			return false;
+		}
+	}
+}
+
+// ---------------------------------------------------------------------------
+// Setup
 
 ATTHunter::ATTHunter()
 {
@@ -43,10 +162,31 @@ ATTHunter::ATTHunter()
 	Move->BrakingDecelerationWalking = 1400.f;
 }
 
+ATTHunter::~ATTHunter() = default;
+
 void ATTHunter::BeginPlay()
 {
 	Super::BeginPlay();
 	BuildVisual();
+	if (!Mind)
+	{
+		Configure(Difficulty);
+	}
+}
+
+void ATTHunter::Configure(ETTDifficulty InDifficulty)
+{
+	Difficulty = InDifficulty;
+	Mind = MakeShared<FTTHunterMind>(ToCore(Difficulty), static_cast<uint64>(FMath::Rand()) + 1ull);
+
+	static const float SpeedScales[] = { 0.88f, 0.95f, 1.f, 1.06f };
+	static const float SightScales[] = { 0.8f, 0.9f, 1.f, 1.1f };
+	static const int32 Targets[] = { 3, 4, 5, 7 };
+	const int32 Index = static_cast<int32>(Difficulty);
+	SpeedScale = SpeedScales[Index];
+	SightScale = SightScales[Index];
+	SearchTargets = Targets[Index];
+	SearchSeconds = static_cast<float>(Mind->Tuning.searchSeconds);
 }
 
 void ATTHunter::BuildVisual()
@@ -88,13 +228,50 @@ ATTPlayerCharacter* ATTHunter::GetPlayer() const
 	return GM ? GM->GetPlayer() : nullptr;
 }
 
+double ATTHunter::Now() const
+{
+	return GetWorld()->GetTimeSeconds();
+}
+
+float ATTHunter::Speed(float Base) const
+{
+	return Base * SpeedScale * (1.f + 0.12f * Aggression);
+}
+
 FString ATTHunter::GetStateName() const
 {
-	if (const UEnum* Enum = StaticEnum<ETTHunterState>())
+	return StateName(State);
+}
+
+FString ATTHunter::GetMemorySummary() const
+{
+	const ATTHospital* Hospital = GetHospital();
+	if (!Hospital || !Mind)
 	{
-		return Enum->GetNameStringByValue(static_cast<int64>(State));
+		return FString();
 	}
-	return FString();
+	FString Best;
+	float BestScore = 0.f;
+	FString Locked;
+	for (const TPair<FIntPoint, TObjectPtr<ATTDoor>>& Pair : Hospital->GetDoors())
+	{
+		const float Score = RouteEvidence(Pair.Key);
+		if (Score > BestScore)
+		{
+			BestScore = Score;
+			Best = ATTHospital::DoorId(Pair.Key);
+		}
+		if (Pair.Value && Pair.Value->IsLocked())
+		{
+			Locked = ATTHospital::DoorId(Pair.Key);
+		}
+	}
+	FString Out = Best.IsEmpty() ? TEXT("rota: -") : FString::Printf(TEXT("rota: %s %.1f"), *Best, BestScore);
+	if (!Locked.IsEmpty())
+	{
+		Out += FString::Printf(TEXT("  travada: %s"), *Locked);
+	}
+	return Out;
 }
 
 void ATTHunter::Activate()
@@ -116,9 +293,9 @@ void ATTHunter::SetState(ETTHunterState NewState)
 {
 	if (State != NewState)
 	{
-		UE_LOG(LogTemp, Log, TEXT("[TT] Hunter %s -> %s"), *StaticEnum<ETTHunterState>()->GetNameStringByValue(static_cast<int64>(State)),
-			*StaticEnum<ETTHunterState>()->GetNameStringByValue(static_cast<int64>(NewState)));
+		UE_LOG(LogTemp, Log, TEXT("[TT] Hunter %s -> %s"), StateName(State), StateName(NewState));
 	}
+	PreviousState = State;
 	State = NewState;
 	StateTime = 0.f;
 	if (NewState == ETTHunterState::LookAround)
@@ -141,7 +318,61 @@ void ATTHunter::Say(const FString& Line, float Chance)
 }
 
 // ---------------------------------------------------------------------------
+// Memory (HunterCore)
+
+float ATTHunter::HideSpotSuspicion(const ATTLocker* Locker) const
+{
+	return (Mind && Locker) ? static_cast<float>(Mind->Brain.HideSpotSuspicion(ToStd(Locker->GetId()))) : 0.f;
+}
+
+float ATTHunter::RouteEvidence(const FIntPoint& DoorCell) const
+{
+	return Mind ? static_cast<float>(Mind->Brain.RouteEvidence(ToStd(ATTHospital::DoorId(DoorCell)))) : 0.f;
+}
+
+void ATTHunter::ObserveHideSpot(const ATTLocker* Locker, double Strength)
+{
+	if (!Mind || !Locker)
+	{
+		return;
+	}
+	const th::Stimulus S(th::StimulusKind::ConfirmedHideSpot, th::Subject::Player, Now(), std::nullopt, Strength, ToStd(Locker->GetId()));
+	if (BrainObserve(*Mind, S))
+	{
+		UE_LOG(LogTemp, Log, TEXT("[TT] Memory: saw Joe use %s -> suspicion %.0f"), *Locker->GetId(), HideSpotSuspicion(Locker));
+	}
+}
+
+void ATTHunter::DebugObserveRoute(const FIntPoint& DoorCell, int32 Times)
+{
+	if (!Mind)
+	{
+		return;
+	}
+	for (int32 i = 0; i < Times; ++i)
+	{
+		BrainObserve(*Mind, th::Stimulus(th::StimulusKind::ObservedRoute, th::Subject::Player, Now(), std::nullopt, 1.0, ToStd(ATTHospital::DoorId(DoorCell))));
+	}
+	UE_LOG(LogTemp, Log, TEXT("[TT] Debug: route %s evidence %.2f"), *ATTHospital::DoorId(DoorCell), RouteEvidence(DoorCell));
+}
+
+// ---------------------------------------------------------------------------
 // Perception
+
+bool ATTHunter::CanSeePoint(const FVector& Point, const AActor* Target) const
+{
+	FCollisionQueryParams Query(SCENE_QUERY_STAT(TTHunterLook), false, this);
+	if (const ATTPlayerCharacter* Player = GetPlayer())
+	{
+		Query.AddIgnoredActor(Player);
+	}
+	FHitResult Hit;
+	if (!GetWorld()->LineTraceSingleByChannel(Hit, GetEyeLocation(), Point, ECC_Visibility, Query))
+	{
+		return true;
+	}
+	return Target && Hit.GetActor() == Target;
+}
 
 bool ATTHunter::CanSeePlayer(float& OutDistance, float& OutVisibility) const
 {
@@ -161,12 +392,11 @@ bool ATTHunter::CanSeePlayer(float& OutDistance, float& OutVisibility) const
 	if (OutDistance > HunterTuning::CloseSense)
 	{
 		const float CosHalfAngle = bChasing ? 0.08f : 0.5f;
-		const FVector Forward = GetActorForwardVector();
-		if (FVector::DotProduct(Forward, ToPlayer.GetSafeNormal()) < CosHalfAngle)
+		if (FVector::DotProduct(GetActorForwardVector(), ToPlayer.GetSafeNormal()) < CosHalfAngle)
 		{
 			return false;
 		}
-		const float Range = bChasing ? HunterTuning::PursueSightRange : HunterTuning::SightRange * OutVisibility;
+		const float Range = (bChasing ? HunterTuning::PursueSightRange : HunterTuning::SightRange * OutVisibility) * SightScale;
 		if (OutDistance > Range)
 		{
 			return false;
@@ -182,22 +412,146 @@ bool ATTHunter::CanSeePlayer(float& OutDistance, float& OutVisibility) const
 	return !GetWorld()->LineTraceTestByChannel(Eye, Player->GetActorLocation(), ECC_Visibility, Query);
 }
 
+void ATTHunter::ObserveRoutesNear(const FIntPoint& PlayerCell)
+{
+	ATTHospital* Hospital = GetHospital();
+	if (!Hospital || !Mind)
+	{
+		return;
+	}
+	const double T = Now();
+	TArray<FIntPoint> Cells;
+	Cells.Add(PlayerCell);
+	for (const FIntPoint& Offset : Around)
+	{
+		Cells.Add(PlayerCell + Offset);
+	}
+	for (const FIntPoint& Cell : Cells)
+	{
+		if (!Hospital->GetDoorAt(Cell))
+		{
+			continue;
+		}
+		const double* Last = RouteObservedAt.Find(Cell);
+		if (Last && T - *Last < 5.0)
+		{
+			continue;
+		}
+		RouteObservedAt.Add(Cell, T);
+		const th::Stimulus S(th::StimulusKind::ObservedRoute, th::Subject::Player, T, std::nullopt, 1.0, ToStd(ATTHospital::DoorId(Cell)));
+		if (BrainObserve(*Mind, S))
+		{
+			UE_LOG(LogTemp, Log, TEXT("[TT] Memory: saw Joe at %s -> route evidence %.2f"), *ATTHospital::DoorId(Cell), RouteEvidence(Cell));
+		}
+	}
+}
+
+void ATTHunter::RebaselineDoor(const ATTDoor* Door)
+{
+	if (!Mind || !Door)
+	{
+		return;
+	}
+	try
+	{
+		Mind->Eyes.Inspect(ToStd(Door->GetId()), Door->IsOpen() ? "open" : "closed", ToCore(Door->GetActorLocation()), Now(), 1.0);
+	}
+	catch (...)
+	{
+	}
+}
+
+void ATTHunter::InspectDoors()
+{
+	ATTHospital* Hospital = GetHospital();
+	if (!Hospital || !Mind)
+	{
+		return;
+	}
+	const FVector Eye = GetEyeLocation();
+	for (const TPair<FIntPoint, TObjectPtr<ATTDoor>>& Pair : Hospital->GetDoors())
+	{
+		ATTDoor* Door = Pair.Value;
+		if (!Door || Door->IsMoving())
+		{
+			continue;
+		}
+		const FVector Point = Door->GetActorLocation() + FVector(0.f, 0.f, 120.f);
+		const FVector To = Point - Eye;
+		const float Dist = To.Size();
+		if (Dist > 1100.f || (Dist > 300.f && FVector::DotProduct(GetActorForwardVector(), To.GetSafeNormal()) < 0.34f))
+		{
+			continue;
+		}
+		if (!CanSeePoint(Point, Door))
+		{
+			continue;
+		}
+
+		std::optional<th::Stimulus> Evidence;
+		try
+		{
+			Evidence = Mind->Eyes.Inspect(ToStd(Door->GetId()), Door->IsOpen() ? "open" : "closed", ToCore(Door->GetActorLocation()), Now(), 1.0);
+		}
+		catch (...)
+		{
+			continue;
+		}
+		if (!Evidence)
+		{
+			continue;
+		}
+
+		UE_LOG(LogTemp, Log, TEXT("[TT] Evidence: %s is now %s"), *Door->GetId(), Door->IsOpen() ? TEXT("open") : TEXT("closed"));
+		const bool bCalm = State == ETTHunterState::Patrol || State == ETTHunterState::LookAround
+			|| State == ETTHunterState::Search || State == ETTHunterState::Ambush;
+		if (bCalm && BrainObserve(*Mind, *Evidence) && Mind->Brain.CurrentState() == th::State::Investigating)
+		{
+			// "That door was closed." He goes to see who opened it.
+			StartInvestigate(Door->GetActorLocation(), 500.f);
+		}
+	}
+}
+
 void ATTHunter::UpdatePerception(float DeltaSeconds)
 {
 	float Distance = 0.f;
 	float Visibility = 0.f;
 	bSawPlayerThisFrame = CanSeePlayer(Distance, Visibility);
 
+	ATTHospital* Hospital = GetHospital();
 	if (bSawPlayerThisFrame)
 	{
 		const ATTPlayerCharacter* Player = GetPlayer();
 		TimeSinceSeen = 0.f;
 		LastKnown = Player->GetActorLocation();
 		LastKnownVelocity = Player->GetVelocity();
+		if (Hospital)
+		{
+			ObserveRoutesNear(Hospital->WorldToCell(LastKnown));
+		}
+		if (State == ETTHunterState::Pursue && Mind)
+		{
+			VisualReportTimer -= DeltaSeconds;
+			if (VisualReportTimer <= 0.f)
+			{
+				VisualReportTimer = 0.3f;
+				const double T = Now();
+				BrainObserve(*Mind, th::Stimulus(th::StimulusKind::VisualContact, th::Subject::Player, T,
+					th::LocationEstimate{ ToCore(LastKnown), 0.5, T }, FMath::Clamp(static_cast<double>(Visibility), 0.05, 1.0), ""));
+			}
+		}
 	}
 	else
 	{
 		TimeSinceSeen += DeltaSeconds;
+	}
+
+	DoorInspectTimer -= DeltaSeconds;
+	if (DoorInspectTimer <= 0.f)
+	{
+		DoorInspectTimer = 0.4f;
+		InspectDoors();
 	}
 
 	if (State == ETTHunterState::Pursue || State == ETTHunterState::Capturing)
@@ -211,8 +565,12 @@ void ATTHunter::UpdatePerception(float DeltaSeconds)
 		return;
 	}
 
-	const float EffectiveRange = FMath::Max(1.f, HunterTuning::SightRange * Visibility);
-	const float Rate = Visibility * FMath::Clamp(1.8f - Distance / EffectiveRange, 0.25f, 1.8f) * 1.3f;
+	const float EffectiveRange = FMath::Max(1.f, HunterTuning::SightRange * SightScale * Visibility);
+	float Rate = Visibility * FMath::Clamp(1.8f - Distance / EffectiveRange, 0.25f, 1.8f) * 1.3f;
+	if (State == ETTHunterState::Ambush || State == ETTHunterState::Investigate || State == ETTHunterState::Search)
+	{
+		Rate *= 1.8f;
+	}
 	Awareness += Rate * DeltaSeconds;
 	if (Distance < 330.f)
 	{
@@ -223,69 +581,84 @@ void ATTHunter::UpdatePerception(float DeltaSeconds)
 	{
 		StartPursue();
 	}
-	else if (Awareness >= 0.3f && (State == ETTHunterState::Patrol || State == ETTHunterState::LookAround))
+	else if (Awareness >= 0.3f && (State == ETTHunterState::Patrol || State == ETTHunterState::LookAround
+		|| State == ETTHunterState::Ambush || State == ETTHunterState::SetTrap))
 	{
 		SuspiciousLocation = LastKnown;
+		bSuspiciousFaint = false;
 		SetState(ETTHunterState::Suspicious);
 	}
 	else if (State == ETTHunterState::Suspicious)
 	{
 		SuspiciousLocation = LastKnown;
+		bSuspiciousFaint = false;
 	}
 }
 
-void ATTHunter::OnNoiseHeard(const FVector& Location, float Loudness)
+void ATTHunter::OnNoiseHeard(const FVector& Location, ETTNoise Kind)
 {
-	if (State == ETTHunterState::Dormant || State == ETTHunterState::Capturing)
+	if (!Mind || State == ETTHunterState::Dormant || State == ETTHunterState::Capturing)
 	{
 		return;
 	}
 
-	const FVector Eye = GetEyeLocation();
-	const float Distance = FVector::Dist(Location, Eye);
-	float Range = Loudness * HunterTuning::HearingScale;
+	tp::SoundKind SoundKind = tp::SoundKind::WalkFootstep;
+	double Energy = 1.0;
+	ToCore(Kind, SoundKind, Energy);
 
-	FCollisionQueryParams Query(SCENE_QUERY_STAT(TTHunterHearing), false, this);
-	if (const ATTPlayerCharacter* Player = GetPlayer())
+	const bool bClearPath = CanSeePoint(Location + FVector(0.f, 0.f, 50.f), nullptr);
+	std::optional<th::Stimulus> Heard;
+	try
 	{
-		Query.AddIgnoredActor(Player);
+		Heard = Mind->Ears.Hear(tp::SoundEvent{ SoundKind, ToCore(Location), Now(), Energy },
+			tp::ListenerContext{ ToCore(GetEyeLocation()), bClearPath ? 1.0 : 0.45, 0.0 });
 	}
-	if (GetWorld()->LineTraceTestByChannel(Location + FVector(0.f, 0.f, 50.f), Eye, ECC_Visibility, Query))
+	catch (...)
 	{
-		Range *= 0.55f;
+		return;
 	}
-	if (Distance > Range)
+	if (!Heard || !Heard->estimate)
 	{
 		return;
 	}
 
-	// GDD §9.2: only an approximate position, never the exact one.
-	const FVector2D Jitter = FVector2D(FMath::FRandRange(-1.f, 1.f), FMath::FRandRange(-1.f, 1.f)).GetSafeNormal() * Distance * 0.12f;
-	const FVector Estimated = Location + FVector(Jitter.X, Jitter.Y, 0.f);
+	// GDD §9.2: an estimate with an uncertainty radius, never Joe's exact position.
+	const FVector Estimated = FromCore(Heard->estimate->center);
+	const float RadiusCm = static_cast<float>(Heard->estimate->radiusMeters * 100.0);
+	const float Strength = static_cast<float>(Heard->strength);
+
+	if (Kind == ETTNoise::Glass)
+	{
+		Aggression = FMath::Min(1.f, Aggression + 0.04f);
+	}
 
 	if (State == ETTHunterState::Pursue)
 	{
-		if (LostSightTime > 0.3f)
+		// Lost sight of him and something breaks over there: he can be fooled.
+		if (LostSightTime > 0.3f && Strength >= 0.2f)
 		{
-			StartInvestigate(Estimated);
+			StartInvestigate(Estimated, RadiusCm);
 		}
 		return;
 	}
-	if (State == ETTHunterState::CheckLocker && TargetLocker.IsValid() && TargetLocker->IsOccupied())
+	if (State == ETTHunterState::CheckLocker && bLockerKnown)
 	{
 		return;
 	}
 
-	Awareness = FMath::Min(0.9f, Awareness + Loudness * 0.5f);
-	const bool bAlreadyAlert = State == ETTHunterState::Investigate || State == ETTHunterState::Search
-		|| State == ETTHunterState::Suspicious || (State == ETTHunterState::LookAround && AfterLook == ETTHunterState::Search);
-	if (Loudness >= 0.35f || bAlreadyAlert)
+	const bool bInvestigate = BrainObserve(*Mind, *Heard)
+		&& Strength >= static_cast<float>(Mind->Tuning.soundThreshold)
+		&& Mind->Brain.CurrentState() == th::State::Investigating;
+	if (bInvestigate)
 	{
-		StartInvestigate(Estimated);
+		UE_LOG(LogTemp, Log, TEXT("[TT] Heard %s (strength %.2f, radius %.1fm) -> investigate"), UTF8_TO_TCHAR(Heard->perceivedType.c_str()), Strength, RadiusCm / 100.f);
+		Awareness = FMath::Min(0.9f, Awareness + 0.2f);
+		StartInvestigate(Estimated, RadiusCm);
 	}
-	else
+	else if (Strength >= HunterTuning::FaintSoundStrength && State != ETTHunterState::Investigate && State != ETTHunterState::Suspicious)
 	{
 		SuspiciousLocation = Estimated;
+		bSuspiciousFaint = true;
 		SetState(ETTHunterState::Suspicious);
 	}
 }
@@ -296,38 +669,39 @@ void ATTHunter::OnPlayerHid(ATTLocker* Locker)
 	{
 		return;
 	}
-	// Only if he actually saw (or was right behind) Joe when he got in. No mind reading.
-	const bool bSawIt = TimeSinceSeen < 0.6f;
-	const bool bRightBehind = State == ETTHunterState::Pursue && LostSightTime < 1.2f
-		&& FVector::Dist(Locker->GetActorLocation(), GetActorLocation()) < 900.f;
-	if (bSawIt || bRightBehind)
+	// He knows only if he saw it: Joe himself, the locker door moving, or he was right behind him.
+	const bool bSawJoe = TimeSinceSeen < 0.6f;
+	const FVector LockerPoint = Locker->GetActorLocation() + FVector(0.f, 0.f, 150.f);
+	const FVector ToLocker = LockerPoint - GetEyeLocation();
+	const bool bSawDoorMove = ToLocker.Size() < 1400.f
+		&& FVector::DotProduct(GetActorForwardVector(), ToLocker.GetSafeNormal()) > 0.3f
+		&& CanSeePoint(LockerPoint, Locker);
+	const bool bRightBehind = State == ETTHunterState::Pursue && LostSightTime < 1.2f && ToLocker.Size() < 900.f;
+
+	if (bSawJoe || bSawDoorMove || bRightBehind)
 	{
+		ObserveHideSpot(Locker, 1.0);
+		bLockerKnown = true;
 		StartCheckLocker(Locker);
+	}
+}
+
+void ATTHunter::OnPlayerLeftLocker(ATTLocker* Locker)
+{
+	float Distance = 0.f;
+	float Visibility = 0.f;
+	if (Locker && CanSeePlayer(Distance, Visibility))
+	{
+		ObserveHideSpot(Locker, 1.0);
 	}
 }
 
 // ---------------------------------------------------------------------------
 // Movement
 
-namespace
-{
-	bool IsDirectPathClear(const UWorld* World, const AActor* Self, const AActor* Ignore, const FVector& From, const FVector& To)
-	{
-		FCollisionQueryParams Query(SCENE_QUERY_STAT(TTHunterPath), false, Self);
-		if (Ignore)
-		{
-			Query.AddIgnoredActor(Ignore);
-		}
-		const FVector A(From.X, From.Y, From.Z);
-		const FVector B(To.X, To.Y, From.Z);
-		return !World->SweepTestByChannel(A, B, FQuat::Identity, ECC_Pawn, FCollisionShape::MakeCapsule(38.f, 60.f), Query);
-	}
-}
-
 bool ATTHunter::MoveTo(const FVector& Goal)
 {
 	Path.Reset();
-	PathCells.Reset();
 	PathIndex = 0;
 	DoorWait = 0.f;
 	StuckTime = 0.f;
@@ -340,12 +714,11 @@ bool ATTHunter::MoveTo(const FVector& Goal)
 
 	const FVector Start = GetActorLocation();
 	const AActor* Player = GetPlayer();
-	FVector Target(Goal.X, Goal.Y, Start.Z);
+	const FVector Target(Goal.X, Goal.Y, Start.Z);
 
 	if (IsDirectPathClear(GetWorld(), this, Player, Start, Target))
 	{
 		Path.Add(Target);
-		PathCells.Add(Hospital->WorldToCell(Target));
 		return true;
 	}
 
@@ -356,16 +729,13 @@ bool ATTHunter::MoveTo(const FVector& Goal)
 	}
 
 	TArray<FVector> Raw;
-	TArray<FIntPoint> RawCells;
 	for (int32 i = 1; i < Cells.Num(); ++i)
 	{
 		Raw.Add(Hospital->CellToWorld(Cells[i], Start.Z));
-		RawCells.Add(Cells[i]);
 	}
 	if (Raw.Num() == 0)
 	{
 		Raw.Add(Hospital->CellToWorld(Cells[0], Start.Z));
-		RawCells.Add(Cells[0]);
 	}
 	if (Hospital->IsWalkable(Hospital->WorldToCell(Target)))
 	{
@@ -387,20 +757,19 @@ bool ATTHunter::MoveTo(const FVector& Goal)
 			}
 		}
 		Path.Add(Raw[Best]);
-		PathCells.Add(RawCells[Best]);
 		Current = Raw[Best];
 		i = Best + 1;
 	}
 	return true;
 }
 
-bool ATTHunter::FollowPath(float DeltaSeconds, float Speed)
+bool ATTHunter::FollowPath(float DeltaSeconds, float MoveSpeed)
 {
 	if (Path.Num() == 0 || PathIndex >= Path.Num())
 	{
 		return true;
 	}
-	GetCharacterMovement()->MaxWalkSpeed = Speed;
+	GetCharacterMovement()->MaxWalkSpeed = MoveSpeed;
 
 	if (DoorWait > 0.f)
 	{
@@ -422,12 +791,23 @@ bool ATTHunter::FollowPath(float DeltaSeconds, float Speed)
 	const FVector Dir = To.GetSafeNormal();
 	if (ATTHospital* Hospital = GetHospital())
 	{
+		const float SegmentLength = To.Size();
 		for (const float Ahead : { 0.f, 110.f, 210.f })
 		{
-			ATTDoor* Door = Hospital->GetDoorAt(Hospital->WorldToCell(Loc + Dir * Ahead));
+			if (Ahead > SegmentLength + 40.f)
+			{
+				break;
+			}
+			const FIntPoint Cell = Hospital->WorldToCell(Loc + Dir * Ahead);
+			ATTDoor* Door = Hospital->GetDoorAt(Cell);
 			if (Door && !Door->IsOpen())
 			{
 				Door->SetOpen(true, false, this);
+				RebaselineDoor(Door);
+				if (State != ETTHunterState::Pursue)
+				{
+					PendingCloseDoor = Cell;
+				}
 				DoorWait = 0.4f;
 				return false;
 			}
@@ -453,6 +833,51 @@ bool ATTHunter::FollowPath(float DeltaSeconds, float Speed)
 	return false;
 }
 
+void ATTHunter::UpdateDoorClosing()
+{
+	if (PendingCloseDoor.X < 0)
+	{
+		return;
+	}
+	ATTHospital* Hospital = GetHospital();
+	ATTDoor* Door = Hospital ? Hospital->GetDoorAt(PendingCloseDoor) : nullptr;
+	if (!Door || !Door->IsOpen())
+	{
+		PendingCloseDoor = FIntPoint(-1, -1);
+		return;
+	}
+	const float Dist = FVector::Dist2D(Door->GetActorLocation(), GetActorLocation());
+	if (Dist < 260.f)
+	{
+		return;
+	}
+	PendingCloseDoor = FIntPoint(-1, -1);
+
+	const FVector DoorLoc = Door->GetActorLocation();
+	const FVector Me = GetActorLocation();
+	FVector Prev = Me;
+	for (int32 i = PathIndex; i < Path.Num(); ++i)
+	{
+		const FVector A(Prev.X, Prev.Y, DoorLoc.Z);
+		const FVector B(Path[i].X, Path[i].Y, DoorLoc.Z);
+		if (FMath::PointDistToSegment(DoorLoc, A, B) < 160.f)
+		{
+			return; // He still has to go through it.
+		}
+		Prev = Path[i];
+	}
+
+	const bool bCalm = State == ETTHunterState::Patrol || State == ETTHunterState::Search
+		|| State == ETTHunterState::LookAround || State == ETTHunterState::SetTrap;
+	// He closes doors behind him. If one is open the next time he looks, someone opened it.
+	if (bCalm && Dist < 450.f && FMath::FRand() < 0.6f)
+	{
+		Door->SetOpen(false, false, this);
+		RebaselineDoor(Door);
+		UE_LOG(LogTemp, Log, TEXT("[TT] Hunter closed %s behind him"), *Door->GetId());
+	}
+}
+
 void ATTHunter::FaceTowards(const FVector& Target, float DeltaSeconds, float Rate)
 {
 	const FVector To = Target - GetActorLocation();
@@ -466,14 +891,14 @@ void ATTHunter::FaceTowards(const FVector& Target, float DeltaSeconds, float Rat
 
 void ATTHunter::UpdateFootsteps(float DeltaSeconds)
 {
-	const float Speed = GetVelocity().Size2D();
-	if (Speed < 30.f)
+	const float CurrentSpeed = GetVelocity().Size2D();
+	if (CurrentSpeed < 30.f)
 	{
 		return;
 	}
 	const bool bFast = State == ETTHunterState::Pursue;
 	const float Stride = bFast ? 215.f : 150.f;
-	StepDistance += Speed * DeltaSeconds;
+	StepDistance += CurrentSpeed * DeltaSeconds;
 	if (StepDistance >= Stride)
 	{
 		StepDistance = 0.f;
@@ -487,30 +912,204 @@ void ATTHunter::UpdateFootsteps(float DeltaSeconds)
 
 void ATTHunter::StartPatrol()
 {
-	ATTHospital* Hospital = GetHospital();
-	if (!Hospital || Hospital->GetPatrolPoints().Num() == 0)
+	TargetLocker.Reset();
+	bLockerKnown = false;
+
+	if (TryStartTrap() || TryStartAmbush())
 	{
-		SetState(ETTHunterState::LookAround);
-		LookDuration = 3.f;
-		AfterLook = ETTHunterState::Patrol;
 		return;
 	}
 
-	const TArray<FIntPoint>& Points = Hospital->GetPatrolPoints();
-	int32 Next = FMath::RandRange(0, Points.Num() - 1);
-	if (Points.Num() > 1 && Next == PatrolIndex)
+	ATTHospital* Hospital = GetHospital();
+	if (!Hospital || !Mind)
 	{
-		Next = (Next + 1) % Points.Num();
+		return;
 	}
-	PatrolIndex = Next;
+
+	// GDD §16: base routes, weighted by what he has seen Joe use (HunterCore::ChoosePatrolRoute).
+	std::vector<std::string> Routes;
+	TMap<FString, FIntPoint> RouteCells;
+	const TArray<FIntPoint>& Points = Hospital->GetPatrolPoints();
+	for (int32 i = 0; i < Points.Num(); ++i)
+	{
+		const FString Id = FString::Printf(TEXT("patrol_%d"), i);
+		Routes.push_back(ToStd(Id));
+		RouteCells.Add(Id, Points[i]);
+	}
+	for (const TPair<FIntPoint, TObjectPtr<ATTDoor>>& Pair : Hospital->GetDoors())
+	{
+		const FString Id = ATTHospital::DoorId(Pair.Key);
+		Routes.push_back(ToStd(Id));
+		RouteCells.Add(Id, Pair.Key);
+	}
+	if (Routes.empty())
+	{
+		return;
+	}
+
+	FIntPoint TargetCell = Points.Num() > 0 ? Points[0] : Hospital->GetHunterStartCell();
+	for (int32 Attempt = 0; Attempt < 3; ++Attempt)
+	{
+		FString Choice;
+		try
+		{
+			Choice = UTF8_TO_TCHAR(Mind->Brain.ChoosePatrolRoute(Routes).c_str());
+		}
+		catch (...)
+		{
+			break;
+		}
+		const FIntPoint* Cell = RouteCells.Find(Choice);
+		if (!Cell)
+		{
+			continue;
+		}
+		TargetCell = *Cell;
+		if (Hospital->GetDoorAt(TargetCell))
+		{
+			// Stand beside the doorway, not inside it.
+			TArray<FIntPoint> Beside;
+			for (int32 k = 0; k < 4; ++k)
+			{
+				const FIntPoint C = TargetCell + Around[k];
+				if (Hospital->IsWalkable(C) && !Hospital->GetDoorAt(C))
+				{
+					Beside.Add(C);
+				}
+			}
+			if (Beside.Num() > 0)
+			{
+				TargetCell = Beside[FMath::RandRange(0, Beside.Num() - 1)];
+			}
+		}
+		if (FVector::Dist2D(Hospital->CellToWorld(TargetCell), GetActorLocation()) > 250.f)
+		{
+			break;
+		}
+	}
+
 	Awareness = FMath::Min(Awareness, 0.25f);
-	MoveTo(Hospital->CellToWorld(Points[PatrolIndex]));
+	PatrolTarget = Hospital->CellToWorld(TargetCell);
+	MoveTo(PatrolTarget);
 	SetState(ETTHunterState::Patrol);
 }
 
-void ATTHunter::StartInvestigate(const FVector& Location)
+void ATTHunter::ResumePatrol()
+{
+	MoveTo(PatrolTarget);
+	SetState(ETTHunterState::Patrol);
+}
+
+bool ATTHunter::TryStartTrap()
+{
+	ATTHospital* Hospital = GetHospital();
+	if (!Hospital || TrapCooldown > 0.f || Aggression < 0.3f || Hospital->HasLockedDoor())
+	{
+		return false;
+	}
+
+	// GDD §14 "bloquear uma rota": the door Joe keeps using, but never one that would trap him for good.
+	FIntPoint Best(-1, -1);
+	float BestScore = 1.5f;
+	for (const TPair<FIntPoint, TObjectPtr<ATTDoor>>& Pair : Hospital->GetDoors())
+	{
+		const float Score = RouteEvidence(Pair.Key);
+		if (Score >= BestScore && Hospital->IsConnectedWithout(Pair.Key))
+		{
+			BestScore = Score;
+			Best = Pair.Key;
+		}
+	}
+	if (Best.X < 0)
+	{
+		return false;
+	}
+
+	FIntPoint Approach = Best;
+	float Closest = TNumericLimits<float>::Max();
+	for (int32 k = 0; k < 4; ++k)
+	{
+		const FIntPoint C = Best + Around[k];
+		if (!Hospital->IsWalkable(C) || Hospital->GetDoorAt(C))
+		{
+			continue;
+		}
+		const float D = FVector::Dist2D(Hospital->CellToWorld(C), GetActorLocation());
+		if (D < Closest)
+		{
+			Closest = D;
+			Approach = C;
+		}
+	}
+
+	TrapDoor = Best;
+	TrapCooldown = 120.f;
+	UE_LOG(LogTemp, Log, TEXT("[TT] Trap: going to block %s (evidence %.2f, aggression %.2f)"), *ATTHospital::DoorId(Best), BestScore, Aggression);
+	MoveTo(Hospital->CellToWorld(Approach));
+	SetState(ETTHunterState::SetTrap);
+	return true;
+}
+
+bool ATTHunter::TryStartAmbush()
+{
+	ATTHospital* Hospital = GetHospital();
+	if (!Hospital || AmbushCooldown > 0.f || Aggression < 0.2f)
+	{
+		return false;
+	}
+
+	FIntPoint Best(-1, -1);
+	float BestScore = 1.f;
+	for (const TPair<FIntPoint, TObjectPtr<ATTDoor>>& Pair : Hospital->GetDoors())
+	{
+		const float Score = RouteEvidence(Pair.Key);
+		if (Score >= BestScore)
+		{
+			BestScore = Score;
+			Best = Pair.Key;
+		}
+	}
+	if (Best.X < 0)
+	{
+		return false;
+	}
+	// GDD §15: ambushes must stay rare.
+	if (FMath::FRand() > 0.35f + 0.4f * Aggression)
+	{
+		AmbushCooldown = 20.f;
+		return false;
+	}
+
+	// Beside the doorway, around the corner from where Joe will come through.
+	TArray<FIntPoint> Corners;
+	for (int32 k = 4; k < 8; ++k)
+	{
+		const FIntPoint C = Best + Around[k];
+		if (Hospital->IsWalkable(C) && !Hospital->GetDoorAt(C))
+		{
+			Corners.Add(C);
+		}
+	}
+	if (Corners.Num() == 0)
+	{
+		return false;
+	}
+
+	AmbushDoor = Best;
+	AmbushPoint = Hospital->CellToWorld(Corners[FMath::RandRange(0, Corners.Num() - 1)]);
+	bAmbushSettled = false;
+	AmbushTimeLeft = 22.f + 15.f * Aggression;
+	AmbushCooldown = 75.f;
+	UE_LOG(LogTemp, Log, TEXT("[TT] Ambush: heading to %s (evidence %.2f)"), *ATTHospital::DoorId(Best), BestScore);
+	MoveTo(AmbushPoint);
+	SetState(ETTHunterState::Ambush);
+	return true;
+}
+
+void ATTHunter::StartInvestigate(const FVector& Location, float RadiusCm)
 {
 	InvestigateLocation = Location;
+	InvestigateRadius = FMath::Max(300.f, RadiusCm);
 	MoveTo(Location);
 	SetState(ETTHunterState::Investigate);
 }
@@ -521,10 +1120,9 @@ void ATTHunter::StartSearch(const FVector& Center, float Duration)
 	SearchTimeLeft = Duration;
 	SearchQueue.Reset();
 
-	ATTHospital* Hospital = GetHospital();
-	if (Hospital)
+	if (ATTHospital* Hospital = GetHospital())
 	{
-		// GDD §11: lockers Joe used before become more likely to be checked.
+		// GDD §11: lockers he has seen Joe use are more likely to be opened.
 		for (const TObjectPtr<ATTLocker>& Locker : Hospital->GetLockers())
 		{
 			if (!Locker)
@@ -536,7 +1134,7 @@ void ATTHunter::StartSearch(const FVector& Center, float Duration)
 			{
 				continue;
 			}
-			const float Chance = Locker->GetSuspicion() / 100.f + (Dist < 650.f ? 0.25f : 0.f);
+			const float Chance = HideSpotSuspicion(Locker) / 100.f + (Dist < 650.f ? 0.25f : 0.f);
 			if (FMath::FRand() < Chance)
 			{
 				FSearchTarget T;
@@ -546,7 +1144,8 @@ void ATTHunter::StartSearch(const FVector& Center, float Duration)
 			}
 		}
 
-		TArray<FIntPoint> Cells = Hospital->GetWalkableCellsNear(Hospital->WorldToCell(Center), 3);
+		const int32 Radius = FMath::Clamp(FMath::RoundToInt(InvestigateRadius / ATTHospital::CellSize), 1, 4);
+		TArray<FIntPoint> Cells = Hospital->GetWalkableCellsNear(Hospital->WorldToCell(Center), Radius);
 		for (int32 i = Cells.Num() - 1; i > 0; --i)
 		{
 			Cells.Swap(i, FMath::RandRange(0, i));
@@ -562,9 +1161,10 @@ void ATTHunter::StartSearch(const FVector& Center, float Duration)
 		{
 			return FVector::DistSquared2D(A.Location, Center) < FVector::DistSquared2D(B.Location, Center);
 		});
-		if (SearchQueue.Num() > 5)
+		const int32 MaxTargets = SearchTargets + FMath::RoundToInt(2.f * Aggression);
+		if (SearchQueue.Num() > MaxTargets)
 		{
-			SearchQueue.SetNum(5);
+			SearchQueue.SetNum(MaxTargets);
 		}
 	}
 
@@ -600,12 +1200,36 @@ void ATTHunter::StartPursue()
 	{
 		return;
 	}
-	Say(TimesLostJoe == 0 ? TEXT("Pare.") : TEXT("Achei você."), 0.6f);
+	if (State == ETTHunterState::Ambush && RouteEvidence(AmbushDoor) >= 1.5f)
+	{
+		SpeechCooldown = 0.f;
+		Say(TEXT("Você sempre escolhe essa porta."));
+	}
+	else
+	{
+		Say(TimesLostJoe == 0 ? TEXT("Pare.") : TEXT("Achei você."), 0.6f);
+	}
 	TTAudio::Play2D(this, ETTSfx::Sting, 0.35f);
 	Awareness = 1.f;
 	LostSightTime = 0.f;
 	RepathTimer = 0.f;
+	VisualReportTimer = 0.f;
 	SetState(ETTHunterState::Pursue);
+}
+
+void ATTHunter::LosePursuit()
+{
+	if (Mind)
+	{
+		BrainObserve(*Mind, th::Stimulus(th::StimulusKind::VisualLost, th::Subject::Player, Now(), std::nullopt, 1.0, ""));
+	}
+	++TimesLostJoe;
+	Aggression = FMath::Min(1.f, Aggression + 0.15f);
+	Awareness = 0.6f;
+	InvestigateRadius = 600.f;
+	UE_LOG(LogTemp, Log, TEXT("[TT] Lost Joe (%d times). Aggression %.2f"), TimesLostJoe, Aggression);
+	Say(TEXT("Eu sei que você está aí."), 0.5f);
+	StartSearch(LastKnown, SearchSeconds * (1.f + 0.5f * Aggression));
 }
 
 void ATTHunter::Capture()
@@ -619,6 +1243,9 @@ void ATTHunter::Capture()
 	}
 }
 
+// ---------------------------------------------------------------------------
+// Tick
+
 void ATTHunter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
@@ -629,14 +1256,33 @@ void ATTHunter::Tick(float DeltaSeconds)
 
 	StateTime += DeltaSeconds;
 	SpeechCooldown -= DeltaSeconds;
+	AmbushCooldown -= DeltaSeconds;
+	TrapCooldown -= DeltaSeconds;
+	if (State != ETTHunterState::Pursue)
+	{
+		Aggression = FMath::Max(0.f, Aggression - DeltaSeconds * 0.003f);
+	}
+	if (Mind)
+	{
+		try
+		{
+			Mind->Brain.AdvanceTo(Now());
+		}
+		catch (...)
+		{
+		}
+	}
+
 	UpdatePerception(DeltaSeconds);
+	UpdateDoorClosing();
 
 	ATTPlayerCharacter* Player = GetPlayer();
+	ATTHospital* Hospital = GetHospital();
 
 	switch (State)
 	{
 	case ETTHunterState::Patrol:
-		if (FollowPath(DeltaSeconds, HunterTuning::PatrolSpeed))
+		if (FollowPath(DeltaSeconds, Speed(HunterTuning::PatrolSpeed)))
 		{
 			LookDuration = FMath::FRandRange(2.5f, 4.f);
 			AfterLook = ETTHunterState::Patrol;
@@ -676,27 +1322,43 @@ void ATTHunter::Tick(float DeltaSeconds)
 		FaceTowards(SuspiciousLocation, DeltaSeconds, 4.f);
 		if (StateTime > 1.3f)
 		{
-			StartInvestigate(SuspiciousLocation);
+			if (bSuspiciousFaint && Awareness < 0.3f)
+			{
+				// A faint sound: he looks, listens, and goes back to what he was doing.
+				if (PreviousState == ETTHunterState::Search && SearchTimeLeft > 0.f)
+				{
+					NextSearchTarget();
+				}
+				else
+				{
+					ResumePatrol();
+				}
+			}
+			else
+			{
+				StartInvestigate(SuspiciousLocation, 400.f);
+			}
 		}
 		break;
 
 	case ETTHunterState::Investigate:
 		if (bSawPlayerThisFrame && FVector::Dist2D(LastKnown, InvestigateLocation) > 250.f && StateTime > 0.5f)
 		{
-			StartInvestigate(LastKnown);
+			StartInvestigate(LastKnown, 300.f);
 		}
-		else if (FollowPath(DeltaSeconds, HunterTuning::InvestigateSpeed))
+		else if (FollowPath(DeltaSeconds, Speed(HunterTuning::InvestigateSpeed)))
 		{
-			StartSearch(InvestigateLocation, 14.f);
+			StartSearch(InvestigateLocation, SearchSeconds * 0.6f * (1.f + 0.5f * Aggression));
 		}
 		break;
 
 	case ETTHunterState::Search:
 		SearchTimeLeft -= DeltaSeconds;
-		if (FollowPath(DeltaSeconds, HunterTuning::SearchSpeed))
+		if (FollowPath(DeltaSeconds, Speed(HunterTuning::SearchSpeed)))
 		{
 			if (ATTLocker* Locker = CurrentTarget.Locker.Get())
 			{
+				bLockerKnown = false;
 				StartCheckLocker(Locker);
 			}
 			else
@@ -717,7 +1379,7 @@ void ATTHunter::Tick(float DeltaSeconds)
 			NextSearchTarget();
 			break;
 		}
-		if (FollowPath(DeltaSeconds, Locker->IsOccupied() && TimeSinceSeen < 2.f ? 330.f : HunterTuning::SearchSpeed))
+		if (FollowPath(DeltaSeconds, Speed(bLockerKnown ? 330.f : HunterTuning::SearchSpeed)))
 		{
 			FaceTowards(Locker->GetActorLocation(), DeltaSeconds, 8.f);
 			LockerTimer += DeltaSeconds;
@@ -726,12 +1388,16 @@ void ATTHunter::Tick(float DeltaSeconds)
 				Locker->FlapDoor();
 				if (Locker->IsOccupied())
 				{
-					Say(Locker->GetUses() >= 3 ? TEXT("Você sempre escolhe esse armário.") : TEXT("Acabou."));
+					ObserveHideSpot(Locker, 1.0);
+					SpeechCooldown = 0.f;
+					Say(HideSpotSuspicion(Locker) >= 60.f ? TEXT("Você sempre escolhe esse armário.") : TEXT("Acabou."));
 					Capture();
 				}
 				else
 				{
+					// He can be wrong (GDD §13).
 					TargetLocker.Reset();
+					bLockerKnown = false;
 					LookDuration = 1.2f;
 					AfterLook = ETTHunterState::Search;
 					SetState(ETTHunterState::LookAround);
@@ -740,6 +1406,59 @@ void ATTHunter::Tick(float DeltaSeconds)
 		}
 		break;
 	}
+
+	case ETTHunterState::Ambush:
+		if (!bAmbushSettled)
+		{
+			if (FollowPath(DeltaSeconds, Speed(HunterTuning::InvestigateSpeed)))
+			{
+				bAmbushSettled = true;
+				if (Hospital)
+				{
+					const int32 Killed = Hospital->SetLampsNear(AmbushPoint, 700.f, false);
+					UE_LOG(LogTemp, Log, TEXT("[TT] Ambush set by %s, %d lamp(s) out"), *ATTHospital::DoorId(AmbushDoor), Killed);
+				}
+			}
+		}
+		else
+		{
+			GetCharacterMovement()->StopActiveMovement();
+			if (Hospital)
+			{
+				FaceTowards(Hospital->CellToWorld(AmbushDoor), DeltaSeconds, 3.f);
+			}
+			AmbushTimeLeft -= DeltaSeconds;
+			if (AmbushTimeLeft <= 0.f)
+			{
+				UE_LOG(LogTemp, Log, TEXT("[TT] Ambush abandoned"));
+				StartPatrol();
+			}
+		}
+		break;
+
+	case ETTHunterState::SetTrap:
+		if (FollowPath(DeltaSeconds, Speed(HunterTuning::InvestigateSpeed)) && Hospital)
+		{
+			ATTDoor* Door = Hospital->GetDoorAt(TrapDoor);
+			if (Door)
+			{
+				FaceTowards(Door->GetActorLocation(), DeltaSeconds, 6.f);
+			}
+			if (StateTime > 1.f || !Door)
+			{
+				if (Door)
+				{
+					Door->SetOpen(false, false, this);
+					Door->SetLocked(true);
+					RebaselineDoor(Door);
+					TTAudio::PlayAt(this, ETTSfx::Clank, Door->GetActorLocation() + FVector(0.f, 0.f, 100.f), 1.f);
+					UE_LOG(LogTemp, Log, TEXT("[TT] Trap: %s is now blocked"), *Door->GetId());
+				}
+				TrapDoor = FIntPoint(-1, -1);
+				StartPatrol();
+			}
+		}
+		break;
 
 	case ETTHunterState::Pursue:
 	{
@@ -754,6 +1473,7 @@ void ATTHunter::Tick(float DeltaSeconds)
 			}
 			if (FVector::Dist2D(Player->GetActorLocation(), GetActorLocation()) < HunterTuning::CaptureDistance)
 			{
+				SpeechCooldown = 0.f;
 				Say(TEXT("Acabou."));
 				Capture();
 				break;
@@ -769,13 +1489,10 @@ void ATTHunter::Tick(float DeltaSeconds)
 			LostSightTime += DeltaSeconds;
 		}
 
-		const bool bArrived = FollowPath(DeltaSeconds, HunterTuning::PursueSpeed);
+		const bool bArrived = FollowPath(DeltaSeconds, Speed(HunterTuning::PursueSpeed));
 		if (!bSawPlayerThisFrame && (bArrived || LostSightTime > 4.f))
 		{
-			++TimesLostJoe;
-			Awareness = 0.6f;
-			Say(TEXT("Eu sei que você está aí."), 0.5f);
-			StartSearch(LastKnown, 22.f);
+			LosePursuit();
 		}
 		break;
 	}

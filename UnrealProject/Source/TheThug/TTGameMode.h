@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
 #include "TTAudio.h"
+#include "TTTypes.h"
 #include "TTGameMode.generated.h"
 
 class ATTHospital;
@@ -44,8 +45,12 @@ public:
 	void PlayerEscaped();
 
 	// World events
-	void ReportNoise(const FVector& Location, float Loudness, AActor* NoiseInstigator);
+	void ReportNoise(const FVector& Location, ETTNoise Kind, AActor* NoiseInstigator);
 	void OnPlayerHid(ATTLocker* Locker);
+	void OnPlayerLeftLocker(ATTLocker* Locker);
+
+	ETTDifficulty GetDifficulty() const { return Difficulty; }
+	void SetDifficulty(ETTDifficulty InDifficulty) { Difficulty = InDifficulty; }
 
 	// UI text
 	void ShowMessage(const FString& Text, float Duration);
@@ -90,6 +95,7 @@ private:
 	FTTDroneGenerator Drone;
 
 	ETTGamePhase Phase = ETTGamePhase::Title;
+	ETTDifficulty Difficulty = ETTDifficulty::Normal;
 	float PhaseTime = 0.f;
 	float RunTime = 0.f;
 	bool bSkipTitle = false;
@@ -108,6 +114,7 @@ private:
 	// "-ttshots": scripted camera positions + screenshots, then quit (used to verify builds).
 	bool bAutomation = false;
 	bool bAITest = false;
+	bool bLearnTest = false;
 	float AutoTime = 0.f;
 	int32 AutoStep = 0;
 };

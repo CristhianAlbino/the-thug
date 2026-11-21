@@ -43,8 +43,9 @@ ATTDoor::ATTDoor()
 	PrimaryActorTick.bCanEverTick = true;
 }
 
-void ATTDoor::Setup(float CellSize, float WallHeight)
+void ATTDoor::Setup(float CellSize, float WallHeight, const FString& InId)
 {
+	Id = InId;
 	const float DoorHeight = 255.f;
 	const float Length = CellSize - 24.f;
 
@@ -82,11 +83,25 @@ FString ATTDoor::GetPrompt(const ATTPlayerCharacter* Player) const
 	{
 		return TEXT("[E] Fechar porta");
 	}
+	if (bLocked)
+	{
+		return TEXT("[E] Porta travada");
+	}
 	return Player && Player->bIsCrouched ? TEXT("[E] Abrir devagar (silencioso)") : TEXT("[E] Abrir porta   (agachado = silencioso)");
 }
 
 void ATTDoor::Interact(ATTPlayerCharacter* Player)
 {
+	if (bLocked && !bOpen)
+	{
+		TTAudio::PlayAt(this, ETTSfx::Click, GetActorLocation() + FVector(0.f, 0.f, 100.f), 0.7f);
+		if (ATTGameMode* GM = GetTTGameMode(this))
+		{
+			GM->ShowMessage(TEXT("Travada pelo outro lado. Não estava assim antes. Ele bloqueou essa passagem."), 4.f);
+			GM->ReportNoise(GetActorLocation(), ETTNoise::QuietDoor, Player);
+		}
+		return;
+	}
 	SetOpen(!bOpen, Player && Player->bIsCrouched, Player);
 }
 
@@ -123,7 +138,7 @@ void ATTDoor::SetOpen(bool bInOpen, bool bQuiet, const AActor* Opener)
 	{
 		if (ATTGameMode* GM = GetTTGameMode(this))
 		{
-			GM->ReportNoise(GetActorLocation(), bQuiet ? 0.1f : 0.42f, const_cast<AActor*>(Opener));
+			GM->ReportNoise(GetActorLocation(), bQuiet ? ETTNoise::QuietDoor : ETTNoise::Door, const_cast<AActor*>(Opener));
 		}
 	}
 }
@@ -143,8 +158,9 @@ ATTLocker::ATTLocker()
 	PrimaryActorTick.bCanEverTick = true;
 }
 
-void ATTLocker::Setup()
+void ATTLocker::Setup(const FString& InId)
 {
+	Id = InId;
 	using namespace LockerDims;
 	UStaticMesh* Cube = TTShapes::Cube();
 
@@ -217,12 +233,6 @@ FVector ATTLocker::GetInsideLocation() const
 FVector ATTLocker::GetFrontLocation() const
 {
 	return GetActorLocation() + GetActorForwardVector() * (LockerDims::Depth * 0.5f + 65.f);
-}
-
-float ATTLocker::GetSuspicion() const
-{
-	static const float Table[] = { 0.f, 10.f, 30.f, 60.f, 90.f };
-	return Table[FMath::Clamp(Uses, 0, 4)];
 }
 
 void ATTLocker::SetOccupied(bool bInOccupied)
@@ -396,7 +406,7 @@ void ATTThrowable::OnStop(const FHitResult& ImpactResult)
 	TTAudio::PlayAt(this, ETTSfx::Shatter, Loc, 1.f);
 	if (ATTGameMode* GM = GetTTGameMode(this))
 	{
-		GM->ReportNoise(Loc, 1.f, GetInstigator());
+		GM->ReportNoise(Loc, ETTNoise::Glass, GetInstigator());
 	}
 	Destroy();
 }

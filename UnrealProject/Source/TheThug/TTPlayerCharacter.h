@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "TTTypes.h"
 #include "TTPlayerCharacter.generated.h"
 
 class ATTInteractable;
@@ -65,7 +66,7 @@ private:
 	void UpdateFocus();
 	void UpdateFootsteps(float DeltaSeconds);
 	void UpdateHeartbeat(float DeltaSeconds);
-	void ReportNoise(float Loudness);
+	void ReportNoise(ETTNoise Kind);
 
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UCameraComponent> Camera;

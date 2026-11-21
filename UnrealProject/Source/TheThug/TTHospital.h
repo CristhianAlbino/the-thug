@@ -36,6 +36,14 @@ public:
 	TArray<FIntPoint> GetWalkableCellsNear(const FIntPoint& Center, int32 Radius) const;
 
 	ATTDoor* GetDoorAt(const FIntPoint& Cell) const;
+	const TMap<FIntPoint, TObjectPtr<ATTDoor>>& GetDoors() const { return Doors; }
+	static FString DoorId(const FIntPoint& Cell) { return FString::Printf(TEXT("door_%d_%d"), Cell.X, Cell.Y); }
+	static FString LockerId(const FIntPoint& Cell) { return FString::Printf(TEXT("locker_%d_%d"), Cell.X, Cell.Y); }
+	bool HasLockedDoor() const;
+	/** True when every walkable cell stays reachable for Joe with Blocked closed off. */
+	bool IsConnectedWithout(const FIntPoint& Blocked) const;
+	/** The Hunter manipulating the environment (GDD §14). Returns how many lamps changed. */
+	int32 SetLampsNear(const FVector& Center, float Radius, bool bOn);
 	const TArray<TObjectPtr<ATTLocker>>& GetLockers() const { return Lockers; }
 	const TArray<FIntPoint>& GetPatrolPoints() const { return PatrolPoints; }
 
@@ -54,6 +62,7 @@ private:
 		float BaseIntensity = 0.f;
 		bool bFlicker = false;
 		bool bOn = true;
+		bool bKilled = false;
 		float Timer = 0.f;
 	};
 

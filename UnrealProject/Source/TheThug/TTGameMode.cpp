@@ -32,9 +32,16 @@ void ATTGameMode::InitGame(const FString& MapName, const FString& Options, FStri
 {
 	Super::InitGame(MapName, Options, ErrorMessage);
 	bSkipTitle = UGameplayStatics::HasOption(Options, TEXT("skiptitle"));
+	Difficulty = static_cast<ETTDifficulty>(FMath::Clamp(UGameplayStatics::GetIntOption(Options, TEXT("diff"), 1), 0, 3));
+	int32 CommandLineDifficulty = -1;
+	if (FParse::Value(FCommandLine::Get(), TEXT("ttdiff="), CommandLineDifficulty))
+	{
+		Difficulty = static_cast<ETTDifficulty>(FMath::Clamp(CommandLineDifficulty, 0, 3));
+	}
 	bAutomation = FParse::Param(FCommandLine::Get(), TEXT("ttshots"));
 	bDebug = FParse::Param(FCommandLine::Get(), TEXT("ttdebug"));
 	bAITest = FParse::Param(FCommandLine::Get(), TEXT("ttai"));
+	bLearnTest = FParse::Param(FCommandLine::Get(), TEXT("ttlearn"));
 }
 
 void ATTGameMode::EnsureWorld()
@@ -75,7 +82,7 @@ void ATTGameMode::BeginPlay()
 	AmbientComponent = UGameplayStatics::SpawnSound2D(this, AmbientWave, 0.55f, 1.f, 0.f, nullptr, false, false);
 
 	SetPhase(ETTGamePhase::Title);
-	if (bSkipTitle || bAutomation || bAITest)
+	if (bSkipTitle || bAutomation || bAITest || bLearnTest)
 	{
 		StartGame();
 	}
@@ -128,10 +135,17 @@ void ATTGameMode::StartGame()
 	}
 	SetPhase(ETTGamePhase::Playing);
 	RunTime = 0.f;
+	if (ATTPlayerCharacter* Player = GetPlayer())
+	{
+		static const int32 Bottles[] = { 3, 2, 1, 0 };
+		Player->AddBottles(Bottles[static_cast<int32>(Difficulty)] - Player->GetBottles());
+	}
 	if (Hunter)
 	{
+		Hunter->Configure(Difficulty);
 		Hunter->Activate();
 	}
+	UE_LOG(LogTemp, Log, TEXT("[TT] Run started. Difficulty=%s"), *TTDifficultyName(Difficulty));
 	SetObjective(TEXT("Saia do hospital. Algo está caçando você."));
 	ShowMessage(TEXT("Thomas sumiu. Os outros correram. Você está sozinho."), 5.f);
 }
@@ -150,7 +164,8 @@ void ATTGameMode::TogglePause()
 
 void ATTGameMode::RestartRun()
 {
-	UGameplayStatics::OpenLevel(this, FName(*UGameplayStatics::GetCurrentLevelName(this)), true, TEXT("skiptitle"));
+	const FString Options = FString::Printf(TEXT("skiptitle?diff=%d"), static_cast<int32>(Difficulty));
+	UGameplayStatics::OpenLevel(this, FName(*UGameplayStatics::GetCurrentLevelName(this)), true, Options);
 }
 
 void ATTGameMode::QuitGame()
@@ -188,13 +203,21 @@ void ATTGameMode::PlayerEscaped()
 	}
 }
 
-void ATTGameMode::ReportNoise(const FVector& Location, float Loudness, AActor* NoiseInstigator)
+void ATTGameMode::ReportNoise(const FVector& Location, ETTNoise Kind, AActor* NoiseInstigator)
 {
 	if (Phase != ETTGamePhase::Playing || !Hunter)
 	{
 		return;
 	}
-	Hunter->OnNoiseHeard(Location, Loudness);
+	Hunter->OnNoiseHeard(Location, Kind);
+}
+
+void ATTGameMode::OnPlayerLeftLocker(ATTLocker* Locker)
+{
+	if (Hunter && Phase == ETTGamePhase::Playing)
+	{
+		Hunter->OnPlayerLeftLocker(Locker);
+	}
 }
 
 void ATTGameMode::OnPlayerHid(ATTLocker* Locker)
@@ -264,6 +287,39 @@ void ATTGameMode::Tick(float DeltaSeconds)
 	if (bAutomation)
 	{
 		UpdateAutomation(RealDelta);
+	}
+	if (bLearnTest)
+	{
+		// Pretend he already saw Joe use door (8,4) three times, then watch what he does with it.
+		AutoTime += RealDelta;
+		if (AutoStep == 0 && AutoTime > 1.f && GetPlayer() && Hospital && Hunter)
+		{
+			Hunter->DebugObserveRoute(FIntPoint(8, 4), 3);
+			Hunter->DebugSetAggression(0.6f);
+			ATTLocker* Far = nullptr;
+			float FarDist = 0.f;
+			for (const TObjectPtr<ATTLocker>& L : Hospital->GetLockers())
+			{
+				const float D = L ? FVector::Dist2D(L->GetActorLocation(), Hospital->CellToWorld(FIntPoint(8, 4))) : 0.f;
+				if (L && D > FarDist)
+				{
+					FarDist = D;
+					Far = L.Get();
+				}
+			}
+			if (Far)
+			{
+				GetPlayer()->TeleportForTest(Far->GetFrontLocation(), Far->GetFacingYaw() + 180.f);
+				GetPlayer()->EnterLocker(Far);
+			}
+			AutoStep = 1;
+		}
+		if (AutoTime > 150.f || Phase == ETTGamePhase::Captured)
+		{
+			UE_LOG(LogTemp, Log, TEXT("[TT] Learn test end: phase=%d"), static_cast<int32>(Phase));
+			FPlatformMisc::RequestExit(false);
+			bLearnTest = false;
+		}
 	}
 	if (bAITest)
 	{

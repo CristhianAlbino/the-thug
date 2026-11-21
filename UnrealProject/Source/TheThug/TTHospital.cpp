@@ -9,6 +9,7 @@
 #include "Engine/World.h"
 #include "Misc/CommandLine.h"
 #include "Misc/Parse.h"
+#include "TTAudio.h"
 #include "TTInteractables.h"
 #include "TTShapes.h"
 
@@ -179,7 +180,7 @@ void ATTHospital::Build()
 				const FRotator Rot(0.f, bWallsLeftRight ? 0.f : 90.f, 0.f);
 				if (ATTDoor* Door = World->SpawnActor<ATTDoor>(ATTDoor::StaticClass(), WorldLoc, Rot, Params))
 				{
-					Door->Setup(CellSize, WallHeight);
+					Door->Setup(CellSize, WallHeight, DoorId(Cell));
 					Doors.Add(Cell, Door);
 				}
 				break;
@@ -192,7 +193,7 @@ void ATTHospital::Build()
 				const FVector Loc = WorldLoc - Facing * (CellSize * 0.5f - 34.f);
 				if (ATTLocker* Locker = World->SpawnActor<ATTLocker>(ATTLocker::StaticClass(), Loc, FRotator(0.f, Yaw, 0.f), Params))
 				{
-					Locker->Setup();
+					Locker->Setup(LockerId(Cell));
 					Lockers.Add(Locker);
 				}
 				break;
@@ -361,7 +362,7 @@ void ATTHospital::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 	for (FLamp& Lamp : Lamps)
 	{
-		if (!Lamp.bFlicker || !Lamp.Light)
+		if (!Lamp.bFlicker || !Lamp.Light || Lamp.bKilled)
 		{
 			continue;
 		}
@@ -408,6 +409,77 @@ float ATTHospital::GetLightLevelAt(const FVector& Location, const AActor* Ignore
 		Level = FMath::Max(Level, 1.f - Dist / Radius);
 	}
 	return Level;
+}
+
+bool ATTHospital::HasLockedDoor() const
+{
+	for (const TPair<FIntPoint, TObjectPtr<ATTDoor>>& Pair : Doors)
+	{
+		if (Pair.Value && Pair.Value->IsLocked())
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+bool ATTHospital::IsConnectedWithout(const FIntPoint& Blocked) const
+{
+	int32 Total = 0;
+	for (int32 i = 0; i < Walkable.Num(); ++i)
+	{
+		Total += Walkable[i] ? 1 : 0;
+	}
+	if (IsWalkable(Blocked))
+	{
+		--Total;
+	}
+
+	TArray<bool> Seen;
+	Seen.Init(false, Width * Height);
+	TArray<FIntPoint> Queue;
+	Queue.Add(PlayerStart);
+	Seen[PlayerStart.Y * Width + PlayerStart.X] = true;
+	int32 Reached = 0;
+	for (int32 Head = 0; Head < Queue.Num(); ++Head)
+	{
+		const FIntPoint C = Queue[Head];
+		++Reached;
+		for (const FIntPoint& D : Dirs)
+		{
+			const FIntPoint N = C + D;
+			if (N == Blocked || !IsWalkable(N) || Seen[N.Y * Width + N.X])
+			{
+				continue;
+			}
+			Seen[N.Y * Width + N.X] = true;
+			Queue.Add(N);
+		}
+	}
+	return Reached == Total;
+}
+
+int32 ATTHospital::SetLampsNear(const FVector& Center, float Radius, bool bOn)
+{
+	int32 Changed = 0;
+	for (FLamp& Lamp : Lamps)
+	{
+		if (!Lamp.Light || Lamp.bKilled == !bOn)
+		{
+			continue;
+		}
+		const FVector LampLoc = Lamp.Light->GetComponentLocation();
+		if (FVector::Dist2D(LampLoc, Center) > Radius)
+		{
+			continue;
+		}
+		Lamp.bKilled = !bOn;
+		Lamp.bOn = bOn;
+		Lamp.Light->SetIntensity(bOn ? Lamp.BaseIntensity : 0.f);
+		TTAudio::PlayAt(this, ETTSfx::Click, LampLoc, 0.9f);
+		++Changed;
+	}
+	return Changed;
 }
 
 ATTDoor* ATTHospital::GetDoorAt(const FIntPoint& Cell) const

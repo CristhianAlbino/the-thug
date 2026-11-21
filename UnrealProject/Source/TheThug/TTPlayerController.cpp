@@ -42,6 +42,10 @@ void ATTPlayerController::PlayerTick(float DeltaTime)
 	switch (GM->GetPhase())
 	{
 	case ETTGamePhase::Title:
+		if (Pressed(EKeys::One)) GM->SetDifficulty(ETTDifficulty::Easy);
+		if (Pressed(EKeys::Two)) GM->SetDifficulty(ETTDifficulty::Normal);
+		if (Pressed(EKeys::Three)) GM->SetDifficulty(ETTDifficulty::Hard);
+		if (Pressed(EKeys::Four)) GM->SetDifficulty(ETTDifficulty::Punitive);
 		if (Pressed(EKeys::Enter) || Pressed(EKeys::SpaceBar) || Pressed(EKeys::LeftMouseButton))
 		{
 			GM->StartGame();

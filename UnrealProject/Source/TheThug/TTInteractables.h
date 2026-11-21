@@ -36,13 +36,17 @@ class THETHUG_API ATTDoor : public ATTInteractable
 public:
 	ATTDoor();
 
-	void Setup(float CellSize, float WallHeight);
+	void Setup(float CellSize, float WallHeight, const FString& InId);
 	virtual void Tick(float DeltaSeconds) override;
 
 	virtual FString GetPrompt(const ATTPlayerCharacter* Player) const override;
 	virtual void Interact(ATTPlayerCharacter* Player) override;
 
+	const FString& GetId() const { return Id; }
 	bool IsOpen() const { return bOpen; }
+	/** Locked doors stop Joe only; the Hunter wedged it and can still pass. */
+	bool IsLocked() const { return bLocked; }
+	void SetLocked(bool bInLocked) { bLocked = bInLocked; }
 	bool IsMoving() const { return !FMath::IsNearlyEqual(Angle, TargetAngle, 1.f); }
 	void SetOpen(bool bInOpen, bool bQuiet, const AActor* Opener);
 
@@ -50,7 +54,9 @@ private:
 	UPROPERTY()
 	TObjectPtr<USceneComponent> Hinge;
 
+	FString Id;
 	bool bOpen = false;
+	bool bLocked = false;
 	float Angle = 0.f;
 	float TargetAngle = 0.f;
 	float Speed = 200.f;
@@ -65,18 +71,17 @@ class THETHUG_API ATTLocker : public ATTInteractable
 public:
 	ATTLocker();
 
-	void Setup();
+	void Setup(const FString& InId);
 	virtual void Tick(float DeltaSeconds) override;
 
 	virtual FString GetPrompt(const ATTPlayerCharacter* Player) const override;
 	virtual void Interact(ATTPlayerCharacter* Player) override;
 
+	const FString& GetId() const { return Id; }
 	FVector GetInsideLocation() const;
 	FVector GetFrontLocation() const;
 	float GetFacingYaw() const { return GetActorRotation().Yaw; }
 
-	/** GDD §11: 1st use 10, 2nd 30, 3rd 60, 4th+ 90. */
-	float GetSuspicion() const;
 	int32 GetUses() const { return Uses; }
 
 	bool IsOccupied() const { return bOccupied; }
@@ -87,6 +92,7 @@ private:
 	UPROPERTY()
 	TObjectPtr<USceneComponent> DoorHinge;
 
+	FString Id;
 	bool bOccupied = false;
 	int32 Uses = 0;
 	float DoorAngle = 0.f;
