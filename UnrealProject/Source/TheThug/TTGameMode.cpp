@@ -11,6 +11,7 @@
 #include "Misc/Parse.h"
 #include "Misc/Paths.h"
 #include "Sound/SoundWaveProcedural.h"
+#include "TTCompanion.h"
 #include "TTHUD.h"
 #include "TTHospital.h"
 #include "TTHunter.h"
@@ -43,6 +44,7 @@ void ATTGameMode::InitGame(const FString& MapName, const FString& Options, FStri
 	bAITest = FParse::Param(FCommandLine::Get(), TEXT("ttai"));
 	bLearnTest = FParse::Param(FCommandLine::Get(), TEXT("ttlearn"));
 	bSurviveTest = FParse::Param(FCommandLine::Get(), TEXT("ttsurvive"));
+	bCompanionTest = FParse::Param(FCommandLine::Get(), TEXT("ttcomp"));
 }
 
 void ATTGameMode::EnsureWorld()
@@ -58,6 +60,22 @@ void ATTGameMode::EnsureWorld()
 
 	const FVector HunterLoc = Hospital->CellToWorld(Hospital->GetHunterStartCell(), 102.f);
 	Hunter = GetWorld()->SpawnActor<ATTHunter>(ATTHunter::StaticClass(), HunterLoc, FRotator(0.f, 180.f, 0.f), Params);
+
+	// Harley, Bartholomeu and Jack, scattered after Thomas was taken (GDD §3-§4).
+	for (int32 i = 0; i < 3; ++i)
+	{
+		FIntPoint Cell;
+		if (!Hospital->GetCompanionStartCell(i, Cell))
+		{
+			continue;
+		}
+		if (ATTCompanion* Companion = GetWorld()->SpawnActor<ATTCompanion>(ATTCompanion::StaticClass(), Hospital->CellToWorld(Cell, 94.f),
+			FRotator(0.f, FMath::FRandRange(0.f, 360.f), 0.f), Params))
+		{
+			Companion->Setup(static_cast<ETTCompanionId>(i), Difficulty);
+			Companions.Add(Companion);
+		}
+	}
 }
 
 void ATTGameMode::RestartPlayer(AController* NewPlayer)
@@ -83,7 +101,7 @@ void ATTGameMode::BeginPlay()
 	AmbientComponent = UGameplayStatics::SpawnSound2D(this, AmbientWave, 0.55f, 1.f, 0.f, nullptr, false, false);
 
 	SetPhase(ETTGamePhase::Title);
-	if (bSkipTitle || bAutomation || bAITest || bLearnTest || bSurviveTest)
+	if (bSkipTitle || bAutomation || bAITest || bLearnTest || bSurviveTest || bCompanionTest)
 	{
 		StartGame();
 	}
@@ -144,6 +162,14 @@ void ATTGameMode::StartGame()
 	{
 		Hunter->Configure(Difficulty);
 		Hunter->Activate();
+	}
+	for (ATTCompanion* Companion : Companions)
+	{
+		if (Companion)
+		{
+			Companion->Setup(Companion->GetId(), Difficulty);
+			Companion->Activate();
+		}
 	}
 	UE_LOG(LogTemp, Log, TEXT("[TT] Run started. Difficulty=%s"), *TTDifficultyName(Difficulty));
 	SetObjective(TEXT("Saia do hospital. Algo está caçando você."));
@@ -227,12 +253,31 @@ bool ATTGameMode::IsSightBlockedBySmoke(const FVector& A, const FVector& B) cons
 	return false;
 }
 
-void ATTGameMode::PlayerEscaped()
+void ATTGameMode::OnCompanionTaken(ATTCompanion* Taken)
+{
+	for (ATTCompanion* Companion : Companions)
+	{
+		if (Companion && Companion != Taken)
+		{
+			Companion->OnFriendTaken(Taken);
+		}
+	}
+	if (ATTPlayerCharacter* Joe = GetPlayer())
+	{
+		if (Taken && FVector::Dist(Joe->GetActorLocation(), Taken->GetActorLocation()) < 3000.f)
+		{
+			ShowMessage(FString::Printf(TEXT("Um grito no escuro. Era %s."), *Taken->GetDisplayName()), 5.f);
+		}
+	}
+}
+
+void ATTGameMode::PlayerEscaped(const FString& How)
 {
 	if (Phase != ETTGamePhase::Playing)
 	{
 		return;
 	}
+	EndSubtitle = How.IsEmpty() ? TEXT("Pelo portão de serviço. Por enquanto.") : How;
 	SetPhase(ETTGamePhase::Escaped);
 	if (Hunter)
 	{
@@ -330,6 +375,11 @@ void ATTGameMode::Tick(float DeltaSeconds)
 		AutoTime += RealDelta;
 		UpdateSurviveTest();
 	}
+	if (bCompanionTest)
+	{
+		AutoTime += RealDelta;
+		UpdateCompanionTest();
+	}
 	if (bLearnTest)
 	{
 		// Pretend he already saw Joe use door (8,4) three times, then watch what he does with it.
@@ -379,6 +429,100 @@ void ATTGameMode::Tick(float DeltaSeconds)
 			bAITest = false;
 		}
 	}
+}
+
+void ATTGameMode::UpdateCompanionTest()
+{
+	ATTPlayerCharacter* Joe = GetPlayer();
+	if (!Joe || !Hunter || !Hospital || Companions.Num() < 3)
+	{
+		return;
+	}
+	ATTCompanion* Harley = Companions[0];
+	ATTCompanion* Bart = Companions[1];
+	ATTCompanion* Jack = Companions[2];
+	auto Shot = [](const TCHAR* Name)
+	{
+		FScreenshotRequest::RequestScreenshot(FPaths::ProjectSavedDir() / TEXT("Screenshots") / FString(Name) + TEXT(".png"), false, false);
+	};
+	auto LogAll = [this](const TCHAR* Step)
+	{
+		for (ATTCompanion* C : Companions)
+		{
+			UE_LOG(LogTemp, Log, TEXT("[TT] Comp %s: %s state=%s %s"), Step, *C->GetDisplayName(), *C->GetStateName(), *C->GetTraitSummary());
+		}
+	};
+	const float Times[] = { 1.f, 1.5f, 3.f, 4.5f, 5.f, 6.f, 7.f, 25.f, 26.f, 60.f, 61.f, 62.f };
+	if (AutoStep >= UE_ARRAY_COUNT(Times) || AutoTime < Times[AutoStep])
+	{
+		return;
+	}
+	switch (AutoStep)
+	{
+	case 0:
+		Hunter->Freeze();
+		LogAll(TEXT("start"));
+		break;
+	case 1:
+	{
+		// Joe walks up to Bartholomeu, talks, and gives him a magazine.
+		const FVector B = Bart->GetActorLocation();
+		Joe->TeleportForTest(B + FVector(-160.f, 0.f, -94.f), 0.f);
+		Joe->LookAtPoint(B);
+		break;
+	}
+	case 2:
+		Joe->LookAtPoint(Bart->GetActorLocation());
+		Joe->Interact();
+		Joe->GiveAmmoToFocus();
+		Shot(TEXT("TT_10_companion"));
+		break;
+	case 3:
+		LogAll(TEXT("after ammo"));
+		break;
+	case 4:
+		// Harley is out in the lit corridor; the Hunter comes round the corner.
+		Harley->DebugForceGoal(1);
+		Harley->SetActorLocation(Hospital->CellToWorld(FIntPoint(11, 5), 92.f));
+		Hunter->SetActorLocation(Hospital->CellToWorld(FIntPoint(13, 5), 102.f));
+		Hunter->SetActorRotation(FRotator(0.f, 180.f, 0.f));
+		Hunter->Activate();
+		break;
+	case 5:
+		break;
+	case 6:
+		// Jack decides to leave through the window.
+		Jack->DebugForceGoal(4);
+		break;
+	case 7:
+		LogAll(TEXT("mid"));
+		break;
+	case 8:
+		Shot(TEXT("TT_11_companions"));
+		break;
+	case 9:
+		LogAll(TEXT("late"));
+		break;
+	case 10:
+	{
+		// If Jack opened the window, Joe can use it.
+		for (TActorIterator<ATTWindow> It(GetWorld()); It; ++It)
+		{
+			UE_LOG(LogTemp, Log, TEXT("[TT] Comp window open: %d"), It->IsOpen() ? 1 : 0);
+			if (It->IsOpen() && Phase == ETTGamePhase::Playing)
+			{
+				Joe->TeleportForTest(It->GetApproachLocation(), (It->GetActorLocation() - It->GetApproachLocation()).Rotation().Yaw);
+				It->Interact(Joe);
+			}
+		}
+		break;
+	}
+	case 11:
+		UE_LOG(LogTemp, Log, TEXT("[TT] Comp test end: phase=%d subtitle=%s"), static_cast<int32>(Phase), *EndSubtitle);
+		FPlatformMisc::RequestExit(false);
+		break;
+	}
+	++AutoStep;
 }
 
 void ATTGameMode::UpdateSurviveTest()

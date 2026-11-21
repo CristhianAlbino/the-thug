@@ -17,6 +17,9 @@ binary asset is the empty map `Content/Maps/Hospital_M01.umap` (Git LFS).
 | Rifle (stuns the Hunter, gives Joe away, shoots out lamps), grenade (stuns, breaks lights, blows doors, hurts Joe if close), smoke (Hunter cannot see through it), bottles | `TTPlayerCharacter`, `TTInteractables` |
 | Hunter blows instead of a capture on lower difficulties (Easy/Normal until Joe is badly hurt, Hard once, Punitive never); broken glass on the floor is loud and cuts when sprinting | `TTHunter`, `TTHospital` |
 | Generated materials `M_TTSmoke` (lit translucent) and `M_TTEmissive` (glow) | `Scripts/create_materials.py` |
+| Companions Harley, Bartholomeu, Jack **from `/Tools/CompanionCore`**: own perception and knowledge, the core chooses hide / search resources / help Joe / share route / escape alone / use Joe as a distraction; ammo handoff through `/Tools/IntegrationCore` (+20 trust, +10 loyalty, +1 ammo); abandonment when Joe watches the Hunter chase them and does nothing | `TTCompanion` + `Core/` |
+| Hunter vs companions: spots, chases, takes them (also out of lockers) and interrogates them; they only give away what they actually saw | `TTHunter` |
+| Window route (GDD §56): boarded window, crowbar, loud prying; a companion escaping through it leaves it open for Joe | `TTInteractables` (`ATTWindow`) |
 | Doors (crouch = slow and quiet), lockers with slats, keycard, bottles, service gate | `TTInteractables` |
 | 4th-floor wing from an ASCII layout + grid path finding, lamps (some flicker), fog, post process | `TTHospital` |
 | Procedural audio (Hunter steps, heartbeat, creaks, glass, drone) | `TTAudio` |
@@ -24,12 +27,15 @@ binary asset is the empty map `Content/Maps/Hospital_M01.umap` (Git LFS).
 
 Edit the map by changing `Layout` in `TTHospital.cpp` (legend in the comment above it).
 
+Companion starting profiles (trust, fear, stress, loyalty, self-preservation, relationship) are **balance hypotheses**
+in `ProfileFor` (`TTCompanion.cpp`); the GDD defines their personalities but not the numbers.
+
 `Source/TheThug/Core/*.cpp` compile `Tools/HunterCore` and `Tools/PerceptionCore` directly (single source of truth;
 their standalone tests still run outside Unreal). The module builds with exceptions on and unity off for that reason.
 
 ## Controls
 
-WASD move · Shift sprint · C toggle crouch / Ctrl hold crouch · F flashlight · E interact / hide · Right mouse aim · Left mouse fire · R reload · G bottle · T smoke · Q grenade · H bandage/medkit · hold Tab inventory (+ 2-7 drop) · Esc pause (mouse sensitivity with + / −).
+WASD move · Shift sprint · C toggle crouch / Ctrl hold crouch · F flashlight · E interact / hide · Right mouse aim · Left mouse fire · R reload · G bottle · T smoke · Q grenade · H bandage/medkit · hold Tab inventory (+ 2-7 drop) · looking at a companion: E talk, Z give magazine, X come with me / stay · Esc pause (mouse sensitivity with + / −).
 
 ## Build
 
@@ -49,7 +55,8 @@ Close any open Unreal Editor first (Live Coding blocks command-line builds).
 Debug flags: `-ttdebug` (Hunter state on screen), `-ttshots` (scripted screenshots to `Saved/Screenshots`, then quits),
 `-ttai` (Joe waits in the corridor, logs Hunter states until capture),
 `-ttlearn` (seeds route evidence for door 8,4 and aggression, hides Joe, logs traps/ambush),
-`-ttsurvive` (injury, bandage, shot, smoke, grenade; logs and screenshots), `-ttdiff=<0-3>`, `-ttev=<bias>` (exposure), `-ttsens=<x>` (mouse).
+`-ttsurvive` (injury, bandage, shot, smoke, grenade; logs and screenshots),
+`-ttcomp` (talk, ammo handoff, Hunter takes a companion, Jack escapes through the window, Joe follows), `-ttflash=<power>`, `-ttdiff=<0-3>`, `-ttev=<bias>` (exposure), `-ttsens=<x>` (mouse).
 
 ## Package the .exe
 

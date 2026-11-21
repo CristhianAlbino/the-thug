@@ -8,6 +8,8 @@
 #include "Components/StaticMeshComponent.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "TTAudio.h"
+#include "TTCompanion.h"
+#include "EngineUtils.h"
 #include "TTGameMode.h"
 #include "TTHospital.h"
 #include "TTInteractables.h"
@@ -113,6 +115,8 @@ namespace
 		case ETTHunterState::Ambush: return TEXT("Ambush");
 		case ETTHunterState::SetTrap: return TEXT("SetTrap");
 		case ETTHunterState::Stunned: return TEXT("Stunned");
+		case ETTHunterState::PursueCompanion: return TEXT("PursueCompanion");
+		case ETTHunterState::Interrogate: return TEXT("Interrogate");
 		case ETTHunterState::Capturing: return TEXT("Capturing");
 		}
 		return TEXT("?");
@@ -305,6 +309,14 @@ void ATTHunter::SetState(ETTHunterState NewState)
 	if (State != NewState)
 	{
 		UE_LOG(LogTemp, Log, TEXT("[TT] Hunter %s -> %s"), StateName(State), StateName(NewState));
+	}
+	if (State == ETTHunterState::PursueCompanion && NewState != ETTHunterState::PursueCompanion
+		&& NewState != ETTHunterState::Interrogate && NewState != ETTHunterState::CheckLocker)
+	{
+		if (ATTCompanion* Companion = TargetCompanion.Get())
+		{
+			Companion->OnChasedByHunter(false);
+		}
 	}
 	PreviousState = State;
 	State = NewState;
@@ -576,6 +588,13 @@ void ATTHunter::UpdatePerception(float DeltaSeconds)
 		InspectDoors();
 	}
 
+	CompanionScanTimer -= DeltaSeconds;
+	if (CompanionScanTimer <= 0.f && !bSawPlayerThisFrame)
+	{
+		CompanionScanTimer = 0.25f;
+		ScanCompanions();
+	}
+
 	if (State == ETTHunterState::Pursue || State == ETTHunterState::Capturing || State == ETTHunterState::Stunned)
 	{
 		return;
@@ -663,9 +682,21 @@ void ATTHunter::OnNoiseHeard(const FVector& Location, ETTNoise Kind)
 		}
 		return;
 	}
-	if (State == ETTHunterState::CheckLocker && bLockerKnown)
+	if ((State == ETTHunterState::CheckLocker && bLockerKnown) || State == ETTHunterState::Interrogate)
 	{
 		return;
+	}
+	if (State == ETTHunterState::PursueCompanion)
+	{
+		// Busy with the one he can see; only a loud sound pulls him away.
+		if (Strength < 0.6f)
+		{
+			return;
+		}
+		if (ATTCompanion* Companion = TargetCompanion.Get())
+		{
+			Companion->OnChasedByHunter(false);
+		}
 	}
 
 	const bool bInvestigate = BrainObserve(*Mind, *Heard)
@@ -1261,6 +1292,13 @@ void ATTHunter::Stun(float Seconds, bool bExplosion)
 		return;
 	}
 	Aggression = FMath::Min(1.f, Aggression + (bExplosion ? 0.3f : 0.2f));
+	if (State == ETTHunterState::PursueCompanion)
+	{
+		if (ATTCompanion* Companion = TargetCompanion.Get())
+		{
+			Companion->OnSavedByJoe();
+		}
+	}
 	StunTimeLeft = FMath::Max(StunTimeLeft, Seconds);
 	Path.Reset();
 	GetCharacterMovement()->StopMovementImmediately();
@@ -1299,6 +1337,77 @@ void ATTHunter::ReachJoe()
 	SpeechCooldown = 0.f;
 	Say(TEXT("Acabou."));
 	Capture();
+}
+
+void ATTHunter::ScanCompanions()
+{
+	const bool bFree = State == ETTHunterState::Patrol || State == ETTHunterState::LookAround || State == ETTHunterState::Search
+		|| State == ETTHunterState::Investigate || State == ETTHunterState::Ambush || State == ETTHunterState::Suspicious
+		|| State == ETTHunterState::SetTrap;
+	const ATTGameMode* GM = GetWorld()->GetAuthGameMode<ATTGameMode>();
+	if (!bFree || !GM)
+	{
+		return;
+	}
+	const FVector Eye = GetEyeLocation();
+	for (ATTCompanion* Companion : GM->GetCompanions())
+	{
+		if (!Companion || !Companion->IsVisibleTarget())
+		{
+			continue;
+		}
+		const FVector Target = Companion->GetActorLocation() + FVector(0.f, 0.f, 60.f);
+		const FVector To = Target - Eye;
+		const float Dist = To.Size();
+		const float Range = HunterTuning::SightRange * SightScale * Companion->GetVisibility();
+		const bool bClose = Dist < HunterTuning::CloseSense;
+		if (Dist > Range && !bClose)
+		{
+			continue;
+		}
+		if (!bClose && FVector::DotProduct(GetActorForwardVector(), To.GetSafeNormal()) < 0.5f)
+		{
+			continue;
+		}
+		if (GM->IsSightBlockedBySmoke(Eye, Target) || !CanSeePoint(Target, Companion))
+		{
+			continue;
+		}
+		StartPursueCompanion(Companion);
+		return;
+	}
+}
+
+void ATTHunter::StartPursueCompanion(ATTCompanion* Companion)
+{
+	TargetCompanion = Companion;
+	CompanionLostTime = 0.f;
+	CompanionLastSeen = Companion->GetActorLocation();
+	RepathTimer = 0.f;
+	UE_LOG(LogTemp, Log, TEXT("[TT] Hunter spotted %s"), *Companion->GetDisplayName());
+	Companion->OnChasedByHunter(true);
+	SetState(ETTHunterState::PursueCompanion);
+}
+
+void ATTHunter::TakeCompanion(ATTCompanion* Companion)
+{
+	if (!Companion)
+	{
+		return;
+	}
+	bInterrogationInfo = Companion->TakenByHunter(InterrogationLocation, InterrogationHideSpot);
+	if (ATTGameMode* GM = GetWorld()->GetAuthGameMode<ATTGameMode>())
+	{
+		GM->OnCompanionTaken(Companion);
+	}
+	TargetCompanion.Reset();
+	TargetLocker.Reset();
+	bLockerKnown = false;
+	Path.Reset();
+	GetCharacterMovement()->StopMovementImmediately();
+	SpeechCooldown = 0.f;
+	Say(TEXT("Onde ele está?"));
+	SetState(ETTHunterState::Interrogate);
 }
 
 void ATTHunter::Capture()
@@ -1456,7 +1565,11 @@ void ATTHunter::Tick(float DeltaSeconds)
 			if (LockerTimer > 0.8f)
 			{
 				Locker->FlapDoor();
-				if (Locker->IsOccupied())
+				if (ATTCompanion* Inside = Cast<ATTCompanion>(Locker->GetOccupant()))
+				{
+					TakeCompanion(Inside);
+				}
+				else if (Locker->IsOccupied())
 				{
 					ObserveHideSpot(Locker, 1.0);
 					SpeechCooldown = 0.f;
@@ -1580,6 +1693,91 @@ void ATTHunter::Tick(float DeltaSeconds)
 				InvestigateRadius = 600.f;
 				StartSearch(LastKnown, SearchSeconds * (1.f + 0.5f * Aggression));
 			}
+		}
+		break;
+
+	case ETTHunterState::PursueCompanion:
+	{
+		ATTCompanion* Companion = TargetCompanion.Get();
+		if (!Companion || !Companion->IsActive())
+		{
+			StartPatrol();
+			break;
+		}
+		if (Companion->IsInLocker())
+		{
+			// He watched them get in.
+			if (CompanionLostTime < 1.5f && Companion->GetHiddenLocker())
+			{
+				bLockerKnown = true;
+				StartCheckLocker(Companion->GetHiddenLocker());
+			}
+			else
+			{
+				Companion->OnChasedByHunter(false);
+				StartSearch(CompanionLastSeen, SearchSeconds * 0.6f);
+			}
+			break;
+		}
+		const FVector Target = Companion->GetActorLocation() + FVector(0.f, 0.f, 60.f);
+		const ATTGameMode* GM = GetWorld()->GetAuthGameMode<ATTGameMode>();
+		const bool bSees = CanSeePoint(Target, Companion) && !(GM && GM->IsSightBlockedBySmoke(GetEyeLocation(), Target));
+		if (bSees)
+		{
+			CompanionLostTime = 0.f;
+			CompanionLastSeen = Companion->GetActorLocation();
+			RepathTimer -= DeltaSeconds;
+			if (RepathTimer <= 0.f)
+			{
+				RepathTimer = 0.3f;
+				MoveTo(CompanionLastSeen);
+			}
+		}
+		else
+		{
+			CompanionLostTime += DeltaSeconds;
+		}
+		FollowPath(DeltaSeconds, Speed(HunterTuning::PursueSpeed));
+		if (FVector::Dist2D(Companion->GetActorLocation(), GetActorLocation()) < HunterTuning::CaptureDistance)
+		{
+			TakeCompanion(Companion);
+		}
+		else if (CompanionLostTime > 3.5f)
+		{
+			Companion->OnChasedByHunter(false);
+			UE_LOG(LogTemp, Log, TEXT("[TT] Hunter lost %s"), *Companion->GetDisplayName());
+			StartSearch(CompanionLastSeen, SearchSeconds * 0.6f);
+		}
+		break;
+	}
+
+	case ETTHunterState::Interrogate:
+		GetCharacterMovement()->StopActiveMovement();
+		if (StateTime > 2.5f)
+		{
+			// GDD §49: companions can give Joe away. Only what they actually saw.
+			if (bInterrogationInfo)
+			{
+				if (!InterrogationHideSpot.IsEmpty() && Hospital)
+				{
+					for (const TObjectPtr<ATTLocker>& L : Hospital->GetLockers())
+					{
+						if (L && L->GetId() == InterrogationHideSpot)
+						{
+							ObserveHideSpot(L.Get(), 1.0);
+						}
+					}
+				}
+				UE_LOG(LogTemp, Log, TEXT("[TT] Interrogation: told where Joe was (%s, spot %s)"),
+					*InterrogationLocation.ToCompactString(), InterrogationHideSpot.IsEmpty() ? TEXT("-") : *InterrogationHideSpot);
+				Aggression = FMath::Min(1.f, Aggression + 0.1f);
+				StartInvestigate(InterrogationLocation, 500.f);
+			}
+			else
+			{
+				StartPatrol();
+			}
+			bInterrogationInfo = false;
 		}
 		break;
 

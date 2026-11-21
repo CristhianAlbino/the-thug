@@ -16,7 +16,7 @@ public:
 	virtual void DrawHUD() override;
 
 private:
-	void DrawCentered(const FString& Text, float Y, UFont* Font, float Scale, const FLinearColor& Color);
+	void DrawCentered(const FString& Text, float Y, UFont* Font, float Scale, const FLinearColor& Color, bool bBackdrop = false);
 	void DrawTitle();
 	void DrawPlaying();
 	void DrawPause();

@@ -86,7 +86,9 @@ public:
 	int32 GetUses() const { return Uses; }
 
 	bool IsOccupied() const { return bOccupied; }
-	void SetOccupied(bool bInOccupied);
+	/** Occupant is Joe or a companion. */
+	void SetOccupied(bool bInOccupied, AActor* InOccupant = nullptr);
+	AActor* GetOccupant() const { return Occupant.Get(); }
 	void FlapDoor();
 
 private:
@@ -95,6 +97,7 @@ private:
 
 	FString Id;
 	bool bOccupied = false;
+	TWeakObjectPtr<AActor> Occupant;
 	int32 Uses = 0;
 	float DoorAngle = 0.f;
 	float DoorTimer = 0.f;
@@ -143,6 +146,36 @@ public:
 private:
 	UPROPERTY()
 	TObjectPtr<UPointLightComponent> StatusLight;
+};
+
+/** Boarded window to the neighbouring building (GDD §56, route D). Needs a crowbar; prying is loud. */
+UCLASS()
+class THETHUG_API ATTWindow : public ATTInteractable
+{
+	GENERATED_BODY()
+
+public:
+	void Setup(float CellSize, float WallHeight, const FVector& InApproach);
+
+	virtual FString GetPrompt(const ATTPlayerCharacter* Player) const override;
+	virtual void Interact(ATTPlayerCharacter* Player) override;
+
+	bool IsOpen() const { return bOpen; }
+	FVector GetApproachLocation() const { return Approach; }
+	float GetProgress() const { return Progress / PryTime; }
+	/** Someone works on the boards. Returns true when the window is open. */
+	bool AddPry(float DeltaSeconds, AActor* By);
+
+	static constexpr float PryTime = 6.f;
+
+private:
+	UPROPERTY()
+	TArray<TObjectPtr<UStaticMeshComponent>> Boards;
+
+	FVector Approach = FVector::ZeroVector;
+	bool bOpen = false;
+	float Progress = 0.f;
+	float NoiseTimer = 0.f;
 };
 
 UENUM()

@@ -5,8 +5,10 @@
 #include "TTTypes.h"
 #include "TTPlayerCharacter.generated.h"
 
+class ATTCompanion;
 class ATTInteractable;
 class ATTLocker;
+class ATTWindow;
 class UCameraComponent;
 class USpotLightComponent;
 struct FTTJoeBody;
@@ -17,7 +19,8 @@ enum class ETTJoeAction : uint8
 	None,
 	Bandage,
 	Medkit,
-	Reload
+	Reload,
+	Pry
 };
 
 /**
@@ -55,6 +58,11 @@ public:
 	void UseMedical();
 	void SetInventoryOpen(bool bOpen) { bInventoryOpen = bOpen; }
 	void DropItem(ETTItem Item);
+	void GiveAmmoToFocus();
+	void RequestFollowFromFocus();
+	void StartPrying(ATTWindow* Window);
+	/** A companion stops Joe's bleeding (GDD §49 "salvar Joe"). */
+	void ReceiveAid(const FString& From);
 
 	// Hiding
 	void EnterLocker(ATTLocker* Locker);
@@ -89,6 +97,7 @@ public:
 
 	// State for HUD / Hunter
 	ATTInteractable* GetFocus() const { return Focus; }
+	ATTCompanion* GetFocusCompanion() const { return FocusCompanion.Get(); }
 	float GetStamina() const;
 	bool IsSprinting() const { return bSprinting; }
 	bool IsAiming() const { return bAiming; }
@@ -134,6 +143,10 @@ private:
 	UPROPERTY()
 	TObjectPtr<ATTLocker> HiddenIn;
 
+	TWeakObjectPtr<ATTCompanion> FocusCompanion;
+	TWeakObjectPtr<ATTWindow> PryTarget;
+	int32 ShareCounter = 0;
+
 	TSharedPtr<FTTJoeBody> Body;
 
 	FVector2D MoveInput = FVector2D::ZeroVector;
@@ -170,4 +183,5 @@ private:
 	float ShakeTime = 0.f;
 	float GlassInjuryCooldown = 0.f;
 	float Fov = 88.f;
+	float FlashlightPower = 12.f;
 };

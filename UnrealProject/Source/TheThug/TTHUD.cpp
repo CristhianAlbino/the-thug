@@ -4,6 +4,7 @@
 #include "Engine/Engine.h"
 #include "Engine/Font.h"
 #include "Engine/World.h"
+#include "TTCompanion.h"
 #include "TTGameMode.h"
 #include "TTHunter.h"
 #include "TTInteractables.h"
@@ -28,11 +29,16 @@ namespace
 	}
 }
 
-void ATTHUD::DrawCentered(const FString& Text, float Y, UFont* Font, float Scale, const FLinearColor& Color)
+void ATTHUD::DrawCentered(const FString& Text, float Y, UFont* Font, float Scale, const FLinearColor& Color, bool bBackdrop)
 {
 	float W = 0.f;
 	float H = 0.f;
 	GetTextSize(Text, W, H, Font, Scale);
+	if (bBackdrop)
+	{
+		const float Pad = 10.f * UI;
+		DrawRect(FLinearColor(0.f, 0.f, 0.f, 0.55f * Color.A), (Canvas->ClipX - W) * 0.5f - Pad, Y - Pad * 0.4f, W + 2.f * Pad, H + Pad * 0.8f);
+	}
 	DrawText(Text, Color, (Canvas->ClipX - W) * 0.5f, Y, Font, Scale);
 }
 
@@ -77,6 +83,7 @@ void ATTHUD::DrawTitle()
 		TEXT("WASD  mover      SHIFT  correr      C / CTRL  agachar      E  interagir / esconder      F  lanterna"),
 		TEXT("BOTÃO DIR.  mirar      BOTÃO ESQ.  atirar      R  recarregar      H  curativo      TAB  inventário"),
 		TEXT("G  garrafa (distração)      T  fumaça (ele não vê através)      Q  granada"),
+		TEXT("Olhando para um companheiro:  E  falar      Z  dar carregador      X  vem comigo / fica"),
 		TEXT("Atirar compra tempo e entrega sua posição. Ele ouve. Ele lembra. Ele não trapaceia.")
 	};
 	float Y = H * 0.52f;
@@ -149,12 +156,16 @@ void ATTHUD::DrawPlaying()
 		DrawRect(FLinearColor(1.f, 1.f, 1.f, Player->GetFocus() || Player->IsAiming() ? 0.8f : 0.25f), (W - Dot) * 0.5f, (H - Dot) * 0.5f, Dot, Dot);
 	}
 
-	if (const ATTInteractable* Focus = Player->GetFocus())
+	if (const ATTCompanion* Companion = Player->GetFocusCompanion())
+	{
+		DrawCentered(Companion->GetPrompt(Player), H * 0.55f, Medium, 1.f * UI, Pale, true);
+	}
+	else if (const ATTInteractable* Focus = Player->GetFocus())
 	{
 		const FString Prompt = Focus->GetPrompt(Player);
 		if (!Prompt.IsEmpty())
 		{
-			DrawCentered(Prompt, H * 0.55f, Medium, 1.f * UI, Pale);
+			DrawCentered(Prompt, H * 0.55f, Medium, 1.f * UI, Pale, true);
 		}
 	}
 
@@ -164,11 +175,11 @@ void ATTHUD::DrawPlaying()
 	}
 	if (const float A = GM->GetMessageAlpha(); A > 0.f)
 	{
-		DrawCentered(GM->GetMessage(), H * 0.72f, Medium, 1.05f * UI, FLinearColor(Pale.R, Pale.G, Pale.B, A));
+		DrawCentered(GM->GetMessage(), H * 0.72f, Medium, 1.05f * UI, FLinearColor(Pale.R, Pale.G, Pale.B, A), true);
 	}
 	if (const float A = GM->GetSubtitleAlpha(); A > 0.f)
 	{
-		DrawCentered(FString::Printf(TEXT("— %s"), *GM->GetSubtitle()), H * 0.79f, Medium, 1.25f * UI, FLinearColor(0.75f, 0.8f, 0.9f, A));
+		DrawCentered(FString::Printf(TEXT("— %s"), *GM->GetSubtitle()), H * 0.79f, Medium, 1.25f * UI, FLinearColor(0.75f, 0.8f, 0.9f, A), true);
 	}
 
 	// Stamina only appears when it matters.
@@ -186,7 +197,8 @@ void ATTHUD::DrawPlaying()
 	if (Player->GetAction() != ETTJoeAction::None)
 	{
 		const TCHAR* Label = Player->GetAction() == ETTJoeAction::Bandage ? TEXT("Enfaixando...")
-			: Player->GetAction() == ETTJoeAction::Medkit ? TEXT("Fazendo curativo...") : TEXT("Recarregando...");
+			: Player->GetAction() == ETTJoeAction::Medkit ? TEXT("Fazendo curativo...")
+			: Player->GetAction() == ETTJoeAction::Pry ? TEXT("Arrancando as tábuas... (barulho!)") : TEXT("Recarregando...");
 		const float BarW = 260.f * UI;
 		const float X = (W - BarW) * 0.5f;
 		const float Y = H * 0.62f;
@@ -226,12 +238,12 @@ void ATTHUD::DrawPlaying()
 	if (Player->IsInventoryOpen())
 	{
 		const float PanelW = 520.f * UI;
-		const float PanelH = 360.f * UI;
+		const float PanelH = 400.f * UI;
 		const float PX = (W - PanelW) * 0.5f;
 		const float PY = (H - PanelH) * 0.5f;
 		DrawRect(FLinearColor(0.f, 0.f, 0.f, 0.8f), PX, PY, PanelW, PanelH);
 		DrawText(FString::Printf(TEXT("INVENTÁRIO      espaço %d / %d"), Player->GetUsedSlots(), Player->GetCapacity()), Pale, PX + 24.f * UI, PY + 18.f * UI, Medium, 1.f * UI);
-		for (int32 i = 0; i <= static_cast<int32>(ETTItem::Medkit); ++i)
+		for (int32 i = 0; i <= static_cast<int32>(ETTItem::Crowbar); ++i)
 		{
 			const ETTItem Item = static_cast<ETTItem>(i);
 			const int32 Count = Player->GetItemCount(Item);
@@ -239,7 +251,7 @@ void ATTHUD::DrawPlaying()
 			DrawText(FString::Printf(TEXT("%d   %s"), i + 1, *TTItemName(Item)), C, PX + 24.f * UI, PY + (64.f + i * 34.f) * UI, Medium, 0.95f * UI);
 			DrawText(FString::Printf(TEXT("x%d"), Count), C, PX + PanelW - 80.f * UI, PY + (64.f + i * 34.f) * UI, Medium, 0.95f * UI);
 		}
-		DrawText(TEXT("Segure TAB e aperte 2-7 para largar um item no chão (o fuzil fica)."), Dim, PX + 24.f * UI, PY + PanelH - 36.f * UI, Small, 1.1f * UI);
+		DrawText(TEXT("Segure TAB e aperte 2-8 para largar um item no chão (o fuzil fica)."), Dim, PX + 24.f * UI, PY + PanelH - 36.f * UI, Small, 1.1f * UI);
 	}
 
 	if (GM->IsDebugEnabled())
@@ -306,7 +318,7 @@ void ATTHUD::DrawEscaped()
 		UFont* Large = GEngine->GetLargeFont();
 		UFont* Medium = GEngine->GetMediumFont();
 		DrawCentered(TEXT("VOCÊ ESCAPOU"), H * 0.36f, Large, 2.4f * UI, Pale);
-		DrawCentered(TEXT("Por enquanto."), H * 0.47f, Medium, 1.1f * UI, Dim);
+		DrawCentered(GM->GetEndSubtitle(), H * 0.47f, Medium, 1.1f * UI, Dim);
 		DrawCentered(FString::Printf(TEXT("Tempo: %s"), *FormatTime(GM->GetRunTime())), H * 0.53f, Medium, 1.f * UI, Dim);
 		DrawCentered(TEXT("R / ENTER  jogar de novo        ESC  sair"), H * 0.66f, Medium, 1.1f * UI, Pale);
 	}

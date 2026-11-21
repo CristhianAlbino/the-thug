@@ -23,18 +23,20 @@ namespace
 	 *  P  player start    H  Hunter start     K  gate keycard    X  service gate (exit)
 	 *  a  bandage         M  medkit           n  rifle magazine  s  smoke grenade   x  grenade
 	 *  g  broken glass on the floor (loud; running over it cuts)
+	 *  c  crowbar         W  boarded window (exit to the next building, needs a crowbar)
+	 *  Y  Harley          U  Bartholomeu      J  Jack            (companion start cells)
 	 *  1-9  Hunter patrol points
 	 */
 	const TCHAR* const Layout[] = {
 		TEXT("#######################"),
-		TEXT("#L.am#m..m#...L#m....L#"),
+		TEXT("#L.am#m..m#.Y.L#m....L#"),
 		TEXT("#....#.1.xD.2..#..~.P.#"),
-		TEXT("#L*..#..*L#m.n.#L....m#"),
+		TEXT("#L*..#.c*L#m.n.#L....m#"),
 		TEXT("##D#####D####D#####D###"),
 		TEXT("#.*..3.b.~.4..*gg5..*.X"),
 		TEXT("###D####D####D####D####"),
-		TEXT("#m..L#L..m#..*L#..s.mL#"),
-		TEXT("#.6..D....D.H..#.7.~..#"),
+		TEXT("#m.JL#L..m#..*L#..s.mL#"),
+		TEXT("W.6..D....D.H..#.7.~U.#"),
 		TEXT("#~.Km#.*.b#L.Mm#m....L#"),
 		TEXT("#######################"),
 	};
@@ -54,7 +56,8 @@ namespace
 		{
 		case TEXT('.'): case TEXT('*'): case TEXT('~'): case TEXT('D'): case TEXT('L'):
 		case TEXT('P'): case TEXT('H'): case TEXT('b'): case TEXT('a'): case TEXT('n'):
-		case TEXT('s'): case TEXT('x'): case TEXT('g'):
+		case TEXT('s'): case TEXT('x'): case TEXT('g'): case TEXT('c'):
+		case TEXT('Y'): case TEXT('U'): case TEXT('J'):
 			return true;
 		default:
 			return C >= TEXT('1') && C <= TEXT('9');
@@ -203,6 +206,7 @@ void ATTHospital::Build()
 				break;
 			}
 
+			case TEXT('c'):
 			case TEXT('K'):
 			case TEXT('b'):
 			case TEXT('a'):
@@ -217,6 +221,7 @@ void ATTHospital::Build()
 				bool bOnTable = true;
 				switch (C)
 				{
+				case TEXT('c'): Item = ETTItem::Crowbar; bOnTable = false; break;
 				case TEXT('a'): Item = ETTItem::Bandage; break;
 				case TEXT('M'): Item = ETTItem::Medkit; break;
 				case TEXT('n'): Item = ETTItem::Magazine; break;
@@ -292,6 +297,35 @@ void ATTHospital::Build()
 			case TEXT('P'):
 				PlayerStart = Cell;
 				break;
+
+			case TEXT('Y'):
+				CompanionStarts.Add(0, Cell);
+				break;
+			case TEXT('U'):
+				CompanionStarts.Add(1, Cell);
+				break;
+			case TEXT('J'):
+				CompanionStarts.Add(2, Cell);
+				break;
+
+			case TEXT('W'):
+			{
+				FIntPoint Inside = Cell;
+				float Yaw = 0.f;
+				for (const FIntPoint& D : Dirs)
+				{
+					if (IsWalkableChar(GetChar(X + D.X, Y + D.Y)))
+					{
+						Inside = Cell + D;
+						Yaw = FVector(static_cast<float>(D.X), static_cast<float>(D.Y), 0.f).Rotation().Yaw;
+					}
+				}
+				if (ATTWindow* Window = World->SpawnActor<ATTWindow>(ATTWindow::StaticClass(), WorldLoc, FRotator(0.f, Yaw, 0.f), Params))
+				{
+					Window->Setup(CellSize, WallHeight, CellToWorld(Inside));
+				}
+				break;
+			}
 
 			case TEXT('H'):
 				HunterStart = Cell;

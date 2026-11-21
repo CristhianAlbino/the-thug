@@ -5,6 +5,7 @@
 #include "TTTypes.h"
 #include "TTHunter.generated.h"
 
+class ATTCompanion;
 class ATTDoor;
 class ATTHospital;
 class ATTLocker;
@@ -25,6 +26,8 @@ enum class ETTHunterState : uint8
 	Ambush,
 	SetTrap,
 	Stunned,
+	PursueCompanion,
+	Interrogate,
 	Capturing
 };
 
@@ -121,6 +124,9 @@ private:
 	void Capture();
 	/** Contact with Joe: capture, or (lower difficulties, Joe not yet badly hurt) a blow that injures him. */
 	void ReachJoe();
+	void ScanCompanions();
+	void StartPursueCompanion(ATTCompanion* Companion);
+	void TakeCompanion(ATTCompanion* Companion);
 
 	TSharedPtr<FTTHunterMind> Mind;
 	ETTDifficulty Difficulty = ETTDifficulty::Normal;
@@ -183,5 +189,12 @@ private:
 	float SpeechCooldown = 0.f;
 	int32 TimesLostJoe = 0;
 	float StunTimeLeft = 0.f;
+	TWeakObjectPtr<ATTCompanion> TargetCompanion;
+	float CompanionScanTimer = 0.f;
+	float CompanionLostTime = 0.f;
+	FVector CompanionLastSeen = FVector::ZeroVector;
+	bool bInterrogationInfo = false;
+	FVector InterrogationLocation = FVector::ZeroVector;
+	FString InterrogationHideSpot;
 	float StrikeRecover = 0.f;
 };

@@ -11,6 +11,7 @@
 #include "TTGameMode.h"
 #include "TTHospital.h"
 #include "TTHunter.h"
+#include "TTCompanion.h"
 #include "TTPlayerCharacter.h"
 #include "TTShapes.h"
 
@@ -138,7 +139,7 @@ void ATTDoor::SetOpen(bool bInOpen, bool bQuiet, const AActor* Opener)
 	const FVector SoundLoc = GetActorLocation() + FVector(0.f, 0.f, 150.f);
 	TTAudio::PlayAt(this, ETTSfx::DoorCreak, SoundLoc, bQuiet ? 0.25f : 0.9f);
 
-	if (bByPlayer)
+	if (Opener && !Opener->IsA<ATTHunter>())
 	{
 		if (ATTGameMode* GM = GetTTGameMode(this))
 		{
@@ -209,7 +210,12 @@ FString ATTLocker::GetPrompt(const ATTPlayerCharacter* Player) const
 	{
 		return TEXT("[E] Sair do armário");
 	}
-	return bOccupied ? FString() : TEXT("[E] Esconder-se no armário");
+	if (bOccupied)
+	{
+		const ATTCompanion* Companion = Cast<ATTCompanion>(Occupant.Get());
+		return Companion ? FString::Printf(TEXT("Ocupado — %s está aí dentro"), *Companion->GetDisplayName()) : FString();
+	}
+	return TEXT("[E] Esconder-se no armário");
 }
 
 void ATTLocker::Interact(ATTPlayerCharacter* Player)
@@ -227,6 +233,13 @@ void ATTLocker::Interact(ATTPlayerCharacter* Player)
 		++Uses;
 		Player->EnterLocker(this);
 	}
+	else if (const ATTCompanion* Companion = Cast<ATTCompanion>(Occupant.Get()))
+	{
+		if (ATTGameMode* GM = GetTTGameMode(this))
+		{
+			GM->ShowSubtitle(FString::Printf(TEXT("%s: Sai daqui! Ele vai ouvir!"), *Companion->GetDisplayName()), 3.f);
+		}
+	}
 }
 
 FVector ATTLocker::GetInsideLocation() const
@@ -239,9 +252,10 @@ FVector ATTLocker::GetFrontLocation() const
 	return GetActorLocation() + GetActorForwardVector() * (LockerDims::Depth * 0.5f + 65.f);
 }
 
-void ATTLocker::SetOccupied(bool bInOccupied)
+void ATTLocker::SetOccupied(bool bInOccupied, AActor* InOccupant)
 {
 	bOccupied = bInOccupied;
+	Occupant = bInOccupied ? InOccupant : nullptr;
 	FlapDoor();
 }
 
@@ -308,6 +322,10 @@ void ATTPickup::Setup(ETTPickupType InType, ETTItem InItem, bool bOnTable)
 		break;
 	case ETTItem::Rifle:
 		TTShapes::AddPart(this, Root, TTShapes::Cube(), FVector(0.f, 0.f, Z + 4.f), FVector(85.f, 6.f, 9.f), FLinearColor(0.06f, 0.06f, 0.06f));
+		break;
+	case ETTItem::Crowbar:
+		TTShapes::AddPart(this, Root, TTShapes::Cube(), FVector(0.f, 0.f, Z + 2.f), FVector(70.f, 3.f, 3.f), FLinearColor(0.35f, 0.04f, 0.03f), FRotator(0.f, 20.f, 0.f));
+		TTShapes::AddPart(this, Root, TTShapes::Cube(), FVector(33.f, 12.f, Z + 2.f), FVector(10.f, 3.f, 3.f), FLinearColor(0.35f, 0.04f, 0.03f), FRotator(0.f, 70.f, 0.f), false);
 		break;
 	}
 }
@@ -414,6 +432,114 @@ void ATTExitGate::SetUnlocked()
 	{
 		StatusLight->SetLightColor(FLinearColor(0.1f, 1.f, 0.2f));
 	}
+}
+
+// ---------------------------------------------------------------------------
+// Window
+
+void ATTWindow::Setup(float CellSize, float WallHeight, const FVector& InApproach)
+{
+	Approach = InApproach;
+	const FLinearColor Wall(0.34f, 0.37f, 0.33f);
+	const float Open = 170.f;
+	const float Side = (CellSize - Open) * 0.5f;
+	const float Bottom = 95.f;
+	const float Top = 235.f;
+	UStaticMesh* Cube = TTShapes::Cube();
+	// Wall around the opening (the actor faces into the room along +X).
+	TTShapes::AddPart(this, Root, Cube, FVector(0.f, -(Open + Side) * 0.5f, WallHeight * 0.5f), FVector(CellSize, Side, WallHeight), Wall);
+	TTShapes::AddPart(this, Root, Cube, FVector(0.f, (Open + Side) * 0.5f, WallHeight * 0.5f), FVector(CellSize, Side, WallHeight), Wall);
+	TTShapes::AddPart(this, Root, Cube, FVector(0.f, 0.f, Bottom * 0.5f), FVector(CellSize, Open, Bottom), Wall);
+	TTShapes::AddPart(this, Root, Cube, FVector(0.f, 0.f, Top + (WallHeight - Top) * 0.5f), FVector(CellSize, Open, WallHeight - Top), Wall);
+	// Glass pane far side, and the boards nailed on the inside.
+	TTShapes::AddPart(this, Root, Cube, FVector(-CellSize * 0.5f + 10.f, 0.f, (Bottom + Top) * 0.5f), FVector(4.f, Open, Top - Bottom), FLinearColor(0.02f, 0.03f, 0.05f));
+	const float BoardZ[] = { Bottom + 22.f, (Bottom + Top) * 0.5f, Top - 22.f };
+	for (int32 i = 0; i < 3; ++i)
+	{
+		Boards.Add(TTShapes::AddPart(this, Root, Cube, FVector(CellSize * 0.5f + 4.f, 0.f, BoardZ[i]), FVector(5.f, Open + 50.f, 24.f),
+			FLinearColor(0.22f, 0.15f, 0.09f), FRotator(0.f, 0.f, i == 1 ? 8.f : -5.f)));
+	}
+	// Cold light from the street behind the glass.
+	UPointLightComponent* Moon = NewObject<UPointLightComponent>(this);
+	Moon->SetupAttachment(Root);
+	Moon->SetRelativeLocation(FVector(-CellSize * 0.5f - 60.f, 0.f, 200.f));
+	Moon->SetIntensityUnits(ELightUnits::Lumens);
+	Moon->SetIntensity(120.f);
+	Moon->SetAttenuationRadius(700.f);
+	Moon->SetLightColor(FLinearColor(0.5f, 0.6f, 0.9f));
+	Moon->RegisterComponent();
+}
+
+FString ATTWindow::GetPrompt(const ATTPlayerCharacter* Player) const
+{
+	if (bOpen)
+	{
+		return TEXT("[E] Fugir pela janela para o prédio vizinho");
+	}
+	if (Player && Player->GetItemCount(ETTItem::Crowbar) > 0)
+	{
+		return TEXT("[E] Arrancar as tábuas com o pé de cabra (barulhento)");
+	}
+	return TEXT("Janela pregada — precisa de uma ferramenta");
+}
+
+void ATTWindow::Interact(ATTPlayerCharacter* Player)
+{
+	if (!Player)
+	{
+		return;
+	}
+	if (bOpen)
+	{
+		if (ATTGameMode* GM = GetTTGameMode(this))
+		{
+			GM->PlayerEscaped(TEXT("Pela janela, para o prédio vizinho."));
+		}
+		return;
+	}
+	if (Player->GetItemCount(ETTItem::Crowbar) > 0)
+	{
+		Player->StartPrying(this);
+	}
+	else if (ATTGameMode* GM = GetTTGameMode(this))
+	{
+		GM->ShowMessage(TEXT("As tábuas estão pregadas por dentro. Com um pé de cabra daria."), 3.f);
+	}
+}
+
+bool ATTWindow::AddPry(float DeltaSeconds, AActor* By)
+{
+	if (bOpen)
+	{
+		return true;
+	}
+	Progress += DeltaSeconds;
+	NoiseTimer -= DeltaSeconds;
+	if (NoiseTimer <= 0.f)
+	{
+		NoiseTimer = 1.5f;
+		TTAudio::PlayAt(this, ETTSfx::DoorCreak, GetActorLocation() + FVector(0.f, 0.f, 150.f), 1.f);
+		if (ATTGameMode* GM = GetTTGameMode(this))
+		{
+			GM->ReportNoise(GetActorLocation(), ETTNoise::Door, By);
+		}
+	}
+	const int32 Removed = FMath::Clamp(FMath::FloorToInt(Progress / PryTime * Boards.Num()), 0, Boards.Num());
+	for (int32 i = 0; i < Removed; ++i)
+	{
+		if (Boards[i])
+		{
+			Boards[i]->SetVisibility(false);
+			Boards[i]->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		}
+	}
+	if (Progress >= PryTime)
+	{
+		bOpen = true;
+		TTAudio::PlayAt(this, ETTSfx::Clank, GetActorLocation() + FVector(0.f, 0.f, 150.f), 1.f);
+		UE_LOG(LogTemp, Log, TEXT("[TT] Window open (by %s)"), By ? *By->GetName() : TEXT("?"));
+	}
+	return bOpen;
 }
 
 // ---------------------------------------------------------------------------

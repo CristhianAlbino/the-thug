@@ -49,6 +49,15 @@ public:
 	const TArray<FIntPoint>& GetPatrolPoints() const { return PatrolPoints; }
 
 	FIntPoint GetPlayerStartCell() const { return PlayerStart; }
+	bool GetCompanionStartCell(int32 Index, FIntPoint& OutCell) const
+	{
+		const FIntPoint* Found = CompanionStarts.Find(Index);
+		if (Found)
+		{
+			OutCell = *Found;
+		}
+		return Found != nullptr;
+	}
 	FIntPoint GetHunterStartCell() const { return HunterStart; }
 	float GetPlayerStartYaw() const { return PlayerStartYaw; }
 
@@ -83,6 +92,7 @@ private:
 	float PlayerStartYaw = 0.f;
 	TArray<FIntPoint> PatrolPoints;
 	TSet<FIntPoint> GlassCells;
+	TMap<int32, FIntPoint> CompanionStarts;
 	TArray<FLamp> Lamps;
 
 	UPROPERTY()

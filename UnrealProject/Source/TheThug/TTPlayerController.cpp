@@ -133,7 +133,7 @@ void ATTPlayerController::PlayerTick(float DeltaTime)
 	Joe->SetInventoryOpen(bInventory);
 	if (bInventory)
 	{
-		static const FKey DropKeys[] = { EKeys::One, EKeys::Two, EKeys::Three, EKeys::Four, EKeys::Five, EKeys::Six, EKeys::Seven };
+		static const FKey DropKeys[] = { EKeys::One, EKeys::Two, EKeys::Three, EKeys::Four, EKeys::Five, EKeys::Six, EKeys::Seven, EKeys::Eight };
 		for (int32 i = 0; i < UE_ARRAY_COUNT(DropKeys); ++i)
 		{
 			if (Pressed(DropKeys[i]))
@@ -169,6 +169,14 @@ void ATTPlayerController::PlayerTick(float DeltaTime)
 	if (Pressed(EKeys::H))
 	{
 		Joe->UseMedical();
+	}
+	if (Pressed(EKeys::Z))
+	{
+		Joe->GiveAmmoToFocus();
+	}
+	if (Pressed(EKeys::X))
+	{
+		Joe->RequestFollowFromFocus();
 	}
 
 	UpdateLook();

@@ -6,13 +6,19 @@
 #include "Engine/World.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
+#include "Misc/CommandLine.h"
+#include "Misc/Parse.h"
 #include "TTAudio.h"
 #include "TTGameMode.h"
 #include "TTHospital.h"
 #include "TTHunter.h"
 #include "TTInteractables.h"
 
+#include "TTCompanion.h"
+#include "TTCompanionMind.h"
+
 THIRD_PARTY_INCLUDES_START
+#include "../../../Tools/IntegrationCore/IntegrationCore.h"
 #include "../../../Tools/SurvivalCore/Inventory.h"
 #include "../../../Tools/SurvivalCore/SurvivalCore.h"
 THIRD_PARTY_INCLUDES_END
@@ -32,6 +38,7 @@ namespace
 			ts::ItemDefinition{ "bottle", ts::ItemCategory::Utility, 1, 3, true },
 			ts::ItemDefinition{ "bandage", ts::ItemCategory::Medical, 1, 3, true },
 			ts::ItemDefinition{ "medkit", ts::ItemCategory::Medical, 2, 2, true },
+			ts::ItemDefinition{ "crowbar", ts::ItemCategory::Utility, 2, 1, true },
 		};
 	}
 
@@ -80,9 +87,12 @@ ATTPlayerCharacter::ATTPlayerCharacter()
 	Flashlight = CreateDefaultSubobject<USpotLightComponent>(TEXT("Flashlight"));
 	Flashlight->SetupAttachment(Camera);
 	Flashlight->SetRelativeLocation(FVector(10.f, 14.f, -14.f));
-	Flashlight->IntensityUnits = ELightUnits::Lumens;
-	Flashlight->Intensity = 420.f;
-	Flashlight->AttenuationRadius = 2600.f;
+	// Game-style falloff: no inverse-square blow-out on things right in front of Joe.
+	Flashlight->bUseInverseSquaredFalloff = false;
+	Flashlight->LightFalloffExponent = 1.6f;
+	Flashlight->IntensityUnits = ELightUnits::Unitless;
+	Flashlight->Intensity = 12.f;
+	Flashlight->AttenuationRadius = 1700.f;
 	Flashlight->InnerConeAngle = 11.f;
 	Flashlight->OuterConeAngle = 27.f;
 	Flashlight->SourceRadius = 2.f;
@@ -112,6 +122,8 @@ void ATTPlayerCharacter::BeginPlay()
 	Super::BeginPlay();
 	CameraBaseZ = PlayerTuning::EyeHeight;
 	HeartTimer = 1.f;
+	FParse::Value(FCommandLine::Get(), TEXT("ttflash="), FlashlightPower);
+	Flashlight->SetIntensity(FlashlightPower);
 	if (!Body)
 	{
 		ApplyLoadout(ETTDifficulty::Normal);
@@ -287,7 +299,26 @@ void ATTPlayerCharacter::UpdateAction(float DeltaSeconds)
 	{
 		return;
 	}
-	ActionTime += DeltaSeconds;
+	if (Action == ETTJoeAction::Pry)
+	{
+		ATTWindow* Window = PryTarget.Get();
+		if (!Window || FVector::Dist2D(Window->GetApproachLocation(), GetActorLocation()) > 260.f)
+		{
+			CancelAction();
+			return;
+		}
+		Window->AddPry(DeltaSeconds, this);
+		ActionTime = Window->GetProgress() * ActionDuration;
+		if (!Window->IsOpen())
+		{
+			return;
+		}
+		ActionTime = ActionDuration;
+	}
+	else
+	{
+		ActionTime += DeltaSeconds;
+	}
 	if (ActionTime < ActionDuration)
 	{
 		return;
@@ -318,8 +349,73 @@ void ATTPlayerCharacter::UpdateAction(float DeltaSeconds)
 			TTAudio::Play2D(this, ETTSfx::Click, 0.5f);
 		}
 		break;
+	case ETTJoeAction::Pry:
+		Message(TEXT("A janela está aberta. [E] para atravessar."), 4.f);
+		break;
 	default:
 		break;
+	}
+}
+
+void ATTPlayerCharacter::StartPrying(ATTWindow* Window)
+{
+	if (!Window || !CanAct() || Action != ETTJoeAction::None)
+	{
+		return;
+	}
+	PryTarget = Window;
+	StartAction(ETTJoeAction::Pry, ATTWindow::PryTime);
+}
+
+void ATTPlayerCharacter::ReceiveAid(const FString& From)
+{
+	if (Body && Body->Body.IsBleeding())
+	{
+		Body->Body.Stabilize();
+		Message(FString::Printf(TEXT("%s estancou o seu sangramento."), *From), 4.f);
+		UE_LOG(LogTemp, Log, TEXT("[TT] %s stopped Joe's bleeding"), *From);
+	}
+}
+
+void ATTPlayerCharacter::GiveAmmoToFocus()
+{
+	ATTCompanion* Companion = FocusCompanion.Get();
+	if (!Body || !Companion || !CanAct() || !Companion->GetMind())
+	{
+		return;
+	}
+	if (GetItemCount(ETTItem::Magazine) == 0)
+	{
+		Message(TEXT("Você não tem carregador para dar."), 2.f);
+		return;
+	}
+	// GDD §51 through Tools/IntegrationCore: both states change together, or neither does.
+	const FString EventId = FString::Printf(TEXT("joe_ammo_%s_%d"), *Companion->GetDisplayName(), ++ShareCounter);
+	bool bShared = false;
+	try
+	{
+		bShared = thug::integration::ShareAmmunition(Body->Bag, "magazine", Companion->GetMind()->Core,
+			std::string(TCHAR_TO_UTF8(*EventId)), GetWorld()->GetTimeSeconds());
+	}
+	catch (...)
+	{
+		bShared = false;
+	}
+	if (bShared)
+	{
+		TTAudio::Play2D(this, ETTSfx::Click, 0.4f);
+		Companion->OnReceivedAmmo();
+	}
+}
+
+void ATTPlayerCharacter::RequestFollowFromFocus()
+{
+	if (ATTCompanion* Companion = FocusCompanion.Get())
+	{
+		if (CanAct())
+		{
+			Companion->RequestFollow(this);
+		}
 	}
 }
 
@@ -430,7 +526,7 @@ void ATTPlayerCharacter::Tick(float DeltaSeconds)
 			FlashlightFlickerTimer = FMath::FRandRange(8.f, 25.f);
 		}
 		const bool bDip = FlashlightFlickerTimer < 0.25f && FMath::FRand() < 0.5f;
-		Flashlight->SetIntensity(bDip ? 60.f : 420.f);
+		Flashlight->SetIntensity(bDip ? FlashlightPower * 0.15f : FlashlightPower);
 	}
 	Flashlight->SetVisibility(bFlashlightOn && !IsHidden() && !IsDead());
 }
@@ -530,6 +626,7 @@ void ATTPlayerCharacter::UpdateMovement(float DeltaSeconds)
 void ATTPlayerCharacter::UpdateFocus()
 {
 	Focus = nullptr;
+	FocusCompanion.Reset();
 	if (bFrozen || IsDead())
 	{
 		return;
@@ -554,6 +651,18 @@ void ATTPlayerCharacter::UpdateFocus()
 		if (Candidate && !Candidate->GetPrompt(this).IsEmpty())
 		{
 			Focus = Candidate;
+		}
+	}
+	// Companions are pawns (they ignore the Visibility channel): look for them separately.
+	FCollisionObjectQueryParams Pawns(ECC_Pawn);
+	FHitResult PawnHit;
+	if (GetWorld()->SweepSingleByObjectType(PawnHit, Start, Start + Camera->GetForwardVector() * (PlayerTuning::InteractRange + 60.f), FQuat::Identity, Pawns, FCollisionShape::MakeSphere(20.f), Query))
+	{
+		ATTCompanion* Companion = Cast<ATTCompanion>(PawnHit.GetActor());
+		if (Companion && Companion->IsVisibleTarget() && (!Focus || PawnHit.Distance < Hit.Distance))
+		{
+			FocusCompanion = Companion;
+			Focus = nullptr;
 		}
 	}
 }
@@ -674,6 +783,10 @@ void ATTPlayerCharacter::Interact()
 	if (IsHidden())
 	{
 		HiddenIn->Interact(this);
+	}
+	else if (ATTCompanion* Companion = FocusCompanion.Get(); Companion && CanAct())
+	{
+		Companion->Talk(this);
 	}
 	else if (Focus && CanAct())
 	{

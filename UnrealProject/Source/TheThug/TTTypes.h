@@ -39,7 +39,8 @@ enum class ETTItem : uint8
 	Smoke,
 	Bottle,
 	Bandage,
-	Medkit
+	Medkit,
+	Crowbar
 };
 
 inline const TCHAR* TTItemId(ETTItem Item)
@@ -53,6 +54,7 @@ inline const TCHAR* TTItemId(ETTItem Item)
 	case ETTItem::Bottle: return TEXT("bottle");
 	case ETTItem::Bandage: return TEXT("bandage");
 	case ETTItem::Medkit: return TEXT("medkit");
+	case ETTItem::Crowbar: return TEXT("crowbar");
 	}
 	return TEXT("bottle");
 }
@@ -68,6 +70,7 @@ inline FString TTItemName(ETTItem Item)
 	case ETTItem::Bottle: return TEXT("Garrafa");
 	case ETTItem::Bandage: return TEXT("Atadura");
 	case ETTItem::Medkit: return TEXT("Kit médico");
+	case ETTItem::Crowbar: return TEXT("Pé de cabra");
 	}
 	return TEXT("?");
 }

@@ -43,7 +43,7 @@ public:
 	void QuitGame();
 	void PlayerCaptured(ATTHunter* By);
 	void PlayerDied(const FString& Reason);
-	void PlayerEscaped();
+	void PlayerEscaped(const FString& How = FString());
 
 	void RegisterSmoke(class ATTSmokeCloud* Smoke);
 	/** True when an active smoke cloud sits between A and B (the Hunter cannot see through it). */
@@ -78,6 +78,8 @@ public:
 	bool WasCapturedInLocker() const { return bCapturedInLocker; }
 
 	ATTHospital* GetHospital() const { return Hospital; }
+	const TArray<TObjectPtr<class ATTCompanion>>& GetCompanions() const { return Companions; }
+	void OnCompanionTaken(class ATTCompanion* Companion);
 	ATTHunter* GetHunter() const { return Hunter; }
 	ATTPlayerCharacter* GetPlayer() const;
 
@@ -92,6 +94,12 @@ private:
 
 	UPROPERTY()
 	TObjectPtr<ATTHunter> Hunter;
+
+	UPROPERTY()
+	TArray<TObjectPtr<class ATTCompanion>> Companions;
+
+	bool bCompanionTest = false;
+	void UpdateCompanionTest();
 
 	UPROPERTY()
 	TObjectPtr<USoundWaveProcedural> AmbientWave;
