@@ -46,6 +46,7 @@ public:
 	FVector CellToWorld(const FIntPoint& Cell, float Z = 0.f) const;
 	FIntPoint WorldToCell(const FVector& Location) const;
 	int32 FloorOfCell(const FIntPoint& Cell) const { return FMath::Clamp(Cell.X / Stride, 0, FMath::Max(0, Floors.Num() - 1)); }
+	int32 FloorById(const FString& Id) const;
 	int32 FloorOfLocation(const FVector& Location) const { return FloorOfCell(WorldToCell(Location)); }
 	float FloorZ(int32 Floor) const;
 	int32 GetFloorCount() const { return Floors.Num(); }
@@ -57,6 +58,12 @@ public:
 	FIntPoint FindNearestWalkable(const FIntPoint& Cell) const;
 	bool FindPath(const FIntPoint& From, const FIntPoint& To, TArray<FIntPoint>& OutPath, bool bForHunter = false) const;
 	TArray<FIntPoint> GetWalkableCellsNear(const FIntPoint& Center, int32 Radius) const;
+	/** Generators in B1 (MapCore C_SERVICE): garage lights, gate control and the elevator. */
+	void SetPowered(bool bInPowered);
+	bool IsPowered() const { return bPowered; }
+	/** Once Joe has found the tunnel grates, the Hunter can follow him down there. */
+	void EnableTunnelLinks();
+	void BreakAllCameras();
 	/** The old isolation room on 3: the Hunter only goes in once he saw Joe use it. */
 	bool IsIsolationCell(const FIntPoint& Cell) const { return IsolationCells.Contains(Cell); }
 	void SetHunterKnowsIsolation() { bHunterKnowsIsolation = true; }
@@ -100,6 +107,8 @@ private:
 		FString Id;
 		FString Name;
 		bool bOutdoor = false;
+		float Z = 0.f;
+		bool bStairs = true;
 		TArray<FString> Rows;
 	};
 
@@ -114,6 +123,7 @@ private:
 		bool bOn = true;
 		bool bKilled = false;
 		bool bActive = true;
+		bool bNeedsPower = false;
 		float Timer = 0.f;
 	};
 
@@ -136,6 +146,9 @@ private:
 	TMultiMap<FIntPoint, FIntPoint> Links;
 	TSet<FIntPoint> IsolationCells;
 	bool bHunterKnowsIsolation = false;
+	bool bPowered = false;
+	bool bTunnelLinks = false;
+	TArray<FIntPoint> TunnelLadders;
 
 	FIntPoint PlayerStart = FIntPoint::ZeroValue;
 	FIntPoint HunterStart = FIntPoint::ZeroValue;

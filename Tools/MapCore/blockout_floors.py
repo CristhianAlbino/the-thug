@@ -15,6 +15,12 @@ Legend (see also TTHospital.cpp):
   @  security camera    =  camera console     w  sealed window (city view)
   P  Joe                H  Hunter             Y Harley  U Bartholomeu  J Jack
   1-9  Hunter patrol points
+  Escape routes (MapCore actions):
+  A/B/C  safe code clue (F4 nurse / F2 archive / B1 generators)    N  guard log (F1: a garage key exists)
+  O  security office note (F2: the key is in the safe)              Z  safe (F2)
+  G  generator switch (B1: restores power)                          q  garage gate control (G)
+  R  radio (F1)   F  batteries (F2 servers)   Q  interference panel (F2 cameras)   T  helipad (roof)
+  %  tunnel grate / ladder (B1 and G down to the tunnels)          !  storm drain exit (tunnels)
 
 Stairwells: west at columns 1-2, east at columns 21-22, rows 1-4 on every floor.
 Even floors (G, F1, F3, R) leave the stairwell through row 4; odd floors (B1, F2, F4) through row 1.
@@ -25,8 +31,8 @@ import sys
 W, H = 24, 15
 
 FLOORS = [
-    # (id, display name, outdoor, rows)
-    ("G", "Garagem", False, [
+    # (id, display name, outdoor, z (cm), has stairwells, rows)
+    ("G", "Garagem", False, -800, True, [
         "########################",
         "#SS..~....r.r.r......SS#",
         "#SS.r.r.r.........r..SS#",
@@ -39,15 +45,15 @@ FLOORS = [
         "#.....................t#",
         "###D######..######D#####",
         "#t.t.#..............#.t#",
-        "#n...D..@.....3.....D..#",
-        "#t*.c#......*.......#~K#",
+        "#n%..D..@.....3.....D.q#",
+        "#t*.c#......*.......#~.#",
         "###########X############",
     ]),
-    ("B1", "Subsolo técnico", False, [
+    ("B1", "Subsolo técnico", False, -400, True, [
         "########################",
         "#SS.....g.~....*.....SS#",
         "#SS####D####.####D###SS#",
-        "#SS#t.t.t#.1.#t.t.t#.SS#",
+        "#SS#t.t.t#.1.#G.t.C#.SS#",
         "#SS#..*..D...D..~..#.SS#",
         "####t.t.t#...#t...t#.###",
         "#.L#######...#######...#",
@@ -55,46 +61,46 @@ FLOORS = [
         "#.L#######...#######...#",
         "####m.m.m#...#t.a.t#####",
         "#..D..~..D.3.D..*..D...#",
-        "#..#m.m.m#...#t.t.t#...#",
+        "#..#m.m.m#...#t.t%t#...#",
         "#.*#######.*.#######.n.#",
         "#.....................b#",
         "########################",
     ]),
-    ("F1", "Emergência", False, [
+    ("F1", "Emergência", False, 0, True, [
         "########################",
         "#SS..~....@........*.SS#",
         "#SS.####D#...#D#####.SS#",
-        "#SS.#t...#...#....t#.SS#",
+        "#SS.#t...#...#....N#.SS#",
         "#SS..t.*.D.1.D..*.L#.SS#",
         "###.#t...#...#....t#.###",
         "#M..#####D...#D#####..a#",
         "#V..D..*...2.....*.D..t#",
         "#...#####D...D######...#",
-        "#.L.#m.m.#...#t.t..#...#",
+        "#.L.#m.m.#...#tRt..#...#",
         "#.*.D..~.D.3.D..*.tD.*.#",
         "#.L.#m.m.#...#t....#..L#",
         "#...######...########..#",
         "#.....b.....*........E.#",
         "########################",
     ]),
-    ("F2", "Administração", False, [
+    ("F2", "Administração", False, 400, True, [
         "########################",
         "#SS.....@.....~......SS#",
         "#SS####D###...###D###SS#",
-        "#SS#t.t.t#.1.#t.t.=#.SS#",
+        "#SS#tBt.t#.1.#t.t.=#.SS#",
         "#SS#..*..D...D..*..#.SS#",
-        "####t.t.t#...#t...t#.###",
+        "####t.t.t#...#O.Q.t#.###",
         "#.t#######...#######.t.#",
         "#V.D.....*.2.......D.L.#",
         "#.L#######...#######...#",
-        "####t.t.c#...#t.K.t#####",
+        "####t.t.c#...#t.Z.t#####",
         "#t.D..~..D.3.D..*..D..t#",
-        "#t.#t.t.t#...#t.t.t#.n.#",
+        "#t.#t.F.t#...#t.t.t#.n.#",
         "#.*#######.*.#######...#",
         "#.....................E#",
         "########################",
     ]),
-    ("F3", "Clínica", False, [
+    ("F3", "Clínica", False, 800, True, [
         "########################",
         "#SS.....*.....~......SS#",
         "#SS.####D#...#D#####.SS#",
@@ -111,7 +117,7 @@ FLOORS = [
         "#.....x...........g..E.#",
         "########################",
     ]),
-    ("F4", "Enfermarias", False, [
+    ("F4", "Enfermarias", False, 1200, True, [
         "########################",
         "#SS.....~.....*..@...SS#",
         "#SS####D####.####D###SS#",
@@ -121,14 +127,14 @@ FLOORS = [
         "w.L#######...#######.L.#",
         "#V.D.....~.2.......D.J.w",
         "#.L#######...#######...#",
-        "####m.P.m#...#t.t.t#####",
+        "####m.P.m#...#tAt.t#####",
         "#.aD..*..D.3.D..*..D.b.#",
         "#.L#m.m.L#...#t.U.t#.L.#",
         "#.*#######.*.#######.s.#",
         "#.....g...........g..E.#",
         "########################",
     ]),
-    ("R", "Telhado", True, [
+    ("R", "Telhado", True, 1600, True, [
         "########################",
         "#SS..................SS#",
         "#SS..hh......hh......SS#",
@@ -141,8 +147,25 @@ FLOORS = [
         "#........##..##........#",
         "#...3..................#",
         "#.......hh......hh.....#",
-        "#.......hh......hh.....#",
+        "#.......hh..T...hh.....#",
         "#......................#",
+        "########################",
+    ]),
+    ("T", "Túneis", False, -1200, False, [
+        "########################",
+        "#...~...#.........#..!.#",
+        "#.#####.#.#######.#.####",
+        "#.#...#.#.#.....#.#....#",
+        "#.#.#.#.#.#.###.#.####.#",
+        "#...#.#...#.#.#.#......#",
+        "#####.#####.#.#.########",
+        "#.....#.....#.#........#",
+        "#.###.#.#####.########.#",
+        "#.#...#.#...*.......#..#",
+        "#.#.###.#.#########.#.##",
+        "#.#.....#.......#%..#..#",
+        "#.%##########.#.#####..#",
+        "#..~..........#........#",
         "########################",
     ]),
 ]
@@ -150,8 +173,12 @@ FLOORS = [
 FLOOR_HEIGHT = 400
 STAIRS = [(1, 1), (21, 1)]  # (lane A column, top row) for west and east stairwells
 
-WALKABLE = set(".*~DLPHYUJbaMnsxcgKiIV v@123456789")
+WALKABLE = set(".*~DLPHYUJbansxcgiIV v@123456789%!T")
 WALKABLE.discard(" ")
+
+
+def has_stairs(i):
+    return 0 <= i < len(FLOORS) and FLOORS[i][4]
 
 
 def stair_cells(floor_index, lane_a, r0):
@@ -159,7 +186,7 @@ def stair_cells(floor_index, lane_a, r0):
     a, b = lane_a, lane_a + 1
     r1, r2, r3 = r0 + 1, r0 + 2, r0 + 3
     even = floor_index % 2 == 0
-    top = floor_index == len(FLOORS) - 1
+    top = not has_stairs(floor_index + 1)
     bottom = floor_index == 0
     walk, void, ramp = set(), set(), set()
     up = None
@@ -183,7 +210,7 @@ def stair_cells(floor_index, lane_a, r0):
 
 def validate():
     ok = True
-    for idx, (fid, name, outdoor, rows) in enumerate(FLOORS):
+    for idx, (fid, name, outdoor, z, stairs, rows) in enumerate(FLOORS):
         if len(rows) != H:
             print(f"{fid}: {len(rows)} rows"); ok = False
         for y, row in enumerate(rows):
@@ -195,11 +222,13 @@ def validate():
     # Build walkable graph across floors.
     walk = {}
     links = {}
-    for idx, (fid, name, outdoor, rows) in enumerate(FLOORS):
+    for idx, (fid, name, outdoor, z, stairs, rows) in enumerate(FLOORS):
         for y, row in enumerate(rows):
             for x, ch in enumerate(row):
                 if ch in WALKABLE:
                     walk[(idx, x, y)] = ch
+        if not stairs:
+            continue
         for (la, r0) in STAIRS:
             w, v, ramp, up = stair_cells(idx, la, r0)
             for (x, y) in w:
@@ -214,14 +243,22 @@ def validate():
             for g in (f - 1, f + 1):
                 if walk.get((g, x, y)) == ch:
                     links.setdefault((f, x, y), []).append((g, x, y))
+        if ch == "%":
+            for g in range(len(FLOORS)):
+                if g != f and walk.get((g, x, y)) == "%":
+                    links.setdefault((f, x, y), []).append((g, x, y))
 
-    for idx, (fid, name, outdoor, rows) in enumerate(FLOORS):
+    for idx, (fid, name, outdoor, z, stairs, rows) in enumerate(FLOORS):
+        if not stairs:
+            continue
         for (la, r0) in STAIRS:
             for y in range(r0, r0 + 4):
                 for x in (la, la + 1):
                     if rows[y][x] != "S":
                         print(f"{fid}: stairwell cell ({x},{y}) is {rows[y][x]!r}, expected 'S'"); ok = False
     for (f, x, y), ch in walk.items():
+        if ch == "%" and not any(walk.get((g, x, y)) == "%" for g in range(len(FLOORS)) if g != f):
+            print(f"{FLOORS[f][0]}: tunnel ladder at ({x},{y}) has no partner"); ok = False
         if ch in "Vv" and not any(walk.get((g, x, y)) == ch for g in (f - 1, f + 1)):
             print(f"{FLOORS[f][0]}: hatch {ch} at ({x},{y}) has no partner above/below"); ok = False
 
@@ -249,8 +286,8 @@ def validate():
 
 def emit():
     out = ["// Generated by Tools/MapCore/blockout_floors.py — edit the Python file, not this one.", ""]
-    for idx, (fid, name, outdoor, rows) in enumerate(FLOORS):
-        out.append(f"\t{{ TEXT(\"{fid}\"), TEXT(\"{name}\"), {'true' if outdoor else 'false'}, {{")
+    for idx, (fid, name, outdoor, z, stairs, rows) in enumerate(FLOORS):
+        out.append(f"\t{{ TEXT(\"{fid}\"), TEXT(\"{name}\"), {'true' if outdoor else 'false'}, {z}.f, {'true' if stairs else 'false'}, {{")
         for row in rows:
             out.append(f"\t\tTEXT(\"{row}\"),")
         out.append("\t} },")

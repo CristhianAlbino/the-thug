@@ -1,6 +1,8 @@
 ﻿#include "TTInteractables.h"
 
 #include "Components/PointLightComponent.h"
+#include "Components/SpotLightComponent.h"
+#include "TTHospital.h"
 #include "Components/SphereComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/World.h"
@@ -401,10 +403,14 @@ void ATTPickup::Interact(ATTPlayerCharacter* Player)
 void ATTExitGate::Setup(float CellSize, float WallHeight)
 {
 	const FLinearColor Metal(0.14f, 0.05f, 0.04f);
-	TTShapes::AddPart(this, Root, TTShapes::Cube(), FVector(0.f, 0.f, WallHeight * 0.5f), FVector(30.f, CellSize, WallHeight), Metal);
+	Shutter = NewObject<USceneComponent>(this, TEXT("Shutter"));
+	Shutter->SetMobility(EComponentMobility::Movable);
+	Shutter->SetupAttachment(Root);
+	Shutter->RegisterComponent();
+	TTShapes::AddPart(this, Shutter, TTShapes::Cube(), FVector(0.f, 0.f, WallHeight * 0.5f), FVector(30.f, CellSize, WallHeight), Metal);
 	for (int32 i = 0; i < 8; ++i)
 	{
-		TTShapes::AddPart(this, Root, TTShapes::Cube(), FVector(17.f, 0.f, 30.f + i * 36.f), FVector(6.f, CellSize - 20.f, 6.f), FLinearColor(0.1f, 0.04f, 0.03f), FRotator::ZeroRotator, false);
+		TTShapes::AddPart(this, Shutter, TTShapes::Cube(), FVector(17.f, 0.f, 30.f + i * 36.f), FVector(6.f, CellSize - 20.f, 6.f), FLinearColor(0.1f, 0.04f, 0.03f), FRotator::ZeroRotator, false);
 	}
 	TTShapes::AddPart(this, Root, TTShapes::Cube(), FVector(20.f, CellSize * 0.5f - 45.f, 130.f), FVector(8.f, 22.f, 32.f), FLinearColor(0.05f, 0.05f, 0.05f));
 
@@ -421,29 +427,14 @@ void ATTExitGate::Setup(float CellSize, float WallHeight)
 
 FString ATTExitGate::GetPrompt(const ATTPlayerCharacter* Player) const
 {
-	return Player && Player->HasKey() ? TEXT("[E] Passar o cartão no portão da garagem") : TEXT("[E] Portão da garagem (trancado)");
+	return bOpen ? TEXT("[E] Sair pelo portão da garagem") : TEXT("[E] Portão da garagem (fechado)");
 }
 
 void ATTExitGate::Interact(ATTPlayerCharacter* Player)
 {
-	ATTGameMode* GM = GetTTGameMode(this);
-	if (Player && Player->HasKey())
+	if (ATTGameMode* GM = GetTTGameMode(this))
 	{
-		SetUnlocked();
-		TTAudio::Play2D(this, ETTSfx::Pickup, 0.8f);
-		if (GM)
-		{
-			GM->PlayerEscaped(TEXT("Pelo portão da garagem, para a rua."));
-		}
-	}
-	else
-	{
-		TTAudio::Play2D(this, ETTSfx::Click, 0.6f);
-		if (GM)
-		{
-			GM->ShowMessage(TEXT("Trancado. O leitor pede um cartão de acesso. A administração deve ter um."), 5.f);
-			GM->SetObjective(TEXT("Encontre o cartão de acesso do portão da garagem."));
-		}
+		GM->UseGarageGate(this, Player);
 	}
 }
 
@@ -493,6 +484,10 @@ void ATTWindow::Setup(float CellSize, float WallHeight, const FVector& InApproac
 
 FString ATTWindow::GetPrompt(const ATTPlayerCharacter* Player) const
 {
+	if (bSealed)
+	{
+		return TEXT("Janela pregada de novo");
+	}
 	if (bOpen)
 	{
 		return TEXT("[E] Fugir pela janela para o prédio vizinho");
@@ -510,11 +505,24 @@ void ATTWindow::Interact(ATTPlayerCharacter* Player)
 	{
 		return;
 	}
+	ATTGameMode* GM = GetTTGameMode(this);
+	if (GM)
+	{
+		GM->OnWindowSeen(this);
+	}
+	if (bSealed)
+	{
+		if (GM)
+		{
+			GM->ShowMessage(TEXT("Pregaram de novo, com mais tábuas. Pelo lado de fora. Esta saída acabou."), 4.f);
+		}
+		return;
+	}
 	if (bOpen)
 	{
-		if (ATTGameMode* GM = GetTTGameMode(this))
+		if (GM)
 		{
-			GM->PlayerEscaped(TEXT("Pela janela, para o prédio vizinho."));
+			GM->UseWindowExit(this);
 		}
 		return;
 	}
@@ -522,7 +530,7 @@ void ATTWindow::Interact(ATTPlayerCharacter* Player)
 	{
 		Player->StartPrying(this);
 	}
-	else if (ATTGameMode* GM = GetTTGameMode(this))
+	else if (GM)
 	{
 		GM->ShowMessage(TEXT("As tábuas estão pregadas por dentro. Com um pé de cabra daria."), 3.f);
 	}
@@ -530,9 +538,9 @@ void ATTWindow::Interact(ATTPlayerCharacter* Player)
 
 bool ATTWindow::AddPry(float DeltaSeconds, AActor* By)
 {
-	if (bOpen)
+	if (bOpen || bSealed)
 	{
-		return true;
+		return bOpen;
 	}
 	Progress += DeltaSeconds;
 	NoiseTimer -= DeltaSeconds;
@@ -559,8 +567,28 @@ bool ATTWindow::AddPry(float DeltaSeconds, AActor* By)
 		bOpen = true;
 		TTAudio::PlayAt(this, ETTSfx::Clank, GetActorLocation() + FVector(0.f, 0.f, 150.f), 1.f);
 		UE_LOG(LogTemp, Log, TEXT("[TT] Window open (by %s)"), By ? *By->GetName() : TEXT("?"));
+		if (ATTGameMode* GM = GetTTGameMode(this))
+		{
+			GM->OnWindowOpened(this);
+		}
 	}
 	return bOpen;
+}
+
+void ATTWindow::Seal()
+{
+	bSealed = true;
+	bOpen = false;
+	Progress = 0.f;
+	for (UStaticMeshComponent* Board : Boards)
+	{
+		if (Board)
+		{
+			Board->SetVisibility(true);
+			Board->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		}
+	}
+	TTAudio::PlayAt(this, ETTSfx::Clank, GetActorLocation() + FVector(0.f, 0.f, 150.f), 1.f);
 }
 
 // ---------------------------------------------------------------------------
@@ -568,23 +596,310 @@ bool ATTWindow::AddPry(float DeltaSeconds, AActor* By)
 
 void ATTSign::SetupElevator()
 {
-	Prompt = TEXT("Elevador — sem energia");
-	Message = TEXT("Os botões não acendem. Sem energia no prédio, o elevador está morto.");
+	bElevator = true;
 	const FLinearColor Steel(0.32f, 0.33f, 0.34f);
 	TTShapes::AddPart(this, Root, TTShapes::Cube(), FVector(4.f, -55.f, 120.f), FVector(6.f, 105.f, 240.f), Steel);
 	TTShapes::AddPart(this, Root, TTShapes::Cube(), FVector(4.f, 55.f, 120.f), FVector(6.f, 105.f, 240.f), Steel);
 	if (UStaticMeshComponent* Panel = TTShapes::AddPart(this, Root, TTShapes::Cube(), FVector(6.f, 140.f, 130.f), FVector(4.f, 18.f, 30.f), FLinearColor::Black))
 	{
-		Panel->SetMaterial(0, TTShapes::MakeEmissive(Panel, FLinearColor(1.f, 0.05f, 0.02f), 0.8f));
+		PanelGlow = TTShapes::MakeEmissive(Panel, FLinearColor(1.f, 0.05f, 0.02f), 0.8f);
+		Panel->SetMaterial(0, PanelGlow);
 	}
+}
+
+void ATTSign::SetPoweredLight(bool bPowered)
+{
+	if (PanelGlow)
+	{
+		PanelGlow->SetVectorParameterValue(TEXT("Color"), bPowered ? FLinearColor(0.1f, 1.f, 0.2f) : FLinearColor(1.f, 0.05f, 0.02f));
+	}
+}
+
+ATTSign* ATTSign::FindNext(bool bUp) const
+{
+	ATTSign* Best = nullptr;
+	float BestDZ = TNumericLimits<float>::Max();
+	const float MyZ = GetActorLocation().Z;
+	for (TActorIterator<ATTSign> It(GetWorld()); It; ++It)
+	{
+		if (*It == this || !It->bElevator)
+		{
+			continue;
+		}
+		const float DZ = It->GetActorLocation().Z - MyZ;
+		if ((bUp ? DZ > 100.f : DZ < -100.f) && FMath::Abs(DZ) < BestDZ)
+		{
+			BestDZ = FMath::Abs(DZ);
+			Best = *It;
+		}
+	}
+	return Best;
+}
+
+FString ATTSign::GetPrompt(const ATTPlayerCharacter* Player) const
+{
+	const ATTGameMode* GM = GetTTGameMode(this);
+	if (!GM || !GM->GetHospital() || !GM->GetHospital()->IsPowered())
+	{
+		return TEXT("Elevador — sem energia");
+	}
+	const bool bUp = Player && Player->GetControlRotation().GetNormalized().Pitch > 0.f;
+	const bool bHasUp = FindNext(true) != nullptr;
+	const bool bHasDown = FindNext(false) != nullptr;
+	const bool bGoUp = (bUp && bHasUp) || !bHasDown;
+	return bGoUp ? TEXT("[E] Elevador: subir um andar (olhe para baixo para descer)") : TEXT("[E] Elevador: descer um andar (olhe para cima para subir)");
 }
 
 void ATTSign::Interact(ATTPlayerCharacter* Player)
 {
-	TTAudio::Play2D(this, ETTSfx::Click, 0.5f);
+	ATTGameMode* GM = GetTTGameMode(this);
+	if (!GM || !Player)
+	{
+		return;
+	}
+	if (!GM->GetHospital() || !GM->GetHospital()->IsPowered())
+	{
+		TTAudio::Play2D(this, ETTSfx::Click, 0.5f);
+		GM->ShowMessage(TEXT("Os botões não acendem. Sem energia no prédio, o elevador está morto."), 4.f);
+		return;
+	}
+	const bool bUp = Player->GetControlRotation().GetNormalized().Pitch > 0.f;
+	ATTSign* Target = FindNext(bUp && FindNext(true) ? true : (FindNext(false) ? false : true));
+	if (!Target)
+	{
+		return;
+	}
+	// The cab is loud: the doors, the motor, the bell on arrival.
+	TTAudio::PlayAt(this, ETTSfx::Clank, GetActorLocation() + FVector(0.f, 0.f, 120.f), 1.f);
+	GM->ReportNoise(GetActorLocation(), ETTNoise::Door, Player);
+	GM->ReportNoise(Target->GetActorLocation(), ETTNoise::Door, Player);
+	Player->StartRide(Target->GetActorLocation() + Target->GetActorForwardVector() * 120.f, Target->GetActorRotation().Yaw);
+}
+
+// ---------------------------------------------------------------------------
+// Stations (escape routes)
+
+void ATTStation::Setup(ETTStation InKind)
+{
+	Kind = InKind;
+	UStaticMesh* Cube = TTShapes::Cube();
+	const FLinearColor Desk(0.2f, 0.15f, 0.1f);
+	const FLinearColor Paper(0.8f, 0.78f, 0.7f);
+	const FLinearColor Steel(0.25f, 0.26f, 0.27f);
+	auto Glow = [this, Cube](const FVector& Pos, const FVector& Size, const FLinearColor& Color, float Intensity)
+	{
+		if (UStaticMeshComponent* Light = TTShapes::AddPart(this, Root, Cube, Pos, Size, FLinearColor::Black, FRotator::ZeroRotator, false))
+		{
+			StatusGlow = TTShapes::MakeEmissive(Light, Color, Intensity);
+			Light->SetMaterial(0, StatusGlow);
+		}
+	};
+	switch (Kind)
+	{
+	case ETTStation::ClueA:
+	case ETTStation::ClueB:
+	case ETTStation::ClueC:
+	case ETTStation::GuardLog:
+	case ETTStation::SecurityNote:
+		TTShapes::AddPart(this, Root, Cube, FVector(0.f, 0.f, 38.f), FVector(85.f, 140.f, 76.f), Desk);
+		TTShapes::AddPart(this, Root, Cube, FVector(0.f, -10.f, 77.f), FVector(30.f, 22.f, 1.f), Paper, FRotator(0.f, 12.f, 0.f), false);
+		TTShapes::AddPart(this, Root, Cube, FVector(4.f, 18.f, 77.5f), FVector(26.f, 20.f, 1.f), Paper * 0.9f, FRotator(0.f, -20.f, 0.f), false);
+		break;
+	case ETTStation::Safe:
+		TTShapes::AddPart(this, Root, Cube, FVector(-10.f, 0.f, 60.f), FVector(80.f, 90.f, 120.f), Steel);
+		TTShapes::AddPart(this, Root, Cube, FVector(32.f, 0.f, 60.f), FVector(4.f, 80.f, 110.f), Steel * 0.8f);
+		Glow(FVector(35.f, 22.f, 80.f), FVector(2.f, 18.f, 24.f), FLinearColor(1.f, 0.1f, 0.05f), 2.f);
+		break;
+	case ETTStation::Generator:
+		TTShapes::AddPart(this, Root, Cube, FVector(-20.f, 0.f, 85.f), FVector(140.f, 240.f, 170.f), FLinearColor(0.18f, 0.22f, 0.16f));
+		TTShapes::AddPart(this, Root, TTShapes::Cylinder(), FVector(-20.f, 60.f, 185.f), FVector(50.f, 50.f, 40.f), FLinearColor(0.1f, 0.1f, 0.1f));
+		TTShapes::AddPart(this, Root, Cube, FVector(55.f, -60.f, 110.f), FVector(10.f, 12.f, 60.f), FLinearColor(0.6f, 0.05f, 0.02f), FRotator(20.f, 0.f, 0.f));
+		Glow(FVector(52.f, 40.f, 140.f), FVector(2.f, 14.f, 14.f), FLinearColor(1.f, 0.1f, 0.05f), 3.f);
+		break;
+	case ETTStation::GateControl:
+		TTShapes::AddPart(this, Root, Cube, FVector(-40.f, 0.f, 120.f), FVector(30.f, 110.f, 160.f), Steel);
+		Glow(FVector(-23.f, 0.f, 150.f), FVector(2.f, 30.f, 30.f), FLinearColor(1.f, 0.1f, 0.05f), 3.f);
+		break;
+	case ETTStation::Radio:
+		TTShapes::AddPart(this, Root, Cube, FVector(0.f, 0.f, 38.f), FVector(85.f, 140.f, 76.f), Desk);
+		TTShapes::AddPart(this, Root, Cube, FVector(-5.f, 0.f, 95.f), FVector(45.f, 70.f, 36.f), FLinearColor(0.12f, 0.12f, 0.1f));
+		TTShapes::AddPart(this, Root, Cube, FVector(-15.f, 30.f, 140.f), FVector(2.f, 2.f, 60.f), FLinearColor(0.5f, 0.5f, 0.5f), FRotator::ZeroRotator, false);
+		Glow(FVector(18.f, -15.f, 100.f), FVector(2.f, 20.f, 8.f), FLinearColor(0.2f, 0.2f, 0.2f), 0.2f);
+		break;
+	case ETTStation::Interference:
+		TTShapes::AddPart(this, Root, Cube, FVector(-20.f, 0.f, 100.f), FVector(60.f, 80.f, 200.f), FLinearColor(0.08f, 0.08f, 0.09f));
+		Glow(FVector(12.f, 0.f, 150.f), FVector(2.f, 50.f, 40.f), FLinearColor(0.2f, 1.f, 0.3f), 1.5f);
+		break;
+	case ETTStation::Helipad:
+		for (const float Y : { -60.f, 60.f })
+		{
+			TTShapes::AddPart(this, Root, Cube, FVector(0.f, Y, 0.6f), FVector(200.f, 25.f, 1.f), FLinearColor(0.7f, 0.6f, 0.1f), FRotator::ZeroRotator, false);
+		}
+		TTShapes::AddPart(this, Root, Cube, FVector(0.f, 0.f, 0.6f), FVector(25.f, 120.f, 1.f), FLinearColor(0.7f, 0.6f, 0.1f), FRotator::ZeroRotator, false);
+		break;
+	case ETTStation::TunnelExit:
+	{
+		TTShapes::AddPart(this, Root, Cube, FVector(0.f, 0.f, 0.6f), FVector(200.f, 200.f, 1.f), FLinearColor(0.05f, 0.06f, 0.07f), FRotator::ZeroRotator, false);
+		UPointLightComponent* Street = NewObject<UPointLightComponent>(this);
+		Street->SetupAttachment(Root);
+		Street->SetRelativeLocation(FVector(0.f, 0.f, 250.f));
+		Street->SetIntensityUnits(ELightUnits::Lumens);
+		Street->SetIntensity(200.f);
+		Street->SetAttenuationRadius(800.f);
+		Street->SetLightColor(FLinearColor(0.5f, 0.6f, 0.9f));
+		Street->RegisterComponent();
+		break;
+	}
+	}
+}
+
+void ATTStation::SetStatus(const FLinearColor& Color)
+{
+	if (StatusGlow)
+	{
+		StatusGlow->SetVectorParameterValue(TEXT("Color"), Color);
+		StatusGlow->SetScalarParameterValue(TEXT("Intensity"), 3.f);
+	}
+}
+
+FString ATTStation::GetPrompt(const ATTPlayerCharacter* Player) const
+{
+	const ATTGameMode* GM = GetTTGameMode(this);
+	return GM ? GM->GetStationPrompt(Kind) : FString();
+}
+
+void ATTStation::Interact(ATTPlayerCharacter* Player)
+{
 	if (ATTGameMode* GM = GetTTGameMode(this))
 	{
-		GM->ShowMessage(Message, 4.f);
+		GM->UseStation(this, Player);
+	}
+}
+
+// ---------------------------------------------------------------------------
+// Helicopter
+
+ATTHelicopter::ATTHelicopter()
+{
+	PrimaryActorTick.bCanEverTick = true;
+	Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
+	Root->SetMobility(EComponentMobility::Movable);
+	RootComponent = Root;
+}
+
+void ATTHelicopter::Arrive(const FVector& Pad)
+{
+	PadLocation = Pad;
+	const FLinearColor Body(0.05f, 0.05f, 0.06f);
+	UStaticMesh* Cube = TTShapes::Cube();
+	TTShapes::AddPart(this, Root, Cube, FVector::ZeroVector, FVector(520.f, 200.f, 190.f), Body);
+	TTShapes::AddPart(this, Root, Cube, FVector(-480.f, 0.f, 30.f), FVector(500.f, 50.f, 50.f), Body);
+	TTShapes::AddPart(this, Root, Cube, FVector(-720.f, 0.f, 80.f), FVector(30.f, 20.f, 140.f), Body);
+	TTShapes::AddPart(this, Root, Cube, FVector(0.f, -90.f, -130.f), FVector(400.f, 14.f, 14.f), Body);
+	TTShapes::AddPart(this, Root, Cube, FVector(0.f, 90.f, -130.f), FVector(400.f, 14.f, 14.f), Body);
+	Rotor = NewObject<USceneComponent>(this, TEXT("Rotor"));
+	Rotor->SetupAttachment(Root);
+	Rotor->SetRelativeLocation(FVector(0.f, 0.f, 130.f));
+	Rotor->RegisterComponent();
+	TTShapes::AddPart(this, Rotor, Cube, FVector::ZeroVector, FVector(1100.f, 30.f, 6.f), Body, FRotator::ZeroRotator, false);
+	TTShapes::AddPart(this, Rotor, Cube, FVector::ZeroVector, FVector(30.f, 1100.f, 6.f), Body, FRotator::ZeroRotator, false);
+
+	USpotLightComponent* Search = NewObject<USpotLightComponent>(this);
+	Search->SetupAttachment(Root);
+	Search->SetRelativeLocation(FVector(250.f, 0.f, -80.f));
+	Search->SetRelativeRotation(FRotator(-60.f, 0.f, 0.f));
+	Search->SetIntensityUnits(ELightUnits::Lumens);
+	Search->SetIntensity(30000.f);
+	Search->SetAttenuationRadius(4000.f);
+	Search->SetOuterConeAngle(18.f);
+	Search->SetInnerConeAngle(8.f);
+	Search->SetVolumetricScatteringIntensity(3.f);
+	Search->RegisterComponent();
+
+	SetActorLocation(PadLocation + FVector(-3000.f, -2000.f, 2500.f));
+	SetActorRotation((PadLocation - GetActorLocation()).GetSafeNormal2D().Rotation());
+}
+
+void ATTHelicopter::Leave()
+{
+	bLeaving = true;
+	bHovering = false;
+}
+
+void ATTHelicopter::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+	Age += DeltaSeconds;
+	if (Rotor)
+	{
+		Rotor->AddRelativeRotation(FRotator(0.f, 1500.f * DeltaSeconds, 0.f));
+	}
+	const FVector Hover = PadLocation + FVector(0.f, 0.f, 420.f);
+	if (bLeaving)
+	{
+		SetActorLocation(GetActorLocation() + FVector(1200.f, 600.f, 500.f) * DeltaSeconds);
+		if (Age > 40.f)
+		{
+			Destroy();
+		}
+	}
+	else
+	{
+		const FVector Next = FMath::VInterpConstantTo(GetActorLocation(), Hover, DeltaSeconds, 900.f);
+		SetActorLocation(Next);
+		bHovering = FVector::Dist(Next, Hover) < 50.f;
+	}
+	// A helicopter over the roof is heard all over the top floors.
+	NoiseTimer -= DeltaSeconds;
+	if (NoiseTimer <= 0.f)
+	{
+		NoiseTimer = 2.5f;
+		TTAudio::PlayAt(this, ETTSfx::HunterStep, GetActorLocation(), 1.f);
+		if (ATTGameMode* GM = GetTTGameMode(this))
+		{
+			GM->ReportNoise(PadLocation, ETTNoise::Explosion, this);
+		}
+	}
+}
+
+// ---------------------------------------------------------------------------
+// Garage gate (shutter)
+
+ATTExitGate::ATTExitGate()
+{
+	PrimaryActorTick.bCanEverTick = true;
+}
+
+void ATTExitGate::Open()
+{
+	if (bOpen)
+	{
+		return;
+	}
+	bOpen = true;
+	SetUnlocked();
+	TTAudio::PlayAt(this, ETTSfx::DoorCreak, GetActorLocation() + FVector(0.f, 0.f, 150.f), 1.f);
+}
+
+void ATTExitGate::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+	if (bOpen && Shutter && Lift < 300.f)
+	{
+		Lift = FMath::Min(300.f, Lift + 60.f * DeltaSeconds);
+		Shutter->SetRelativeLocation(FVector(0.f, 0.f, Lift));
+		if (Lift >= 250.f)
+		{
+			TArray<USceneComponent*> Parts;
+			Shutter->GetChildrenComponents(true, Parts);
+			for (USceneComponent* Part : Parts)
+			{
+				if (UPrimitiveComponent* Prim = Cast<UPrimitiveComponent>(Part))
+				{
+					Prim->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+				}
+			}
+		}
 	}
 }
 
@@ -640,15 +955,23 @@ void ATTHatch::Setup(TCHAR InGroup, int32 InFloor, int32 InX, int32 InY)
 
 ATTHatch* ATTHatch::FindPartner(bool bUp) const
 {
-	const int32 Target = Floor + (bUp ? 1 : -1);
+	ATTHatch* Best = nullptr;
+	float BestDZ = TNumericLimits<float>::Max();
+	const float MyZ = GetActorLocation().Z;
 	for (TActorIterator<ATTHatch> It(GetWorld()); It; ++It)
 	{
-		if (It->Group == Group && It->Floor == Target && It->CellX == CellX && It->CellY == CellY)
+		if (*It == this || It->Group != Group || It->CellX != CellX || It->CellY != CellY)
 		{
-			return *It;
+			continue;
+		}
+		const float DZ = It->GetActorLocation().Z - MyZ;
+		if ((bUp ? DZ > 100.f : DZ < -100.f) && FMath::Abs(DZ) < BestDZ)
+		{
+			BestDZ = FMath::Abs(DZ);
+			Best = *It;
 		}
 	}
-	return nullptr;
+	return Best;
 }
 
 bool ATTHatch::WantsUp(const ATTPlayerCharacter* Player) const
@@ -664,6 +987,15 @@ bool ATTHatch::WantsUp(const ATTPlayerCharacter* Player) const
 
 FString ATTHatch::GetPrompt(const ATTPlayerCharacter* Player) const
 {
+	if (Group == TEXT('%'))
+	{
+		const ATTGameMode* GM = GetTTGameMode(this);
+		if (GM && !GM->HasRunFlag(TEXT("tunnel_found")))
+		{
+			return TEXT("[E] Grade solta no chão... arrancar");
+		}
+		return FindPartner(false) ? TEXT("[E] Descer para os túneis") : TEXT("[E] Subir a escada de volta");
+	}
 	const bool bHasUp = FindPartner(true) != nullptr;
 	const bool bHasDown = FindPartner(false) != nullptr;
 	const bool bUp = WantsUp(Player);
@@ -677,6 +1009,20 @@ FString ATTHatch::GetPrompt(const ATTPlayerCharacter* Player) const
 
 void ATTHatch::Interact(ATTPlayerCharacter* Player)
 {
+	if (Group == TEXT('%'))
+	{
+		ATTGameMode* GM = GetTTGameMode(this);
+		if (GM && !GM->HasRunFlag(TEXT("tunnel_found")))
+		{
+			GM->DiscoverTunnel(this);
+			return;
+		}
+		if (ATTHatch* Partner = FindPartner(FindPartner(false) == nullptr))
+		{
+			Player->StartCrawl(Partner);
+		}
+		return;
+	}
 	if (ATTHatch* Partner = FindPartner(WantsUp(Player)))
 	{
 		Player->StartCrawl(Partner);

@@ -12,6 +12,12 @@ class ATTLocker;
 class ATTPlayerCharacter;
 class UAudioComponent;
 class USoundWaveProcedural;
+class ATTExitGate;
+class ATTHatch;
+class ATTHelicopter;
+class ATTStation;
+class ATTWindow;
+struct FTTRunState;
 
 UENUM()
 enum class ETTGamePhase : uint8
@@ -77,6 +83,30 @@ public:
 	bool IsDebugEnabled() const { return bDebug; }
 	bool WasCapturedInLocker() const { return bCapturedInLocker; }
 
+	// Escape routes (Tools/HunterCore/RunRules + MapCore actions)
+	FString GetStationPrompt(ETTStation Kind) const;
+	void UseStation(ATTStation* Station, ATTPlayerCharacter* Joe);
+	void UseGarageGate(ATTExitGate* Gate, ATTPlayerCharacter* Joe);
+	void OnWindowSeen(ATTWindow* Window);
+	void OnWindowOpened(ATTWindow* Window);
+	void UseWindowExit(ATTWindow* Window);
+	void DiscoverTunnel(ATTHatch* Grate);
+	bool HasRunFlag(const FString& Flag) const;
+	const TArray<FString>& GetNotes() const { return Notes; }
+	FString GetClockText() const;
+	/** Seconds until the helicopter leaves, or -1 when none is coming. */
+	float GetHelicopterSecondsLeft() const;
+	bool IsHelicopterHere() const;
+
+	// Safe keypad
+	bool IsKeypadActive() const { return bKeypad; }
+	const FString& GetKeypadEntry() const { return KeypadEntry; }
+	void KeypadDigit(int32 Digit);
+	void KeypadBackspace();
+	void KeypadSubmit();
+	void KeypadCancel();
+	const FString& DebugGetSafeCode() const { return SafeCode; }
+
 	ATTHospital* GetHospital() const { return Hospital; }
 	const TArray<TObjectPtr<class ATTCompanion>>& GetCompanions() const { return Companions; }
 	void OnCompanionTaken(class ATTCompanion* Companion);
@@ -122,6 +152,34 @@ private:
 	TArray<TWeakObjectPtr<class ATTSmokeCloud>> Smokes;
 	FString EndTitle;
 	FString EndSubtitle;
+
+	void InitRun();
+	void UpdateRun(float DeltaSeconds);
+	bool ApplyRunEvent(int32 Event);
+	void FinishIfEnded();
+	void AddNote(const FString& Note);
+	void SetFlag(const FString& Flag) { RunFlags.Add(Flag); }
+	ATTStation* FindStation(ETTStation Kind) const;
+
+	TSharedPtr<FTTRunState> Run;
+	TSet<FString> RunFlags;
+	TArray<FString> Notes;
+	FString SafeCode;
+	bool bKeypad = false;
+	FString KeypadEntry;
+	TWeakObjectPtr<ATTStation> KeypadStation;
+	double HeliConfirmedAt = -1.0;
+	float HeliArrivalDelay = 150.f;
+	bool bHeliGone = false;
+	TWeakObjectPtr<ATTHelicopter> Helicopter;
+	float NightMinutes = 150.f;
+	float NightRate = 3.5f;
+	bool bDawnAnnounced = false;
+	float IsolationTime = 0.f;
+	float IsolationNeeded = 300.f;
+	bool bRouteTest = false;
+	FString RouteTest;
+	void UpdateRouteTest();
 
 	FString Message;
 	float MessageTime = 0.f;

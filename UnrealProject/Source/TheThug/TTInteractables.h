@@ -146,10 +146,23 @@ public:
 	virtual void Interact(ATTPlayerCharacter* Player) override;
 
 	void SetUnlocked();
+	/** Released from the control room: the shutter rolls up. */
+	void Open();
+	bool IsOpen() const { return bOpen; }
 
 private:
 	UPROPERTY()
 	TObjectPtr<UPointLightComponent> StatusLight;
+
+	UPROPERTY()
+	TObjectPtr<USceneComponent> Shutter;
+
+	bool bOpen = false;
+	float Lift = 0.f;
+
+public:
+	virtual void Tick(float DeltaSeconds) override;
+	ATTExitGate();
 };
 
 /** Boarded window to the neighbouring building (GDD §56, route D). Needs a crowbar; prying is loud. */
@@ -169,6 +182,9 @@ public:
 	float GetProgress() const { return Progress / PryTime; }
 	/** Someone works on the boards. Returns true when the window is open. */
 	bool AddPry(float DeltaSeconds, AActor* By);
+	/** The Hunter found it open: nailed shut for good (window route failed). */
+	void Seal();
+	bool IsSealed() const { return bSealed; }
 
 	static constexpr float PryTime = 6.f;
 
@@ -178,11 +194,12 @@ private:
 
 	FVector Approach = FVector::ZeroVector;
 	bool bOpen = false;
+	bool bSealed = false;
 	float Progress = 0.f;
 	float NoiseTimer = 0.f;
 };
 
-/** Something you can only read (elevator without power, signs). */
+/** Elevator door. Dead until the generators run; then it rides one floor up or down (loud). */
 UCLASS()
 class THETHUG_API ATTSign : public ATTInteractable
 {
@@ -190,12 +207,63 @@ class THETHUG_API ATTSign : public ATTInteractable
 
 public:
 	void SetupElevator();
-	virtual FString GetPrompt(const ATTPlayerCharacter* Player) const override { return Prompt; }
+	virtual FString GetPrompt(const ATTPlayerCharacter* Player) const override;
 	virtual void Interact(ATTPlayerCharacter* Player) override;
+	ATTSign* FindNext(bool bUp) const;
+	void SetPoweredLight(bool bPowered);
 
 private:
-	FString Prompt;
-	FString Message;
+	bool bElevator = false;
+
+	UPROPERTY()
+	TObjectPtr<UMaterialInstanceDynamic> PanelGlow;
+};
+
+/** Every device an escape route needs (MapCore actions). Logic lives in ATTGameMode's run state. */
+UCLASS()
+class THETHUG_API ATTStation : public ATTInteractable
+{
+	GENERATED_BODY()
+
+public:
+	void Setup(ETTStation InKind);
+	virtual FString GetPrompt(const ATTPlayerCharacter* Player) const override;
+	virtual void Interact(ATTPlayerCharacter* Player) override;
+	ETTStation GetKind() const { return Kind; }
+	void SetStatus(const FLinearColor& Color);
+
+private:
+	ETTStation Kind = ETTStation::ClueA;
+
+	UPROPERTY()
+	TObjectPtr<UMaterialInstanceDynamic> StatusGlow;
+};
+
+/** The boss's helicopter over the roof pad (GDD §54). */
+UCLASS()
+class THETHUG_API ATTHelicopter : public AActor
+{
+	GENERATED_BODY()
+
+public:
+	ATTHelicopter();
+	void Arrive(const FVector& Pad);
+	void Leave();
+	virtual void Tick(float DeltaSeconds) override;
+	bool IsHovering() const { return bHovering; }
+
+private:
+	UPROPERTY()
+	TObjectPtr<USceneComponent> Root;
+
+	UPROPERTY()
+	TObjectPtr<USceneComponent> Rotor;
+
+	FVector PadLocation = FVector::ZeroVector;
+	bool bHovering = false;
+	bool bLeaving = false;
+	float NoiseTimer = 0.f;
+	float Age = 0.f;
 };
 
 /** Security monitors on 2 (GDD §26): watch the corridors, but some cameras show nothing. */
@@ -223,6 +291,7 @@ public:
 
 	ATTHatch* FindPartner(bool bUp) const;
 	int32 GetFloor() const { return Floor; }
+	TCHAR GetGroup() const { return Group; }
 
 private:
 	bool WantsUp(const ATTPlayerCharacter* Player) const;

@@ -1,4 +1,4 @@
-# UnrealProject — The Thug (prototype: M01–M05)
+# UnrealProject — The Thug (prototype: M01–M06)
 
 Unreal Engine **5.8**, C++. The M01 slice (GDD §98, "10 excellent minutes") is fully code-driven:
 the hospital wing, the Hunter, the sounds and the HUD are generated at runtime, so the only
@@ -22,6 +22,7 @@ binary asset is the empty map `Content/Maps/Hospital_M01.umap` (Git LFS).
 | Window route (GDD §56): boarded window, crowbar, loud prying; a companion escaping through it leaves it open for Joe | `TTInteractables` (`ATTWindow`) |
 | Doors (crouch = slow and quiet), lockers with slats, keycard, bottles, service gate | `TTInteractables` |
 | **Whole hospital (M05 blockout)**: garage, B1, floors 1-4 and roof stacked, two switchback stairwells (real ramps), service shaft hatches Joe can crawl through (the Hunter cannot), security camera room with night-vision feeds (some dead), heavy-door isolation room the Hunter only enters after seeing Joe there, elevator (no power yet), city skyline and moonlit roof, lights only on the floors around the view | `TTHospital` + `TTHospitalLayout.inl` |
+| **Escape routes (M06) from `/Tools/HunterCore/RunRules`**: every step is a RunRules event and the ending comes from it. **Garage**: three code clues (4th floor nurse, 2nd floor archive, B1) → safe on the 2nd floor (keypad, random code each run) → garage key → generator in B1 (power: garage lights, elevator) → gate control → gate. **Roof**: radio on the 1st floor needs batteries (2nd floor servers) → interference panel at the cameras → call the boss → helicopter arrives (countdown on screen), lands on the helipad, is loud and leaves if Joe takes too long. **Tunnels**: grate in B1 (or the garage) opens the storm drain maze one floor below, exit at the far end; the Hunter climbs the ladders after Joe. **Window**: crowbar and prying; if the Hunter sees it open he seals it. Night clock (00:00 → 03:30 dawn ends the run), hiding in the isolation room long enough also ends it, elevator rides when powered | `TTGameMode` (run section), `TTInteractables` (`ATTStation`, `ATTHelicopter`, `ATTExitGate`) |
 | Procedural audio (Hunter steps, heartbeat, creaks, glass, drone) | `TTAudio` |
 | Title / pause / captured / escaped flow, noise routing | `TTGameMode`, `TTHUD`, `TTPlayerController` |
 
@@ -38,7 +39,7 @@ their standalone tests still run outside Unreal). The module builds with excepti
 
 ## Controls
 
-WASD move · Shift sprint · C toggle crouch / Ctrl hold crouch · F flashlight · E interact / hide · Right mouse aim · Left mouse fire · R reload · G bottle · T smoke · Q grenade · H bandage/medkit · hold Tab inventory (+ 2-7 drop) · looking at a companion: E talk, Z give magazine, X come with me / stay · Esc pause (mouse sensitivity with + / −).
+WASD move · Shift sprint · C toggle crouch / Ctrl hold crouch · F flashlight · E interact / hide · Right mouse aim · Left mouse fire · R reload · G bottle · T smoke · Q grenade · H bandage/medkit · hold Tab inventory, notes and clock (+ 2-9 drop) · safe keypad: 0-9 type, Backspace erase, Enter confirm, E/Esc leave · looking at a companion: E talk, Z give magazine, X come with me / stay · Esc pause (mouse sensitivity with + / −).
 
 ## Build
 
@@ -60,7 +61,8 @@ Debug flags: `-ttdebug` (Hunter state on screen), `-ttshots` (scripted screensho
 `-ttlearn` (seeds route evidence for door 8,4 and aggression, hides Joe, logs traps/ambush),
 `-ttsurvive` (injury, bandage, shot, smoke, grenade; logs and screenshots),
 `-ttcomp` (talk, ammo handoff, Hunter takes a companion, Jack escapes through the window, Joe follows),
-`-ttfloors` (service hatch crawl, stairwell, camera monitors, garage; screenshots), `-ttflash=<power>`, `-ttdiff=<0-3>`, `-ttev=<bias>` (exposure), `-ttsens=<x>` (mouse).
+`-ttfloors` (service hatch crawl, stairwell, camera monitors, garage; screenshots),
+`-ttroute=garage|roof|tunnel|window` (plays one escape route end to end and logs each RunRules event and the ending), `-ttfastheli=<s>` (helicopter delay), `-ttflash=<power>`, `-ttdiff=<0-3>`, `-ttev=<bias>` (exposure), `-ttsens=<x>` (mouse).
 
 ## Package the .exe
 

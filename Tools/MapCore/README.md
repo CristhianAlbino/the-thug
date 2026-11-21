@@ -27,8 +27,10 @@ O validador também verifica IDs e ligações dos dispositivos e prova que cada 
 
 ## Blockout jogável (Unreal)
 
-`blockout_floors.py` traduz este grafo num blockout de 7 níveis (garagem, B1, 1º–4º e telhado) em grades ASCII de 24×15,
+`blockout_floors.py` traduz este grafo num blockout de 8 níveis (garagem, B1, 1º–4º, telhado e túneis, cada um com seu Z) em grades ASCII de 24×15,
 com duas escadas em zigue-zague, prumada de serviço (`V`/`v`, só o Joe passa), sala de câmeras, isolamento e as saídas
-já implementadas no protótipo (janela do 3º e portão da garagem). `python Tools/MapCore/blockout_floors.py` valida
-larguras, escadas, pares de escotilhas e alcance de todas as células a partir do início; `--emit` gera a tabela C++.
-Túneis, anexo, telhado/helicóptero, energia/elevador e cofre com código ainda não estão no blockout.
+das rotas de fuga: pistas do código (`A/B/C`), registro do vigia (`N`), bilhete da segurança (`O`), cofre (`Z`), gerador (`G`),
+controle do portão (`q`), rádio (`R`), pilhas (`F`), painel de interferência (`Q`), heliponto (`T`), grades/escadas dos túneis (`%`)
+e saída pluvial (`!`). Os túneis não têm escada; só ficam ligados ao resto depois que o Joe encontra a grade.
+`python Tools/MapCore/blockout_floors.py` valida larguras, escadas, pares de escotilhas e de grades e o alcance de todas as
+células a partir do início; `--emit` gera a tabela C++. O anexo ainda não está no blockout.

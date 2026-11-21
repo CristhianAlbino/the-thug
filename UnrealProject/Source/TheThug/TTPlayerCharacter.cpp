@@ -41,6 +41,7 @@ namespace
 			ts::ItemDefinition{ "bandage", ts::ItemCategory::Medical, 1, 3, true },
 			ts::ItemDefinition{ "medkit", ts::ItemCategory::Medical, 2, 2, true },
 			ts::ItemDefinition{ "crowbar", ts::ItemCategory::Utility, 2, 1, true },
+			ts::ItemDefinition{ "batteries", ts::ItemCategory::Utility, 1, 1, true },
 		};
 	}
 
@@ -370,6 +371,19 @@ void ATTPlayerCharacter::UpdateAction(float DeltaSeconds)
 		}
 		CrawlTarget.Reset();
 		break;
+	case ETTJoeAction::Ride:
+	{
+		FVector Out = RideDestination;
+		Out.Z += GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight() + 4.f;
+		SetActorLocation(Out, false, nullptr, ETeleportType::TeleportPhysics);
+		if (AController* C = GetController())
+		{
+			C->SetControlRotation(FRotator(0.f, RideYaw, 0.f));
+		}
+		TTAudio::Play2D(this, ETTSfx::Pickup, 0.6f);
+		ReportNoise(ETTNoise::Door);
+		break;
+	}
 	default:
 		break;
 	}
@@ -395,6 +409,23 @@ void ATTPlayerCharacter::StartCrawl(ATTHatch* Target)
 	bCrouchToggled = false;
 	ReportNoise(ETTNoise::SlowStep);
 	StartAction(ETTJoeAction::Crawl, 3.f);
+}
+
+void ATTPlayerCharacter::StartRide(const FVector& Destination, float Yaw)
+{
+	if (!CanAct() || Action != ETTJoeAction::None)
+	{
+		return;
+	}
+	RideDestination = Destination;
+	RideYaw = Yaw;
+	bCrouchToggled = false;
+	StartAction(ETTJoeAction::Ride, 4.f);
+}
+
+bool ATTPlayerCharacter::ConsumeItem(ETTItem Item)
+{
+	return Body && Body->Bag.Remove(Id(Item), 1, ts::RemovalReason::Consume);
 }
 
 void ATTPlayerCharacter::StartCameraView()
@@ -674,6 +705,11 @@ bool ATTPlayerCharacter::CanAct() const
 
 bool ATTPlayerCharacter::CanMove() const
 {
+	const ATTGameMode* GM = GetWorld()->GetAuthGameMode<ATTGameMode>();
+	if (GM && GM->IsKeypadActive())
+	{
+		return false;
+	}
 	return CanAct() && !bViewingCameras && (Action == ETTJoeAction::None || Action == ETTJoeAction::Reload);
 }
 

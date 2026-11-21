@@ -839,6 +839,15 @@ bool ATTHunter::FollowPath(float DeltaSeconds, float MoveSpeed)
 
 	const FVector Loc = GetActorLocation();
 	FVector To = Path[PathIndex] - Loc;
+	// Ladder down into the tunnels (or back up): no stairs, he climbs.
+	if (FMath::Abs(To.Z) > 250.f && To.Size2D() < 160.f)
+	{
+		SetActorLocation(FVector(Path[PathIndex].X, Path[PathIndex].Y, Path[PathIndex].Z), false, nullptr, ETeleportType::TeleportPhysics);
+		TTAudio::PlayAt(this, ETTSfx::Clank, GetActorLocation(), 1.f);
+		DoorWait = 0.8f;
+		++PathIndex;
+		return PathIndex >= Path.Num();
+	}
 	To.Z = 0.f;
 	const bool bLast = PathIndex == Path.Num() - 1;
 	if (To.Size() < (bLast ? 60.f : 90.f))

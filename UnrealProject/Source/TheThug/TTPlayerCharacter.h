@@ -22,7 +22,8 @@ enum class ETTJoeAction : uint8
 	Medkit,
 	Reload,
 	Pry,
-	Crawl
+	Crawl,
+	Ride
 };
 
 /**
@@ -64,6 +65,8 @@ public:
 	void RequestFollowFromFocus();
 	void StartPrying(ATTWindow* Window);
 	void StartCrawl(ATTHatch* Target);
+	void StartRide(const FVector& Destination, float Yaw);
+	bool ConsumeItem(ETTItem Item);
 	void StartCameraView();
 	void StopCameraView();
 	void CycleCamera(int32 Step);
@@ -155,6 +158,8 @@ private:
 	TWeakObjectPtr<ATTCompanion> FocusCompanion;
 	TWeakObjectPtr<ATTWindow> PryTarget;
 	TWeakObjectPtr<ATTHatch> CrawlTarget;
+	FVector RideDestination = FVector::ZeroVector;
+	float RideYaw = 0.f;
 	bool bViewingCameras = false;
 	int32 CameraIndex = 0;
 	int32 CurrentFloor = -1;

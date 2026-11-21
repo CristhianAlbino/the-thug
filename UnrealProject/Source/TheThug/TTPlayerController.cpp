@@ -98,6 +98,35 @@ void ATTPlayerController::PlayerTick(float DeltaTime)
 		break;
 	}
 
+	if (GM->IsKeypadActive())
+	{
+		static const FKey Digits[] = { EKeys::Zero, EKeys::One, EKeys::Two, EKeys::Three, EKeys::Four, EKeys::Five, EKeys::Six, EKeys::Seven, EKeys::Eight, EKeys::Nine };
+		static const FKey PadDigits[] = { EKeys::NumPadZero, EKeys::NumPadOne, EKeys::NumPadTwo, EKeys::NumPadThree, EKeys::NumPadFour, EKeys::NumPadFive, EKeys::NumPadSix, EKeys::NumPadSeven, EKeys::NumPadEight, EKeys::NumPadNine };
+		for (int32 d = 0; d < 10; ++d)
+		{
+			if (Pressed(Digits[d]) || Pressed(PadDigits[d]))
+			{
+				GM->KeypadDigit(d);
+			}
+		}
+		if (Pressed(EKeys::BackSpace))
+		{
+			GM->KeypadBackspace();
+		}
+		if (Pressed(EKeys::Enter))
+		{
+			GM->KeypadSubmit();
+		}
+		if (Pressed(EKeys::Escape) || Pressed(EKeys::E))
+		{
+			GM->KeypadCancel();
+		}
+		if (Joe)
+		{
+			Joe->SetMoveInput(FVector2D::ZeroVector);
+		}
+		return;
+	}
 	if (Joe && Joe->IsViewingCameras())
 	{
 		if (Pressed(EKeys::A) || Pressed(EKeys::Left) || Pressed(EKeys::Q))
@@ -150,7 +179,7 @@ void ATTPlayerController::PlayerTick(float DeltaTime)
 	Joe->SetInventoryOpen(bInventory);
 	if (bInventory)
 	{
-		static const FKey DropKeys[] = { EKeys::One, EKeys::Two, EKeys::Three, EKeys::Four, EKeys::Five, EKeys::Six, EKeys::Seven, EKeys::Eight };
+		static const FKey DropKeys[] = { EKeys::One, EKeys::Two, EKeys::Three, EKeys::Four, EKeys::Five, EKeys::Six, EKeys::Seven, EKeys::Eight, EKeys::Nine };
 		for (int32 i = 0; i < UE_ARRAY_COUNT(DropKeys); ++i)
 		{
 			if (Pressed(DropKeys[i]))

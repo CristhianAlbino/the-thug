@@ -152,7 +152,26 @@ void ATTHUD::DrawPlaying()
 		return;
 	}
 
-	if (Player->GetAction() == ETTJoeAction::Crawl)
+	if (GM->IsKeypadActive())
+	{
+		const float PW = 380.f * UI;
+		const float PH = 250.f * UI;
+		const float PX = (W - PW) * 0.5f;
+		const float PY = (H - PH) * 0.5f;
+		DrawRect(FLinearColor(0.02f, 0.02f, 0.02f, 0.92f), PX, PY, PW, PH);
+		DrawCentered(TEXT("COFRE"), PY + 20.f * UI, Medium, 1.1f * UI, Dim);
+		FString Shown;
+		const FString& Entry = GM->GetKeypadEntry();
+		for (int32 i = 0; i < 6; ++i)
+		{
+			Shown += i < Entry.Len() ? FString::Chr(Entry[i]) : FString(TEXT("_"));
+			Shown += TEXT(" ");
+		}
+		DrawCentered(Shown, PY + 80.f * UI, GEngine->GetLargeFont(), 1.8f * UI, FLinearColor(0.3f, 1.f, 0.4f));
+		DrawCentered(TEXT("0-9 digitar    Backspace apagar    Enter confirmar    E sair"), PY + PH - 50.f * UI, Small, 1.1f * UI, Dim);
+	}
+
+	if (Player->GetAction() == ETTJoeAction::Crawl || Player->GetAction() == ETTJoeAction::Ride)
 	{
 		const float K = Player->GetActionProgress();
 		const float Fade = FMath::Clamp(FMath::Min(K / 0.25f, (1.f - K) / 0.25f), 0.f, 1.f);
@@ -225,6 +244,13 @@ void ATTHUD::DrawPlaying()
 		DrawCentered(FString::Printf(TEXT("— %s"), *GM->GetSubtitle()), H * 0.79f, Medium, 1.25f * UI, FLinearColor(0.75f, 0.8f, 0.9f, A), true);
 	}
 
+	if (const float Heli = GM->GetHelicopterSecondsLeft(); Heli >= 0.f)
+	{
+		const int32 S = FMath::CeilToInt(Heli);
+		const FString Text = FString::Printf(TEXT("%s  %d:%02d"), GM->IsHelicopterHere() ? TEXT("HELICÓPTERO NO TELHADO") : TEXT("HELICÓPTERO A CAMINHO"), S / 60, S % 60);
+		DrawCentered(Text, 40.f * UI, Medium, 1.1f * UI, FLinearColor(1.f, 0.85f, 0.4f), true);
+	}
+
 	// Stamina only appears when it matters.
 	const float Stamina = Player->GetStamina();
 	if (Stamina < 0.99f)
@@ -242,7 +268,8 @@ void ATTHUD::DrawPlaying()
 		const TCHAR* Label = Player->GetAction() == ETTJoeAction::Bandage ? TEXT("Enfaixando...")
 			: Player->GetAction() == ETTJoeAction::Medkit ? TEXT("Fazendo curativo...")
 			: Player->GetAction() == ETTJoeAction::Pry ? TEXT("Arrancando as tábuas... (barulho!)")
-			: Player->GetAction() == ETTJoeAction::Crawl ? TEXT("Rastejando pela prumada...") : TEXT("Recarregando...");
+			: Player->GetAction() == ETTJoeAction::Crawl ? TEXT("Rastejando...")
+			: Player->GetAction() == ETTJoeAction::Ride ? TEXT("O elevador range entre os andares...") : TEXT("Recarregando...");
 		const float BarW = 260.f * UI;
 		const float X = (W - BarW) * 0.5f;
 		const float Y = H * 0.62f;
@@ -282,12 +309,12 @@ void ATTHUD::DrawPlaying()
 	if (Player->IsInventoryOpen())
 	{
 		const float PanelW = 520.f * UI;
-		const float PanelH = 400.f * UI;
-		const float PX = (W - PanelW) * 0.5f;
+		const float PanelH = 430.f * UI;
+		const float PX = W - PanelW - 60.f * UI;
 		const float PY = (H - PanelH) * 0.5f;
 		DrawRect(FLinearColor(0.f, 0.f, 0.f, 0.8f), PX, PY, PanelW, PanelH);
 		DrawText(FString::Printf(TEXT("INVENTÁRIO      espaço %d / %d"), Player->GetUsedSlots(), Player->GetCapacity()), Pale, PX + 24.f * UI, PY + 18.f * UI, Medium, 1.f * UI);
-		for (int32 i = 0; i <= static_cast<int32>(ETTItem::Crowbar); ++i)
+		for (int32 i = 0; i <= static_cast<int32>(ETTItem::Batteries); ++i)
 		{
 			const ETTItem Item = static_cast<ETTItem>(i);
 			const int32 Count = Player->GetItemCount(Item);
@@ -295,7 +322,21 @@ void ATTHUD::DrawPlaying()
 			DrawText(FString::Printf(TEXT("%d   %s"), i + 1, *TTItemName(Item)), C, PX + 24.f * UI, PY + (64.f + i * 34.f) * UI, Medium, 0.95f * UI);
 			DrawText(FString::Printf(TEXT("x%d"), Count), C, PX + PanelW - 80.f * UI, PY + (64.f + i * 34.f) * UI, Medium, 0.95f * UI);
 		}
-		DrawText(TEXT("Segure TAB e aperte 2-8 para largar um item no chão (o fuzil fica)."), Dim, PX + 24.f * UI, PY + PanelH - 36.f * UI, Small, 1.1f * UI);
+		DrawText(TEXT("Segure TAB e aperte 2-9 para largar um item no chão (o fuzil fica)."), Dim, PX + 24.f * UI, PY + PanelH - 36.f * UI, Small, 1.1f * UI);
+
+		// Joe's notes and the time (GDD: no map, information is a resource).
+		const float NX = 40.f * UI;
+		float NY = 120.f * UI;
+		DrawText(FString::Printf(TEXT("%s   ANOTAÇÕES"), *GM->GetClockText()), Pale, NX, NY - 40.f * UI, Medium, 1.f * UI);
+		if (GM->GetNotes().Num() == 0)
+		{
+			DrawText(TEXT("Nada ainda. Leia papéis, livros, etiquetas."), Dim, NX, NY, Small, 1.1f * UI);
+		}
+		for (const FString& Note : GM->GetNotes())
+		{
+			DrawText(TEXT("· ") + Note, Dim, NX, NY, Small, 1.1f * UI);
+			NY += 26.f * UI;
+		}
 	}
 
 	if (GM->IsDebugEnabled())
@@ -318,6 +359,7 @@ void ATTHUD::DrawPause()
 	UFont* Large = GEngine->GetLargeFont();
 	UFont* Medium = GEngine->GetMediumFont();
 	DrawCentered(TEXT("PAUSADO"), H * 0.32f, Large, 2.f * UI, Pale);
+	DrawCentered(FString::Printf(TEXT("%s"), *GetGM(this)->GetClockText()), H * 0.41f, Medium, 1.f * UI, Dim);
 	DrawCentered(TEXT("ESC  continuar        R  recomeçar        Q  sair"), H * 0.48f, Medium, 1.1f * UI, Dim);
 
 	float Sens = 1.f;

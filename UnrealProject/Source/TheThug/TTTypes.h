@@ -29,6 +29,24 @@ enum class ETTNoise : uint8
 	Explosion
 };
 
+/** Escape-route devices (MapCore actions). */
+UENUM()
+enum class ETTStation : uint8
+{
+	ClueA,
+	ClueB,
+	ClueC,
+	GuardLog,
+	SecurityNote,
+	Safe,
+	Generator,
+	GateControl,
+	Radio,
+	Interference,
+	Helipad,
+	TunnelExit
+};
+
 /** Items Joe can carry (ids match the SurvivalCore inventory catalog). */
 UENUM()
 enum class ETTItem : uint8
@@ -40,7 +58,8 @@ enum class ETTItem : uint8
 	Bottle,
 	Bandage,
 	Medkit,
-	Crowbar
+	Crowbar,
+	Batteries
 };
 
 inline const TCHAR* TTItemId(ETTItem Item)
@@ -55,6 +74,7 @@ inline const TCHAR* TTItemId(ETTItem Item)
 	case ETTItem::Bandage: return TEXT("bandage");
 	case ETTItem::Medkit: return TEXT("medkit");
 	case ETTItem::Crowbar: return TEXT("crowbar");
+	case ETTItem::Batteries: return TEXT("batteries");
 	}
 	return TEXT("bottle");
 }
@@ -71,6 +91,7 @@ inline FString TTItemName(ETTItem Item)
 	case ETTItem::Bandage: return TEXT("Atadura");
 	case ETTItem::Medkit: return TEXT("Kit médico");
 	case ETTItem::Crowbar: return TEXT("Pé de cabra");
+	case ETTItem::Batteries: return TEXT("Pilhas");
 	}
 	return TEXT("?");
 }

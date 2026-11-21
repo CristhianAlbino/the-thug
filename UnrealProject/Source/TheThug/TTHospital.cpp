@@ -28,6 +28,8 @@ namespace
 		const TCHAR* Id;
 		const TCHAR* Name;
 		bool bOutdoor;
+		float Z;
+		bool bStairs;
 		const TCHAR* Rows[ATTHospital::FloorH];
 	};
 
@@ -57,6 +59,7 @@ namespace
 		case TEXT('s'): case TEXT('x'): case TEXT('g'): case TEXT('c'):
 		case TEXT('Y'): case TEXT('U'): case TEXT('J'):
 		case TEXT('V'): case TEXT('v'): case TEXT('@'): case TEXT('i'): case TEXT('I'):
+		case TEXT('%'): case TEXT('!'): case TEXT('T'):
 			return true;
 		default:
 			return C >= TEXT('1') && C <= TEXT('9');
@@ -80,7 +83,19 @@ ATTHospital::ATTHospital()
 
 float ATTHospital::FloorZ(int32 Floor) const
 {
-	return (Floor - GroundFloorIndex) * FloorHeight;
+	return Floors.IsValidIndex(Floor) ? Floors[Floor].Z : (Floor - GroundFloorIndex) * FloorHeight;
+}
+
+int32 ATTHospital::FloorById(const FString& Id) const
+{
+	for (int32 i = 0; i < Floors.Num(); ++i)
+	{
+		if (Floors[i].Id == Id)
+		{
+			return i;
+		}
+	}
+	return INDEX_NONE;
 }
 
 FVector ATTHospital::CellToWorld(const FIntPoint& Cell, float Z) const
@@ -95,7 +110,28 @@ FIntPoint ATTHospital::WorldToCell(const FVector& Location) const
 	const FVector Local = Location - GetActorLocation();
 	// +100: an actor standing on a floor (or an object lying on it) belongs to that floor;
 	// on a staircase the cell switches to the upper floor in the last quarter of the flight.
-	const int32 Floor = FMath::Clamp(FMath::FloorToInt((Local.Z - FloorZ(0) + 100.f) / FloorHeight), 0, FMath::Max(0, Floors.Num() - 1));
+	int32 Floor = 0;
+	float BestZ = -TNumericLimits<float>::Max();
+	float LowestZ = TNumericLimits<float>::Max();
+	int32 Lowest = 0;
+	for (int32 i = 0; i < Floors.Num(); ++i)
+	{
+		const float FZ = Floors[i].Z;
+		if (FZ <= Local.Z + 100.f && FZ > BestZ)
+		{
+			BestZ = FZ;
+			Floor = i;
+		}
+		if (FZ < LowestZ)
+		{
+			LowestZ = FZ;
+			Lowest = i;
+		}
+	}
+	if (BestZ == -TNumericLimits<float>::Max())
+	{
+		Floor = Lowest;
+	}
 	const int32 X = FMath::Clamp(FMath::RoundToInt(Local.X / CellSize), 0, FloorW - 1);
 	const int32 Y = FMath::Clamp(FMath::RoundToInt(Local.Y / CellSize), 0, FloorH - 1);
 	return FIntPoint(Floor * Stride + X, Y);
@@ -146,6 +182,10 @@ TCHAR ATTHospital::GetChar(const FIntPoint& Cell) const
 
 ATTHospital::EStairCell ATTHospital::StairCellAt(int32 Floor, int32 X, int32 Y) const
 {
+	if (!Floors.IsValidIndex(Floor) || !Floors[Floor].bStairs)
+	{
+		return EStairCell::None;
+	}
 	for (const FIntPoint& Def : StairDefs)
 	{
 		const int32 A = Def.X;
@@ -156,7 +196,7 @@ ATTHospital::EStairCell ATTHospital::StairCellAt(int32 Floor, int32 X, int32 Y) 
 			continue;
 		}
 		const bool bEven = Floor % 2 == 0;
-		const bool bTop = Floor == Floors.Num() - 1;
+		const bool bTop = !(Floors.IsValidIndex(Floor + 1) && Floors[Floor + 1].bStairs);
 		const bool bBottom = Floor == 0;
 		const int32 Row = Y - R0;
 		if (bEven)
@@ -220,6 +260,8 @@ void ATTHospital::Build()
 		Floor.Id = Source.Id;
 		Floor.Name = Source.Name;
 		Floor.bOutdoor = Source.bOutdoor;
+		Floor.Z = Source.Z;
+		Floor.bStairs = Source.bStairs;
 		for (int32 Y = 0; Y < FloorH; ++Y)
 		{
 			Floor.Rows.Add(Source.Rows[Y]);
@@ -258,7 +300,7 @@ void ATTHospital::Build()
 	for (int32 F = 0; F < Floors.Num(); ++F)
 	{
 		const bool bOutdoor = Floors[F].bOutdoor;
-		const bool bUnderground = F < GroundFloorIndex;
+		const bool bUnderground = Floors[F].Z < 0.f;
 		const float Z0 = FloorZ(F);
 
 		for (int32 Y = 0; Y < FloorH; ++Y)
@@ -311,16 +353,22 @@ void ATTHospital::Build()
 				}
 
 				case TEXT('*'):
-					if (!bOutdoor)
-					{
-						AddLamp(Cell, false);
-					}
-					break;
-
 				case TEXT('~'):
 					if (!bOutdoor)
 					{
-						AddLamp(Cell, true);
+						AddLamp(Cell, C == TEXT('~'));
+						if (Floors[F].Id == TEXT("G"))
+						{
+							// Garage circuit is dead until the generators run (MapCore C_SERVICE).
+							FLamp& Lamp = Lamps.Last();
+							Lamp.bNeedsPower = true;
+							Lamp.bOn = false;
+							Lamp.Light->SetIntensity(0.f);
+							if (Lamp.Glow)
+							{
+								Lamp.Glow->SetScalarParameterValue(TEXT("Intensity"), 0.05f);
+							}
+						}
 					}
 					break;
 
@@ -450,6 +498,61 @@ void ATTHospital::Build()
 						{
 							Console->Setup();
 						}
+					}
+					break;
+				}
+
+				case TEXT('A'): case TEXT('B'): case TEXT('C'): case TEXT('N'): case TEXT('O'):
+				case TEXT('Z'): case TEXT('G'): case TEXT('q'): case TEXT('R'): case TEXT('Q'):
+				case TEXT('T'): case TEXT('!'):
+				{
+					ETTStation Kind = ETTStation::ClueA;
+					switch (C)
+					{
+					case TEXT('B'): Kind = ETTStation::ClueB; break;
+					case TEXT('C'): Kind = ETTStation::ClueC; break;
+					case TEXT('N'): Kind = ETTStation::GuardLog; break;
+					case TEXT('O'): Kind = ETTStation::SecurityNote; break;
+					case TEXT('Z'): Kind = ETTStation::Safe; break;
+					case TEXT('G'): Kind = ETTStation::Generator; break;
+					case TEXT('q'): Kind = ETTStation::GateControl; break;
+					case TEXT('R'): Kind = ETTStation::Radio; break;
+					case TEXT('Q'): Kind = ETTStation::Interference; break;
+					case TEXT('T'): Kind = ETTStation::Helipad; break;
+					case TEXT('!'): Kind = ETTStation::TunnelExit; break;
+					default: break;
+					}
+					float Yaw = FacingYawAwayFromWall(Cell);
+					for (const FIntPoint& D : Dirs)
+					{
+						if (IsWalkableChar(GetChar(Cell + D)))
+						{
+							Yaw = FVector(static_cast<float>(D.X), static_cast<float>(D.Y), 0.f).Rotation().Yaw;
+							break;
+						}
+					}
+					if (ATTStation* Station = World->SpawnActor<ATTStation>(ATTStation::StaticClass(), WorldLoc, FRotator(0.f, Yaw, 0.f), Params))
+					{
+						Station->Setup(Kind);
+					}
+					break;
+				}
+
+				case TEXT('F'):
+				{
+					if (ATTPickup* Pickup = World->SpawnActor<ATTPickup>(ATTPickup::StaticClass(), WorldLoc, FRotator(0.f, Rng.FRandRange(0.f, 360.f), 0.f), Params))
+					{
+						Pickup->Setup(ETTPickupType::Item, ETTItem::Batteries, true);
+					}
+					break;
+				}
+
+				case TEXT('%'):
+				{
+					TunnelLadders.Add(Cell);
+					if (ATTHatch* Hatch = World->SpawnActor<ATTHatch>(ATTHatch::StaticClass(), WorldLoc, FRotator(0.f, FacingYawAwayFromWall(Cell), 0.f), Params))
+					{
+						Hatch->Setup(C, F, X, Y);
 					}
 					break;
 				}
@@ -620,9 +723,13 @@ void ATTHospital::Build()
 
 void ATTHospital::BuildStairs(int32 F)
 {
+	if (!Floors[F].bStairs)
+	{
+		return;
+	}
 	UStaticMesh* Cube = TTShapes::Cube();
 	const float Z0 = FloorZ(F);
-	const bool bTop = F == Floors.Num() - 1;
+	const bool bTop = !(Floors.IsValidIndex(F + 1) && Floors[F + 1].bStairs);
 	const bool bEven = F % 2 == 0;
 	for (const FIntPoint& Def : StairDefs)
 	{
@@ -822,7 +929,7 @@ void ATTHospital::Tick(float DeltaSeconds)
 	}
 	for (FLamp& Lamp : Lamps)
 	{
-		if (!Lamp.bFlicker || !Lamp.Light || Lamp.bKilled || !Lamp.bActive)
+		if (!Lamp.bFlicker || !Lamp.Light || Lamp.bKilled || !Lamp.bActive || (Lamp.bNeedsPower && !bPowered))
 		{
 			continue;
 		}
@@ -877,6 +984,53 @@ float ATTHospital::GetLightLevelAt(const FVector& Location, const AActor* Ignore
 	return Level;
 }
 
+void ATTHospital::SetPowered(bool bInPowered)
+{
+	bPowered = bInPowered;
+	for (FLamp& Lamp : Lamps)
+	{
+		if (!Lamp.bNeedsPower || Lamp.bKilled || !Lamp.Light)
+		{
+			continue;
+		}
+		Lamp.bOn = bPowered;
+		Lamp.Light->SetIntensity(bPowered ? Lamp.BaseIntensity : 0.f);
+		if (Lamp.Glow)
+		{
+			Lamp.Glow->SetScalarParameterValue(TEXT("Intensity"), bPowered ? 6.f : 0.05f);
+		}
+	}
+}
+
+void ATTHospital::EnableTunnelLinks()
+{
+	if (bTunnelLinks)
+	{
+		return;
+	}
+	bTunnelLinks = true;
+	for (const FIntPoint& A : TunnelLadders)
+	{
+		for (const FIntPoint& B : TunnelLadders)
+		{
+			const int32 LA = A.X - FloorOfCell(A) * Stride;
+			const int32 LB = B.X - FloorOfCell(B) * Stride;
+			if (A != B && LA == LB && A.Y == B.Y && FloorOfCell(A) < FloorOfCell(B))
+			{
+				AddLink(A, B);
+			}
+		}
+	}
+}
+
+void ATTHospital::BreakAllCameras()
+{
+	for (int32 i = 0; i < SecurityCameras.Num(); ++i)
+	{
+		BrokenCameras.Add(i);
+	}
+}
+
 int32 ATTHospital::SetLampsNear(const FVector& Center, float Radius, bool bOn)
 {
 	const int32 Floor = FloorOfLocation(Center);
@@ -928,44 +1082,37 @@ bool ATTHospital::HasLockedDoor() const
 
 bool ATTHospital::IsConnectedWithout(const FIntPoint& Blocked) const
 {
-	int32 Total = 0;
-	for (int32 i = 0; i < Walkable.Num(); ++i)
+	auto Reachable = [this](const FIntPoint& Skip)
 	{
-		Total += Walkable[i] ? 1 : 0;
-	}
-	if (IsWalkable(Blocked))
-	{
-		--Total;
-	}
-
-	TArray<bool> Seen;
-	Seen.Init(false, Walkable.Num());
-	TArray<FIntPoint> Queue;
-	Queue.Add(PlayerStart);
-	Seen[PlayerStart.Y * GridWidth + PlayerStart.X] = true;
-	int32 Reached = 0;
-	TArray<FIntPoint> Next;
-	for (int32 Head = 0; Head < Queue.Num(); ++Head)
-	{
-		const FIntPoint C = Queue[Head];
-		++Reached;
-		Next.Reset();
-		for (const FIntPoint& D : Dirs)
+		TArray<bool> Seen;
+		Seen.Init(false, Walkable.Num());
+		TArray<FIntPoint> Queue;
+		Queue.Add(PlayerStart);
+		Seen[PlayerStart.Y * GridWidth + PlayerStart.X] = true;
+		TArray<FIntPoint> Next;
+		for (int32 Head = 0; Head < Queue.Num(); ++Head)
 		{
-			Next.Add(C + D);
-		}
-		Links.MultiFind(C, Next);
-		for (const FIntPoint& N : Next)
-		{
-			if (N == Blocked || !IsWalkable(N) || Seen[N.Y * GridWidth + N.X])
+			const FIntPoint C = Queue[Head];
+			Next.Reset();
+			for (const FIntPoint& D : Dirs)
 			{
-				continue;
+				Next.Add(C + D);
 			}
-			Seen[N.Y * GridWidth + N.X] = true;
-			Queue.Add(N);
+			Links.MultiFind(C, Next);
+			for (const FIntPoint& N : Next)
+			{
+				if (N == Skip || !IsWalkable(N) || Seen[N.Y * GridWidth + N.X])
+				{
+					continue;
+				}
+				Seen[N.Y * GridWidth + N.X] = true;
+				Queue.Add(N);
+			}
 		}
-	}
-	return Reached == Total;
+		return Queue.Num();
+	};
+	// Blocking a cell may only remove that cell from what Joe can reach right now.
+	return Reachable(Blocked) == Reachable(FIntPoint(-1, -1)) - (IsWalkable(Blocked) ? 1 : 0);
 }
 
 FIntPoint ATTHospital::FindNearestWalkable(const FIntPoint& Cell) const
