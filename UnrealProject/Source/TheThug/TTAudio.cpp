@@ -47,6 +47,11 @@ namespace
 		case ETTSfx::Sting: Duration = 2.2f; break;
 		case ETTSfx::Pickup: Duration = 0.3f; break;
 		case ETTSfx::Click: Duration = 0.05f; break;
+		case ETTSfx::Gunshot: Duration = 1.1f; break;
+		case ETTSfx::Explosion: Duration = 2.6f; break;
+		case ETTSfx::Breath: Duration = 1.0f; break;
+		case ETTSfx::Punch: Duration = 0.35f; break;
+		case ETTSfx::Hiss: Duration = 2.5f; break;
 		}
 
 		const int32 N = static_cast<int32>(Duration * TTAudio::SampleRate);
@@ -154,6 +159,49 @@ namespace
 			case ETTSfx::Click:
 			{
 				V = Noise * FMath::Exp(-t * 300.f) * 0.6f + FMath::Sin(TwoPi * 2400.f * t) * FMath::Exp(-t * 200.f) * 0.3f;
+				break;
+			}
+			case ETTSfx::Gunshot:
+			{
+				// Sharp crack, low body, then the corridor's tail.
+				Lp += 0.25f * (Noise - Lp);
+				Lp2 += 0.03f * (Noise - Lp2);
+				V = Noise * FMath::Exp(-t * 90.f) * 1.0f
+					+ FMath::Sin(TwoPi * (90.f - 40.f * FMath::Min(t * 8.f, 1.f)) * t) * FMath::Exp(-t * 18.f) * 0.8f
+					+ Lp2 * 3.f * FMath::Exp(-t * 3.2f) * 0.5f;
+				break;
+			}
+			case ETTSfx::Explosion:
+			{
+				Lp += 0.04f * (Noise - Lp);
+				Lp2 += 0.008f * (Noise - Lp2);
+				const float Attack = 1.f - FMath::Exp(-t * 200.f);
+				V = Attack * (Noise * FMath::Exp(-t * 25.f) * 0.7f
+					+ Lp * 3.f * FMath::Exp(-t * 2.2f)
+					+ Lp2 * 6.f * FMath::Exp(-t * 1.2f)
+					+ FMath::Sin(TwoPi * 38.f * t) * FMath::Exp(-t * 3.f) * 0.6f);
+				break;
+			}
+			case ETTSfx::Breath:
+			{
+				// In-breath then out-breath, airy and close.
+				Lp += 0.18f * (Noise - Lp);
+				const float In = FMath::Sin(PI * FMath::Clamp(t / 0.38f, 0.f, 1.f));
+				const float Out = t > 0.45f ? FMath::Sin(PI * FMath::Clamp((t - 0.45f) / 0.5f, 0.f, 1.f)) : 0.f;
+				V = (Noise - Lp) * (In * 0.35f + Out * 0.5f);
+				break;
+			}
+			case ETTSfx::Punch:
+			{
+				Lp += 0.1f * (Noise - Lp);
+				V = FMath::Sin(TwoPi * 70.f * t) * FMath::Exp(-t * 16.f) * 1.f + Lp * 2.f * FMath::Exp(-t * 30.f) + Noise * FMath::Exp(-t * 120.f) * 0.4f;
+				break;
+			}
+			case ETTSfx::Hiss:
+			{
+				Lp += 0.5f * (Noise - Lp);
+				const float Env = (1.f - FMath::Exp(-t * 12.f)) * FMath::Clamp((Duration - t) / 1.2f, 0.f, 1.f);
+				V = (Noise - Lp * 0.6f) * Env * 0.5f;
 				break;
 			}
 			}

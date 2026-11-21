@@ -42,6 +42,7 @@ void ATTGameMode::InitGame(const FString& MapName, const FString& Options, FStri
 	bDebug = FParse::Param(FCommandLine::Get(), TEXT("ttdebug"));
 	bAITest = FParse::Param(FCommandLine::Get(), TEXT("ttai"));
 	bLearnTest = FParse::Param(FCommandLine::Get(), TEXT("ttlearn"));
+	bSurviveTest = FParse::Param(FCommandLine::Get(), TEXT("ttsurvive"));
 }
 
 void ATTGameMode::EnsureWorld()
@@ -82,7 +83,7 @@ void ATTGameMode::BeginPlay()
 	AmbientComponent = UGameplayStatics::SpawnSound2D(this, AmbientWave, 0.55f, 1.f, 0.f, nullptr, false, false);
 
 	SetPhase(ETTGamePhase::Title);
-	if (bSkipTitle || bAutomation || bAITest || bLearnTest)
+	if (bSkipTitle || bAutomation || bAITest || bLearnTest || bSurviveTest)
 	{
 		StartGame();
 	}
@@ -137,8 +138,7 @@ void ATTGameMode::StartGame()
 	RunTime = 0.f;
 	if (ATTPlayerCharacter* Player = GetPlayer())
 	{
-		static const int32 Bottles[] = { 3, 2, 1, 0 };
-		Player->AddBottles(Bottles[static_cast<int32>(Difficulty)] - Player->GetBottles());
+		Player->ApplyLoadout(Difficulty);
 	}
 	if (Hunter)
 	{
@@ -181,6 +181,8 @@ void ATTGameMode::PlayerCaptured(ATTHunter* By)
 	}
 	ATTPlayerCharacter* Player = GetPlayer();
 	bCapturedInLocker = Player && Player->IsHidden();
+	EndTitle = TEXT("VOCÊ FOI PEGO");
+	EndSubtitle = bCapturedInLocker ? TEXT("Ele sabia exatamente onde procurar.") : TEXT("Ele estava mais perto do que parecia.");
 	SetPhase(ETTGamePhase::Captured);
 	UE_LOG(LogTemp, Log, TEXT("[TT] Player captured after %.1fs (in locker: %d)"), RunTime, bCapturedInLocker ? 1 : 0);
 	TTAudio::Play2D(this, ETTSfx::Sting, 1.f);
@@ -188,6 +190,41 @@ void ATTGameMode::PlayerCaptured(ATTHunter* By)
 	{
 		Player->LookAtPoint(By->GetEyeLocation());
 	}
+}
+
+void ATTGameMode::PlayerDied(const FString& Reason)
+{
+	if (Phase != ETTGamePhase::Playing)
+	{
+		return;
+	}
+	EndTitle = TEXT("VOCÊ MORREU");
+	EndSubtitle = Reason;
+	bCapturedInLocker = false;
+	UE_LOG(LogTemp, Log, TEXT("[TT] Joe died after %.1fs: %s"), RunTime, *Reason);
+	SetPhase(ETTGamePhase::Captured);
+	if (Hunter)
+	{
+		Hunter->Freeze();
+	}
+}
+
+void ATTGameMode::RegisterSmoke(ATTSmokeCloud* Smoke)
+{
+	Smokes.RemoveAll([](const TWeakObjectPtr<ATTSmokeCloud>& S) { return !S.IsValid(); });
+	Smokes.Add(Smoke);
+}
+
+bool ATTGameMode::IsSightBlockedBySmoke(const FVector& A, const FVector& B) const
+{
+	for (const TWeakObjectPtr<ATTSmokeCloud>& S : Smokes)
+	{
+		if (S.IsValid() && S->BlocksSegment(A, B))
+		{
+			return true;
+		}
+	}
+	return false;
 }
 
 void ATTGameMode::PlayerEscaped()
@@ -288,6 +325,11 @@ void ATTGameMode::Tick(float DeltaSeconds)
 	{
 		UpdateAutomation(RealDelta);
 	}
+	if (bSurviveTest)
+	{
+		AutoTime += RealDelta;
+		UpdateSurviveTest();
+	}
 	if (bLearnTest)
 	{
 		// Pretend he already saw Joe use door (8,4) three times, then watch what he does with it.
@@ -337,6 +379,72 @@ void ATTGameMode::Tick(float DeltaSeconds)
 			bAITest = false;
 		}
 	}
+}
+
+void ATTGameMode::UpdateSurviveTest()
+{
+	ATTPlayerCharacter* Joe = GetPlayer();
+	if (!Joe || !Hunter || !Hospital)
+	{
+		return;
+	}
+	auto Shot = [](const TCHAR* Name)
+	{
+		FScreenshotRequest::RequestScreenshot(FPaths::ProjectSavedDir() / TEXT("Screenshots") / FString(Name) + TEXT(".png"), false, false);
+	};
+	auto Log = [Joe, this](const TCHAR* Step)
+	{
+		UE_LOG(LogTemp, Log, TEXT("[TT] Survive %s: injury=%d bleeding=%d blood=%.1f rounds=%d mags=%d grenades=%d smoke=%d bandage=%d slots=%d/%d hunter=%s"),
+			Step, Joe->GetInjury(), Joe->IsBleeding() ? 1 : 0, Joe->GetBloodLoss(), Joe->GetRounds(), Joe->GetItemCount(ETTItem::Magazine),
+			Joe->GetItemCount(ETTItem::Grenade), Joe->GetItemCount(ETTItem::Smoke), Joe->GetItemCount(ETTItem::Bandage),
+			Joe->GetUsedSlots(), Joe->GetCapacity(), *Hunter->GetStateName());
+	};
+	const FVector Spot = Hospital->CellToWorld(FIntPoint(14, 8));
+	const float Times[] = { 1.f, 2.f, 5.f, 5.5f, 6.3f, 6.5f, 7.5f, 7.6f, 10.5f, 11.f, 12.6f, 13.25f, 15.f, 15.5f, 16.5f };
+	if (AutoStep >= UE_ARRAY_COUNT(Times) || AutoTime < Times[AutoStep])
+	{
+		return;
+	}
+	switch (AutoStep)
+	{
+	case 0: Log(TEXT("loadout")); Joe->TakeInjury(3, TEXT("Teste.")); Log(TEXT("after severe injury")); break;
+	case 1: Joe->TryAddItem(ETTItem::Bandage, 1); Joe->UseMedical(); break;
+	case 2: Log(TEXT("after bandage")); Shot(TEXT("TT_05_injured")); break;
+	case 3:
+	{
+		Hunter->Freeze();
+		Hunter->SetActorLocation(Hospital->CellToWorld(FIntPoint(11, 8), 102.f));
+		Joe->TeleportForTest(Spot, 180.f);
+		Joe->LookAtPoint(Hunter->GetEyeLocation());
+		Joe->SetAiming(true);
+		break;
+	}
+	case 4:
+		Hunter->Activate();
+		Joe->LookAtPoint(Hunter->GetActorLocation() + FVector(0.f, 0.f, 20.f));
+		Joe->Fire();
+		Log(TEXT("after shot"));
+		break;
+	case 5: Shot(TEXT("TT_06_shot")); break;
+	case 6: Joe->SetAiming(false); Hunter->Freeze(); Joe->LookAtPoint(Hunter->GetActorLocation() - FVector(0.f, 0.f, 60.f)); break;
+	case 7: Joe->ThrowSmoke(); break;
+	case 8:
+		Shot(TEXT("TT_07_smoke"));
+		UE_LOG(LogTemp, Log, TEXT("[TT] Survive positions: Joe %s Hunter %s"), *Joe->GetActorLocation().ToCompactString(), *Hunter->GetActorLocation().ToCompactString());
+		UE_LOG(LogTemp, Log, TEXT("[TT] Survive smoke blocks Hunter->Joe sight: %d"), IsSightBlockedBySmoke(Hunter->GetEyeLocation(), Joe->GetEyeLocation()) ? 1 : 0);
+		break;
+	case 9: Joe->LookAtPoint(Hunter->GetActorLocation() + FVector(0.f, 0.f, 120.f)); Joe->ThrowGrenade(); break;
+	case 10: Hunter->Activate(); break;
+	case 11: Shot(TEXT("TT_08_explosion")); break;
+	case 12:
+		Joe->TeleportForTest(Hospital->CellToWorld(FIntPoint(13, 8)), 180.f);
+		Joe->LookAtPoint(Hospital->CellToWorld(FIntPoint(11, 8), 120.f));
+		Joe->ThrowSmoke();
+		break;
+	case 13: Shot(TEXT("TT_09_smoke_close")); break;
+	case 14: Log(TEXT("end")); FPlatformMisc::RequestExit(false); break;
+	}
+	++AutoStep;
 }
 
 void ATTGameMode::UpdateAutomation(float DeltaSeconds)

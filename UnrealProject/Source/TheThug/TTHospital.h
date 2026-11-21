@@ -40,6 +40,7 @@ public:
 	static FString DoorId(const FIntPoint& Cell) { return FString::Printf(TEXT("door_%d_%d"), Cell.X, Cell.Y); }
 	static FString LockerId(const FIntPoint& Cell) { return FString::Printf(TEXT("locker_%d_%d"), Cell.X, Cell.Y); }
 	bool HasLockedDoor() const;
+	bool IsGlassAt(const FVector& Location) const { return GlassCells.Contains(WorldToCell(Location)); }
 	/** True when every walkable cell stays reachable for Joe with Blocked closed off. */
 	bool IsConnectedWithout(const FIntPoint& Blocked) const;
 	/** The Hunter manipulating the environment (GDD §14). Returns how many lamps changed. */
@@ -59,6 +60,7 @@ private:
 	{
 		TObjectPtr<UPointLightComponent> Light = nullptr;
 		TObjectPtr<UStaticMeshComponent> Fixture = nullptr;
+		TObjectPtr<UMaterialInstanceDynamic> Glow = nullptr;
 		float BaseIntensity = 0.f;
 		bool bFlicker = false;
 		bool bOn = true;
@@ -80,6 +82,7 @@ private:
 	FIntPoint HunterStart = FIntPoint::ZeroValue;
 	float PlayerStartYaw = 0.f;
 	TArray<FIntPoint> PatrolPoints;
+	TSet<FIntPoint> GlassCells;
 	TArray<FLamp> Lamps;
 
 	UPROPERTY()

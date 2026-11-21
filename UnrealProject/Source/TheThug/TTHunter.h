@@ -24,6 +24,7 @@ enum class ETTHunterState : uint8
 	CheckLocker,
 	Ambush,
 	SetTrap,
+	Stunned,
 	Capturing
 };
 
@@ -55,6 +56,8 @@ public:
 	void OnNoiseHeard(const FVector& Location, ETTNoise Kind);
 	void OnPlayerHid(ATTLocker* Locker);
 	void OnPlayerLeftLocker(ATTLocker* Locker);
+	/** Shot or caught in a blast: stops him for a moment (GDD §37-38). It never kills him. */
+	void Stun(float Seconds, bool bExplosion);
 
 	bool IsChasing() const { return State == ETTHunterState::Pursue; }
 	ETTHunterState GetState() const { return State; }
@@ -116,6 +119,8 @@ private:
 	bool TryStartTrap();
 	bool TryStartAmbush();
 	void Capture();
+	/** Contact with Joe: capture, or (lower difficulties, Joe not yet badly hurt) a blow that injures him. */
+	void ReachJoe();
 
 	TSharedPtr<FTTHunterMind> Mind;
 	ETTDifficulty Difficulty = ETTDifficulty::Normal;
@@ -177,4 +182,6 @@ private:
 	float StepDistance = 0.f;
 	float SpeechCooldown = 0.f;
 	int32 TimesLostJoe = 0;
+	float StunTimeLeft = 0.f;
+	float StrikeRecover = 0.f;
 };

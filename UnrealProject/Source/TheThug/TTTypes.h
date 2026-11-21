@@ -23,8 +23,54 @@ enum class ETTNoise : uint8
 	QuietDoor,
 	Locker,
 	Glass,
-	Breath
+	Breath,
+	GlassCrunch,
+	Gunshot,
+	Explosion
 };
+
+/** Items Joe can carry (ids match the SurvivalCore inventory catalog). */
+UENUM()
+enum class ETTItem : uint8
+{
+	Rifle,
+	Magazine,
+	Grenade,
+	Smoke,
+	Bottle,
+	Bandage,
+	Medkit
+};
+
+inline const TCHAR* TTItemId(ETTItem Item)
+{
+	switch (Item)
+	{
+	case ETTItem::Rifle: return TEXT("rifle");
+	case ETTItem::Magazine: return TEXT("magazine");
+	case ETTItem::Grenade: return TEXT("grenade");
+	case ETTItem::Smoke: return TEXT("smoke");
+	case ETTItem::Bottle: return TEXT("bottle");
+	case ETTItem::Bandage: return TEXT("bandage");
+	case ETTItem::Medkit: return TEXT("medkit");
+	}
+	return TEXT("bottle");
+}
+
+inline FString TTItemName(ETTItem Item)
+{
+	switch (Item)
+	{
+	case ETTItem::Rifle: return TEXT("Fuzil");
+	case ETTItem::Magazine: return TEXT("Carregador");
+	case ETTItem::Grenade: return TEXT("Granada");
+	case ETTItem::Smoke: return TEXT("Granada de fumaça");
+	case ETTItem::Bottle: return TEXT("Garrafa");
+	case ETTItem::Bandage: return TEXT("Atadura");
+	case ETTItem::Medkit: return TEXT("Kit médico");
+	}
+	return TEXT("?");
+}
 
 inline FString TTDifficultyName(ETTDifficulty D)
 {

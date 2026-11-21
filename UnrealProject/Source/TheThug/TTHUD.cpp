@@ -74,10 +74,10 @@ void ATTHUD::DrawTitle()
 	DrawCentered(TEXT("Você não é o herói. Você não é o caçador. Você é a presa."), H * 0.37f, Medium, 1.3f * UI, Dim);
 
 	const TCHAR* Lines[] = {
-		TEXT("WASD  mover          SHIFT  correr          C / CTRL  agachar"),
-		TEXT("E  interagir / esconder          F  lanterna          G  jogar garrafa"),
-		TEXT("Agachado você faz menos barulho. Luz e corrida te denunciam."),
-		TEXT("Ele ouve. Ele lembra. Ele não trapaceia.")
+		TEXT("WASD  mover      SHIFT  correr      C / CTRL  agachar      E  interagir / esconder      F  lanterna"),
+		TEXT("BOTÃO DIR.  mirar      BOTÃO ESQ.  atirar      R  recarregar      H  curativo      TAB  inventário"),
+		TEXT("G  garrafa (distração)      T  fumaça (ele não vê através)      Q  granada"),
+		TEXT("Atirar compra tempo e entrega sua posição. Ele ouve. Ele lembra. Ele não trapaceia.")
 	};
 	float Y = H * 0.52f;
 	for (const TCHAR* Line : Lines)
@@ -109,6 +109,33 @@ void ATTHUD::DrawPlaying()
 	UFont* Medium = GEngine->GetMediumFont();
 	UFont* Small = GEngine->GetSmallFont();
 
+	// Injury: the edges of the screen darken red, pulsing while bleeding.
+	const int32 Injury = Player->GetInjury();
+	float Hurt = Injury == 1 ? 0.07f : Injury == 2 ? 0.16f : Injury == 3 ? 0.26f : 0.f;
+	if (Player->IsBleeding())
+	{
+		Hurt += 0.08f * (0.5f + 0.5f * FMath::Sin(GetWorld()->GetTimeSeconds() * 4.f));
+	}
+	Hurt = FMath::Max(Hurt, Player->GetDamageFlash() * 0.45f);
+	if (Hurt > 0.f)
+	{
+		for (int32 Band = 0; Band < 6; ++Band)
+		{
+			const float A = Hurt * (1.f - Band / 6.f);
+			const float T = (16.f + Band * 14.f) * UI;
+			const float O = Band * 14.f * UI;
+			const FLinearColor Red(0.45f, 0.f, 0.f, A * 0.5f);
+			DrawRect(Red, O, O, W - 2.f * O, T * 0.5f);
+			DrawRect(Red, O, H - O - T * 0.5f, W - 2.f * O, T * 0.5f);
+			DrawRect(Red, O, O, T * 0.5f, H - 2.f * O);
+			DrawRect(Red, W - O - T * 0.5f, O, T * 0.5f, H - 2.f * O);
+		}
+	}
+	if (Player->IsCollapsed())
+	{
+		DrawRect(FLinearColor(0.f, 0.f, 0.f, 0.55f), 0.f, 0.f, W, H);
+	}
+
 	// Hidden: darkness of the locker around the slats.
 	if (Player->IsHidden())
 	{
@@ -118,8 +145,8 @@ void ATTHUD::DrawPlaying()
 	}
 	else
 	{
-		const float Dot = 4.f * UI;
-		DrawRect(FLinearColor(1.f, 1.f, 1.f, Player->GetFocus() ? 0.8f : 0.25f), (W - Dot) * 0.5f, (H - Dot) * 0.5f, Dot, Dot);
+		const float Dot = (Player->IsAiming() ? 3.f : 4.f) * UI;
+		DrawRect(FLinearColor(1.f, 1.f, 1.f, Player->GetFocus() || Player->IsAiming() ? 0.8f : 0.25f), (W - Dot) * 0.5f, (H - Dot) * 0.5f, Dot, Dot);
 	}
 
 	if (const ATTInteractable* Focus = Player->GetFocus())
@@ -155,15 +182,65 @@ void ATTHUD::DrawPlaying()
 		DrawRect(FLinearColor(1.f, 1.f, 1.f, 0.4f), X, Y, BarW * Stamina, 3.f * UI);
 	}
 
-	FString Items = FString::Printf(TEXT("Garrafas: %d"), Player->GetBottles());
+	// Action in progress (bandage, medkit, reload).
+	if (Player->GetAction() != ETTJoeAction::None)
+	{
+		const TCHAR* Label = Player->GetAction() == ETTJoeAction::Bandage ? TEXT("Enfaixando...")
+			: Player->GetAction() == ETTJoeAction::Medkit ? TEXT("Fazendo curativo...") : TEXT("Recarregando...");
+		const float BarW = 260.f * UI;
+		const float X = (W - BarW) * 0.5f;
+		const float Y = H * 0.62f;
+		DrawCentered(Label, Y - 34.f * UI, Medium, 0.95f * UI, Pale);
+		DrawRect(FLinearColor(1.f, 1.f, 1.f, 0.1f), X, Y, BarW, 4.f * UI);
+		DrawRect(FLinearColor(1.f, 1.f, 1.f, 0.6f), X, Y, BarW * Player->GetActionProgress(), 4.f * UI);
+	}
+
+	if (Injury > 0 || Player->GetBloodLoss() > 0.f)
+	{
+		static const TCHAR* Names[] = { TEXT(""), TEXT("Ferimento leve"), TEXT("Ferimento médio"), TEXT("Ferimento grave") };
+		FString Status = Names[FMath::Clamp(Injury, 0, 3)];
+		if (Player->IsBleeding())
+		{
+			Status += FString::Printf(TEXT("  —  sangrando (%.0f%%)  [H]"), Player->GetBloodLoss());
+		}
+		DrawText(Status, FLinearColor(0.85f, 0.35f, 0.3f, 0.85f), 48.f * UI, H - 50.f * UI, Small, 1.2f * UI);
+	}
+
+	FString Items;
+	if (Player->GetItemCount(ETTItem::Rifle) > 0)
+	{
+		Items += FString::Printf(TEXT("Fuzil %d | +%d     "), Player->GetRounds(), Player->GetItemCount(ETTItem::Magazine));
+	}
+	Items += FString::Printf(TEXT("Granada %d   Fumaça %d   Garrafa %d   Atadura %d   Kit %d"),
+		Player->GetItemCount(ETTItem::Grenade), Player->GetItemCount(ETTItem::Smoke), Player->GetItemCount(ETTItem::Bottle),
+		Player->GetItemCount(ETTItem::Bandage), Player->GetItemCount(ETTItem::Medkit));
 	if (Player->HasKey())
 	{
-		Items += TEXT("     Cartão de acesso");
+		Items += TEXT("     Cartão");
 	}
 	float TW = 0.f;
 	float TH = 0.f;
 	GetTextSize(Items, TW, TH, Small, 1.2f * UI);
 	DrawText(Items, FLinearColor(Dim.R, Dim.G, Dim.B, 0.7f), W - TW - 40.f * UI, H - 50.f * UI, Small, 1.2f * UI);
+
+	if (Player->IsInventoryOpen())
+	{
+		const float PanelW = 520.f * UI;
+		const float PanelH = 360.f * UI;
+		const float PX = (W - PanelW) * 0.5f;
+		const float PY = (H - PanelH) * 0.5f;
+		DrawRect(FLinearColor(0.f, 0.f, 0.f, 0.8f), PX, PY, PanelW, PanelH);
+		DrawText(FString::Printf(TEXT("INVENTÁRIO      espaço %d / %d"), Player->GetUsedSlots(), Player->GetCapacity()), Pale, PX + 24.f * UI, PY + 18.f * UI, Medium, 1.f * UI);
+		for (int32 i = 0; i <= static_cast<int32>(ETTItem::Medkit); ++i)
+		{
+			const ETTItem Item = static_cast<ETTItem>(i);
+			const int32 Count = Player->GetItemCount(Item);
+			const FLinearColor C = Count > 0 ? Pale : FLinearColor(0.35f, 0.35f, 0.35f);
+			DrawText(FString::Printf(TEXT("%d   %s"), i + 1, *TTItemName(Item)), C, PX + 24.f * UI, PY + (64.f + i * 34.f) * UI, Medium, 0.95f * UI);
+			DrawText(FString::Printf(TEXT("x%d"), Count), C, PX + PanelW - 80.f * UI, PY + (64.f + i * 34.f) * UI, Medium, 0.95f * UI);
+		}
+		DrawText(TEXT("Segure TAB e aperte 2-7 para largar um item no chão (o fuzil fica)."), Dim, PX + 24.f * UI, PY + PanelH - 36.f * UI, Small, 1.1f * UI);
+	}
 
 	if (GM->IsDebugEnabled())
 	{
@@ -209,9 +286,8 @@ void ATTHUD::DrawCaptured()
 	{
 		UFont* Large = GEngine->GetLargeFont();
 		UFont* Medium = GEngine->GetMediumFont();
-		DrawCentered(TEXT("VOCÊ FOI PEGO"), H * 0.36f, Large, 2.4f * UI, FLinearColor(0.8f, 0.1f, 0.08f));
-		DrawCentered(GM->WasCapturedInLocker() ? TEXT("Ele sabia exatamente onde procurar.") : TEXT("Ele estava mais perto do que parecia."),
-			H * 0.47f, Medium, 1.1f * UI, Dim);
+		DrawCentered(GM->GetEndTitle(), H * 0.36f, Large, 2.4f * UI, FLinearColor(0.8f, 0.1f, 0.08f));
+		DrawCentered(GM->GetEndSubtitle(), H * 0.47f, Medium, 1.1f * UI, Dim);
 		DrawCentered(FString::Printf(TEXT("Tempo sobrevivido: %s"), *FormatTime(GM->GetRunTime())), H * 0.53f, Medium, 1.f * UI, Dim);
 		DrawCentered(TEXT("R / ENTER  tentar de novo        ESC  sair"), H * 0.66f, Medium, 1.1f * UI, Pale);
 	}

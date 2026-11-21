@@ -5,6 +5,8 @@
 #include "Components/PointLightComponent.h"
 #include "Engine/World.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Components/StaticMeshComponent.h"
+#include "Materials/MaterialInstanceDynamic.h"
 #include "TTAudio.h"
 #include "TTGameMode.h"
 #include "TTHospital.h"
@@ -85,6 +87,9 @@ namespace
 		case ETTNoise::Locker: OutKind = tp::SoundKind::Door; OutEnergy = 0.35; break;
 		case ETTNoise::Glass: OutKind = tp::SoundKind::BrokenObject; break;
 		case ETTNoise::Breath: OutKind = tp::SoundKind::Breathing; break;
+		case ETTNoise::GlassCrunch: OutKind = tp::SoundKind::BrokenObject; OutEnergy = 0.4; break;
+		case ETTNoise::Gunshot: OutKind = tp::SoundKind::Gunshot; break;
+		case ETTNoise::Explosion: OutKind = tp::SoundKind::Explosion; break;
 		}
 	}
 
@@ -107,6 +112,7 @@ namespace
 		case ETTHunterState::CheckLocker: return TEXT("CheckLocker");
 		case ETTHunterState::Ambush: return TEXT("Ambush");
 		case ETTHunterState::SetTrap: return TEXT("SetTrap");
+		case ETTHunterState::Stunned: return TEXT("Stunned");
 		case ETTHunterState::Capturing: return TEXT("Capturing");
 		}
 		return TEXT("?");
@@ -202,8 +208,13 @@ void ATTHunter::BuildVisual()
 	TTShapes::AddPart(this, Root, TTShapes::Sphere(), FVector(2.f, 0.f, 88.f), FVector(30.f, 28.f, 32.f), Black, FRotator::ZeroRotator, false);
 	TTShapes::AddPart(this, Root, TTShapes::Cone(), FVector(0.f, -9.f, 108.f), FVector(8.f, 8.f, 16.f), Black, FRotator::ZeroRotator, false);
 	TTShapes::AddPart(this, Root, TTShapes::Cone(), FVector(0.f, 9.f, 108.f), FVector(8.f, 8.f, 16.f), Black, FRotator::ZeroRotator, false);
-	TTShapes::AddPart(this, Root, TTShapes::Sphere(), FVector(14.f, -6.f, 90.f), FVector(4.f, 5.f, 2.5f), FLinearColor(0.8f, 0.85f, 0.9f), FRotator::ZeroRotator, false);
-	TTShapes::AddPart(this, Root, TTShapes::Sphere(), FVector(14.f, 6.f, 90.f), FVector(4.f, 5.f, 2.5f), FLinearColor(0.8f, 0.85f, 0.9f), FRotator::ZeroRotator, false);
+	for (const float Side : { -6.f, 6.f })
+	{
+		if (UStaticMeshComponent* Eye = TTShapes::AddPart(this, Root, TTShapes::Sphere(), FVector(14.f, Side, 90.f), FVector(4.f, 5.f, 2.5f), FLinearColor(0.8f, 0.85f, 0.9f), FRotator::ZeroRotator, false))
+		{
+			Eye->SetMaterial(0, TTShapes::MakeEmissive(Eye, FLinearColor(0.75f, 0.85f, 1.f), 3.f));
+		}
+	}
 
 	UPointLightComponent* EyeGlow = NewObject<UPointLightComponent>(this);
 	EyeGlow->SetupAttachment(Root);
@@ -403,6 +414,17 @@ bool ATTHunter::CanSeePlayer(float& OutDistance, float& OutVisibility) const
 		}
 	}
 
+	if (OutDistance > 120.f)
+	{
+		if (const ATTGameMode* GM = GetWorld()->GetAuthGameMode<ATTGameMode>())
+		{
+			if (GM->IsSightBlockedBySmoke(Eye, Target) && GM->IsSightBlockedBySmoke(Eye, Player->GetActorLocation()))
+			{
+				return false;
+			}
+		}
+	}
+
 	FCollisionQueryParams Query(SCENE_QUERY_STAT(TTHunterSight), false, this);
 	Query.AddIgnoredActor(Player);
 	if (!GetWorld()->LineTraceTestByChannel(Eye, Target, ECC_Visibility, Query))
@@ -554,7 +576,7 @@ void ATTHunter::UpdatePerception(float DeltaSeconds)
 		InspectDoors();
 	}
 
-	if (State == ETTHunterState::Pursue || State == ETTHunterState::Capturing)
+	if (State == ETTHunterState::Pursue || State == ETTHunterState::Capturing || State == ETTHunterState::Stunned)
 	{
 		return;
 	}
@@ -597,7 +619,7 @@ void ATTHunter::UpdatePerception(float DeltaSeconds)
 
 void ATTHunter::OnNoiseHeard(const FVector& Location, ETTNoise Kind)
 {
-	if (!Mind || State == ETTHunterState::Dormant || State == ETTHunterState::Capturing)
+	if (!Mind || State == ETTHunterState::Dormant || State == ETTHunterState::Capturing || State == ETTHunterState::Stunned)
 	{
 		return;
 	}
@@ -1232,6 +1254,53 @@ void ATTHunter::LosePursuit()
 	StartSearch(LastKnown, SearchSeconds * (1.f + 0.5f * Aggression));
 }
 
+void ATTHunter::Stun(float Seconds, bool bExplosion)
+{
+	if (State == ETTHunterState::Dormant || State == ETTHunterState::Capturing)
+	{
+		return;
+	}
+	Aggression = FMath::Min(1.f, Aggression + (bExplosion ? 0.3f : 0.2f));
+	StunTimeLeft = FMath::Max(StunTimeLeft, Seconds);
+	Path.Reset();
+	GetCharacterMovement()->StopMovementImmediately();
+	UE_LOG(LogTemp, Log, TEXT("[TT] Hunter stunned %.1fs (%s). Aggression %.2f"), Seconds, bExplosion ? TEXT("explosion") : TEXT("hit"), Aggression);
+	if (State != ETTHunterState::Stunned)
+	{
+		SetState(ETTHunterState::Stunned);
+	}
+}
+
+void ATTHunter::ReachJoe()
+{
+	ATTPlayerCharacter* Player = GetPlayer();
+	if (!Player)
+	{
+		Capture();
+		return;
+	}
+	// Easy/Normal: blows until Joe is badly hurt. Hard: one blow. Punitive: none.
+	static const int32 StrikeUntilInjury[] = { 3, 3, 2, 0 };
+	const int32 Limit = StrikeUntilInjury[static_cast<int32>(Difficulty)];
+	if (Player->GetInjury() < Limit && !Player->IsCollapsed() && StrikeRecover > 0.f)
+	{
+		return; // Still recovering from the last blow: keep pressing, no grab yet.
+	}
+	if (Player->GetInjury() < Limit && !Player->IsCollapsed())
+	{
+		Player->HunterStrike(GetActorLocation());
+		StrikeRecover = 2.5f;
+		SpeechCooldown = 0.f;
+		Say(TEXT("Não corra."), 0.5f);
+		Stun(1.1f, false);
+		Aggression = FMath::Max(0.f, Aggression - 0.2f);
+		return;
+	}
+	SpeechCooldown = 0.f;
+	Say(TEXT("Acabou."));
+	Capture();
+}
+
 void ATTHunter::Capture()
 {
 	SetState(ETTHunterState::Capturing);
@@ -1256,6 +1325,7 @@ void ATTHunter::Tick(float DeltaSeconds)
 
 	StateTime += DeltaSeconds;
 	SpeechCooldown -= DeltaSeconds;
+	StrikeRecover -= DeltaSeconds;
 	AmbushCooldown -= DeltaSeconds;
 	TrapCooldown -= DeltaSeconds;
 	if (State != ETTHunterState::Pursue)
@@ -1473,9 +1543,7 @@ void ATTHunter::Tick(float DeltaSeconds)
 			}
 			if (FVector::Dist2D(Player->GetActorLocation(), GetActorLocation()) < HunterTuning::CaptureDistance)
 			{
-				SpeechCooldown = 0.f;
-				Say(TEXT("Acabou."));
-				Capture();
+				ReachJoe();
 				break;
 			}
 		}
@@ -1496,6 +1564,24 @@ void ATTHunter::Tick(float DeltaSeconds)
 		}
 		break;
 	}
+
+	case ETTHunterState::Stunned:
+		GetCharacterMovement()->StopActiveMovement();
+		StunTimeLeft -= DeltaSeconds;
+		if (StunTimeLeft <= 0.f)
+		{
+			// He comes back angrier, and he knows roughly where it came from.
+			if (bSawPlayerThisFrame || TimeSinceSeen < 1.f)
+			{
+				StartPursue();
+			}
+			else
+			{
+				InvestigateRadius = 600.f;
+				StartSearch(LastKnown, SearchSeconds * (1.f + 0.5f * Aggression));
+			}
+		}
+		break;
 
 	case ETTHunterState::Capturing:
 		if (Player)

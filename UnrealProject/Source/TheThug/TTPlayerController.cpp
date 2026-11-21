@@ -129,9 +129,46 @@ void ATTPlayerController::PlayerTick(float DeltaTime)
 	{
 		Joe->Interact();
 	}
-	if (Pressed(EKeys::G) || Pressed(EKeys::RightMouseButton))
+	const bool bInventory = Down(EKeys::Tab);
+	Joe->SetInventoryOpen(bInventory);
+	if (bInventory)
+	{
+		static const FKey DropKeys[] = { EKeys::One, EKeys::Two, EKeys::Three, EKeys::Four, EKeys::Five, EKeys::Six, EKeys::Seven };
+		for (int32 i = 0; i < UE_ARRAY_COUNT(DropKeys); ++i)
+		{
+			if (Pressed(DropKeys[i]))
+			{
+				Joe->DropItem(static_cast<ETTItem>(i));
+			}
+		}
+	}
+	else
+	{
+		Joe->SetAiming(Down(EKeys::RightMouseButton));
+		if (Pressed(EKeys::LeftMouseButton))
+		{
+			Joe->Fire();
+		}
+	}
+	if (Pressed(EKeys::R))
+	{
+		Joe->Reload();
+	}
+	if (Pressed(EKeys::G))
 	{
 		Joe->ThrowBottle();
+	}
+	if (Pressed(EKeys::T))
+	{
+		Joe->ThrowSmoke();
+	}
+	if (Pressed(EKeys::Q))
+	{
+		Joe->ThrowGrenade();
+	}
+	if (Pressed(EKeys::H))
+	{
+		Joe->UseMedical();
 	}
 
 	UpdateLook();

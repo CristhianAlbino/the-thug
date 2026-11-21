@@ -42,7 +42,14 @@ public:
 	void RestartRun();
 	void QuitGame();
 	void PlayerCaptured(ATTHunter* By);
+	void PlayerDied(const FString& Reason);
 	void PlayerEscaped();
+
+	void RegisterSmoke(class ATTSmokeCloud* Smoke);
+	/** True when an active smoke cloud sits between A and B (the Hunter cannot see through it). */
+	bool IsSightBlockedBySmoke(const FVector& A, const FVector& B) const;
+	const FString& GetEndTitle() const { return EndTitle; }
+	const FString& GetEndSubtitle() const { return EndSubtitle; }
 
 	// World events
 	void ReportNoise(const FVector& Location, ETTNoise Kind, AActor* NoiseInstigator);
@@ -102,6 +109,10 @@ private:
 	bool bCapturedInLocker = false;
 	bool bDebug = false;
 
+	TArray<TWeakObjectPtr<class ATTSmokeCloud>> Smokes;
+	FString EndTitle;
+	FString EndSubtitle;
+
 	FString Message;
 	float MessageTime = 0.f;
 	float MessageDuration = 1.f;
@@ -115,6 +126,8 @@ private:
 	bool bAutomation = false;
 	bool bAITest = false;
 	bool bLearnTest = false;
+	bool bSurviveTest = false;
+	void UpdateSurviveTest();
 	float AutoTime = 0.f;
 	int32 AutoStep = 0;
 };

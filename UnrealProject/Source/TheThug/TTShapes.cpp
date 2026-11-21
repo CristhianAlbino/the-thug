@@ -32,6 +32,33 @@ UMaterialInstanceDynamic* TTShapes::MakeColor(UObject* Outer, const FLinearColor
 	return Mid;
 }
 
+UMaterialInstanceDynamic* TTShapes::MakeEmissive(UObject* Outer, const FLinearColor& Color, float Intensity)
+{
+	UMaterialInterface* Base = LoadObject<UMaterialInterface>(nullptr, TEXT("/Game/Materials/M_TTEmissive.M_TTEmissive"));
+	if (!Base)
+	{
+		return MakeColor(Outer, Color);
+	}
+	UMaterialInstanceDynamic* Mid = UMaterialInstanceDynamic::Create(Base, Outer);
+	Mid->SetVectorParameterValue(TEXT("Color"), Color);
+	Mid->SetScalarParameterValue(TEXT("Intensity"), Intensity);
+	return Mid;
+}
+
+UMaterialInstanceDynamic* TTShapes::MakeSmoke(UObject* Outer, float Opacity)
+{
+	UMaterialInterface* Base = LoadObject<UMaterialInterface>(nullptr, TEXT("/Game/Materials/M_TTSmoke.M_TTSmoke"));
+	if (!Base)
+	{
+		return nullptr;
+	}
+	UMaterialInstanceDynamic* Mid = UMaterialInstanceDynamic::Create(Base, Outer);
+	Mid->SetScalarParameterValue(TEXT("Opacity"), Opacity);
+	// Self-lit enough to read as a grey wall in a dark corridor; the flashlight adds on top.
+	Mid->SetScalarParameterValue(TEXT("Glow"), 0.08f);
+	return Mid;
+}
+
 UStaticMeshComponent* TTShapes::AddPart(AActor* Owner, USceneComponent* Parent, UStaticMesh* Mesh,
 	const FVector& RelativeLocation, const FVector& Size, const FLinearColor& Color,
 	const FRotator& RelativeRotation, bool bCollision)

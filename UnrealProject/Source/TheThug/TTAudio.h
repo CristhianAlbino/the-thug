@@ -16,7 +16,12 @@ enum class ETTSfx : uint8
 	Clank,
 	Sting,
 	Pickup,
-	Click
+	Click,
+	Gunshot,
+	Explosion,
+	Breath,
+	Punch,
+	Hiss
 };
 
 namespace TTAudio

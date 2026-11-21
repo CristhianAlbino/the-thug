@@ -20,6 +20,10 @@ namespace TTShapes
 	UStaticMesh* Cone();
 
 	UMaterialInstanceDynamic* MakeColor(UObject* Outer, const FLinearColor& Color, float Roughness = 0.8f);
+	/** Unlit glow (Content/Materials/M_TTEmissive). Falls back to a plain colour if the asset is missing. */
+	UMaterialInstanceDynamic* MakeEmissive(UObject* Outer, const FLinearColor& Color, float Intensity);
+	/** Lit translucent smoke (Content/Materials/M_TTSmoke). */
+	UMaterialInstanceDynamic* MakeSmoke(UObject* Outer, float Opacity);
 
 	UStaticMeshComponent* AddPart(AActor* Owner, USceneComponent* Parent, UStaticMesh* Mesh,
 		const FVector& RelativeLocation, const FVector& Size, const FLinearColor& Color,

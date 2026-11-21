@@ -5,8 +5,12 @@
 #include "Components/StaticMeshComponent.h"
 #include "Engine/World.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "Components/StaticMeshComponent.h"
+#include "Materials/MaterialInstanceDynamic.h"
 #include "TTAudio.h"
 #include "TTGameMode.h"
+#include "TTHospital.h"
+#include "TTHunter.h"
 #include "TTPlayerCharacter.h"
 #include "TTShapes.h"
 
@@ -250,14 +254,23 @@ void ATTLocker::FlapDoor()
 // ---------------------------------------------------------------------------
 // Pickup
 
-void ATTPickup::Setup(ETTPickupType InType)
+void ATTPickup::Setup(ETTPickupType InType, ETTItem InItem, bool bOnTable)
 {
 	Type = InType;
-	if (Type == ETTPickupType::Key)
+	Item = InItem;
+	const UStaticMesh* None = nullptr;
+	(void)None;
+
+	const bool bTable = Type == ETTPickupType::Key || bOnTable;
+	const float Z = bTable ? 77.f : 0.f;
+	if (bTable)
 	{
 		TTShapes::AddPart(this, Root, TTShapes::Cube(), FVector(0.f, 0.f, 38.f), FVector(90.f, 60.f, 76.f), FLinearColor(0.18f, 0.17f, 0.15f));
-		TTShapes::AddPart(this, Root, TTShapes::Cube(), FVector(0.f, 0.f, 77.f), FVector(16.f, 10.f, 1.5f), FLinearColor(0.95f, 0.72f, 0.08f), FRotator(0.f, 25.f, 0.f));
+	}
 
+	if (Type == ETTPickupType::Key)
+	{
+		TTShapes::AddPart(this, Root, TTShapes::Cube(), FVector(0.f, 0.f, 77.f), FVector(16.f, 10.f, 1.5f), FLinearColor(0.95f, 0.72f, 0.08f), FRotator(0.f, 25.f, 0.f));
 		UPointLightComponent* Glow = NewObject<UPointLightComponent>(this);
 		Glow->SetupAttachment(Root);
 		Glow->SetRelativeLocation(FVector(0.f, 0.f, 95.f));
@@ -267,16 +280,49 @@ void ATTPickup::Setup(ETTPickupType InType)
 		Glow->SetLightColor(FLinearColor(1.f, 0.75f, 0.3f));
 		Glow->SetCastShadows(false);
 		Glow->RegisterComponent();
+		return;
 	}
-	else
+
+	switch (Item)
 	{
-		TTShapes::AddPart(this, Root, TTShapes::Cylinder(), FVector(0.f, 0.f, 13.f), FVector(9.f, 9.f, 26.f), FLinearColor(0.06f, 0.16f, 0.07f), FRotator::ZeroRotator, true);
+	case ETTItem::Bottle:
+		TTShapes::AddPart(this, Root, TTShapes::Cylinder(), FVector(0.f, 0.f, Z + 13.f), FVector(9.f, 9.f, 26.f), FLinearColor(0.06f, 0.16f, 0.07f));
+		break;
+	case ETTItem::Bandage:
+		TTShapes::AddPart(this, Root, TTShapes::Cylinder(), FVector(0.f, 0.f, Z + 5.f), FVector(11.f, 11.f, 9.f), FLinearColor(0.85f, 0.84f, 0.8f));
+		break;
+	case ETTItem::Medkit:
+		TTShapes::AddPart(this, Root, TTShapes::Cube(), FVector(0.f, 0.f, Z + 7.f), FVector(34.f, 22.f, 13.f), FLinearColor(0.8f, 0.8f, 0.78f));
+		TTShapes::AddPart(this, Root, TTShapes::Cube(), FVector(0.f, 0.f, Z + 14.f), FVector(16.f, 5.f, 1.f), FLinearColor(0.7f, 0.03f, 0.03f), FRotator::ZeroRotator, false);
+		TTShapes::AddPart(this, Root, TTShapes::Cube(), FVector(0.f, 0.f, Z + 14.f), FVector(5.f, 16.f, 1.f), FLinearColor(0.7f, 0.03f, 0.03f), FRotator::ZeroRotator, false);
+		break;
+	case ETTItem::Magazine:
+		TTShapes::AddPart(this, Root, TTShapes::Cube(), FVector(0.f, 0.f, Z + 2.f), FVector(20.f, 7.f, 4.f), FLinearColor(0.05f, 0.05f, 0.05f), FRotator(0.f, 30.f, 0.f));
+		TTShapes::AddPart(this, Root, TTShapes::Cube(), FVector(10.f, 12.f, Z + 2.f), FVector(20.f, 7.f, 4.f), FLinearColor(0.05f, 0.05f, 0.05f), FRotator(0.f, -10.f, 0.f));
+		break;
+	case ETTItem::Smoke:
+		TTShapes::AddPart(this, Root, TTShapes::Cylinder(), FVector(0.f, 0.f, Z + 8.f), FVector(8.f, 8.f, 16.f), FLinearColor(0.25f, 0.28f, 0.25f));
+		break;
+	case ETTItem::Grenade:
+		TTShapes::AddPart(this, Root, TTShapes::Sphere(), FVector(0.f, 0.f, Z + 5.f), FVector(9.f, 9.f, 11.f), FLinearColor(0.12f, 0.14f, 0.07f));
+		break;
+	case ETTItem::Rifle:
+		TTShapes::AddPart(this, Root, TTShapes::Cube(), FVector(0.f, 0.f, Z + 4.f), FVector(85.f, 6.f, 9.f), FLinearColor(0.06f, 0.06f, 0.06f));
+		break;
 	}
 }
 
 FString ATTPickup::GetPrompt(const ATTPlayerCharacter* Player) const
 {
-	return Type == ETTPickupType::Key ? TEXT("[E] Pegar cartão de acesso") : TEXT("[E] Pegar garrafa");
+	if (Type == ETTPickupType::Key)
+	{
+		return TEXT("[E] Pegar cartão de acesso");
+	}
+	if (Player && !Player->CanCarry(Item))
+	{
+		return FString::Printf(TEXT("%s  (sem espaço — [Tab] inventário)"), *TTItemName(Item));
+	}
+	return FString::Printf(TEXT("[E] Pegar %s"), *TTItemName(Item).ToLower());
 }
 
 void ATTPickup::Interact(ATTPlayerCharacter* Player)
@@ -285,20 +331,28 @@ void ATTPickup::Interact(ATTPlayerCharacter* Player)
 	{
 		return;
 	}
-	TTAudio::Play2D(this, ETTSfx::Pickup, 0.6f);
+	ATTGameMode* GM = GetTTGameMode(this);
 	if (Type == ETTPickupType::Key)
 	{
+		TTAudio::Play2D(this, ETTSfx::Pickup, 0.6f);
 		Player->GiveKey();
-		if (ATTGameMode* GM = GetTTGameMode(this))
+		if (GM)
 		{
 			GM->ShowMessage(TEXT("Cartão do portão de serviço. A saída fica no fim do corredor principal (leste)."), 6.f);
 			GM->SetObjective(TEXT("Chegue ao portão de serviço no fim do corredor leste."));
 		}
+		Destroy();
+		return;
 	}
-	else
+	if (!Player->TryAddItem(Item, 1))
 	{
-		Player->AddBottles(1);
+		if (GM)
+		{
+			GM->ShowMessage(FString::Printf(TEXT("Sem espaço para %s. Segure [Tab] e largue algo."), *TTItemName(Item).ToLower()), 3.f);
+		}
+		return;
 	}
+	TTAudio::Play2D(this, ETTSfx::Pickup, 0.45f);
 	Destroy();
 }
 
@@ -367,6 +421,8 @@ void ATTExitGate::SetUnlocked()
 
 ATTThrowable::ATTThrowable()
 {
+	PrimaryActorTick.bCanEverTick = true;
+
 	Collision = CreateDefaultSubobject<USphereComponent>(TEXT("Collision"));
 	Collision->InitSphereRadius(6.f);
 	Collision->SetCollisionProfileName(TEXT("BlockAllDynamic"));
@@ -380,28 +436,70 @@ ATTThrowable::ATTThrowable()
 	Movement->ProjectileGravityScale = 1.f;
 	Movement->bRotationFollowsVelocity = true;
 
-	InitialLifeSpan = 10.f;
+	InitialLifeSpan = 30.f;
 }
 
-void ATTThrowable::Launch(const FVector& Velocity, AActor* Thrower)
+void ATTThrowable::Launch(const FVector& Velocity, AActor* Thrower, ETTThrowableType InType)
 {
+	Type = InType;
 	SetInstigator(Cast<APawn>(Thrower));
 	if (Thrower)
 	{
 		Collision->IgnoreActorWhenMoving(Thrower, true);
 	}
-	TTShapes::AddPart(this, Collision, TTShapes::Cylinder(), FVector::ZeroVector, FVector(8.f, 8.f, 24.f), FLinearColor(0.06f, 0.16f, 0.07f), FRotator(90.f, 0.f, 0.f), false);
+
+	switch (Type)
+	{
+	case ETTThrowableType::Bottle:
+		TTShapes::AddPart(this, Collision, TTShapes::Cylinder(), FVector::ZeroVector, FVector(8.f, 8.f, 24.f), FLinearColor(0.06f, 0.16f, 0.07f), FRotator(90.f, 0.f, 0.f), false);
+		break;
+	case ETTThrowableType::Smoke:
+		TTShapes::AddPart(this, Collision, TTShapes::Cylinder(), FVector::ZeroVector, FVector(8.f, 8.f, 16.f), FLinearColor(0.25f, 0.28f, 0.25f), FRotator(90.f, 0.f, 0.f), false);
+		Movement->bShouldBounce = true;
+		Movement->Bounciness = 0.25f;
+		Movement->Friction = 0.6f;
+		break;
+	case ETTThrowableType::Grenade:
+		TTShapes::AddPart(this, Collision, TTShapes::Sphere(), FVector::ZeroVector, FVector(9.f, 9.f, 11.f), FLinearColor(0.12f, 0.14f, 0.07f), FRotator::ZeroRotator, false);
+		Movement->bShouldBounce = true;
+		Movement->Bounciness = 0.35f;
+		Movement->Friction = 0.5f;
+		break;
+	}
 	Movement->OnProjectileStop.AddDynamic(this, &ATTThrowable::OnStop);
 	Movement->Velocity = Velocity;
 }
 
-void ATTThrowable::OnStop(const FHitResult& ImpactResult)
+void ATTThrowable::Tick(float DeltaSeconds)
 {
-	if (bBroken)
+	Super::Tick(DeltaSeconds);
+	if (bDone)
 	{
 		return;
 	}
-	bBroken = true;
+	Age += DeltaSeconds;
+	if (bStopped)
+	{
+		StoppedTime += DeltaSeconds;
+	}
+	if (Type == ETTThrowableType::Grenade && Age >= 2.2f)
+	{
+		Explode();
+	}
+	else if (Type == ETTThrowableType::Smoke && (StoppedTime >= 0.4f || Age >= 4.f))
+	{
+		ReleaseSmoke();
+	}
+}
+
+void ATTThrowable::OnStop(const FHitResult& ImpactResult)
+{
+	bStopped = true;
+	if (Type != ETTThrowableType::Bottle || bDone)
+	{
+		return;
+	}
+	bDone = true;
 	const FVector Loc = GetActorLocation();
 	TTAudio::PlayAt(this, ETTSfx::Shatter, Loc, 1.f);
 	if (ATTGameMode* GM = GetTTGameMode(this))
@@ -409,4 +507,210 @@ void ATTThrowable::OnStop(const FHitResult& ImpactResult)
 		GM->ReportNoise(Loc, ETTNoise::Glass, GetInstigator());
 	}
 	Destroy();
+}
+
+void ATTThrowable::ReleaseSmoke()
+{
+	bDone = true;
+	const FVector Loc = GetActorLocation();
+	TTAudio::PlayAt(this, ETTSfx::Hiss, Loc, 0.8f);
+	FActorSpawnParameters Params;
+	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	GetWorld()->SpawnActor<ATTSmokeCloud>(ATTSmokeCloud::StaticClass(), Loc + FVector(0.f, 0.f, 90.f), FRotator::ZeroRotator, Params);
+	Destroy();
+}
+
+void ATTThrowable::Explode()
+{
+	bDone = true;
+	const FVector Loc = GetActorLocation() + FVector(0.f, 0.f, 20.f);
+	UWorld* World = GetWorld();
+	ATTGameMode* GM = GetTTGameMode(this);
+
+	TTAudio::PlayAt(this, ETTSfx::Explosion, Loc, 1.f);
+	FActorSpawnParameters Params;
+	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	if (ATTFlash* Flash = World->SpawnActor<ATTFlash>(ATTFlash::StaticClass(), Loc + FVector(0.f, 0.f, 40.f), FRotator::ZeroRotator, Params))
+	{
+		Flash->Setup(60000.f, 1600.f, 0.45f, FLinearColor(1.f, 0.7f, 0.4f));
+	}
+
+	auto HasLineTo = [World, this, &Loc](const AActor* Target, const FVector& Point)
+	{
+		FCollisionQueryParams Query(SCENE_QUERY_STAT(TTExplosion), false, this);
+		Query.AddIgnoredActor(Target);
+		return !World->LineTraceTestByChannel(Loc, Point, ECC_Visibility, Query);
+	};
+
+	if (GM)
+	{
+		GM->ReportNoise(Loc, ETTNoise::Explosion, GetInstigator());
+		if (ATTHospital* Hospital = GM->GetHospital())
+		{
+			Hospital->SetLampsNear(Loc, 550.f, false);
+			// Blows nearby doors open, including one he blocked (GDD §38: "abrir caminhos").
+			for (const TPair<FIntPoint, TObjectPtr<ATTDoor>>& Pair : Hospital->GetDoors())
+			{
+				ATTDoor* Door = Pair.Value;
+				if (Door && FVector::Dist(Door->GetActorLocation(), Loc) < 380.f)
+				{
+					Door->SetLocked(false);
+					Door->SetOpen(true, false, this);
+				}
+			}
+		}
+		if (ATTHunter* Hunter = GM->GetHunter())
+		{
+			const float D = FVector::Dist(Hunter->GetActorLocation(), Loc);
+			if (D < 550.f && HasLineTo(Hunter, Hunter->GetActorLocation()))
+			{
+				Hunter->Stun(D < 300.f ? 3.5f : 2.2f, true);
+			}
+		}
+		if (ATTPlayerCharacter* Player = GM->GetPlayer())
+		{
+			const float D = FVector::Dist(Player->GetActorLocation(), Loc);
+			if (D < 650.f && HasLineTo(Player, Player->GetActorLocation()))
+			{
+				Player->TakeInjury(D < 330.f ? 3 : 2, TEXT("A explosão te pegou."));
+			}
+		}
+	}
+	Destroy();
+}
+
+// ---------------------------------------------------------------------------
+// Smoke cloud
+
+namespace SmokeTuning
+{
+	constexpr float MaxRadius = 380.f;
+	constexpr float GrowTime = 2.f;
+	constexpr float HoldTime = 14.f;
+	constexpr float FadeTime = 3.f;
+}
+
+ATTSmokeCloud::ATTSmokeCloud()
+{
+	PrimaryActorTick.bCanEverTick = true;
+	Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
+	Root->SetMobility(EComponentMobility::Movable);
+	RootComponent = Root;
+}
+
+void ATTSmokeCloud::BeginPlay()
+{
+	Super::BeginPlay();
+	FRandomStream Rng(FMath::Rand());
+	for (int32 i = 0; i < 9; ++i)
+	{
+		FPuff Puff;
+		Puff.Offset = FVector(Rng.FRandRange(-0.55f, 0.55f), Rng.FRandRange(-0.55f, 0.55f), Rng.FRandRange(-0.35f, 0.25f));
+		Puff.Drift = FVector(Rng.FRandRange(-6.f, 6.f), Rng.FRandRange(-6.f, 6.f), Rng.FRandRange(2.f, 8.f));
+		Puff.Scale = Rng.FRandRange(0.7f, 1.15f);
+		Puff.Spin = Rng.FRandRange(-12.f, 12.f);
+		Puff.Mesh = TTShapes::AddPart(this, Root, TTShapes::Sphere(), FVector::ZeroVector, FVector(10.f), FLinearColor::Gray, FRotator::ZeroRotator, false);
+		if (Puff.Mesh)
+		{
+			Puff.Mesh->SetCastShadow(false);
+			Puff.Material = TTShapes::MakeSmoke(Puff.Mesh, 0.f);
+			if (Puff.Material)
+			{
+				Puff.Mesh->SetMaterial(0, Puff.Material);
+			}
+		}
+		Puffs.Add(Puff);
+	}
+	UE_LOG(LogTemp, Log, TEXT("[TT] Smoke released at %s (%d puffs, material %s)"), *GetActorLocation().ToCompactString(), Puffs.Num(),
+		(Puffs.Num() > 0 && Puffs[0].Material) ? TEXT("ok") : TEXT("MISSING"));
+	if (ATTGameMode* GM = GetTTGameMode(this))
+	{
+		GM->RegisterSmoke(this);
+		GM->ReportNoise(GetActorLocation(), ETTNoise::QuietDoor, GetInstigator());
+	}
+}
+
+void ATTSmokeCloud::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+	using namespace SmokeTuning;
+	Age += DeltaSeconds;
+	const float Grow = FMath::Clamp(Age / GrowTime, 0.f, 1.f);
+	const float VisualRadius = MaxRadius * FMath::Sqrt(Grow);
+	Radius = VisualRadius;
+	const float FadeStart = GrowTime + HoldTime;
+	const float Fade = FMath::Clamp((Age - FadeStart) / FadeTime, 0.f, 1.f);
+	if (Fade >= 1.f)
+	{
+		Destroy();
+		return;
+	}
+	// Thinning smoke stops blocking sight before it disappears completely.
+	if (Fade > 0.6f)
+	{
+		Radius *= 1.f - (Fade - 0.6f) / 0.4f;
+	}
+
+	const float Opacity = 0.5f * FMath::Clamp(Age / 0.6f, 0.f, 1.f) * (1.f - Fade);
+	for (FPuff& Puff : Puffs)
+	{
+		if (!Puff.Mesh)
+		{
+			continue;
+		}
+		Puff.Offset += Puff.Drift * DeltaSeconds / FMath::Max(VisualRadius, 50.f);
+		const float Size = FMath::Max(10.f, VisualRadius * 1.25f * Puff.Scale);
+		Puff.Mesh->SetRelativeLocation(Puff.Offset * VisualRadius);
+		Puff.Mesh->SetRelativeScale3D(FVector(Size / 100.f));
+		Puff.Mesh->AddRelativeRotation(FRotator(0.f, Puff.Spin * DeltaSeconds, 0.f));
+		if (Puff.Material)
+		{
+			Puff.Material->SetScalarParameterValue(TEXT("Opacity"), Opacity);
+		}
+	}
+}
+
+bool ATTSmokeCloud::BlocksSegment(const FVector& A, const FVector& B) const
+{
+	if (Radius < 60.f)
+	{
+		return false;
+	}
+	const FVector Center = GetActorLocation();
+	return FMath::PointDistToSegment(Center, A, B) < Radius * 0.85f;
+}
+
+// ---------------------------------------------------------------------------
+// Flash
+
+ATTFlash::ATTFlash()
+{
+	PrimaryActorTick.bCanEverTick = true;
+	Light = CreateDefaultSubobject<UPointLightComponent>(TEXT("Light"));
+	Light->SetMobility(EComponentMobility::Movable);
+	Light->SetCastShadows(false);
+	RootComponent = Light;
+}
+
+void ATTFlash::Setup(float Lumens, float AttenuationRadius, float Duration, const FLinearColor& Color)
+{
+	Peak = Lumens;
+	Life = FMath::Max(0.02f, Duration);
+	Light->SetIntensityUnits(ELightUnits::Lumens);
+	Light->SetIntensity(Peak);
+	Light->SetAttenuationRadius(AttenuationRadius);
+	Light->SetLightColor(Color);
+}
+
+void ATTFlash::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+	Age += DeltaSeconds;
+	const float K = 1.f - Age / Life;
+	if (K <= 0.f)
+	{
+		Destroy();
+		return;
+	}
+	Light->SetIntensity(Peak * K * K);
 }

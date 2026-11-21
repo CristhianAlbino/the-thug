@@ -7,6 +7,7 @@
 #include "Engine/ExponentialHeightFog.h"
 #include "Engine/PostProcessVolume.h"
 #include "Engine/World.h"
+#include "Materials/MaterialInstanceDynamic.h"
 #include "Misc/CommandLine.h"
 #include "Misc/Parse.h"
 #include "TTAudio.h"
@@ -20,19 +21,21 @@ namespace
 	 *  #  wall            .  floor            D  door            L  locker
 	 *  *  ceiling lamp    ~  flickering lamp  m  hospital bed    b  bottle
 	 *  P  player start    H  Hunter start     K  gate keycard    X  service gate (exit)
+	 *  a  bandage         M  medkit           n  rifle magazine  s  smoke grenade   x  grenade
+	 *  g  broken glass on the floor (loud; running over it cuts)
 	 *  1-9  Hunter patrol points
 	 */
 	const TCHAR* const Layout[] = {
 		TEXT("#######################"),
-		TEXT("#L..m#m..m#...L#m....L#"),
-		TEXT("#....#.1..D.2..#..~.P.#"),
-		TEXT("#L*..#..*L#m...#L....m#"),
+		TEXT("#L.am#m..m#...L#m....L#"),
+		TEXT("#....#.1.xD.2..#..~.P.#"),
+		TEXT("#L*..#..*L#m.n.#L....m#"),
 		TEXT("##D#####D####D#####D###"),
-		TEXT("#.*..3.b.~.4..*..5..*.X"),
+		TEXT("#.*..3.b.~.4..*gg5..*.X"),
 		TEXT("###D####D####D####D####"),
-		TEXT("#m..L#L..m#..*L#....mL#"),
+		TEXT("#m..L#L..m#..*L#..s.mL#"),
 		TEXT("#.6..D....D.H..#.7.~..#"),
-		TEXT("#~.Km#.*.b#L..m#m....L#"),
+		TEXT("#~.Km#.*.b#L.Mm#m....L#"),
 		TEXT("#######################"),
 	};
 
@@ -50,7 +53,8 @@ namespace
 		switch (C)
 		{
 		case TEXT('.'): case TEXT('*'): case TEXT('~'): case TEXT('D'): case TEXT('L'):
-		case TEXT('P'): case TEXT('H'): case TEXT('b'):
+		case TEXT('P'): case TEXT('H'): case TEXT('b'): case TEXT('a'): case TEXT('n'):
+		case TEXT('s'): case TEXT('x'): case TEXT('g'):
 			return true;
 		default:
 			return C >= TEXT('1') && C <= TEXT('9');
@@ -201,16 +205,51 @@ void ATTHospital::Build()
 
 			case TEXT('K'):
 			case TEXT('b'):
+			case TEXT('a'):
+			case TEXT('M'):
+			case TEXT('n'):
+			case TEXT('s'):
+			case TEXT('x'):
 			{
 				const FRotator Rot(0.f, Rng.FRandRange(0.f, 360.f), 0.f);
 				FVector Loc = WorldLoc;
+				ETTItem Item = ETTItem::Bottle;
+				bool bOnTable = true;
+				switch (C)
+				{
+				case TEXT('a'): Item = ETTItem::Bandage; break;
+				case TEXT('M'): Item = ETTItem::Medkit; break;
+				case TEXT('n'): Item = ETTItem::Magazine; break;
+				case TEXT('s'): Item = ETTItem::Smoke; break;
+				case TEXT('x'): Item = ETTItem::Grenade; break;
+				default: bOnTable = false; break;
+				}
 				if (C == TEXT('b'))
 				{
 					Loc += FVector(Rng.FRandRange(-80.f, 80.f), Rng.FRandRange(-80.f, 80.f), 0.f);
 				}
 				if (ATTPickup* Pickup = World->SpawnActor<ATTPickup>(ATTPickup::StaticClass(), Loc, Rot, Params))
 				{
-					Pickup->Setup(C == TEXT('K') ? ETTPickupType::Key : ETTPickupType::Bottle);
+					if (C == TEXT('K'))
+					{
+						Pickup->Setup(ETTPickupType::Key);
+					}
+					else
+					{
+						Pickup->Setup(ETTPickupType::Item, Item, bOnTable);
+					}
+				}
+				break;
+			}
+
+			case TEXT('g'):
+			{
+				GlassCells.Add(Cell);
+				for (int32 i = 0; i < 22; ++i)
+				{
+					const FVector Shard = Local + FVector(Rng.FRandRange(-130.f, 130.f), Rng.FRandRange(-130.f, 130.f), 0.6f);
+					const FVector Size(Rng.FRandRange(4.f, 14.f), Rng.FRandRange(3.f, 9.f), 0.8f);
+					TTShapes::AddPart(this, RootComponent, Cube, Shard, Size, FLinearColor(0.55f, 0.62f, 0.6f), FRotator(0.f, Rng.FRandRange(0.f, 180.f), 0.f), false);
 				}
 				break;
 			}
@@ -292,6 +331,11 @@ void ATTHospital::AddLamp(const FIntPoint& Cell, bool bFlicker, bool bDead)
 
 	FLamp Lamp;
 	Lamp.Fixture = TTShapes::AddPart(this, RootComponent, TTShapes::Cube(), Local + FVector(0.f, 0.f, WallHeight - 3.f), FVector(130.f, 32.f, 6.f), FLinearColor(0.9f, 0.9f, 0.85f), FRotator::ZeroRotator, false);
+	if (Lamp.Fixture)
+	{
+		Lamp.Glow = TTShapes::MakeEmissive(Lamp.Fixture, bFlicker ? FLinearColor(0.8f, 0.92f, 1.f) : FLinearColor(1.f, 0.93f, 0.8f), 6.f);
+		Lamp.Fixture->SetMaterial(0, Lamp.Glow);
+	}
 
 	UPointLightComponent* Light = NewObject<UPointLightComponent>(this);
 	Light->SetupAttachment(RootComponent);
@@ -372,9 +416,9 @@ void ATTHospital::Tick(float DeltaSeconds)
 			Lamp.bOn = !Lamp.bOn;
 			Lamp.Timer = Lamp.bOn ? FMath::FRandRange(0.05f, 1.8f) : FMath::FRandRange(0.03f, 0.35f);
 			Lamp.Light->SetIntensity(Lamp.bOn ? Lamp.BaseIntensity * FMath::FRandRange(0.7f, 1.f) : 0.f);
-			if (Lamp.Fixture)
+			if (Lamp.Glow)
 			{
-				Lamp.Fixture->SetVisibility(true);
+				Lamp.Glow->SetScalarParameterValue(TEXT("Intensity"), Lamp.bOn ? 6.f : 0.05f);
 			}
 		}
 	}
@@ -476,6 +520,10 @@ int32 ATTHospital::SetLampsNear(const FVector& Center, float Radius, bool bOn)
 		Lamp.bKilled = !bOn;
 		Lamp.bOn = bOn;
 		Lamp.Light->SetIntensity(bOn ? Lamp.BaseIntensity : 0.f);
+		if (Lamp.Glow)
+		{
+			Lamp.Glow->SetScalarParameterValue(TEXT("Intensity"), bOn ? 6.f : 0.05f);
+		}
 		TTAudio::PlayAt(this, ETTSfx::Click, LampLoc, 0.9f);
 		++Changed;
 	}

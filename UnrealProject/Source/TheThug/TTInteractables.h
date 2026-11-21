@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "TTTypes.h"
 #include "TTInteractables.generated.h"
 
 class ATTPlayerCharacter;
@@ -103,7 +104,7 @@ UENUM()
 enum class ETTPickupType : uint8
 {
 	Key,
-	Bottle
+	Item
 };
 
 UCLASS()
@@ -112,15 +113,17 @@ class THETHUG_API ATTPickup : public ATTInteractable
 	GENERATED_BODY()
 
 public:
-	void Setup(ETTPickupType InType);
+	void Setup(ETTPickupType InType, ETTItem InItem = ETTItem::Bottle, bool bOnTable = false);
 
 	virtual FString GetPrompt(const ATTPlayerCharacter* Player) const override;
 	virtual void Interact(ATTPlayerCharacter* Player) override;
 
 	ETTPickupType GetType() const { return Type; }
+	ETTItem GetItem() const { return Item; }
 
 private:
-	ETTPickupType Type = ETTPickupType::Bottle;
+	ETTPickupType Type = ETTPickupType::Item;
+	ETTItem Item = ETTItem::Bottle;
 };
 
 /** Locked service gate. Needs the gate keycard. */
@@ -142,7 +145,19 @@ private:
 	TObjectPtr<UPointLightComponent> StatusLight;
 };
 
-/** Thrown bottle: shatters on impact and creates a loud distraction. */
+UENUM()
+enum class ETTThrowableType : uint8
+{
+	Bottle,
+	Smoke,
+	Grenade
+};
+
+/**
+ * Thrown objects. Bottle: shatters on impact (distraction).
+ * Smoke: rolls, then releases a cloud that blocks the Hunter's sight.
+ * Grenade: bounces, explodes after a fuse (stuns him, breaks lights, blows doors, hurts Joe if close).
+ */
 UCLASS()
 class THETHUG_API ATTThrowable : public AActor
 {
@@ -151,11 +166,15 @@ class THETHUG_API ATTThrowable : public AActor
 public:
 	ATTThrowable();
 
-	void Launch(const FVector& Velocity, AActor* Thrower);
+	void Launch(const FVector& Velocity, AActor* Thrower, ETTThrowableType InType);
+	virtual void Tick(float DeltaSeconds) override;
 
 protected:
 	UFUNCTION()
 	void OnStop(const FHitResult& ImpactResult);
+
+	void Explode();
+	void ReleaseSmoke();
 
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<USphereComponent> Collision;
@@ -163,5 +182,63 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UProjectileMovementComponent> Movement;
 
-	bool bBroken = false;
+	ETTThrowableType Type = ETTThrowableType::Bottle;
+	bool bDone = false;
+	bool bStopped = false;
+	float Age = 0.f;
+	float StoppedTime = 0.f;
+};
+
+/** Smoke cloud from a smoke grenade (local fog volume). The Hunter cannot see through it. */
+UCLASS()
+class THETHUG_API ATTSmokeCloud : public AActor
+{
+	GENERATED_BODY()
+
+public:
+	ATTSmokeCloud();
+
+	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaSeconds) override;
+
+	float GetRadius() const { return Radius; }
+	bool BlocksSegment(const FVector& A, const FVector& B) const;
+
+private:
+	struct FPuff
+	{
+		TObjectPtr<UStaticMeshComponent> Mesh = nullptr;
+		TObjectPtr<UMaterialInstanceDynamic> Material = nullptr;
+		FVector Offset = FVector::ZeroVector;
+		FVector Drift = FVector::ZeroVector;
+		float Scale = 1.f;
+		float Spin = 0.f;
+	};
+
+	UPROPERTY()
+	TObjectPtr<USceneComponent> Root;
+
+	TArray<FPuff> Puffs;
+	float Age = 0.f;
+	float Radius = 0.f;
+};
+
+/** Short bright flash (muzzle flash, explosion). */
+UCLASS()
+class THETHUG_API ATTFlash : public AActor
+{
+	GENERATED_BODY()
+
+public:
+	ATTFlash();
+	void Setup(float Lumens, float AttenuationRadius, float Duration, const FLinearColor& Color);
+	virtual void Tick(float DeltaSeconds) override;
+
+private:
+	UPROPERTY()
+	TObjectPtr<UPointLightComponent> Light;
+
+	float Peak = 0.f;
+	float Life = 0.1f;
+	float Age = 0.f;
 };
