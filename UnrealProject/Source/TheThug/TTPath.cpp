@@ -31,27 +31,29 @@ bool FTTPathFollower::Build(ACharacter* Self, ATTHospital* Hospital, const FVect
 	}
 	UWorld* World = Self->GetWorld();
 	const FVector Start = Self->GetActorLocation();
-	const FVector Target(Goal.X, Goal.Y, Start.Z);
-	if (IsSegmentClear(World, Self, Ignore, Start, Target))
+	const FIntPoint GoalCell = Hospital->WorldToCell(Goal);
+	const bool bSameFloor = Hospital->FloorOfLocation(Start) == Hospital->FloorOfCell(GoalCell);
+	const FVector Target(Goal.X, Goal.Y, bSameFloor ? Start.Z : Hospital->CellToWorld(GoalCell).Z + 90.f);
+	if (bSameFloor && IsSegmentClear(World, Self, Ignore, Start, Target))
 	{
 		Path.Add(Target);
 		return true;
 	}
 	TArray<FIntPoint> Cells;
-	if (!Hospital->FindPath(Hospital->WorldToCell(Start), Hospital->WorldToCell(Target), Cells))
+	if (!Hospital->FindPath(Hospital->WorldToCell(Start), GoalCell, Cells))
 	{
 		return false;
 	}
 	TArray<FVector> Raw;
 	for (int32 i = 1; i < Cells.Num(); ++i)
 	{
-		Raw.Add(Hospital->CellToWorld(Cells[i], Start.Z));
+		Raw.Add(Hospital->CellToWorld(Cells[i], 90.f));
 	}
 	if (Raw.Num() == 0)
 	{
-		Raw.Add(Hospital->CellToWorld(Cells[0], Start.Z));
+		Raw.Add(Hospital->CellToWorld(Cells[0], 90.f));
 	}
-	if (Hospital->IsWalkable(Hospital->WorldToCell(Target)))
+	if (Hospital->IsWalkable(GoalCell))
 	{
 		Raw.Last() = Target;
 	}
@@ -62,7 +64,7 @@ bool FTTPathFollower::Build(ACharacter* Self, ATTHospital* Hospital, const FVect
 		int32 Best = i;
 		for (int32 j = Raw.Num() - 1; j > i; --j)
 		{
-			if (IsSegmentClear(World, Self, Ignore, Current, Raw[j]))
+			if (Hospital->FloorOfLocation(Current) == Hospital->FloorOfLocation(Raw[j]) && IsSegmentClear(World, Self, Ignore, Current, Raw[j]))
 			{
 				Best = j;
 				break;

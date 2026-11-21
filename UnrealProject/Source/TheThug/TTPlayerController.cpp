@@ -98,6 +98,23 @@ void ATTPlayerController::PlayerTick(float DeltaTime)
 		break;
 	}
 
+	if (Joe && Joe->IsViewingCameras())
+	{
+		if (Pressed(EKeys::A) || Pressed(EKeys::Left) || Pressed(EKeys::Q))
+		{
+			Joe->CycleCamera(-1);
+		}
+		if (Pressed(EKeys::D) || Pressed(EKeys::Right))
+		{
+			Joe->CycleCamera(1);
+		}
+		if (Pressed(EKeys::E) || Pressed(EKeys::Escape) || Pressed(EKeys::S))
+		{
+			Joe->StopCameraView();
+		}
+		Joe->SetMoveInput(FVector2D::ZeroVector);
+		return;
+	}
 	if (Pressed(EKeys::Escape) || Pressed(EKeys::P))
 	{
 		GM->TogglePause();

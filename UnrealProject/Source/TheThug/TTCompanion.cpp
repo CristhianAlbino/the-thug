@@ -623,23 +623,23 @@ void ATTCompanion::ShareRouteWithJoe()
 	UE_LOG(LogTemp, Log, TEXT("[TT] %s shares route '%s' with Joe"), *GetDisplayName(), *Route);
 	if (Route == TEXT("keycard"))
 	{
-		Say(TEXT("O cartão do portão? Vi numa mesa, na enfermaria do canto sudoeste."), 6.f);
+		Say(TEXT("O cartão do portão da garagem? Fica na administração, no 2º andar. Sala do canto sudeste."), 6.f);
 		if (GM)
 		{
-			GM->SetObjective(TEXT("O cartão do portão está na enfermaria do canto sudoeste."));
+			GM->SetObjective(TEXT("Cartão do portão da garagem: administração, 2º andar, sala sudeste."));
 		}
 	}
 	else if (Route == TEXT("window"))
 	{
-		Say(TEXT("Tem uma janela pregada na enfermaria sudoeste. Com um pé de cabra dá pra sair pro prédio do lado."), 7.f);
+		Say(TEXT("No 3º andar, a sala de procedimento do lado leste tem uma janela pregada. Com um pé de cabra dá pra passar pro anexo."), 7.f);
 		if (GM)
 		{
-			GM->SetObjective(TEXT("Janela pregada na enfermaria sudoeste: precisa de um pé de cabra."));
+			GM->SetObjective(TEXT("Janela pregada no 3º andar (leste): precisa de um pé de cabra."));
 		}
 	}
 	else if (Route == TEXT("medkit"))
 	{
-		Say(TEXT("Tem um kit médico na sala de baixo, a do meio. Eu vi."), 5.f);
+		Say(TEXT("Tem um kit médico no 1º andar, na ala oeste. Eu vi quando a gente subiu."), 5.f);
 	}
 }
 
@@ -1045,7 +1045,7 @@ void ATTCompanion::Tick(float DeltaSeconds)
 			{
 				if (Joe && FVector::Dist(Joe->GetActorLocation(), GetActorLocation()) < 2600.f)
 				{
-					GM->ShowMessage(TEXT("Madeira sendo arrancada... alguém fugiu pela janela da enfermaria sudoeste."), 5.f);
+					GM->ShowMessage(TEXT("Madeira sendo arrancada... alguém fugiu por uma janela."), 5.f);
 				}
 			}
 		}

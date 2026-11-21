@@ -6,6 +6,7 @@
 #include "Engine/World.h"
 #include "TTCompanion.h"
 #include "TTGameMode.h"
+#include "TTHospital.h"
 #include "TTHunter.h"
 #include "TTInteractables.h"
 #include "TTPlayerCharacter.h"
@@ -116,6 +117,48 @@ void ATTHUD::DrawPlaying()
 	UFont* Medium = GEngine->GetMediumFont();
 	UFont* Small = GEngine->GetSmallFont();
 
+	if (Player->IsViewingCameras())
+	{
+		const ATTHospital* Hospital = GM->GetHospital();
+		const int32 Index = Player->GetCameraIndex();
+		const bool bBroken = Hospital && Hospital->IsSecurityCameraBroken(Index);
+		const float T = GetWorld()->GetRealTimeSeconds();
+		// Old CRT: scanlines, noise, the occasional dropped frame.
+		for (int32 Line = 0; Line < 60; ++Line)
+		{
+			DrawRect(FLinearColor(0.f, 0.f, 0.f, 0.18f), 0.f, Line * H / 60.f, W, H / 180.f);
+		}
+		if (bBroken || FMath::Fmod(T, 7.f) < 0.12f)
+		{
+			DrawRect(FLinearColor(0.04f, 0.04f, 0.04f, bBroken ? 1.f : 0.7f), 0.f, 0.f, W, H);
+			for (int32 k = 0; k < 220; ++k)
+			{
+				const float G = FMath::FRand();
+				DrawRect(FLinearColor(G, G, G, 0.5f), FMath::FRand() * W, FMath::FRand() * H, FMath::FRandRange(4.f, 40.f) * UI, 2.f * UI);
+			}
+			if (bBroken)
+			{
+				DrawCentered(TEXT("SEM SINAL"), H * 0.46f, GEngine->GetLargeFont(), 1.6f * UI, FLinearColor(0.8f, 0.8f, 0.8f));
+			}
+		}
+		const FString Name = Hospital && Hospital->GetSecurityCameraNames().IsValidIndex(Index) ? Hospital->GetSecurityCameraNames()[Index] : FString();
+		DrawText(Name, FLinearColor(0.85f, 0.9f, 0.85f), 48.f * UI, 40.f * UI, Medium, 1.1f * UI);
+		if (FMath::Fmod(T, 1.f) < 0.6f)
+		{
+			DrawRect(FLinearColor(0.8f, 0.05f, 0.05f), W - 110.f * UI, 46.f * UI, 14.f * UI, 14.f * UI);
+			DrawText(TEXT("REC"), FLinearColor(0.85f, 0.85f, 0.85f), W - 90.f * UI, 40.f * UI, Medium, 1.f * UI);
+		}
+		DrawCentered(TEXT("A / D  trocar câmera        E  sair dos monitores"), H - 70.f * UI, Medium, 1.f * UI, Pale, true);
+		return;
+	}
+
+	if (Player->GetAction() == ETTJoeAction::Crawl)
+	{
+		const float K = Player->GetActionProgress();
+		const float Fade = FMath::Clamp(FMath::Min(K / 0.25f, (1.f - K) / 0.25f), 0.f, 1.f);
+		DrawRect(FLinearColor(0.f, 0.f, 0.f, 0.97f * Fade), 0.f, 0.f, W, H);
+	}
+
 	// Injury: the edges of the screen darken red, pulsing while bleeding.
 	const int32 Injury = Player->GetInjury();
 	float Hurt = Injury == 1 ? 0.07f : Injury == 2 ? 0.16f : Injury == 3 ? 0.26f : 0.f;
@@ -198,7 +241,8 @@ void ATTHUD::DrawPlaying()
 	{
 		const TCHAR* Label = Player->GetAction() == ETTJoeAction::Bandage ? TEXT("Enfaixando...")
 			: Player->GetAction() == ETTJoeAction::Medkit ? TEXT("Fazendo curativo...")
-			: Player->GetAction() == ETTJoeAction::Pry ? TEXT("Arrancando as tábuas... (barulho!)") : TEXT("Recarregando...");
+			: Player->GetAction() == ETTJoeAction::Pry ? TEXT("Arrancando as tábuas... (barulho!)")
+			: Player->GetAction() == ETTJoeAction::Crawl ? TEXT("Rastejando pela prumada...") : TEXT("Recarregando...");
 		const float BarW = 260.f * UI;
 		const float X = (W - BarW) * 0.5f;
 		const float Y = H * 0.62f;

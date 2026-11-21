@@ -13,6 +13,8 @@
 #include "TTHospital.h"
 #include "TTHunter.h"
 #include "TTInteractables.h"
+#include "Camera/CameraActor.h"
+#include "GameFramework/PlayerController.h"
 
 #include "TTCompanion.h"
 #include "TTCompanionMind.h"
@@ -352,6 +354,22 @@ void ATTPlayerCharacter::UpdateAction(float DeltaSeconds)
 	case ETTJoeAction::Pry:
 		Message(TEXT("A janela está aberta. [E] para atravessar."), 4.f);
 		break;
+	case ETTJoeAction::Crawl:
+		if (ATTHatch* Target = CrawlTarget.Get())
+		{
+			// Out of the shaft on the other floor, next to the ladder.
+			FVector Out = Target->GetActorLocation() + Target->GetActorForwardVector() * 40.f;
+			Out.Z += GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight() + 4.f;
+			SetActorLocation(Out, false, nullptr, ETeleportType::TeleportPhysics);
+			if (AController* C = GetController())
+			{
+				C->SetControlRotation(FRotator(0.f, Target->GetActorRotation().Yaw, 0.f));
+			}
+			ReportNoise(ETTNoise::SlowStep);
+			UE_LOG(LogTemp, Log, TEXT("[TT] Joe crawled to floor %d"), Target->GetFloor());
+		}
+		CrawlTarget.Reset();
+		break;
 	default:
 		break;
 	}
@@ -365,6 +383,63 @@ void ATTPlayerCharacter::StartPrying(ATTWindow* Window)
 	}
 	PryTarget = Window;
 	StartAction(ETTJoeAction::Pry, ATTWindow::PryTime);
+}
+
+void ATTPlayerCharacter::StartCrawl(ATTHatch* Target)
+{
+	if (!Target || !CanAct() || Action != ETTJoeAction::None)
+	{
+		return;
+	}
+	CrawlTarget = Target;
+	bCrouchToggled = false;
+	ReportNoise(ETTNoise::SlowStep);
+	StartAction(ETTJoeAction::Crawl, 3.f);
+}
+
+void ATTPlayerCharacter::StartCameraView()
+{
+	const ATTGameMode* GM = GetWorld()->GetAuthGameMode<ATTGameMode>();
+	const ATTHospital* Hospital = GM ? GM->GetHospital() : nullptr;
+	if (!Hospital || Hospital->GetSecurityCameras().Num() == 0 || !CanAct())
+	{
+		return;
+	}
+	bViewingCameras = true;
+	CameraIndex = FMath::Clamp(CameraIndex, 0, Hospital->GetSecurityCameras().Num() - 1);
+	CycleCamera(0);
+	TTAudio::Play2D(this, ETTSfx::Click, 0.4f);
+}
+
+void ATTPlayerCharacter::CycleCamera(int32 Step)
+{
+	const ATTGameMode* GM = GetWorld()->GetAuthGameMode<ATTGameMode>();
+	const ATTHospital* Hospital = GM ? GM->GetHospital() : nullptr;
+	APlayerController* PC = Cast<APlayerController>(GetController());
+	if (!Hospital || !PC || !bViewingCameras)
+	{
+		return;
+	}
+	const int32 Count = Hospital->GetSecurityCameras().Num();
+	CameraIndex = (CameraIndex + Step + Count) % Count;
+	PC->SetViewTargetWithBlend(Hospital->GetSecurityCameras()[CameraIndex], 0.f);
+	if (Step != 0)
+	{
+		TTAudio::Play2D(this, ETTSfx::Click, 0.25f);
+	}
+}
+
+void ATTPlayerCharacter::StopCameraView()
+{
+	if (!bViewingCameras)
+	{
+		return;
+	}
+	bViewingCameras = false;
+	if (APlayerController* PC = Cast<APlayerController>(GetController()))
+	{
+		PC->SetViewTargetWithBlend(this, 0.f);
+	}
 }
 
 void ATTPlayerCharacter::ReceiveAid(const FString& From)
@@ -504,10 +579,31 @@ void ATTPlayerCharacter::Tick(float DeltaSeconds)
 	UpdateHeartbeat(DeltaSeconds);
 	UpdateCamera(DeltaSeconds);
 
+	if (bViewingCameras && (bFrozen || IsDead() || DamageFlash > 0.9f))
+	{
+		StopCameraView();
+	}
+
 	LightTimer -= DeltaSeconds;
 	if (LightTimer <= 0.f)
 	{
 		LightTimer = 0.15f;
+		if (ATTGameMode* FloorGM = GetWorld()->GetAuthGameMode<ATTGameMode>())
+		{
+			if (const ATTHospital* FloorHospital = FloorGM->GetHospital())
+			{
+				const int32 Floor = FloorHospital->FloorOfLocation(GetActorLocation());
+				if (Floor != CurrentFloor && GetCharacterMovement()->IsMovingOnGround())
+				{
+					const bool bFirst = CurrentFloor < 0;
+					CurrentFloor = Floor;
+					if (!bFirst && FloorGM->IsPlaying())
+					{
+						FloorGM->ShowMessage(FloorHospital->GetFloorLabel(Floor), 3.f);
+					}
+				}
+			}
+		}
 		if (const ATTGameMode* GM = GetWorld()->GetAuthGameMode<ATTGameMode>())
 		{
 			if (const ATTHospital* Hospital = GM->GetHospital())
@@ -578,7 +674,7 @@ bool ATTPlayerCharacter::CanAct() const
 
 bool ATTPlayerCharacter::CanMove() const
 {
-	return CanAct() && (Action == ETTJoeAction::None || Action == ETTJoeAction::Reload);
+	return CanAct() && !bViewingCameras && (Action == ETTJoeAction::None || Action == ETTJoeAction::Reload);
 }
 
 void ATTPlayerCharacter::UpdateMovement(float DeltaSeconds)

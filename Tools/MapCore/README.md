@@ -24,3 +24,11 @@ Contrato JSON (`schema: 1`):
 `hunter_access: false` marca somente o trecho estreito; perseguição indireta e investigação de entradas continuam possíveis. As flags são estados de campanha a persistir, incluindo falhas; um inventário físico e o tempo real da ação devem ser conciliados com SurvivalCore/SaveCore na integração. Não use os `seconds` como duração de missão, curva de dificuldade ou fato medido.
 
 O validador também verifica IDs e ligações dos dispositivos e prova que cada fuga permanece alcançável mesmo com a porta inicialmente trancada e todas as portas `needs_power` fechadas. Essa análise pressupõe que portas manuais podem ser abertas; perseguição, tempo da interação e bloqueios concretos devem ser reavaliados no blockout.
+
+## Blockout jogável (Unreal)
+
+`blockout_floors.py` traduz este grafo num blockout de 7 níveis (garagem, B1, 1º–4º e telhado) em grades ASCII de 24×15,
+com duas escadas em zigue-zague, prumada de serviço (`V`/`v`, só o Joe passa), sala de câmeras, isolamento e as saídas
+já implementadas no protótipo (janela do 3º e portão da garagem). `python Tools/MapCore/blockout_floors.py` valida
+larguras, escadas, pares de escotilhas e alcance de todas as células a partir do início; `--emit` gera a tabela C++.
+Túneis, anexo, telhado/helicóptero, energia/elevador e cofre com código ainda não estão no blockout.

@@ -6,6 +6,7 @@
 #include "TTPlayerCharacter.generated.h"
 
 class ATTCompanion;
+class ATTHatch;
 class ATTInteractable;
 class ATTLocker;
 class ATTWindow;
@@ -20,7 +21,8 @@ enum class ETTJoeAction : uint8
 	Bandage,
 	Medkit,
 	Reload,
-	Pry
+	Pry,
+	Crawl
 };
 
 /**
@@ -61,6 +63,13 @@ public:
 	void GiveAmmoToFocus();
 	void RequestFollowFromFocus();
 	void StartPrying(ATTWindow* Window);
+	void StartCrawl(ATTHatch* Target);
+	void StartCameraView();
+	void StopCameraView();
+	void CycleCamera(int32 Step);
+	bool IsViewingCameras() const { return bViewingCameras; }
+	int32 GetCameraIndex() const { return CameraIndex; }
+	int32 GetFloor() const { return CurrentFloor; }
 	/** A companion stops Joe's bleeding (GDD §49 "salvar Joe"). */
 	void ReceiveAid(const FString& From);
 
@@ -145,6 +154,10 @@ private:
 
 	TWeakObjectPtr<ATTCompanion> FocusCompanion;
 	TWeakObjectPtr<ATTWindow> PryTarget;
+	TWeakObjectPtr<ATTHatch> CrawlTarget;
+	bool bViewingCameras = false;
+	int32 CameraIndex = 0;
+	int32 CurrentFloor = -1;
 	int32 ShareCounter = 0;
 
 	TSharedPtr<FTTJoeBody> Body;

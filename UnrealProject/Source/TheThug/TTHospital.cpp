@@ -1,12 +1,19 @@
 ﻿#include "TTHospital.h"
 
+#include "Camera/CameraActor.h"
+#include "Camera/CameraComponent.h"
+#include "Components/DirectionalLightComponent.h"
 #include "Components/ExponentialHeightFogComponent.h"
 #include "Components/InstancedStaticMeshComponent.h"
 #include "Components/PointLightComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Engine/DirectionalLight.h"
 #include "Engine/ExponentialHeightFog.h"
 #include "Engine/PostProcessVolume.h"
 #include "Engine/World.h"
+#include "Camera/PlayerCameraManager.h"
+#include "GameFramework/Pawn.h"
+#include "Kismet/GameplayStatics.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Misc/CommandLine.h"
 #include "Misc/Parse.h"
@@ -16,37 +23,28 @@
 
 namespace
 {
-	/**
-	 * 4th floor, west wing (M01 slice).
-	 *  #  wall            .  floor            D  door            L  locker
-	 *  *  ceiling lamp    ~  flickering lamp  m  hospital bed    b  bottle
-	 *  P  player start    H  Hunter start     K  gate keycard    X  service gate (exit)
-	 *  a  bandage         M  medkit           n  rifle magazine  s  smoke grenade   x  grenade
-	 *  g  broken glass on the floor (loud; running over it cuts)
-	 *  c  crowbar         W  boarded window (exit to the next building, needs a crowbar)
-	 *  Y  Harley          U  Bartholomeu      J  Jack            (companion start cells)
-	 *  1-9  Hunter patrol points
-	 */
-	const TCHAR* const Layout[] = {
-		TEXT("#######################"),
-		TEXT("#L.am#m..m#.Y.L#m....L#"),
-		TEXT("#....#.1.xD.2..#..~.P.#"),
-		TEXT("#L*..#.c*L#m.n.#L....m#"),
-		TEXT("##D#####D####D#####D###"),
-		TEXT("#.*..3.b.~.4..*gg5..*.X"),
-		TEXT("###D####D####D####D####"),
-		TEXT("#m.JL#L..m#..*L#..s.mL#"),
-		TEXT("W.6..D....D.H..#.7.~U.#"),
-		TEXT("#~.Km#.*.b#L.Mm#m....L#"),
-		TEXT("#######################"),
+	struct FFloorSource
+	{
+		const TCHAR* Id;
+		const TCHAR* Name;
+		bool bOutdoor;
+		const TCHAR* Rows[ATTHospital::FloorH];
 	};
+
+	const FFloorSource FloorSources[] = {
+#include "TTHospitalLayout.inl"
+	};
+
+	/** Stairwells: (lane A column, top row). Two switchback lanes, four rows. */
+	const FIntPoint StairDefs[] = { FIntPoint(1, 1), FIntPoint(21, 1) };
 
 	const FLinearColor WallColor(0.34f, 0.37f, 0.33f);
 	const FLinearColor TrimColor(0.12f, 0.17f, 0.15f);
 	const FLinearColor FloorColor(0.16f, 0.16f, 0.15f);
-	const FLinearColor CeilingColor(0.22f, 0.22f, 0.21f);
+	const FLinearColor ConcreteColor(0.2f, 0.2f, 0.2f);
 	const FLinearColor BedColor(0.30f, 0.31f, 0.30f);
 	const FLinearColor SheetColor(0.42f, 0.42f, 0.38f);
+	const FLinearColor DeskColor(0.2f, 0.15f, 0.1f);
 
 	const FIntPoint Dirs[4] = { FIntPoint(1, 0), FIntPoint(-1, 0), FIntPoint(0, 1), FIntPoint(0, -1) };
 
@@ -58,10 +56,16 @@ namespace
 		case TEXT('P'): case TEXT('H'): case TEXT('b'): case TEXT('a'): case TEXT('n'):
 		case TEXT('s'): case TEXT('x'): case TEXT('g'): case TEXT('c'):
 		case TEXT('Y'): case TEXT('U'): case TEXT('J'):
+		case TEXT('V'): case TEXT('v'): case TEXT('@'): case TEXT('i'): case TEXT('I'):
 			return true;
 		default:
 			return C >= TEXT('1') && C <= TEXT('9');
 		}
+	}
+
+	bool IsWallChar(TCHAR C)
+	{
+		return C == TEXT('#') || C == TEXT('w') || C == TEXT('E') || C == TEXT('W') || C == TEXT('X');
 	}
 }
 
@@ -71,48 +75,136 @@ ATTHospital::ATTHospital()
 	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
 }
 
-TCHAR ATTHospital::GetChar(int32 X, int32 Y) const
+// ---------------------------------------------------------------------------
+// Coordinates
+
+float ATTHospital::FloorZ(int32 Floor) const
 {
-	if (Y < 0 || Y >= Height || X < 0 || X >= Rows[Y].Len())
-	{
-		return TEXT('#');
-	}
-	return Rows[Y][X];
+	return (Floor - GroundFloorIndex) * FloorHeight;
 }
 
 FVector ATTHospital::CellToWorld(const FIntPoint& Cell, float Z) const
 {
-	return GetActorLocation() + FVector(Cell.X * CellSize, Cell.Y * CellSize, Z);
+	const int32 Floor = FloorOfCell(Cell);
+	const int32 LocalX = Cell.X - Floor * Stride;
+	return GetActorLocation() + FVector(LocalX * CellSize, Cell.Y * CellSize, FloorZ(Floor) + Z);
 }
 
 FIntPoint ATTHospital::WorldToCell(const FVector& Location) const
 {
 	const FVector Local = Location - GetActorLocation();
-	return FIntPoint(FMath::RoundToInt(Local.X / CellSize), FMath::RoundToInt(Local.Y / CellSize));
+	// +100: an actor standing on a floor (or an object lying on it) belongs to that floor;
+	// on a staircase the cell switches to the upper floor in the last quarter of the flight.
+	const int32 Floor = FMath::Clamp(FMath::FloorToInt((Local.Z - FloorZ(0) + 100.f) / FloorHeight), 0, FMath::Max(0, Floors.Num() - 1));
+	const int32 X = FMath::Clamp(FMath::RoundToInt(Local.X / CellSize), 0, FloorW - 1);
+	const int32 Y = FMath::Clamp(FMath::RoundToInt(Local.Y / CellSize), 0, FloorH - 1);
+	return FIntPoint(Floor * Stride + X, Y);
+}
+
+FString ATTHospital::GetFloorName(int32 Floor) const
+{
+	return Floors.IsValidIndex(Floor) ? Floors[Floor].Name : FString();
+}
+
+FString ATTHospital::GetFloorLabel(int32 Floor) const
+{
+	if (!Floors.IsValidIndex(Floor))
+	{
+		return FString();
+	}
+	const FString& Id = Floors[Floor].Id;
+	if (Id.StartsWith(TEXT("F")))
+	{
+		return FString::Printf(TEXT("%sº andar — %s"), *Id.RightChop(1), *Floors[Floor].Name);
+	}
+	return Floors[Floor].Name;
+}
+
+TCHAR ATTHospital::GetLocalChar(int32 Floor, int32 X, int32 Y) const
+{
+	if (!Floors.IsValidIndex(Floor) || Y < 0 || Y >= FloorH || X < 0 || X >= FloorW)
+	{
+		return TEXT('#');
+	}
+	const EStairCell Stair = StairCellAt(Floor, X, Y);
+	if (Stair == EStairCell::Wall)
+	{
+		return TEXT('#');
+	}
+	if (Stair != EStairCell::None)
+	{
+		return TEXT('S');
+	}
+	return Floors[Floor].Rows[Y][X];
+}
+
+TCHAR ATTHospital::GetChar(const FIntPoint& Cell) const
+{
+	const int32 Floor = Cell.X / Stride;
+	return GetLocalChar(Floor, Cell.X - Floor * Stride, Cell.Y);
+}
+
+ATTHospital::EStairCell ATTHospital::StairCellAt(int32 Floor, int32 X, int32 Y) const
+{
+	for (const FIntPoint& Def : StairDefs)
+	{
+		const int32 A = Def.X;
+		const int32 B = Def.X + 1;
+		const int32 R0 = Def.Y;
+		if ((X != A && X != B) || Y < R0 || Y > R0 + 3)
+		{
+			continue;
+		}
+		const bool bEven = Floor % 2 == 0;
+		const bool bTop = Floor == Floors.Num() - 1;
+		const bool bBottom = Floor == 0;
+		const int32 Row = Y - R0;
+		if (bEven)
+		{
+			if (Row == 0) return EStairCell::Wall;
+			if (Row == 3) return EStairCell::Walk;
+			if (X == A) return bTop ? EStairCell::Walk : EStairCell::Ramp;
+			return bBottom ? EStairCell::Wall : EStairCell::Void;
+		}
+		if (Row == 0) return EStairCell::Walk;
+		if (Row == 3) return EStairCell::Wall;
+		if (X == B) return bTop ? EStairCell::Walk : EStairCell::Ramp;
+		return EStairCell::Void;
+	}
+	return EStairCell::None;
 }
 
 bool ATTHospital::IsWalkable(const FIntPoint& Cell) const
 {
-	if (Cell.X < 0 || Cell.Y < 0 || Cell.X >= Width || Cell.Y >= Height)
+	if (Cell.X < 0 || Cell.Y < 0 || Cell.X >= GridWidth || Cell.Y >= FloorH)
 	{
 		return false;
 	}
-	return Walkable[Cell.Y * Width + Cell.X];
+	return Walkable[Cell.Y * GridWidth + Cell.X];
 }
 
 float ATTHospital::FacingYawAwayFromWall(const FIntPoint& Cell) const
 {
 	for (const FIntPoint& D : Dirs)
 	{
-		const TCHAR Neighbor = GetChar(Cell.X + D.X, Cell.Y + D.Y);
-		const TCHAR Opposite = GetChar(Cell.X - D.X, Cell.Y - D.Y);
-		if (Neighbor == TEXT('#') && Opposite != TEXT('#'))
+		const TCHAR Neighbor = GetChar(Cell + D);
+		const TCHAR Opposite = GetChar(Cell - D);
+		if (IsWallChar(Neighbor) && !IsWallChar(Opposite))
 		{
 			return FVector(static_cast<float>(-D.X), static_cast<float>(-D.Y), 0.f).Rotation().Yaw;
 		}
 	}
 	return 0.f;
 }
+
+void ATTHospital::AddLink(const FIntPoint& A, const FIntPoint& B)
+{
+	Links.Add(A, B);
+	Links.Add(B, A);
+}
+
+// ---------------------------------------------------------------------------
+// Build
 
 void ATTHospital::Build()
 {
@@ -122,230 +214,394 @@ void ATTHospital::Build()
 	}
 	bBuilt = true;
 
-	for (const TCHAR* Row : Layout)
+	for (const FFloorSource& Source : FloorSources)
 	{
-		Rows.Add(Row);
-		Width = FMath::Max(Width, Rows.Last().Len());
+		FFloor Floor;
+		Floor.Id = Source.Id;
+		Floor.Name = Source.Name;
+		Floor.bOutdoor = Source.bOutdoor;
+		for (int32 Y = 0; Y < FloorH; ++Y)
+		{
+			Floor.Rows.Add(Source.Rows[Y]);
+		}
+		Floors.Add(Floor);
 	}
-	Height = Rows.Num();
-	Walkable.Init(false, Width * Height);
+	GridWidth = Floors.Num() * Stride;
+	Walkable.Init(false, GridWidth * FloorH);
 
 	UWorld* World = GetWorld();
 	UStaticMesh* Cube = TTShapes::Cube();
 
-	// Floor and ceiling slabs.
-	const FVector Center = CellToWorld(FIntPoint(0, 0)) + FVector((Width - 1) * CellSize * 0.5f, (Height - 1) * CellSize * 0.5f, 0.f);
-	const FVector Extent(Width * CellSize, Height * CellSize, 20.f);
-	TTShapes::AddPart(this, RootComponent, Cube, Center - GetActorLocation() + FVector(0.f, 0.f, -10.f), Extent, FloorColor);
-	TTShapes::AddPart(this, RootComponent, Cube, Center - GetActorLocation() + FVector(0.f, 0.f, WallHeight + 10.f), Extent, CeilingColor);
-
-	Walls = NewObject<UInstancedStaticMeshComponent>(this, TEXT("Walls"));
-	Walls->SetStaticMesh(Cube);
-	Walls->SetupAttachment(RootComponent);
-	Walls->SetMaterial(0, TTShapes::MakeColor(Walls, WallColor, 0.9f));
-	Walls->RegisterComponent();
-
-	WallTrim = NewObject<UInstancedStaticMeshComponent>(this, TEXT("WallTrim"));
-	WallTrim->SetStaticMesh(Cube);
-	WallTrim->SetupAttachment(RootComponent);
-	WallTrim->SetMaterial(0, TTShapes::MakeColor(WallTrim, TrimColor, 0.5f));
-	WallTrim->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	WallTrim->RegisterComponent();
+	auto MakeIsm = [this, Cube](const TCHAR* Name, const FLinearColor& Color, float Roughness, bool bCollide)
+	{
+		UInstancedStaticMeshComponent* Ism = NewObject<UInstancedStaticMeshComponent>(this, Name);
+		Ism->SetStaticMesh(Cube);
+		Ism->SetupAttachment(RootComponent);
+		Ism->SetMaterial(0, TTShapes::MakeColor(Ism, Color, Roughness));
+		if (!bCollide)
+		{
+			Ism->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		}
+		Ism->RegisterComponent();
+		return Ism;
+	};
+	Slabs = MakeIsm(TEXT("Slabs"), FloorColor, 0.85f, true);
+	Walls = MakeIsm(TEXT("Walls"), WallColor, 0.9f, true);
+	WallTrim = MakeIsm(TEXT("WallTrim"), TrimColor, 0.5f, false);
+	UInstancedStaticMeshComponent* Concrete = MakeIsm(TEXT("Concrete"), ConcreteColor, 0.95f, true);
 
 	FRandomStream Rng(4242);
 	FActorSpawnParameters Params;
 	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	int32 CameraIndex = 0;
 
-	for (int32 Y = 0; Y < Height; ++Y)
+	for (int32 F = 0; F < Floors.Num(); ++F)
 	{
-		for (int32 X = 0; X < Width; ++X)
+		const bool bOutdoor = Floors[F].bOutdoor;
+		const bool bUnderground = F < GroundFloorIndex;
+		const float Z0 = FloorZ(F);
+
+		for (int32 Y = 0; Y < FloorH; ++Y)
 		{
-			const TCHAR C = GetChar(X, Y);
-			const FIntPoint Cell(X, Y);
-			const FVector Local(X * CellSize, Y * CellSize, 0.f);
-			const FVector WorldLoc = CellToWorld(Cell);
-			Walkable[Y * Width + X] = IsWalkableChar(C);
-
-			switch (C)
+			for (int32 X = 0; X < FloorW; ++X)
 			{
-			case TEXT('#'):
-				Walls->AddInstance(FTransform(FRotator::ZeroRotator, Local + FVector(0.f, 0.f, WallHeight * 0.5f), FVector(CellSize, CellSize, WallHeight) / 100.f));
-				WallTrim->AddInstance(FTransform(FRotator::ZeroRotator, Local + FVector(0.f, 0.f, 55.f), FVector(CellSize + 4.f, CellSize + 4.f, 110.f) / 100.f));
-				break;
+				const FIntPoint Cell(F * Stride + X, Y);
+				const FVector Local(X * CellSize, Y * CellSize, Z0);
+				const FVector WorldLoc = CellToWorld(Cell);
+				const EStairCell Stair = StairCellAt(F, X, Y);
+				const TCHAR C = GetLocalChar(F, X, Y);
 
-			case TEXT('*'):
-				AddLamp(Cell, false, false);
-				break;
-
-			case TEXT('~'):
-				AddLamp(Cell, true, false);
-				break;
-
-			case TEXT('D'):
-			{
-				const bool bWallsLeftRight = GetChar(X - 1, Y) == TEXT('#') && GetChar(X + 1, Y) == TEXT('#');
-				const FRotator Rot(0.f, bWallsLeftRight ? 0.f : 90.f, 0.f);
-				if (ATTDoor* Door = World->SpawnActor<ATTDoor>(ATTDoor::StaticClass(), WorldLoc, Rot, Params))
+				// Floor slab (holes where a staircase climbs through).
+				if (Stair != EStairCell::Void)
 				{
-					Door->Setup(CellSize, WallHeight, DoorId(Cell));
-					Doors.Add(Cell, Door);
+					(bUnderground || bOutdoor ? Concrete : Slabs.Get())->AddInstance(FTransform(FRotator::ZeroRotator, Local - FVector(0.f, 0.f, SlabThickness * 0.5f),
+						FVector(CellSize, CellSize, SlabThickness) / 100.f));
 				}
-				break;
-			}
-
-			case TEXT('L'):
-			{
-				const float Yaw = FacingYawAwayFromWall(Cell);
-				const FVector Facing = FRotator(0.f, Yaw, 0.f).Vector();
-				const FVector Loc = WorldLoc - Facing * (CellSize * 0.5f - 34.f);
-				if (ATTLocker* Locker = World->SpawnActor<ATTLocker>(ATTLocker::StaticClass(), Loc, FRotator(0.f, Yaw, 0.f), Params))
+				Walkable[Y * GridWidth + Cell.X] = Stair == EStairCell::Walk || Stair == EStairCell::Ramp || (Stair == EStairCell::None && IsWalkableChar(C));
+				if (Stair != EStairCell::None && Stair != EStairCell::Wall)
 				{
-					Locker->Setup(LockerId(Cell));
-					Lockers.Add(Locker);
+					continue;
 				}
-				break;
-			}
 
-			case TEXT('c'):
-			case TEXT('K'):
-			case TEXT('b'):
-			case TEXT('a'):
-			case TEXT('M'):
-			case TEXT('n'):
-			case TEXT('s'):
-			case TEXT('x'):
-			{
-				const FRotator Rot(0.f, Rng.FRandRange(0.f, 360.f), 0.f);
-				FVector Loc = WorldLoc;
-				ETTItem Item = ETTItem::Bottle;
-				bool bOnTable = true;
 				switch (C)
 				{
-				case TEXT('c'): Item = ETTItem::Crowbar; bOnTable = false; break;
-				case TEXT('a'): Item = ETTItem::Bandage; break;
-				case TEXT('M'): Item = ETTItem::Medkit; break;
-				case TEXT('n'): Item = ETTItem::Magazine; break;
-				case TEXT('s'): Item = ETTItem::Smoke; break;
-				case TEXT('x'): Item = ETTItem::Grenade; break;
-				default: bOnTable = false; break;
-				}
-				if (C == TEXT('b'))
+				case TEXT('#'):
 				{
-					Loc += FVector(Rng.FRandRange(-80.f, 80.f), Rng.FRandRange(-80.f, 80.f), 0.f);
-				}
-				if (ATTPickup* Pickup = World->SpawnActor<ATTPickup>(ATTPickup::StaticClass(), Loc, Rot, Params))
-				{
-					if (C == TEXT('K'))
+					const bool bBorder = X == 0 || Y == 0 || X == FloorW - 1 || Y == FloorH - 1;
+					const float Height = (bOutdoor && bBorder) ? ParapetHeight : WallHeight;
+					(bUnderground ? Concrete : Walls.Get())->AddInstance(FTransform(FRotator::ZeroRotator, Local + FVector(0.f, 0.f, Height * 0.5f),
+						FVector(CellSize, CellSize, Height) / 100.f));
+					if (!bOutdoor && !bUnderground)
 					{
-						Pickup->Setup(ETTPickupType::Key);
+						WallTrim->AddInstance(FTransform(FRotator::ZeroRotator, Local + FVector(0.f, 0.f, 55.f), FVector(CellSize + 4.f, CellSize + 4.f, 110.f) / 100.f));
+					}
+					break;
+				}
+
+				case TEXT('w'):
+				{
+					// Sealed window: the city out there, unreachable.
+					Walls->AddInstance(FTransform(FRotator::ZeroRotator, Local + FVector(0.f, 0.f, 50.f), FVector(CellSize, CellSize, 100.f) / 100.f));
+					Walls->AddInstance(FTransform(FRotator::ZeroRotator, Local + FVector(0.f, 0.f, 310.f), FVector(CellSize, CellSize, 140.f) / 100.f));
+					if (UStaticMeshComponent* Glass = TTShapes::AddPart(this, RootComponent, Cube, Local + FVector(0.f, 0.f, 170.f), FVector(CellSize - 20.f, CellSize - 20.f, 140.f), FLinearColor::Black))
+					{
+						Glass->SetMaterial(0, TTShapes::MakeEmissive(Glass, FLinearColor(0.15f, 0.2f, 0.35f), 0.6f));
+					}
+					break;
+				}
+
+				case TEXT('*'):
+					if (!bOutdoor)
+					{
+						AddLamp(Cell, false);
+					}
+					break;
+
+				case TEXT('~'):
+					if (!bOutdoor)
+					{
+						AddLamp(Cell, true);
+					}
+					break;
+
+				case TEXT('D'):
+				case TEXT('I'):
+				{
+					const bool bWallsLeftRight = IsWallChar(GetChar(Cell + FIntPoint(-1, 0))) && IsWallChar(GetChar(Cell + FIntPoint(1, 0)));
+					const FRotator Rot(0.f, bWallsLeftRight ? 0.f : 90.f, 0.f);
+					if (ATTDoor* Door = World->SpawnActor<ATTDoor>(ATTDoor::StaticClass(), WorldLoc, Rot, Params))
+					{
+						Door->Setup(CellSize, WallHeight, DoorId(Cell));
+						if (C == TEXT('I'))
+						{
+							Door->SetHeavy(true);
+							IsolationCells.Add(Cell);
+						}
+						Doors.Add(Cell, Door);
+					}
+					break;
+				}
+
+				case TEXT('i'):
+					IsolationCells.Add(Cell);
+					break;
+
+				case TEXT('L'):
+				{
+					const float Yaw = FacingYawAwayFromWall(Cell);
+					const FVector Facing = FRotator(0.f, Yaw, 0.f).Vector();
+					const FVector Loc = WorldLoc - Facing * (CellSize * 0.5f - 34.f);
+					if (ATTLocker* Locker = World->SpawnActor<ATTLocker>(ATTLocker::StaticClass(), Loc, FRotator(0.f, Yaw, 0.f), Params))
+					{
+						Locker->Setup(LockerId(Cell));
+						Lockers.Add(Locker);
+					}
+					break;
+				}
+
+				case TEXT('c'): case TEXT('K'): case TEXT('b'): case TEXT('a'):
+				case TEXT('M'): case TEXT('n'): case TEXT('s'): case TEXT('x'):
+				{
+					const FRotator Rot(0.f, Rng.FRandRange(0.f, 360.f), 0.f);
+					FVector Loc = WorldLoc;
+					ETTItem Item = ETTItem::Bottle;
+					bool bOnTable = true;
+					switch (C)
+					{
+					case TEXT('c'): Item = ETTItem::Crowbar; bOnTable = false; break;
+					case TEXT('a'): Item = ETTItem::Bandage; break;
+					case TEXT('M'): Item = ETTItem::Medkit; break;
+					case TEXT('n'): Item = ETTItem::Magazine; break;
+					case TEXT('s'): Item = ETTItem::Smoke; break;
+					case TEXT('x'): Item = ETTItem::Grenade; break;
+					default: bOnTable = false; break;
+					}
+					if (C == TEXT('b'))
+					{
+						Loc += FVector(Rng.FRandRange(-80.f, 80.f), Rng.FRandRange(-80.f, 80.f), 0.f);
+					}
+					if (ATTPickup* Pickup = World->SpawnActor<ATTPickup>(ATTPickup::StaticClass(), Loc, Rot, Params))
+					{
+						if (C == TEXT('K'))
+						{
+							Pickup->Setup(ETTPickupType::Key);
+						}
+						else
+						{
+							Pickup->Setup(ETTPickupType::Item, Item, bOnTable);
+						}
+					}
+					break;
+				}
+
+				case TEXT('g'):
+				{
+					GlassCells.Add(Cell);
+					for (int32 i = 0; i < 22; ++i)
+					{
+						const FVector Shard = Local + FVector(Rng.FRandRange(-130.f, 130.f), Rng.FRandRange(-130.f, 130.f), 0.6f);
+						const FVector Size(Rng.FRandRange(4.f, 14.f), Rng.FRandRange(3.f, 9.f), 0.8f);
+						TTShapes::AddPart(this, RootComponent, Cube, Shard, Size, FLinearColor(0.55f, 0.62f, 0.6f), FRotator(0.f, Rng.FRandRange(0.f, 180.f), 0.f), false);
+					}
+					break;
+				}
+
+				case TEXT('W'):
+				case TEXT('X'):
+				case TEXT('E'):
+				case TEXT('='):
+				{
+					FIntPoint Inside = Cell;
+					float Yaw = 0.f;
+					for (const FIntPoint& D : Dirs)
+					{
+						if (IsWalkableChar(GetChar(Cell + D)))
+						{
+							Inside = Cell + D;
+							Yaw = FVector(static_cast<float>(D.X), static_cast<float>(D.Y), 0.f).Rotation().Yaw;
+						}
+					}
+					const FRotator Rot(0.f, Yaw, 0.f);
+					if (C == TEXT('W'))
+					{
+						if (ATTWindow* Window = World->SpawnActor<ATTWindow>(ATTWindow::StaticClass(), WorldLoc, Rot, Params))
+						{
+							Window->Setup(CellSize, WallHeight, CellToWorld(Inside));
+						}
+					}
+					else if (C == TEXT('X'))
+					{
+						if (ATTExitGate* Gate = World->SpawnActor<ATTExitGate>(ATTExitGate::StaticClass(), WorldLoc, Rot, Params))
+						{
+							Gate->Setup(CellSize, WallHeight);
+						}
+					}
+					else if (C == TEXT('E'))
+					{
+						Walls->AddInstance(FTransform(FRotator::ZeroRotator, Local + FVector(0.f, 0.f, WallHeight * 0.5f), FVector(CellSize, CellSize, WallHeight) / 100.f));
+						if (ATTSign* Lift = World->SpawnActor<ATTSign>(ATTSign::StaticClass(), WorldLoc + Rot.Vector() * (CellSize * 0.5f + 2.f), Rot, Params))
+						{
+							Lift->SetupElevator();
+						}
 					}
 					else
 					{
-						Pickup->Setup(ETTPickupType::Item, Item, bOnTable);
+						if (ATTCameraConsole* Console = World->SpawnActor<ATTCameraConsole>(ATTCameraConsole::StaticClass(), WorldLoc, Rot, Params))
+						{
+							Console->Setup();
+						}
 					}
+					break;
 				}
-				break;
-			}
 
-			case TEXT('g'):
-			{
-				GlassCells.Add(Cell);
-				for (int32 i = 0; i < 22; ++i)
+				case TEXT('V'):
+				case TEXT('v'):
 				{
-					const FVector Shard = Local + FVector(Rng.FRandRange(-130.f, 130.f), Rng.FRandRange(-130.f, 130.f), 0.6f);
-					const FVector Size(Rng.FRandRange(4.f, 14.f), Rng.FRandRange(3.f, 9.f), 0.8f);
-					TTShapes::AddPart(this, RootComponent, Cube, Shard, Size, FLinearColor(0.55f, 0.62f, 0.6f), FRotator(0.f, Rng.FRandRange(0.f, 180.f), 0.f), false);
-				}
-				break;
-			}
-
-			case TEXT('X'):
-			{
-				float Yaw = 0.f;
-				for (const FIntPoint& D : Dirs)
-				{
-					if (IsWalkableChar(GetChar(X + D.X, Y + D.Y)))
+					if (ATTHatch* Hatch = World->SpawnActor<ATTHatch>(ATTHatch::StaticClass(), WorldLoc, FRotator(0.f, FacingYawAwayFromWall(Cell), 0.f), Params))
 					{
-						Yaw = FVector(static_cast<float>(D.X), static_cast<float>(D.Y), 0.f).Rotation().Yaw;
+						Hatch->Setup(C, F, X, Y);
 					}
+					break;
 				}
-				if (ATTExitGate* Gate = World->SpawnActor<ATTExitGate>(ATTExitGate::StaticClass(), WorldLoc, FRotator(0.f, Yaw, 0.f), Params))
+
+				case TEXT('@'):
 				{
-					Gate->Setup(CellSize, WallHeight);
-				}
-				break;
-			}
-
-			case TEXT('m'):
-			{
-				const float Yaw = FacingYawAwayFromWall(Cell) + 90.f;
-				const FRotator Rot(0.f, Yaw, 0.f);
-				const FVector Fwd = Rot.Vector();
-				const FVector Right = FRotationMatrix(Rot).GetUnitAxis(EAxis::Y);
-				const FVector Base = Local + Rng.FRandRange(-20.f, 20.f) * Fwd;
-				TTShapes::AddPart(this, RootComponent, Cube, Base + FVector(0.f, 0.f, 55.f), FVector(205.f, 95.f, 14.f), BedColor, Rot);
-				TTShapes::AddPart(this, RootComponent, Cube, Base + FVector(0.f, 0.f, 68.f), FVector(195.f, 88.f, 12.f), SheetColor, Rot + FRotator(0.f, Rng.FRandRange(-3.f, 3.f), 0.f));
-				TTShapes::AddPart(this, RootComponent, Cube, Base + Fwd * 95.f + FVector(0.f, 0.f, 75.f), FVector(6.f, 95.f, 80.f), BedColor, Rot);
-				for (int32 i = 0; i < 4; ++i)
-				{
-					const FVector Leg = Base + Fwd * ((i < 2) ? 92.f : -92.f) + Right * ((i % 2) ? 40.f : -40.f) + FVector(0.f, 0.f, 25.f);
-					TTShapes::AddPart(this, RootComponent, Cube, Leg, FVector(5.f, 5.f, 50.f), BedColor, Rot, false);
-				}
-				break;
-			}
-
-			case TEXT('P'):
-				PlayerStart = Cell;
-				break;
-
-			case TEXT('Y'):
-				CompanionStarts.Add(0, Cell);
-				break;
-			case TEXT('U'):
-				CompanionStarts.Add(1, Cell);
-				break;
-			case TEXT('J'):
-				CompanionStarts.Add(2, Cell);
-				break;
-
-			case TEXT('W'):
-			{
-				FIntPoint Inside = Cell;
-				float Yaw = 0.f;
-				for (const FIntPoint& D : Dirs)
-				{
-					if (IsWalkableChar(GetChar(X + D.X, Y + D.Y)))
+					// Ceiling camera looking down the longest open line from this cell.
+					FIntPoint BestDir(1, 0);
+					int32 BestRun = -1;
+					for (const FIntPoint& D : Dirs)
 					{
-						Inside = Cell + D;
-						Yaw = FVector(static_cast<float>(D.X), static_cast<float>(D.Y), 0.f).Rotation().Yaw;
+						int32 Run = 0;
+						while (Run < 12 && IsWalkableChar(GetChar(Cell + D * (Run + 1))))
+						{
+							++Run;
+						}
+						if (Run > BestRun)
+						{
+							BestRun = Run;
+							BestDir = D;
+						}
 					}
+					const FVector Mount = WorldLoc + FVector(-BestDir.X * 120.f, -BestDir.Y * 120.f, (bOutdoor ? 300.f : WallHeight - 30.f));
+					const FRotator Look = FRotator(-22.f, FVector(static_cast<float>(BestDir.X), static_cast<float>(BestDir.Y), 0.f).Rotation().Yaw, 0.f);
+					TTShapes::AddPart(this, RootComponent, Cube, Mount - GetActorLocation(), FVector(26.f, 14.f, 14.f), FLinearColor(0.1f, 0.1f, 0.1f), Look, false);
+					if (ACameraActor* Cam = World->SpawnActor<ACameraActor>(ACameraActor::StaticClass(), Mount, Look, Params))
+					{
+						UCameraComponent* CamComp = Cam->GetCameraComponent();
+						CamComp->SetFieldOfView(80.f);
+						// Old security camera with IR: brighter, monochrome, a little green.
+						FPostProcessSettings& PP = CamComp->PostProcessSettings;
+						CamComp->PostProcessBlendWeight = 1.f;
+						PP.bOverride_AutoExposureBias = true;
+						PP.AutoExposureBias = 4.5f;
+						PP.bOverride_ColorSaturation = true;
+						PP.ColorSaturation = FVector4(0.f, 0.f, 0.f, 1.f);
+						PP.bOverride_ColorGain = true;
+						PP.ColorGain = FVector4(0.85f, 1.f, 0.85f, 1.f);
+						PP.bOverride_FilmGrainIntensity = true;
+						PP.FilmGrainIntensity = 0.8f;
+						PP.bOverride_VignetteIntensity = true;
+						PP.VignetteIntensity = 1.f;
+						SecurityCameras.Add(Cam);
+						SecurityCameraNames.Add(FString::Printf(TEXT("CAM %02d  %s"), ++CameraIndex, *GetFloorLabel(F)));
+					}
+					break;
 				}
-				if (ATTWindow* Window = World->SpawnActor<ATTWindow>(ATTWindow::StaticClass(), WorldLoc, FRotator(0.f, Yaw, 0.f), Params))
-				{
-					Window->Setup(CellSize, WallHeight, CellToWorld(Inside));
-				}
-				break;
-			}
 
-			case TEXT('H'):
-				HunterStart = Cell;
-				break;
-
-			default:
-				if (C >= TEXT('1') && C <= TEXT('9'))
+				case TEXT('m'):
 				{
-					PatrolPoints.Add(Cell);
+					const float Yaw = FacingYawAwayFromWall(Cell) + 90.f;
+					const FRotator Rot(0.f, Yaw, 0.f);
+					const FVector Fwd = Rot.Vector();
+					const FVector Right = FRotationMatrix(Rot).GetUnitAxis(EAxis::Y);
+					const FVector Base = Local + Rng.FRandRange(-20.f, 20.f) * Fwd;
+					TTShapes::AddPart(this, RootComponent, Cube, Base + FVector(0.f, 0.f, 55.f), FVector(205.f, 95.f, 14.f), BedColor, Rot);
+					TTShapes::AddPart(this, RootComponent, Cube, Base + FVector(0.f, 0.f, 68.f), FVector(195.f, 88.f, 12.f), SheetColor, Rot + FRotator(0.f, Rng.FRandRange(-3.f, 3.f), 0.f));
+					TTShapes::AddPart(this, RootComponent, Cube, Base + Fwd * 95.f + FVector(0.f, 0.f, 75.f), FVector(6.f, 95.f, 80.f), BedColor, Rot);
+					for (int32 i = 0; i < 4; ++i)
+					{
+						const FVector Leg = Base + Fwd * ((i < 2) ? 92.f : -92.f) + Right * ((i % 2) ? 40.f : -40.f) + FVector(0.f, 0.f, 25.f);
+						TTShapes::AddPart(this, RootComponent, Cube, Leg, FVector(5.f, 5.f, 50.f), BedColor, Rot, false);
+					}
+					break;
 				}
-				break;
+
+				case TEXT('t'):
+				{
+					const float Yaw = FacingYawAwayFromWall(Cell);
+					const FRotator Rot(0.f, Yaw + 90.f, 0.f);
+					if (Rng.FRand() < 0.4f)
+					{
+						TTShapes::AddPart(this, RootComponent, Cube, Local + FVector(0.f, 0.f, 100.f), FVector(200.f, 55.f, 200.f), FLinearColor(0.22f, 0.22f, 0.2f), Rot);
+					}
+					else
+					{
+						TTShapes::AddPart(this, RootComponent, Cube, Local + FVector(0.f, 0.f, 38.f), FVector(160.f, 85.f, 76.f), DeskColor, Rot);
+						TTShapes::AddPart(this, RootComponent, Cube, Local + FVector(0.f, 0.f, 79.f), FVector(40.f, 30.f, 4.f), FLinearColor(0.75f, 0.73f, 0.65f), Rot + FRotator(0.f, 20.f, 0.f), false);
+					}
+					break;
+				}
+
+				case TEXT('r'):
+				{
+					const FLinearColor Paint(Rng.FRandRange(0.05f, 0.3f), Rng.FRandRange(0.05f, 0.2f), Rng.FRandRange(0.05f, 0.2f));
+					const FRotator Rot(0.f, Rng.FRandRange(-6.f, 6.f) + (Rng.FRand() < 0.5f ? 0.f : 180.f), 0.f);
+					TTShapes::AddPart(this, RootComponent, Cube, Local + FVector(0.f, 0.f, 55.f), FVector(285.f, 170.f, 75.f), Paint, Rot);
+					TTShapes::AddPart(this, RootComponent, Cube, Local + FVector(-15.f, 0.f, 120.f), FVector(150.f, 150.f, 60.f), Paint * 0.7f, Rot);
+					break;
+				}
+
+				case TEXT('h'):
+				{
+					TTShapes::AddPart(this, RootComponent, Cube, Local + FVector(0.f, 0.f, 95.f), FVector(285.f, 285.f, 190.f), FLinearColor(0.25f, 0.26f, 0.25f));
+					TTShapes::AddPart(this, RootComponent, TTShapes::Cylinder(), Local + FVector(0.f, 0.f, 200.f), FVector(160.f, 160.f, 20.f), FLinearColor(0.1f, 0.1f, 0.1f), FRotator::ZeroRotator, false);
+					break;
+				}
+
+				case TEXT('P'):
+					PlayerStart = Cell;
+					break;
+				case TEXT('H'):
+					HunterStart = Cell;
+					break;
+				case TEXT('Y'):
+					CompanionStarts.Add(0, Cell);
+					break;
+				case TEXT('U'):
+					CompanionStarts.Add(1, Cell);
+					break;
+				case TEXT('J'):
+					CompanionStarts.Add(2, Cell);
+					break;
+
+				default:
+					if (C >= TEXT('1') && C <= TEXT('9'))
+					{
+						PatrolPoints.Add(Cell);
+					}
+					break;
+				}
 			}
 		}
+
+		BuildStairs(F);
 	}
 
-	// Face the player towards the closest door so the first thing they see is the way out of the room.
-	// Uses the first step of the walkable path, so he never starts facing a wall.
+	// A couple of security cameras show nothing but noise (GDD §26).
+	if (SecurityCameras.Num() > 2)
+	{
+		BrokenCameras.Add(Rng.RandRange(0, SecurityCameras.Num() - 1));
+		BrokenCameras.Add(Rng.RandRange(0, SecurityCameras.Num() - 1));
+	}
+
+	// Joe faces the first step out of the room.
 	int32 BestLen = TNumericLimits<int32>::Max();
 	for (const TPair<FIntPoint, TObjectPtr<ATTDoor>>& Pair : Doors)
 	{
+		if (FloorOfCell(Pair.Key) != FloorOfCell(PlayerStart))
+		{
+			continue;
+		}
 		TArray<FIntPoint> Route;
 		if (FindPath(PlayerStart, Pair.Key, Route) && Route.Num() > 1 && Route.Num() < BestLen)
 		{
@@ -357,13 +613,72 @@ void ATTHospital::Build()
 	}
 
 	SpawnAtmosphere();
+	SpawnCity();
+	UE_LOG(LogTemp, Log, TEXT("[TT] Hospital built: %d floors, %d doors, %d lockers, %d lamps, %d cameras, %d patrol points"),
+		Floors.Num(), Doors.Num(), Lockers.Num(), Lamps.Num(), SecurityCameras.Num(), PatrolPoints.Num());
 }
 
-void ATTHospital::AddLamp(const FIntPoint& Cell, bool bFlicker, bool bDead)
+void ATTHospital::BuildStairs(int32 F)
 {
-	const FVector Local(Cell.X * CellSize, Cell.Y * CellSize, 0.f);
+	UStaticMesh* Cube = TTShapes::Cube();
+	const float Z0 = FloorZ(F);
+	const bool bTop = F == Floors.Num() - 1;
+	const bool bEven = F % 2 == 0;
+	for (const FIntPoint& Def : StairDefs)
+	{
+		const int32 A = Def.X;
+		const int32 B = Def.X + 1;
+		const int32 R0 = Def.Y;
+		const int32 R1 = R0 + 1;
+		const int32 R2 = R0 + 2;
+
+		// Rail between the two lanes, the whole height of the floor.
+		const FVector RailLocal((A + 0.5f) * CellSize, (R1 + 0.5f) * CellSize, Z0 + WallHeight * 0.5f);
+		TTShapes::AddPart(this, RootComponent, Cube, RailLocal, FVector(10.f, 2.f * CellSize, WallHeight), FLinearColor(0.25f, 0.25f, 0.24f));
+
+		if (bTop)
+		{
+			continue;
+		}
+		const int32 Lane = bEven ? A : B;
+		FVector P0;
+		FVector P1;
+		if (bEven)
+		{
+			// North-going flight: from the south edge of R2 to the north edge of R1.
+			P0 = FVector(Lane * CellSize, R2 * CellSize + CellSize * 0.5f, Z0);
+			P1 = FVector(Lane * CellSize, R1 * CellSize - CellSize * 0.5f, Z0 + FloorHeight);
+			AddLink(FIntPoint(F * Stride + Lane, R1), FIntPoint((F + 1) * Stride + Lane, R0));
+		}
+		else
+		{
+			P0 = FVector(Lane * CellSize, R1 * CellSize - CellSize * 0.5f, Z0);
+			P1 = FVector(Lane * CellSize, R2 * CellSize + CellSize * 0.5f, Z0 + FloorHeight);
+			AddLink(FIntPoint(F * Stride + Lane, R2), FIntPoint((F + 1) * Stride + Lane, R0 + 3));
+		}
+		const FVector Dir = P1 - P0;
+		const FRotator Rot = Dir.Rotation();
+		const FVector Up = FRotationMatrix(Rot).GetUnitAxis(EAxis::Z);
+		const FVector Center = (P0 + P1) * 0.5f - Up * 8.f;
+		TTShapes::AddPart(this, RootComponent, Cube, Center, FVector(Dir.Size() + 10.f, CellSize - 30.f, 16.f), FLinearColor(0.3f, 0.3f, 0.29f), Rot);
+		// Step nosings, so it reads as a staircase.
+		for (int32 i = 1; i < 14; ++i)
+		{
+			const FVector P = P0 + Dir * (i / 14.f) + Up * 1.f;
+			TTShapes::AddPart(this, RootComponent, Cube, P, FVector(6.f, CellSize - 40.f, 2.f), FLinearColor(0.12f, 0.12f, 0.12f), Rot, false);
+		}
+		// A dim lamp on every landing.
+		AddLamp(FIntPoint(F * Stride + (bEven ? B : A), bEven ? R0 + 3 : R0), false);
+	}
+}
+
+void ATTHospital::AddLamp(const FIntPoint& Cell, bool bFlicker)
+{
+	const int32 Floor = FloorOfCell(Cell);
+	const FVector Local = CellToWorld(Cell) - GetActorLocation();
 
 	FLamp Lamp;
+	Lamp.Floor = Floor;
 	Lamp.Fixture = TTShapes::AddPart(this, RootComponent, TTShapes::Cube(), Local + FVector(0.f, 0.f, WallHeight - 3.f), FVector(130.f, 32.f, 6.f), FLinearColor(0.9f, 0.9f, 0.85f), FRotator::ZeroRotator, false);
 	if (Lamp.Fixture)
 	{
@@ -376,7 +691,7 @@ void ATTHospital::AddLamp(const FIntPoint& Cell, bool bFlicker, bool bDead)
 	Light->SetRelativeLocation(Local + FVector(0.f, 0.f, WallHeight - 25.f));
 	Light->SetIntensityUnits(ELightUnits::Lumens);
 	Lamp.BaseIntensity = bFlicker ? 380.f : 520.f;
-	Light->SetIntensity(bDead ? 0.f : Lamp.BaseIntensity);
+	Light->SetIntensity(Lamp.BaseIntensity);
 	Light->SetAttenuationRadius(820.f);
 	Light->SetSourceRadius(20.f);
 	Light->SetLightColor(bFlicker ? FLinearColor(0.85f, 0.95f, 1.f) : FLinearColor(1.f, 0.93f, 0.8f));
@@ -386,7 +701,6 @@ void ATTHospital::AddLamp(const FIntPoint& Cell, bool bFlicker, bool bDead)
 
 	Lamp.Light = Light;
 	Lamp.bFlicker = bFlicker;
-	Lamp.bOn = !bDead;
 	Lamps.Add(Lamp);
 }
 
@@ -395,16 +709,25 @@ void ATTHospital::SpawnAtmosphere()
 	UWorld* World = GetWorld();
 	FActorSpawnParameters Params;
 
-	if (AExponentialHeightFog* Fog = World->SpawnActor<AExponentialHeightFog>(AExponentialHeightFog::StaticClass(), GetActorLocation(), FRotator::ZeroRotator, Params))
+	if (AExponentialHeightFog* Fog = World->SpawnActor<AExponentialHeightFog>(AExponentialHeightFog::StaticClass(), GetActorLocation() + FVector(0.f, 0.f, FloorZ(0)), FRotator::ZeroRotator, Params))
 	{
 		UExponentialHeightFogComponent* FogComp = Fog->GetComponent();
 		FogComp->SetMobility(EComponentMobility::Movable);
 		FogComp->SetFogDensity(0.03f);
-		FogComp->SetFogHeightFalloff(0.01f);
+		FogComp->SetFogHeightFalloff(0.001f);
 		FogComp->SetFogInscatteringColor(FLinearColor(0.002f, 0.0025f, 0.003f));
 		FogComp->SetVolumetricFog(true);
 		FogComp->SetVolumetricFogScatteringDistribution(0.5f);
 		FogComp->SetVolumetricFogExtinctionScale(1.5f);
+	}
+
+	// Moonlight: only the roof and the stairwell openings see it.
+	if (ADirectionalLight* Moon = World->SpawnActor<ADirectionalLight>(ADirectionalLight::StaticClass(), GetActorLocation(), FRotator(-38.f, 35.f, 0.f), Params))
+	{
+		ULightComponent* MoonLight = Moon->GetLightComponent();
+		MoonLight->SetMobility(EComponentMobility::Movable);
+		MoonLight->SetIntensity(1.2f);
+		MoonLight->SetLightColor(FLinearColor(0.55f, 0.65f, 1.f));
 	}
 
 	float ExposureBias = -1.2f;
@@ -435,12 +758,71 @@ void ATTHospital::SpawnAtmosphere()
 	}
 }
 
+void ATTHospital::SpawnCity()
+{
+	// The city at night around the hospital: dark blocks with a few lit windows.
+	FRandomStream Rng(777);
+	UStaticMesh* Cube = TTShapes::Cube();
+	const FVector Center(FloorW * CellSize * 0.5f, FloorH * CellSize * 0.5f, 0.f);
+	for (int32 i = 0; i < 46; ++i)
+	{
+		const float Angle = Rng.FRandRange(0.f, 2.f * PI);
+		const float Dist = Rng.FRandRange(6500.f, 15000.f);
+		const FVector Pos = Center + FVector(FMath::Cos(Angle) * Dist, FMath::Sin(Angle) * Dist, 0.f);
+		const FVector Size(Rng.FRandRange(900.f, 2400.f), Rng.FRandRange(900.f, 2400.f), Rng.FRandRange(1800.f, 7000.f));
+		TTShapes::AddPart(this, RootComponent, Cube, Pos + FVector(0.f, 0.f, FloorZ(0) + Size.Z * 0.5f - 400.f), Size, FLinearColor(0.012f, 0.013f, 0.016f), FRotator(0.f, Rng.FRandRange(0.f, 90.f), 0.f), false);
+		const int32 Lit = Rng.RandRange(2, 7);
+		for (int32 k = 0; k < Lit; ++k)
+		{
+			const FVector WindowPos = Pos + FVector(Rng.FRandRange(-0.5f, 0.5f) * Size.X, Rng.FRandRange(-0.5f, 0.5f) * Size.Y, FloorZ(0) + Rng.FRandRange(0.f, Size.Z - 600.f));
+			if (UStaticMeshComponent* Glow = TTShapes::AddPart(this, RootComponent, Cube, WindowPos, FVector(140.f, 140.f, 90.f), FLinearColor::Black, FRotator::ZeroRotator, false))
+			{
+				Glow->SetMaterial(0, TTShapes::MakeEmissive(Glow, FLinearColor(1.f, 0.75f, 0.4f), Rng.FRandRange(1.f, 3.f)));
+				Glow->SetCastShadow(false);
+			}
+		}
+	}
+}
+
+// ---------------------------------------------------------------------------
+// Tick: flickering lamps, and only the floors around Joe keep their lights on.
+
+void ATTHospital::UpdateLampCulling()
+{
+	// Follows the view: Joe's eyes, or the security camera he is watching.
+	const APlayerCameraManager* View = UGameplayStatics::GetPlayerCameraManager(this, 0);
+	if (!View)
+	{
+		return;
+	}
+	const int32 JoeFloor = FloorOfLocation(View->GetCameraLocation() - FVector(0.f, 0.f, 150.f));
+	if (JoeFloor == LastCullFloor)
+	{
+		return;
+	}
+	LastCullFloor = JoeFloor;
+	for (FLamp& Lamp : Lamps)
+	{
+		Lamp.bActive = FMath::Abs(Lamp.Floor - JoeFloor) <= 1;
+		if (Lamp.Light)
+		{
+			Lamp.Light->SetVisibility(Lamp.bActive);
+		}
+	}
+}
+
 void ATTHospital::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+	CullTimer -= DeltaSeconds;
+	if (CullTimer <= 0.f)
+	{
+		CullTimer = 0.4f;
+		UpdateLampCulling();
+	}
 	for (FLamp& Lamp : Lamps)
 	{
-		if (!Lamp.bFlicker || !Lamp.Light || Lamp.bKilled)
+		if (!Lamp.bFlicker || !Lamp.Light || Lamp.bKilled || !Lamp.bActive)
 		{
 			continue;
 		}
@@ -461,6 +843,7 @@ void ATTHospital::Tick(float DeltaSeconds)
 float ATTHospital::GetLightLevelAt(const FVector& Location, const AActor* IgnoreActor) const
 {
 	const float Radius = 620.f;
+	const int32 Floor = FloorOfLocation(Location);
 	float Level = 0.f;
 	FCollisionQueryParams Query(SCENE_QUERY_STAT(TTLightLevel), false);
 	if (IgnoreActor)
@@ -469,7 +852,7 @@ float ATTHospital::GetLightLevelAt(const FVector& Location, const AActor* Ignore
 	}
 	for (const FLamp& Lamp : Lamps)
 	{
-		if (!Lamp.bOn || !Lamp.Light)
+		if (!Lamp.bOn || !Lamp.Light || Lamp.Floor != Floor)
 		{
 			continue;
 		}
@@ -486,7 +869,49 @@ float ATTHospital::GetLightLevelAt(const FVector& Location, const AActor* Ignore
 		}
 		Level = FMath::Max(Level, 1.f - Dist / Radius);
 	}
+	// Moonlit roof.
+	if (Floors.IsValidIndex(Floor) && Floors[Floor].bOutdoor)
+	{
+		Level = FMath::Max(Level, 0.35f);
+	}
 	return Level;
+}
+
+int32 ATTHospital::SetLampsNear(const FVector& Center, float Radius, bool bOn)
+{
+	const int32 Floor = FloorOfLocation(Center);
+	int32 Changed = 0;
+	for (FLamp& Lamp : Lamps)
+	{
+		if (!Lamp.Light || Lamp.bKilled == !bOn || Lamp.Floor != Floor)
+		{
+			continue;
+		}
+		const FVector LampLoc = Lamp.Light->GetComponentLocation();
+		if (FVector::Dist2D(LampLoc, Center) > Radius)
+		{
+			continue;
+		}
+		Lamp.bKilled = !bOn;
+		Lamp.bOn = bOn;
+		Lamp.Light->SetIntensity(bOn ? Lamp.BaseIntensity : 0.f);
+		if (Lamp.Glow)
+		{
+			Lamp.Glow->SetScalarParameterValue(TEXT("Intensity"), bOn ? 6.f : 0.05f);
+		}
+		TTAudio::PlayAt(this, ETTSfx::Click, LampLoc, 0.9f);
+		++Changed;
+	}
+	return Changed;
+}
+
+// ---------------------------------------------------------------------------
+// Navigation
+
+ATTDoor* ATTHospital::GetDoorAt(const FIntPoint& Cell) const
+{
+	const TObjectPtr<ATTDoor>* Found = Doors.Find(Cell);
+	return Found ? Found->Get() : nullptr;
 }
 
 bool ATTHospital::HasLockedDoor() const
@@ -514,60 +939,33 @@ bool ATTHospital::IsConnectedWithout(const FIntPoint& Blocked) const
 	}
 
 	TArray<bool> Seen;
-	Seen.Init(false, Width * Height);
+	Seen.Init(false, Walkable.Num());
 	TArray<FIntPoint> Queue;
 	Queue.Add(PlayerStart);
-	Seen[PlayerStart.Y * Width + PlayerStart.X] = true;
+	Seen[PlayerStart.Y * GridWidth + PlayerStart.X] = true;
 	int32 Reached = 0;
+	TArray<FIntPoint> Next;
 	for (int32 Head = 0; Head < Queue.Num(); ++Head)
 	{
 		const FIntPoint C = Queue[Head];
 		++Reached;
+		Next.Reset();
 		for (const FIntPoint& D : Dirs)
 		{
-			const FIntPoint N = C + D;
-			if (N == Blocked || !IsWalkable(N) || Seen[N.Y * Width + N.X])
+			Next.Add(C + D);
+		}
+		Links.MultiFind(C, Next);
+		for (const FIntPoint& N : Next)
+		{
+			if (N == Blocked || !IsWalkable(N) || Seen[N.Y * GridWidth + N.X])
 			{
 				continue;
 			}
-			Seen[N.Y * Width + N.X] = true;
+			Seen[N.Y * GridWidth + N.X] = true;
 			Queue.Add(N);
 		}
 	}
 	return Reached == Total;
-}
-
-int32 ATTHospital::SetLampsNear(const FVector& Center, float Radius, bool bOn)
-{
-	int32 Changed = 0;
-	for (FLamp& Lamp : Lamps)
-	{
-		if (!Lamp.Light || Lamp.bKilled == !bOn)
-		{
-			continue;
-		}
-		const FVector LampLoc = Lamp.Light->GetComponentLocation();
-		if (FVector::Dist2D(LampLoc, Center) > Radius)
-		{
-			continue;
-		}
-		Lamp.bKilled = !bOn;
-		Lamp.bOn = bOn;
-		Lamp.Light->SetIntensity(bOn ? Lamp.BaseIntensity : 0.f);
-		if (Lamp.Glow)
-		{
-			Lamp.Glow->SetScalarParameterValue(TEXT("Intensity"), bOn ? 6.f : 0.05f);
-		}
-		TTAudio::PlayAt(this, ETTSfx::Click, LampLoc, 0.9f);
-		++Changed;
-	}
-	return Changed;
-}
-
-ATTDoor* ATTHospital::GetDoorAt(const FIntPoint& Cell) const
-{
-	const TObjectPtr<ATTDoor>* Found = Doors.Find(Cell);
-	return Found ? Found->Get() : nullptr;
 }
 
 FIntPoint ATTHospital::FindNearestWalkable(const FIntPoint& Cell) const
@@ -576,15 +974,17 @@ FIntPoint ATTHospital::FindNearestWalkable(const FIntPoint& Cell) const
 	{
 		return Cell;
 	}
+	const int32 Floor = FloorOfCell(Cell);
 	for (int32 R = 1; R <= 4; ++R)
 	{
 		for (int32 Y = -R; Y <= R; ++Y)
 		{
 			for (int32 X = -R; X <= R; ++X)
 			{
-				if (FMath::Max(FMath::Abs(X), FMath::Abs(Y)) == R && IsWalkable(Cell + FIntPoint(X, Y)))
+				const FIntPoint C = Cell + FIntPoint(X, Y);
+				if (FMath::Max(FMath::Abs(X), FMath::Abs(Y)) == R && FloorOfCell(C) == Floor && IsWalkable(C))
 				{
-					return Cell + FIntPoint(X, Y);
+					return C;
 				}
 			}
 		}
@@ -595,12 +995,13 @@ FIntPoint ATTHospital::FindNearestWalkable(const FIntPoint& Cell) const
 TArray<FIntPoint> ATTHospital::GetWalkableCellsNear(const FIntPoint& Center, int32 Radius) const
 {
 	TArray<FIntPoint> Result;
+	const int32 Floor = FloorOfCell(Center);
 	for (int32 Y = -Radius; Y <= Radius; ++Y)
 	{
 		for (int32 X = -Radius; X <= Radius; ++X)
 		{
 			const FIntPoint C = Center + FIntPoint(X, Y);
-			if (IsWalkable(C) && !Doors.Contains(C))
+			if (FloorOfCell(C) == Floor && IsWalkable(C) && !Doors.Contains(C) && StairCellAt(Floor, C.X - Floor * Stride, C.Y) == EStairCell::None)
 			{
 				Result.Add(C);
 			}
@@ -609,7 +1010,7 @@ TArray<FIntPoint> ATTHospital::GetWalkableCellsNear(const FIntPoint& Center, int
 	return Result;
 }
 
-bool ATTHospital::FindPath(const FIntPoint& From, const FIntPoint& To, TArray<FIntPoint>& OutPath) const
+bool ATTHospital::FindPath(const FIntPoint& From, const FIntPoint& To, TArray<FIntPoint>& OutPath, bool bForHunter) const
 {
 	OutPath.Reset();
 	const FIntPoint Start = FindNearestWalkable(From);
@@ -619,8 +1020,9 @@ bool ATTHospital::FindPath(const FIntPoint& From, const FIntPoint& To, TArray<FI
 		OutPath.Add(Goal);
 		return true;
 	}
+	const bool bAvoidIsolation = bForHunter && !bHunterKnowsIsolation && !IsolationCells.Contains(Goal);
 
-	const int32 Count = Width * Height;
+	const int32 Count = Walkable.Num();
 	TArray<float> G;
 	G.Init(TNumericLimits<float>::Max(), Count);
 	TArray<int32> Parent;
@@ -629,11 +1031,19 @@ bool ATTHospital::FindPath(const FIntPoint& From, const FIntPoint& To, TArray<FI
 	Closed.Init(false, Count);
 	TArray<int32> Open;
 
-	auto Index = [this](const FIntPoint& P) { return P.Y * Width + P.X; };
-	auto Heuristic = [&Goal](const FIntPoint& P) { return static_cast<float>(FMath::Abs(P.X - Goal.X) + FMath::Abs(P.Y - Goal.Y)); };
+	auto Index = [this](const FIntPoint& P) { return P.Y * GridWidth + P.X; };
+	const int32 GoalFloor = FloorOfCell(Goal);
+	const int32 GoalLocalX = Goal.X - GoalFloor * Stride;
+	auto Heuristic = [&](const FIntPoint& P)
+	{
+		const int32 PF = FloorOfCell(P);
+		const int32 LX = P.X - PF * Stride;
+		return static_cast<float>(FMath::Abs(LX - GoalLocalX) + FMath::Abs(P.Y - Goal.Y) + 4 * FMath::Abs(PF - GoalFloor));
+	};
 
 	G[Index(Start)] = 0.f;
 	Open.Add(Index(Start));
+	TArray<FIntPoint> Next;
 
 	while (Open.Num() > 0)
 	{
@@ -641,7 +1051,7 @@ bool ATTHospital::FindPath(const FIntPoint& From, const FIntPoint& To, TArray<FI
 		float BestF = TNumericLimits<float>::Max();
 		for (int32 i = 0; i < Open.Num(); ++i)
 		{
-			const FIntPoint P(Open[i] % Width, Open[i] / Width);
+			const FIntPoint P(Open[i] % GridWidth, Open[i] / GridWidth);
 			const float F = G[Open[i]] + Heuristic(P);
 			if (F < BestF)
 			{
@@ -657,25 +1067,30 @@ bool ATTHospital::FindPath(const FIntPoint& From, const FIntPoint& To, TArray<FI
 		}
 		Closed[Current] = true;
 
-		const FIntPoint CP(Current % Width, Current / Width);
+		const FIntPoint CP(Current % GridWidth, Current / GridWidth);
 		if (CP == Goal)
 		{
 			for (int32 Node = Current; Node != INDEX_NONE; Node = Parent[Node])
 			{
-				OutPath.Insert(FIntPoint(Node % Width, Node / Width), 0);
+				OutPath.Insert(FIntPoint(Node % GridWidth, Node / GridWidth), 0);
 			}
 			return true;
 		}
 
+		Next.Reset();
 		for (const FIntPoint& D : Dirs)
 		{
-			const FIntPoint NP = CP + D;
-			if (!IsWalkable(NP))
+			Next.Add(CP + D);
+		}
+		Links.MultiFind(CP, Next);
+		for (const FIntPoint& NP : Next)
+		{
+			if (!IsWalkable(NP) || (bAvoidIsolation && IsolationCells.Contains(NP)))
 			{
 				continue;
 			}
 			const int32 NI = Index(NP);
-			const float Cost = G[Current] + 1.f;
+			const float Cost = G[Current] + (FloorOfCell(NP) != FloorOfCell(CP) ? 3.f : 1.f);
 			if (!Closed[NI] && Cost < G[NI])
 			{
 				G[NI] = Cost;

@@ -48,6 +48,9 @@ public:
 	/** Locked doors stop Joe only; the Hunter wedged it and can still pass. */
 	bool IsLocked() const { return bLocked; }
 	void SetLocked(bool bInLocked) { bLocked = bInLocked; }
+	/** Heavy isolation door: slow, quiet, no window. */
+	void SetHeavy(bool bInHeavy);
+	bool IsHeavy() const { return bHeavy; }
 	bool IsMoving() const { return !FMath::IsNearlyEqual(Angle, TargetAngle, 1.f); }
 	void SetOpen(bool bInOpen, bool bQuiet, const AActor* Opener);
 
@@ -58,6 +61,7 @@ private:
 	FString Id;
 	bool bOpen = false;
 	bool bLocked = false;
+	bool bHeavy = false;
 	float Angle = 0.f;
 	float TargetAngle = 0.f;
 	float Speed = 200.f;
@@ -176,6 +180,57 @@ private:
 	bool bOpen = false;
 	float Progress = 0.f;
 	float NoiseTimer = 0.f;
+};
+
+/** Something you can only read (elevator without power, signs). */
+UCLASS()
+class THETHUG_API ATTSign : public ATTInteractable
+{
+	GENERATED_BODY()
+
+public:
+	void SetupElevator();
+	virtual FString GetPrompt(const ATTPlayerCharacter* Player) const override { return Prompt; }
+	virtual void Interact(ATTPlayerCharacter* Player) override;
+
+private:
+	FString Prompt;
+	FString Message;
+};
+
+/** Security monitors on 2 (GDD §26): watch the corridors, but some cameras show nothing. */
+UCLASS()
+class THETHUG_API ATTCameraConsole : public ATTInteractable
+{
+	GENERATED_BODY()
+
+public:
+	void Setup();
+	virtual FString GetPrompt(const ATTPlayerCharacter* Player) const override;
+	virtual void Interact(ATTPlayerCharacter* Player) override;
+};
+
+/** Service shaft hatch (MapCore "pipe_crawl"): Joe can crawl to the floor above/below; the Hunter cannot fit. */
+UCLASS()
+class THETHUG_API ATTHatch : public ATTInteractable
+{
+	GENERATED_BODY()
+
+public:
+	void Setup(TCHAR InGroup, int32 InFloor, int32 InX, int32 InY);
+	virtual FString GetPrompt(const ATTPlayerCharacter* Player) const override;
+	virtual void Interact(ATTPlayerCharacter* Player) override;
+
+	ATTHatch* FindPartner(bool bUp) const;
+	int32 GetFloor() const { return Floor; }
+
+private:
+	bool WantsUp(const ATTPlayerCharacter* Player) const;
+
+	TCHAR Group = TEXT('V');
+	int32 Floor = 0;
+	int32 CellX = 0;
+	int32 CellY = 0;
 };
 
 UENUM()

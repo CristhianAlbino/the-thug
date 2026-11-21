@@ -99,6 +99,8 @@ private:
 	TArray<TObjectPtr<class ATTCompanion>> Companions;
 
 	bool bCompanionTest = false;
+	bool bFloorsTest = false;
+	void UpdateFloorsTest();
 	void UpdateCompanionTest();
 
 	UPROPERTY()

@@ -11,6 +11,7 @@
 #include "TTGameMode.h"
 #include "TTHospital.h"
 #include "TTHunter.h"
+#include "EngineUtils.h"
 #include "TTCompanion.h"
 #include "TTPlayerCharacter.h"
 #include "TTShapes.h"
@@ -70,6 +71,25 @@ void ATTDoor::Setup(float CellSize, float WallHeight, const FString& InId)
 	// Door frame posts.
 	TTShapes::AddPart(this, Root, TTShapes::Cube(), FVector(-CellSize * 0.5f + 6.f, 0.f, DoorHeight * 0.5f), FVector(12.f, CellSize, DoorHeight), FrameColor);
 	TTShapes::AddPart(this, Root, TTShapes::Cube(), FVector(CellSize * 0.5f - 6.f, 0.f, DoorHeight * 0.5f), FVector(12.f, CellSize, DoorHeight), FrameColor);
+}
+
+void ATTDoor::SetHeavy(bool bInHeavy)
+{
+	bHeavy = bInHeavy;
+	if (!bHeavy || !Hinge)
+	{
+		return;
+	}
+	// Steel door, painted over, no window.
+	TArray<USceneComponent*> Parts;
+	Hinge->GetChildrenComponents(false, Parts);
+	for (USceneComponent* Part : Parts)
+	{
+		if (UStaticMeshComponent* Mesh = Cast<UStaticMeshComponent>(Part))
+		{
+			Mesh->SetMaterial(0, TTShapes::MakeColor(Mesh, FLinearColor(0.12f, 0.14f, 0.15f), 0.4f));
+		}
+	}
 }
 
 void ATTDoor::Tick(float DeltaSeconds)
@@ -134,7 +154,8 @@ void ATTDoor::SetOpen(bool bInOpen, bool bQuiet, const AActor* Opener)
 	}
 
 	const bool bByPlayer = Opener && Opener->IsA<ATTPlayerCharacter>();
-	Speed = bQuiet ? 60.f : (bByPlayer ? 210.f : 320.f);
+	Speed = bHeavy ? 55.f : (bQuiet ? 60.f : (bByPlayer ? 210.f : 320.f));
+	bQuiet = bQuiet || bHeavy;
 
 	const FVector SoundLoc = GetActorLocation() + FVector(0.f, 0.f, 150.f);
 	TTAudio::PlayAt(this, ETTSfx::DoorCreak, SoundLoc, bQuiet ? 0.25f : 0.9f);
@@ -356,8 +377,8 @@ void ATTPickup::Interact(ATTPlayerCharacter* Player)
 		Player->GiveKey();
 		if (GM)
 		{
-			GM->ShowMessage(TEXT("Cartão do portão de serviço. A saída fica no fim do corredor principal (leste)."), 6.f);
-			GM->SetObjective(TEXT("Chegue ao portão de serviço no fim do corredor leste."));
+			GM->ShowMessage(TEXT("Cartão de acesso do portão da garagem."), 6.f);
+			GM->SetObjective(TEXT("Desça até a garagem e abra o portão de saída."));
 		}
 		Destroy();
 		return;
@@ -400,7 +421,7 @@ void ATTExitGate::Setup(float CellSize, float WallHeight)
 
 FString ATTExitGate::GetPrompt(const ATTPlayerCharacter* Player) const
 {
-	return Player && Player->HasKey() ? TEXT("[E] Passar o cartão no portão") : TEXT("[E] Portão de serviço (trancado)");
+	return Player && Player->HasKey() ? TEXT("[E] Passar o cartão no portão da garagem") : TEXT("[E] Portão da garagem (trancado)");
 }
 
 void ATTExitGate::Interact(ATTPlayerCharacter* Player)
@@ -412,7 +433,7 @@ void ATTExitGate::Interact(ATTPlayerCharacter* Player)
 		TTAudio::Play2D(this, ETTSfx::Pickup, 0.8f);
 		if (GM)
 		{
-			GM->PlayerEscaped();
+			GM->PlayerEscaped(TEXT("Pelo portão da garagem, para a rua."));
 		}
 	}
 	else
@@ -420,8 +441,8 @@ void ATTExitGate::Interact(ATTPlayerCharacter* Player)
 		TTAudio::Play2D(this, ETTSfx::Click, 0.6f);
 		if (GM)
 		{
-			GM->ShowMessage(TEXT("Trancado. O leitor pede um cartão de acesso. Deve estar em algum lugar deste andar."), 5.f);
-			GM->SetObjective(TEXT("Encontre o cartão de acesso do portão de serviço."));
+			GM->ShowMessage(TEXT("Trancado. O leitor pede um cartão de acesso. A administração deve ter um."), 5.f);
+			GM->SetObjective(TEXT("Encontre o cartão de acesso do portão da garagem."));
 		}
 	}
 }
@@ -540,6 +561,126 @@ bool ATTWindow::AddPry(float DeltaSeconds, AActor* By)
 		UE_LOG(LogTemp, Log, TEXT("[TT] Window open (by %s)"), By ? *By->GetName() : TEXT("?"));
 	}
 	return bOpen;
+}
+
+// ---------------------------------------------------------------------------
+// Sign / elevator
+
+void ATTSign::SetupElevator()
+{
+	Prompt = TEXT("Elevador — sem energia");
+	Message = TEXT("Os botões não acendem. Sem energia no prédio, o elevador está morto.");
+	const FLinearColor Steel(0.32f, 0.33f, 0.34f);
+	TTShapes::AddPart(this, Root, TTShapes::Cube(), FVector(4.f, -55.f, 120.f), FVector(6.f, 105.f, 240.f), Steel);
+	TTShapes::AddPart(this, Root, TTShapes::Cube(), FVector(4.f, 55.f, 120.f), FVector(6.f, 105.f, 240.f), Steel);
+	if (UStaticMeshComponent* Panel = TTShapes::AddPart(this, Root, TTShapes::Cube(), FVector(6.f, 140.f, 130.f), FVector(4.f, 18.f, 30.f), FLinearColor::Black))
+	{
+		Panel->SetMaterial(0, TTShapes::MakeEmissive(Panel, FLinearColor(1.f, 0.05f, 0.02f), 0.8f));
+	}
+}
+
+void ATTSign::Interact(ATTPlayerCharacter* Player)
+{
+	TTAudio::Play2D(this, ETTSfx::Click, 0.5f);
+	if (ATTGameMode* GM = GetTTGameMode(this))
+	{
+		GM->ShowMessage(Message, 4.f);
+	}
+}
+
+// ---------------------------------------------------------------------------
+// Camera console
+
+void ATTCameraConsole::Setup()
+{
+	TTShapes::AddPart(this, Root, TTShapes::Cube(), FVector(0.f, 0.f, 40.f), FVector(110.f, 240.f, 80.f), FLinearColor(0.12f, 0.12f, 0.13f));
+	for (int32 i = 0; i < 3; ++i)
+	{
+		const FVector Pos(-15.f, -80.f + i * 80.f, 125.f);
+		TTShapes::AddPart(this, Root, TTShapes::Cube(), Pos, FVector(30.f, 70.f, 52.f), FLinearColor(0.05f, 0.05f, 0.05f));
+		if (UStaticMeshComponent* Screen = TTShapes::AddPart(this, Root, TTShapes::Cube(), Pos + FVector(16.f, 0.f, 0.f), FVector(2.f, 60.f, 42.f), FLinearColor::Black, FRotator::ZeroRotator, false))
+		{
+			Screen->SetMaterial(0, TTShapes::MakeEmissive(Screen, FLinearColor(0.35f, 0.5f, 0.45f), 1.2f));
+		}
+	}
+}
+
+FString ATTCameraConsole::GetPrompt(const ATTPlayerCharacter* Player) const
+{
+	return TEXT("[E] Usar os monitores de segurança");
+}
+
+void ATTCameraConsole::Interact(ATTPlayerCharacter* Player)
+{
+	if (Player)
+	{
+		Player->StartCameraView();
+	}
+}
+
+// ---------------------------------------------------------------------------
+// Service shaft hatch
+
+void ATTHatch::Setup(TCHAR InGroup, int32 InFloor, int32 InX, int32 InY)
+{
+	Group = InGroup;
+	Floor = InFloor;
+	CellX = InX;
+	CellY = InY;
+	const FLinearColor Metal(0.2f, 0.21f, 0.2f);
+	// Hatch in the floor and a ladder bolted to the wall.
+	TTShapes::AddPart(this, Root, TTShapes::Cube(), FVector(0.f, 0.f, 1.f), FVector(110.f, 110.f, 3.f), Metal);
+	TTShapes::AddPart(this, Root, TTShapes::Cube(), FVector(-120.f, -25.f, 190.f), FVector(5.f, 5.f, 380.f), Metal, FRotator::ZeroRotator, false);
+	TTShapes::AddPart(this, Root, TTShapes::Cube(), FVector(-120.f, 25.f, 190.f), FVector(5.f, 5.f, 380.f), Metal, FRotator::ZeroRotator, false);
+	for (int32 i = 0; i < 10; ++i)
+	{
+		TTShapes::AddPart(this, Root, TTShapes::Cube(), FVector(-120.f, 0.f, 30.f + i * 36.f), FVector(4.f, 50.f, 4.f), Metal, FRotator::ZeroRotator, false);
+	}
+}
+
+ATTHatch* ATTHatch::FindPartner(bool bUp) const
+{
+	const int32 Target = Floor + (bUp ? 1 : -1);
+	for (TActorIterator<ATTHatch> It(GetWorld()); It; ++It)
+	{
+		if (It->Group == Group && It->Floor == Target && It->CellX == CellX && It->CellY == CellY)
+		{
+			return *It;
+		}
+	}
+	return nullptr;
+}
+
+bool ATTHatch::WantsUp(const ATTPlayerCharacter* Player) const
+{
+	const bool bHasUp = FindPartner(true) != nullptr;
+	const bool bHasDown = FindPartner(false) != nullptr;
+	if (bHasUp != bHasDown)
+	{
+		return bHasUp;
+	}
+	return Player && Player->GetControlRotation().GetNormalized().Pitch > 0.f;
+}
+
+FString ATTHatch::GetPrompt(const ATTPlayerCharacter* Player) const
+{
+	const bool bHasUp = FindPartner(true) != nullptr;
+	const bool bHasDown = FindPartner(false) != nullptr;
+	const bool bUp = WantsUp(Player);
+	FString Text = bUp ? TEXT("[E] Subir pela prumada de serviço") : TEXT("[E] Descer pela prumada de serviço");
+	if (bHasUp && bHasDown)
+	{
+		Text += bUp ? TEXT("   (olhe para baixo para descer)") : TEXT("   (olhe para cima para subir)");
+	}
+	return Text;
+}
+
+void ATTHatch::Interact(ATTPlayerCharacter* Player)
+{
+	if (ATTHatch* Partner = FindPartner(WantsUp(Player)))
+	{
+		Player->StartCrawl(Partner);
+	}
 }
 
 // ---------------------------------------------------------------------------

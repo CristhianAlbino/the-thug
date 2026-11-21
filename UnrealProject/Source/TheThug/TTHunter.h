@@ -157,7 +157,7 @@ private:
 	float LostSightTime = 0.f;
 	float RepathTimer = 0.f;
 	bool bSawPlayerThisFrame = false;
-	float TimeSinceSeen = 100.f;
+	float TimeSinceSeen = 1000.f;
 	float VisualReportTimer = 0.f;
 	float DoorInspectTimer = 0.f;
 	TMap<FIntPoint, double> RouteObservedAt;

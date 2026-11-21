@@ -1,4 +1,4 @@
-# UnrealProject — The Thug (M01 prototype)
+# UnrealProject — The Thug (prototype: M01–M05)
 
 Unreal Engine **5.8**, C++. The M01 slice (GDD §98, "10 excellent minutes") is fully code-driven:
 the hospital wing, the Hunter, the sounds and the HUD are generated at runtime, so the only
@@ -21,11 +21,14 @@ binary asset is the empty map `Content/Maps/Hospital_M01.umap` (Git LFS).
 | Hunter vs companions: spots, chases, takes them (also out of lockers) and interrogates them; they only give away what they actually saw | `TTHunter` |
 | Window route (GDD §56): boarded window, crowbar, loud prying; a companion escaping through it leaves it open for Joe | `TTInteractables` (`ATTWindow`) |
 | Doors (crouch = slow and quiet), lockers with slats, keycard, bottles, service gate | `TTInteractables` |
-| 4th-floor wing from an ASCII layout + grid path finding, lamps (some flicker), fog, post process | `TTHospital` |
+| **Whole hospital (M05 blockout)**: garage, B1, floors 1-4 and roof stacked, two switchback stairwells (real ramps), service shaft hatches Joe can crawl through (the Hunter cannot), security camera room with night-vision feeds (some dead), heavy-door isolation room the Hunter only enters after seeing Joe there, elevator (no power yet), city skyline and moonlit roof, lights only on the floors around the view | `TTHospital` + `TTHospitalLayout.inl` |
 | Procedural audio (Hunter steps, heartbeat, creaks, glass, drone) | `TTAudio` |
 | Title / pause / captured / escaped flow, noise routing | `TTGameMode`, `TTHUD`, `TTPlayerController` |
 
-Edit the map by changing `Layout` in `TTHospital.cpp` (legend in the comment above it).
+The map is authored in `Tools/MapCore/blockout_floors.py` (legend at the top). Edit it, run
+`python Tools/MapCore/blockout_floors.py` to validate (widths, stairwells, hatch partners, every cell reachable from Joe's start),
+then `python Tools/MapCore/blockout_floors.py --emit` and paste the output into `Source/TheThug/TTHospitalLayout.inl`.
+Cells use one combined grid: floor N occupies columns `N*32 .. N*32+23`.
 
 Companion starting profiles (trust, fear, stress, loyalty, self-preservation, relationship) are **balance hypotheses**
 in `ProfileFor` (`TTCompanion.cpp`); the GDD defines their personalities but not the numbers.
@@ -56,7 +59,8 @@ Debug flags: `-ttdebug` (Hunter state on screen), `-ttshots` (scripted screensho
 `-ttai` (Joe waits in the corridor, logs Hunter states until capture),
 `-ttlearn` (seeds route evidence for door 8,4 and aggression, hides Joe, logs traps/ambush),
 `-ttsurvive` (injury, bandage, shot, smoke, grenade; logs and screenshots),
-`-ttcomp` (talk, ammo handoff, Hunter takes a companion, Jack escapes through the window, Joe follows), `-ttflash=<power>`, `-ttdiff=<0-3>`, `-ttev=<bias>` (exposure), `-ttsens=<x>` (mouse).
+`-ttcomp` (talk, ammo handoff, Hunter takes a companion, Jack escapes through the window, Joe follows),
+`-ttfloors` (service hatch crawl, stairwell, camera monitors, garage; screenshots), `-ttflash=<power>`, `-ttdiff=<0-3>`, `-ttev=<bias>` (exposure), `-ttsens=<x>` (mouse).
 
 ## Package the .exe
 

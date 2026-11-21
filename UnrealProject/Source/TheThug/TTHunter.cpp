@@ -562,7 +562,12 @@ void ATTHunter::UpdatePerception(float DeltaSeconds)
 		LastKnownVelocity = Player->GetVelocity();
 		if (Hospital)
 		{
-			ObserveRoutesNear(Hospital->WorldToCell(LastKnown));
+			const FIntPoint JoeCell = Hospital->WorldToCell(LastKnown);
+			ObserveRoutesNear(JoeCell);
+			if (Hospital->IsIsolationCell(JoeCell))
+			{
+				Hospital->SetHunterKnowsIsolation();
+			}
 		}
 		if (State == ETTHunterState::Pursue && Mind)
 		{
@@ -767,16 +772,18 @@ bool ATTHunter::MoveTo(const FVector& Goal)
 
 	const FVector Start = GetActorLocation();
 	const AActor* Player = GetPlayer();
-	const FVector Target(Goal.X, Goal.Y, Start.Z);
 
-	if (IsDirectPathClear(GetWorld(), this, Player, Start, Target))
+	const FIntPoint GoalCell = Hospital->WorldToCell(FVector(Goal.X, Goal.Y, Goal.Z));
+	const bool bSameFloor = Hospital->FloorOfLocation(Start) == Hospital->FloorOfCell(GoalCell);
+	const FVector Target(Goal.X, Goal.Y, bSameFloor ? Start.Z : Hospital->CellToWorld(GoalCell).Z + 100.f);
+	if (bSameFloor && IsDirectPathClear(GetWorld(), this, Player, Start, Target))
 	{
 		Path.Add(Target);
 		return true;
 	}
 
 	TArray<FIntPoint> Cells;
-	if (!Hospital->FindPath(Hospital->WorldToCell(Start), Hospital->WorldToCell(Target), Cells))
+	if (!Hospital->FindPath(Hospital->WorldToCell(Start), GoalCell, Cells, true))
 	{
 		return false;
 	}
@@ -784,13 +791,13 @@ bool ATTHunter::MoveTo(const FVector& Goal)
 	TArray<FVector> Raw;
 	for (int32 i = 1; i < Cells.Num(); ++i)
 	{
-		Raw.Add(Hospital->CellToWorld(Cells[i], Start.Z));
+		Raw.Add(Hospital->CellToWorld(Cells[i], 100.f));
 	}
 	if (Raw.Num() == 0)
 	{
-		Raw.Add(Hospital->CellToWorld(Cells[0], Start.Z));
+		Raw.Add(Hospital->CellToWorld(Cells[0], 100.f));
 	}
-	if (Hospital->IsWalkable(Hospital->WorldToCell(Target)))
+	if (Hospital->IsWalkable(GoalCell))
 	{
 		Raw.Last() = Target;
 	}
@@ -803,7 +810,7 @@ bool ATTHunter::MoveTo(const FVector& Goal)
 		int32 Best = i;
 		for (int32 j = Raw.Num() - 1; j > i; --j)
 		{
-			if (IsDirectPathClear(GetWorld(), this, Player, Current, Raw[j]))
+			if (Hospital->FloorOfLocation(Current) == Hospital->FloorOfLocation(Raw[j]) && IsDirectPathClear(GetWorld(), this, Player, Current, Raw[j]))
 			{
 				Best = j;
 				break;
@@ -1001,7 +1008,7 @@ void ATTHunter::StartPatrol()
 	}
 
 	FIntPoint TargetCell = Points.Num() > 0 ? Points[0] : Hospital->GetHunterStartCell();
-	for (int32 Attempt = 0; Attempt < 3; ++Attempt)
+	for (int32 Attempt = 0; Attempt < 8; ++Attempt)
 	{
 		FString Choice;
 		try
@@ -1018,6 +1025,11 @@ void ATTHunter::StartPatrol()
 			continue;
 		}
 		TargetCell = *Cell;
+		const FVector Focus = TimeSinceSeen < 240.f ? LastKnown : GetActorLocation();
+		if (FMath::Abs(Hospital->FloorOfCell(TargetCell) - Hospital->FloorOfLocation(Focus)) > 1 && FMath::FRand() > 0.2f && Attempt < 5)
+		{
+			continue;
+		}
 		if (Hospital->GetDoorAt(TargetCell))
 		{
 			// Stand beside the doorway, not inside it.

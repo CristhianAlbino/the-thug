@@ -45,6 +45,7 @@ void ATTGameMode::InitGame(const FString& MapName, const FString& Options, FStri
 	bLearnTest = FParse::Param(FCommandLine::Get(), TEXT("ttlearn"));
 	bSurviveTest = FParse::Param(FCommandLine::Get(), TEXT("ttsurvive"));
 	bCompanionTest = FParse::Param(FCommandLine::Get(), TEXT("ttcomp"));
+	bFloorsTest = FParse::Param(FCommandLine::Get(), TEXT("ttfloors"));
 }
 
 void ATTGameMode::EnsureWorld()
@@ -101,7 +102,7 @@ void ATTGameMode::BeginPlay()
 	AmbientComponent = UGameplayStatics::SpawnSound2D(this, AmbientWave, 0.55f, 1.f, 0.f, nullptr, false, false);
 
 	SetPhase(ETTGamePhase::Title);
-	if (bSkipTitle || bAutomation || bAITest || bLearnTest || bSurviveTest || bCompanionTest)
+	if (bSkipTitle || bAutomation || bAITest || bLearnTest || bSurviveTest || bCompanionTest || bFloorsTest)
 	{
 		StartGame();
 	}
@@ -335,6 +336,12 @@ void ATTGameMode::SetObjective(const FString& Text)
 
 namespace
 {
+	/** Cell on a given floor (0 G, 1 B1, 2 F1, 3 F2, 4 F3, 5 F4, 6 roof). */
+	FIntPoint FC(int32 Floor, int32 X, int32 Y)
+	{
+		return FIntPoint(Floor * ATTHospital::Stride + X, Y);
+	}
+
 	float FadeAlpha(float Time, float Duration)
 	{
 		if (Time >= Duration)
@@ -380,19 +387,24 @@ void ATTGameMode::Tick(float DeltaSeconds)
 		AutoTime += RealDelta;
 		UpdateCompanionTest();
 	}
+	if (bFloorsTest)
+	{
+		AutoTime += RealDelta;
+		UpdateFloorsTest();
+	}
 	if (bLearnTest)
 	{
 		// Pretend he already saw Joe use door (8,4) three times, then watch what he does with it.
 		AutoTime += RealDelta;
 		if (AutoStep == 0 && AutoTime > 1.f && GetPlayer() && Hospital && Hunter)
 		{
-			Hunter->DebugObserveRoute(FIntPoint(8, 4), 3);
+			Hunter->DebugObserveRoute(FC(5, 9, 4), 3);
 			Hunter->DebugSetAggression(0.6f);
 			ATTLocker* Far = nullptr;
 			float FarDist = 0.f;
 			for (const TObjectPtr<ATTLocker>& L : Hospital->GetLockers())
 			{
-				const float D = L ? FVector::Dist2D(L->GetActorLocation(), Hospital->CellToWorld(FIntPoint(8, 4))) : 0.f;
+				const float D = L ? FVector::Dist2D(L->GetActorLocation(), Hospital->CellToWorld(FC(5, 9, 4))) : 0.f;
 				if (L && D > FarDist)
 				{
 					FarDist = D;
@@ -419,16 +431,99 @@ void ATTGameMode::Tick(float DeltaSeconds)
 		AutoTime += RealDelta;
 		if (AutoStep == 0 && AutoTime > 1.f && GetPlayer() && Hospital)
 		{
-			GetPlayer()->TeleportForTest(Hospital->CellToWorld(FIntPoint(11, 5)), 90.f);
+			GetPlayer()->TeleportForTest(Hospital->CellToWorld(FC(5, 11, 5)), 90.f);
 			AutoStep = 1;
 		}
-		if ((Phase == ETTGamePhase::Captured && PhaseTime > 2.f) || AutoTime > 150.f)
+		if (FMath::Fmod(AutoTime, 10.f) < RealDelta && Hunter && Hospital)
+		{
+			UE_LOG(LogTemp, Log, TEXT("[TT] t=%.0f Hunter floor %d (%s) state %s"), AutoTime, Hospital->FloorOfLocation(Hunter->GetActorLocation()),
+				*Hospital->GetFloorName(Hospital->FloorOfLocation(Hunter->GetActorLocation())), *Hunter->GetStateName());
+		}
+		if ((Phase == ETTGamePhase::Captured && PhaseTime > 2.f) || AutoTime > 240.f)
 		{
 			UE_LOG(LogTemp, Log, TEXT("[TT] AI test end: phase=%d time=%.1f"), static_cast<int32>(Phase), RunTime);
 			FPlatformMisc::RequestExit(false);
 			bAITest = false;
 		}
 	}
+}
+
+void ATTGameMode::UpdateFloorsTest()
+{
+	ATTPlayerCharacter* Joe = GetPlayer();
+	if (!Joe || !Hunter || !Hospital)
+	{
+		return;
+	}
+	auto Shot = [](const TCHAR* Name)
+	{
+		FScreenshotRequest::RequestScreenshot(FPaths::ProjectSavedDir() / TEXT("Screenshots") / FString(Name) + TEXT(".png"), false, false);
+	};
+	auto LogFloor = [Joe, this](const TCHAR* Step)
+	{
+		UE_LOG(LogTemp, Log, TEXT("[TT] Floors %s: Joe on %s"), Step, *Hospital->GetFloorLabel(Hospital->FloorOfLocation(Joe->GetActorLocation())));
+	};
+	const float Times[] = { 1.f, 2.f, 3.f, 7.f, 8.f, 9.f, 10.f, 11.5f, 12.f, 13.5f, 14.f, 15.5f, 16.5f };
+	if (AutoStep >= UE_ARRAY_COUNT(Times) || AutoTime < Times[AutoStep])
+	{
+		return;
+	}
+	switch (AutoStep)
+	{
+	case 0:
+		Hunter->Freeze();
+		LogFloor(TEXT("start"));
+		// Service hatch on 4 (column 1, row 7): look down and take it.
+		Joe->TeleportForTest(Hospital->CellToWorld(FC(5, 1, 7)) + FVector(60.f, 0.f, 0.f), 180.f);
+		Joe->LookAtPoint(Hospital->CellToWorld(FC(5, 1, 7), 0.f));
+		break;
+	case 1:
+		UE_LOG(LogTemp, Log, TEXT("[TT] Floors focus: %s"), Joe->GetFocus() ? *Joe->GetFocus()->GetPrompt(Joe) : TEXT("none"));
+		Joe->Interact();
+		break;
+	case 2:
+		break;
+	case 3:
+		LogFloor(TEXT("after crawl"));
+		Shot(TEXT("TT_12_after_crawl"));
+		break;
+	case 4:
+		// West stairwell on 3 (even floor): stand on the lower landing, look up the flight.
+		Joe->TeleportForTest(Hospital->CellToWorld(FC(4, 2, 4)), -100.f);
+		Joe->LookAtPoint(Hospital->CellToWorld(FC(4, 1, 2), 250.f));
+		break;
+	case 5:
+		Shot(TEXT("TT_13_stairs"));
+		break;
+	case 6:
+		// Camera room on 2.
+		Joe->TeleportForTest(Hospital->CellToWorld(FC(3, 17, 3)), 0.f);
+		Joe->LookAtPoint(Hospital->CellToWorld(FC(3, 18, 3), 100.f));
+		Joe->StartCameraView();
+		break;
+	case 7:
+		Shot(TEXT("TT_14_camera"));
+		break;
+	case 8:
+		Joe->CycleCamera(2);
+		break;
+	case 9:
+		Shot(TEXT("TT_15_camera2"));
+		break;
+	case 10:
+		Joe->StopCameraView();
+		Joe->TeleportForTest(Hospital->CellToWorld(FC(0, 11, 9)), 90.f);
+		break;
+	case 11:
+		LogFloor(TEXT("garage"));
+		Shot(TEXT("TT_16_garage"));
+		break;
+	case 12:
+		UE_LOG(LogTemp, Log, TEXT("[TT] Floors test end"));
+		FPlatformMisc::RequestExit(false);
+		break;
+	}
+	++AutoStep;
 }
 
 void ATTGameMode::UpdateCompanionTest()
@@ -483,9 +578,9 @@ void ATTGameMode::UpdateCompanionTest()
 	case 4:
 		// Harley is out in the lit corridor; the Hunter comes round the corner.
 		Harley->DebugForceGoal(1);
-		Harley->SetActorLocation(Hospital->CellToWorld(FIntPoint(11, 5), 92.f));
-		Hunter->SetActorLocation(Hospital->CellToWorld(FIntPoint(13, 5), 102.f));
-		Hunter->SetActorRotation(FRotator(0.f, 180.f, 0.f));
+		Harley->SetActorLocation(Hospital->CellToWorld(FC(5, 11, 5), 92.f));
+		Hunter->SetActorLocation(Hospital->CellToWorld(FC(5, 11, 9), 102.f));
+		Hunter->SetActorRotation(FRotator(0.f, -90.f, 0.f));
 		Hunter->Activate();
 		break;
 	case 5:
@@ -543,7 +638,7 @@ void ATTGameMode::UpdateSurviveTest()
 			Joe->GetItemCount(ETTItem::Grenade), Joe->GetItemCount(ETTItem::Smoke), Joe->GetItemCount(ETTItem::Bandage),
 			Joe->GetUsedSlots(), Joe->GetCapacity(), *Hunter->GetStateName());
 	};
-	const FVector Spot = Hospital->CellToWorld(FIntPoint(14, 8));
+	const FVector Spot = Hospital->CellToWorld(FC(5, 11, 11));
 	const float Times[] = { 1.f, 2.f, 5.f, 5.5f, 6.3f, 6.5f, 7.5f, 7.6f, 10.5f, 11.f, 12.6f, 13.25f, 15.f, 15.5f, 16.5f };
 	if (AutoStep >= UE_ARRAY_COUNT(Times) || AutoTime < Times[AutoStep])
 	{
@@ -557,8 +652,8 @@ void ATTGameMode::UpdateSurviveTest()
 	case 3:
 	{
 		Hunter->Freeze();
-		Hunter->SetActorLocation(Hospital->CellToWorld(FIntPoint(11, 8), 102.f));
-		Joe->TeleportForTest(Spot, 180.f);
+		Hunter->SetActorLocation(Hospital->CellToWorld(FC(5, 11, 8), 102.f));
+		Joe->TeleportForTest(Spot, -90.f);
 		Joe->LookAtPoint(Hunter->GetEyeLocation());
 		Joe->SetAiming(true);
 		break;
@@ -581,8 +676,8 @@ void ATTGameMode::UpdateSurviveTest()
 	case 10: Hunter->Activate(); break;
 	case 11: Shot(TEXT("TT_08_explosion")); break;
 	case 12:
-		Joe->TeleportForTest(Hospital->CellToWorld(FIntPoint(13, 8)), 180.f);
-		Joe->LookAtPoint(Hospital->CellToWorld(FIntPoint(11, 8), 120.f));
+		Joe->TeleportForTest(Hospital->CellToWorld(FC(5, 11, 11)), -90.f);
+		Joe->LookAtPoint(Hospital->CellToWorld(FC(5, 11, 8), 120.f));
 		Joe->ThrowSmoke();
 		break;
 	case 13: Shot(TEXT("TT_09_smoke_close")); break;
@@ -627,7 +722,7 @@ void ATTGameMode::UpdateAutomation(float DeltaSeconds)
 		{
 			Hunter->Freeze();
 		}
-		Player->TeleportForTest(Hospital->CellToWorld(FIntPoint(4, 5)), 0.f);
+		Player->TeleportForTest(Hospital->CellToWorld(FC(5, 5, 7)), 0.f);
 		break;
 	case 2:
 		Shot(TEXT("TT_02_corridor"));
@@ -636,7 +731,7 @@ void ATTGameMode::UpdateAutomation(float DeltaSeconds)
 		if (Hunter)
 		{
 			const FVector H = Hunter->GetActorLocation();
-			const FVector From = Hospital->CellToWorld(FIntPoint(14, 8));
+			const FVector From = Hospital->CellToWorld(FC(6, 9, 5));
 			Player->TeleportForTest(From, (H - From).Rotation().Yaw);
 			Player->LookAtPoint(Hunter->GetEyeLocation());
 		}
