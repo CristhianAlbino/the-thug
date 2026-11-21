@@ -1312,6 +1312,13 @@ void ATTHunter::Stun(float Seconds, bool bExplosion)
 	{
 		return;
 	}
+	if (Seconds >= 2.f)
+	{
+		if (ATTGameMode* GM = GetWorld()->GetAuthGameMode<ATTGameMode>())
+		{
+			GM->OnHunterStunned();
+		}
+	}
 	Aggression = FMath::Min(1.f, Aggression + (bExplosion ? 0.3f : 0.2f));
 	if (State == ETTHunterState::PursueCompanion)
 	{

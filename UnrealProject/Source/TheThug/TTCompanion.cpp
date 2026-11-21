@@ -9,6 +9,7 @@
 #include "TTAudio.h"
 #include "TTCompanionMind.h"
 #include "TTGameMode.h"
+#include "TTNarrative.h"
 #include "TTHospital.h"
 #include "TTHunter.h"
 #include "TTInteractables.h"
@@ -317,6 +318,10 @@ void ATTCompanion::UpdatePerception(float DeltaSeconds)
 		const float D = FVector::Dist(Hunter->GetActorLocation(), GetActorLocation());
 		// Sees him, or hears his heavy steps close by.
 		bSeesHunter = (D < 700.f && Hunter->GetVelocity().Size2D() > 30.f) || (!IsInLocker() && CanSee(Hunter, Hunter->GetEyeLocation(), 1600.f));
+		if (bSeesHunter && T - HunterSeenAt > 20.0)
+		{
+			++HunterSightings;
+		}
 		if (bSeesHunter)
 		{
 			HunterSeenAt = T;
@@ -667,6 +672,14 @@ void ATTCompanion::Talk(ATTPlayerCharacter* Joe)
 	JoeSeenLocation = Joe->GetActorLocation();
 	const FRotator Face = (Joe->GetActorLocation() - GetActorLocation()).Rotation();
 	SetActorRotation(FRotator(0.f, Face.Yaw, 0.f));
+	if (ATTGameMode* GM = GetWorld()->GetAuthGameMode<ATTGameMode>())
+	{
+		if (GM->GetNarrative() && GM->GetNarrative()->TryCompanionScene(this, Joe))
+		{
+			LineCooldown = 6.f;
+			return;
+		}
+	}
 
 	const float Trust = GetTrust();
 	if (Trust >= 40.f && !NextUnsharedRoute().IsEmpty())
@@ -685,7 +698,8 @@ void ATTCompanion::Talk(ATTPlayerCharacter* Joe)
 			Say(Trust >= 50.f ? TEXT("Joe, olha pra mim. A gente precisa sair daqui.") : TEXT("Então é isso? Você vai me deixar?"));
 			break;
 		case ETTCompanionId::Bartholomeu:
-			Say(Trust >= 50.f ? TEXT("A gente precisa sair daqui. Thomas morreu, Joe.") : TEXT("Não. Dessa vez eu vou sozinho."));
+			// Thomas's fate is never confirmed by a companion (NarrativeCore: only N34 / the coda).
+			Say(Trust >= 50.f ? TEXT("A gente precisa sair daqui. Você viu o que levou o Thomas, Joe?") : TEXT("Não. Dessa vez eu vou sozinho."));
 			break;
 		case ETTCompanionId::Jack:
 			Say(Trust >= 50.f ? TEXT("Ele não tá procurando a gente. Ele tá aprendendo.") : TEXT("Fala baixo. Ele ouve tudo."));
@@ -730,6 +744,13 @@ void ATTCompanion::RequestFollow(ATTPlayerCharacter* Joe)
 
 void ATTCompanion::OnReceivedAmmo()
 {
+	if (ATTGameMode* GM = GetWorld()->GetAuthGameMode<ATTGameMode>())
+	{
+		if (GM->GetNarrative())
+		{
+			GM->GetNarrative()->OnAmmoGiven(Id);
+		}
+	}
 	UE_LOG(LogTemp, Log, TEXT("[TT] %s received ammo -> %s"), *GetDisplayName(), *GetTraitSummary());
 	switch (Id)
 	{
@@ -836,11 +857,104 @@ void ATTCompanion::OnFriendTaken(const ATTCompanion* Friend)
 // ---------------------------------------------------------------------------
 // Tick
 
+void ATTCompanion::DebugFollow()
+{
+	if (State == ETTCompanionState::Dormant)
+	{
+		Activate();
+	}
+	SetState(ETTCompanionState::Following);
+}
+
+void ATTCompanion::DebugRelease()
+{
+	if (IsInLocker())
+	{
+		LeaveLocker();
+	}
+	if (IsActive())
+	{
+		Mover.Clear();
+		SetState(ETTCompanionState::Idle);
+		DecisionTimer = 30.f;
+	}
+}
+
+void ATTCompanion::ScriptMoveTo(const FVector& Goal, bool bRun, bool bActivateOnArrival)
+{
+	bScripted = Mover.Build(this, GetHospital(), Goal, GetJoe());
+	bScriptRun = bRun;
+	bScriptActivate = bActivateOnArrival;
+	if (!bScripted && bActivateOnArrival)
+	{
+		Activate();
+	}
+}
+
+void ATTCompanion::ScriptFace(const FVector& Point)
+{
+	SetActorRotation(FRotator(0.f, (Point - GetActorLocation()).Rotation().Yaw, 0.f));
+}
+
+void ATTCompanion::SetCostumeStage(int32 Stage)
+{
+	if (Id != ETTCompanionId::Jack || Stage <= CostumeStage || !Body)
+	{
+		return;
+	}
+	CostumeStage = Stage;
+	USceneComponent* Root = GetCapsuleComponent();
+	// Same silhouette, different clothes: a purple coat, then green, then a pale, fixed grin of a collar.
+	const FLinearColor Coat = Stage >= 3 ? FLinearColor(0.3f, 0.06f, 0.36f) : FLinearColor(0.2f, 0.07f, 0.24f);
+	Body->SetMaterial(0, TTShapes::MakeColor(Body, Coat, 0.6f));
+	if (Stage == 2 || (Stage == 3 && CostumeStage == 3))
+	{
+		TTShapes::AddPart(this, Root, TTShapes::Cylinder(), FVector(0.f, 0.f, 60.f), FVector(34.f, 34.f, 8.f), FLinearColor(0.08f, 0.35f, 0.08f), FRotator::ZeroRotator, false);
+	}
+	if (Stage >= 3)
+	{
+		TTShapes::AddPart(this, Root, TTShapes::Cube(), FVector(14.f, 0.f, 66.f), FVector(2.f, 14.f, 3.f), FLinearColor(0.6f, 0.05f, 0.08f), FRotator::ZeroRotator, false);
+	}
+	UE_LOG(LogTemp, Log, TEXT("[TT] Jack costume stage %d"), Stage);
+}
+
+void ATTCompanion::LeaveForGood()
+{
+	StartEscape();
+}
+
 void ATTCompanion::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+	if (bScripted)
+	{
+		ATTHospital* Hospital = GetHospital();
+		if (!Hospital || Mover.Follow(this, Hospital, DeltaSeconds, bScriptRun ? Speed::Flee : Speed::Walk))
+		{
+			bScripted = false;
+			if (bScriptActivate)
+			{
+				Activate();
+			}
+			else if (const ATTPlayerCharacter* Joe = GetJoe())
+			{
+				ScriptFace(Joe->GetActorLocation());
+			}
+		}
+		return;
+	}
 	if (!IsActive())
 	{
+		return;
+	}
+	if (TalkHold > 0.f)
+	{
+		TalkHold -= DeltaSeconds;
+		if (const ATTPlayerCharacter* Joe = GetJoe())
+		{
+			ScriptFace(Joe->GetActorLocation());
+		}
+		DecisionTimer = FMath::Max(DecisionTimer, 2.f);
 		return;
 	}
 	StateTime += DeltaSeconds;
@@ -1043,9 +1157,14 @@ void ATTCompanion::Tick(float DeltaSeconds)
 			SetState(ETTCompanionState::Escaped);
 			if (ATTGameMode* GM = GetWorld()->GetAuthGameMode<ATTGameMode>())
 			{
-				if (Joe && FVector::Dist(Joe->GetActorLocation(), GetActorLocation()) < 2600.f)
+				const bool bHeard = Joe && FVector::Dist(Joe->GetActorLocation(), GetActorLocation()) < 2600.f;
+				if (bHeard)
 				{
 					GM->ShowMessage(TEXT("Madeira sendo arrancada... alguém fugiu por uma janela."), 5.f);
+				}
+				if (GM->GetNarrative())
+				{
+					GM->GetNarrative()->OnCompanionEscaped(this, bHeard);
 				}
 			}
 		}

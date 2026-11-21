@@ -1,8 +1,8 @@
 """Playable blockout of the hospital (M05) for the Unreal prototype.
 
 Each floor is a 24x15 ASCII grid stacked vertically. This file is the authoring source;
-`python blockout_floors.py` validates the layouts and prints the C++ table that
-UnrealProject/Source/TheThug/TTHospitalLayout.inl embeds.
+`python blockout_floors.py` validates the layouts; `--write` regenerates
+UnrealProject/Source/TheThug/TTHospitalLayout.inl and TTHospitalZones.inl (`--emit` prints the floors).
 
 Legend (see also TTHospital.cpp):
   #  wall               .  floor              D  door               L  locker
@@ -21,6 +21,9 @@ Legend (see also TTHospital.cpp):
   G  generator switch (B1: restores power)                          q  garage gate control (G)
   R  radio (F1)   F  batteries (F2 servers)   Q  interference panel (F2 cameras)   T  helipad (roof)
   %  tunnel grate / ladder (B1 and G down to the tunnels)          !  storm drain exit (tunnels)
+  Narrative (M07):
+  d  document (id in DOCS below)    o  morgue slab (Thomas, Hard/Punitive only)
+  e  explosives  k  charge point  j  detonator  (Punitive "Destruicao" ending only)
 
 Stairwells: west at columns 1-2, east at columns 21-22, rows 1-4 on every floor.
 Even floors (G, F1, F3, R) leave the stairwell through row 4; odd floors (B1, F2, F4) through row 1.
@@ -42,9 +45,9 @@ FLOORS = [
         "#t.r.r..........r.r..t.#",
         "#t..........2.........v#",
         "#..r.r.r.*...r.r.r.r...#",
-        "#.....................t#",
+        "#...........k.........t#",
         "###D######..######D#####",
-        "#t.t.#..............#.t#",
+        "#tet.#..............#.t#",
         "#n%..D..@.....3.....D.q#",
         "#t*.c#......*.......#~.#",
         "###########X############",
@@ -54,14 +57,14 @@ FLOORS = [
         "#SS.....g.~....*.....SS#",
         "#SS####D####.####D###SS#",
         "#SS#t.t.t#.1.#G.t.C#.SS#",
-        "#SS#..*..D...D..~..#.SS#",
+        "#SS#d.*..D...D..~.k#.SS#",
         "####t.t.t#...#t...t#.###",
         "#.L#######...#######...#",
         "#V.D.....*.2.......D.Lv#",
         "#.L#######...#######...#",
-        "####m.m.m#...#t.a.t#####",
+        "####m.m.m#...#t.adt#####",
         "#..D..~..D.3.D..*..D...#",
-        "#..#m.m.m#...#t.t%t#...#",
+        "#..#m.o.m#...#t.t%t#...#",
         "#.*#######.*.#######.n.#",
         "#.....................b#",
         "########################",
@@ -70,7 +73,7 @@ FLOORS = [
         "########################",
         "#SS..~....@........*.SS#",
         "#SS.####D#...#D#####.SS#",
-        "#SS.#t...#...#....N#.SS#",
+        "#SS.#t...#d..#....N#.SS#",
         "#SS..t.*.D.1.D..*.L#.SS#",
         "###.#t...#...#....t#.###",
         "#M..#####D...#D#####..a#",
@@ -78,8 +81,8 @@ FLOORS = [
         "#...#####D...D######...#",
         "#.L.#m.m.#...#tRt..#...#",
         "#.*.D..~.D.3.D..*.tD.*.#",
-        "#.L.#m.m.#...#t....#..L#",
-        "#...######...########..#",
+        "#.L.#m.m.#...#t...d#..L#",
+        "#...######..k########..#",
         "#.....b.....*........E.#",
         "########################",
     ]),
@@ -87,15 +90,15 @@ FLOORS = [
         "########################",
         "#SS.....@.....~......SS#",
         "#SS####D###...###D###SS#",
-        "#SS#tBt.t#.1.#t.t.=#.SS#",
-        "#SS#..*..D...D..*..#.SS#",
-        "####t.t.t#...#O.Q.t#.###",
+        "#SS#tBt.t#.1.#tdt.=#.SS#",
+        "#SS#d.*..D...D..*..#.SS#",
+        "####t.t.t#...#O.Qdt#.###",
         "#.t#######...#######.t.#",
         "#V.D.....*.2.......D.L.#",
         "#.L#######...#######...#",
         "####t.t.c#...#t.Z.t#####",
         "#t.D..~..D.3.D..*..D..t#",
-        "#t.#t.F.t#...#t.t.t#.n.#",
+        "#t.#tdF.t#...#t.t.t#.n.#",
         "#.*#######.*.#######...#",
         "#.....................E#",
         "########################",
@@ -104,15 +107,15 @@ FLOORS = [
         "########################",
         "#SS.....*.....~......SS#",
         "#SS.####D#...#D#####.SS#",
-        "#SS.#t.t.#...#m.m.m#.SS#",
+        "#SS.#t.td#...#m.m.m#.SS#",
         "#SS..t*t.D.1.D..*..#.SS#",
         "###.#....#...#m.m.m#.###",
-        "#.L.#####D...#D#####.L.#",
+        "#dL.#####D...#D#####.L.#",
         "#V..D..*...2.....~.D...#",
         "#########D...D######...#",
         "#.i.#m.m.#...#t.t..#...#",
         "#.iiI..*.D.3.D..*..D...W",
-        "#.i.#m.L.#...#t.L..#...#",
+        "#.i.#m.Ld#...#t.L..#...#",
         "##########.@.########..#",
         "#.....x...........g..E.#",
         "########################",
@@ -165,10 +168,92 @@ FLOORS = [
         "#.#.###.#.#########.#.##",
         "#.#.....#.......#%..#..#",
         "#.%##########.#.#####..#",
-        "#..~..........#........#",
+        "#..~.j........#........#",
         "########################",
     ]),
 ]
+
+# Narrative anchors: which hospital_graph.json node each cell belongs to (first match wins).
+# Stairwells are added automatically (<floor>_ST_W / _ST_E). The last rect of a floor is its default.
+ZONES = {
+    "F4": [("F4_START", 4, 9, 8, 11), ("F4_NURSE", 14, 9, 18, 11), ("F4_WARD_W", 4, 3, 8, 5),
+           ("F4_WARD_E", 14, 3, 18, 5), ("F4_OBSERVATION", 20, 6, 22, 9), ("F4_LIFT", 20, 12, 22, 13),
+           ("F4_SERVICE", 1, 7, 1, 7), ("F4_STORAGE", 1, 6, 2, 12), ("F4_BATH", 1, 13, 9, 13),
+           ("F4_HALL_E", 10, 1, 22, 13), ("F4_HALL_W", 0, 0, 23, 14)],
+    "F3": [("F3_EXAMS", 5, 3, 8, 5), ("F3_ICU", 14, 3, 18, 5), ("F3_UTILITY", 5, 9, 8, 11),
+           ("F3_ISOLATION", 1, 9, 4, 11), ("F3_SURGERY", 14, 9, 18, 11), ("F3_WINDOW", 20, 8, 22, 11),
+           ("F3_LIFT", 20, 12, 22, 13), ("F3_PIPE", 1, 7, 1, 7), ("F3_RECOVERY", 13, 7, 22, 7),
+           ("F3_HALL_W", 0, 0, 4, 14), ("F3_CENTRAL", 0, 0, 23, 14)],
+    "F2": [("F2_ARCHIVE", 4, 3, 8, 5), ("F2_CAMERAS", 14, 3, 18, 4), ("F2_SECURITY", 14, 5, 18, 5),
+           ("F2_SUPPLY", 4, 9, 8, 9), ("F2_SERVER", 4, 10, 8, 11), ("F2_SAFE", 14, 9, 18, 11),
+           ("F2_SERVICE", 1, 6, 2, 8), ("F2_LIFT", 20, 12, 22, 13), ("F2_MEETING", 20, 6, 22, 11),
+           ("F2_ADMIN", 3, 7, 19, 7), ("F2_CENTRAL", 0, 0, 23, 14)],
+    "F1": [("F1_PHARMACY", 5, 3, 8, 5), ("F1_SECURITY", 14, 3, 18, 5), ("F1_TREATMENT", 5, 9, 8, 11),
+           ("F1_RADIO", 14, 9, 18, 11), ("F1_SERVICE", 1, 7, 1, 7), ("F1_TRIAGE", 1, 6, 3, 12),
+           ("F1_LIFT", 20, 12, 22, 13), ("F1_LOADING", 20, 6, 22, 11), ("F1_EMERGENCY", 3, 7, 19, 7),
+           ("F1_LOBBY", 0, 0, 23, 14)],
+    "B1": [("B1_GENERATOR", 14, 3, 18, 5), ("B1_STORAGE", 4, 3, 8, 5), ("B1_MORGUE", 4, 9, 8, 11),
+           ("B1_TUNNEL", 17, 11, 17, 11), ("B1_PUMP", 14, 9, 18, 11), ("B1_PIPE", 1, 7, 1, 7),
+           ("B1_LAUNDRY", 1, 6, 2, 13), ("B1_LIFT", 20, 12, 22, 13), ("B1_VALVE", 20, 6, 22, 11),
+           ("B1_CENTRAL", 0, 0, 23, 14)],
+    "G": [("G_TUNNEL_LINK", 2, 12, 2, 12), ("G_MAINT", 1, 11, 4, 13), ("G_CONTROL", 21, 11, 22, 13),
+          ("G_GATE", 6, 11, 19, 13), ("G_VEHICLES", 3, 6, 19, 8), ("G_FLOOR", 0, 0, 23, 14)],
+    "R": [("R_PAD", 9, 10, 15, 13), ("R_LEDGE", 1, 13, 22, 13), ("R_HVAC", 0, 0, 23, 14)],
+    "T": [("T_EXIT", 19, 1, 22, 1), ("T_PUMP", 1, 11, 7, 13), ("T_VALVE", 15, 9, 22, 13),
+          ("T_DEAD_A", 1, 1, 7, 5), ("T_DEAD_B", 9, 3, 16, 5), ("T_LOOP", 1, 6, 22, 8),
+          ("T_FORK", 0, 0, 23, 14)],
+}
+
+# Documents (campaign DOC06-DOC16). DOC01-DOC05 are the escape-route stations A/B/C/N/O.
+DOCS = {
+    ("B1", 17, 9): "DOC06", ("F3", 8, 11): "DOC07", ("F1", 18, 11): "DOC08", ("F2", 15, 3): "DOC09",
+    ("F3", 8, 3): "DOC10", ("F2", 5, 11): "DOC11", ("F1", 10, 3): "DOC12", ("F2", 4, 4): "DOC13",
+    ("F3", 1, 6): "DOC14", ("B1", 4, 4): "DOC15", ("F2", 17, 5): "DOC16",
+}
+STATIONS = set("ABCNOZGqRFQTdekjo")
+
+
+def zone_rects(fid, stairs):
+    rects = []
+    if stairs:
+        rects += [(f"{fid}_ST_W", 1, 1, 2, 4), (f"{fid}_ST_E", 21, 1, 22, 4)]
+    return rects + ZONES[fid]
+
+
+def validate_zones():
+    import json
+    from pathlib import Path
+    graph = json.loads((Path(__file__).resolve().parent / "hospital_graph.json").read_text(encoding="utf-8"))
+    nodes = {n["id"] for n in graph["nodes"]}
+    ok = True
+    used = set()
+    for idx, (fid, name, outdoor, z, stairs, rows) in enumerate(FLOORS):
+        if fid not in ZONES:
+            print(f"{fid}: no zones"); ok = False; continue
+        for node, x0, y0, x1, y1 in zone_rects(fid, stairs):
+            if node not in nodes:
+                print(f"{fid}: zone {node} is not a hospital_graph node"); ok = False
+            if not (0 <= x0 <= x1 < W and 0 <= y0 <= y1 < H):
+                print(f"{fid}: zone {node} out of bounds"); ok = False
+        if ZONES[fid][-1][1:] != (0, 0, W - 1, H - 1):
+            print(f"{fid}: last zone must be the floor default"); ok = False
+        for y, row in enumerate(rows):
+            for x, ch in enumerate(row):
+                if ch == "d":
+                    if (fid, x, y) not in DOCS:
+                        print(f"{fid}: document at ({x},{y}) has no id"); ok = False
+                    used.add((fid, x, y))
+                if ch in STATIONS and not any(
+                        0 <= x + dx < W and 0 <= y + dy < H and rows[y + dy][x + dx] in WALKABLE
+                        for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1))):
+                    print(f"{fid}: station {ch} at ({x},{y}) cannot be reached"); ok = False
+    for key in DOCS:
+        if key not in used:
+            print(f"document {DOCS[key]} at {key} is not a 'd' cell"); ok = False
+    if len(set(DOCS.values())) != len(DOCS):
+        print("duplicate document ids"); ok = False
+    return ok
+
 
 FLOOR_HEIGHT = 400
 STAIRS = [(1, 1), (21, 1)]  # (lane A column, top row) for west and east stairwells
@@ -284,6 +369,19 @@ def validate():
     return ok
 
 
+def emit_zones():
+    out = ["// Generated by Tools/MapCore/blockout_floors.py — edit the Python file, not this one.", "",
+           "const FZoneSource ZoneSources[] = {"]
+    for fid, name, outdoor, z, stairs, rows in FLOORS:
+        for node, x0, y0, x1, y1 in zone_rects(fid, stairs):
+            out.append(f"\t{{ TEXT(\"{fid}\"), TEXT(\"{node}\"), {x0}, {y0}, {x1}, {y1} }},")
+    out += ["};", "", "const FDocSource DocSources[] = {"]
+    for (fid, x, y), doc in sorted(DOCS.items(), key=lambda kv: kv[1]):
+        out.append(f"\t{{ TEXT(\"{fid}\"), {x}, {y}, TEXT(\"{doc}\") }},")
+    out += ["};", ""]
+    return "\n".join(out)
+
+
 def emit():
     out = ["// Generated by Tools/MapCore/blockout_floors.py — edit the Python file, not this one.", ""]
     for idx, (fid, name, outdoor, z, stairs, rows) in enumerate(FLOORS):
@@ -295,7 +393,13 @@ def emit():
 
 
 if __name__ == "__main__":
-    good = validate()
+    good = validate() and validate_zones()
     if "--emit" in sys.argv:
         print(emit())
+    if "--write" in sys.argv and good:
+        from pathlib import Path
+        src = Path(__file__).resolve().parents[2] / "UnrealProject" / "Source" / "TheThug"
+        (src / "TTHospitalLayout.inl").write_text("\ufeff" + emit() + "\n", encoding="utf-8", newline="\n")
+        (src / "TTHospitalZones.inl").write_text("\ufeff" + emit_zones(), encoding="utf-8", newline="\n")
+        print("wrote TTHospitalLayout.inl and TTHospitalZones.inl")
     sys.exit(0 if good else 1)

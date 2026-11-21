@@ -5,6 +5,7 @@
 #include "Misc/CommandLine.h"
 #include "Misc/Parse.h"
 #include "TTGameMode.h"
+#include "TTNarrative.h"
 #include "TTInteractables.h"
 #include "TTPlayerCharacter.h"
 
@@ -98,6 +99,25 @@ void ATTPlayerController::PlayerTick(float DeltaTime)
 		break;
 	}
 
+	if (ATTNarrative* Story = GM->GetNarrative())
+	{
+		if (Story->IsReading())
+		{
+			if (Pressed(EKeys::E) || Pressed(EKeys::Escape) || Pressed(EKeys::Enter) || Pressed(EKeys::SpaceBar))
+			{
+				Story->CloseDocument();
+			}
+			if (Joe)
+			{
+				Joe->SetMoveInput(FVector2D::ZeroVector);
+			}
+			return;
+		}
+		if (Story->IsIntroRunning() && Pressed(EKeys::Enter))
+		{
+			Story->SkipIntro();
+		}
+	}
 	if (GM->IsKeypadActive())
 	{
 		static const FKey Digits[] = { EKeys::Zero, EKeys::One, EKeys::Two, EKeys::Three, EKeys::Four, EKeys::Five, EKeys::Six, EKeys::Seven, EKeys::Eight, EKeys::Nine };

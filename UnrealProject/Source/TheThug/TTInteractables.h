@@ -226,14 +226,17 @@ class THETHUG_API ATTStation : public ATTInteractable
 	GENERATED_BODY()
 
 public:
-	void Setup(ETTStation InKind);
+	void Setup(ETTStation InKind, const FString& InTag = FString());
 	virtual FString GetPrompt(const ATTPlayerCharacter* Player) const override;
 	virtual void Interact(ATTPlayerCharacter* Player) override;
 	ETTStation GetKind() const { return Kind; }
+	/** Document id (DOC06...) or other narrative tag. */
+	const FString& GetTag() const { return Tag; }
 	void SetStatus(const FLinearColor& Color);
 
 private:
 	ETTStation Kind = ETTStation::ClueA;
+	FString Tag;
 
 	UPROPERTY()
 	TObjectPtr<UMaterialInstanceDynamic> StatusGlow;

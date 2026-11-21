@@ -22,6 +22,10 @@ private:
 	void DrawPause();
 	void DrawCaptured();
 	void DrawEscaped();
+	void DrawNarrative();
+	void DrawEpilogue(float Top);
+	/** Word-wrapped text; returns the Y below the last line. */
+	float DrawWrapped(const FString& Text, float X, float Y, float MaxWidth, UFont* Font, float Scale, const FLinearColor& Color);
 
 	float UI = 1.f;
 };

@@ -98,6 +98,23 @@ public:
 		return Found != nullptr;
 	}
 
+	/** hospital_graph.json node (F4_START, B1_MORGUE...) a location belongs to (TTHospitalZones.inl). */
+	FString GetZoneAt(const FVector& Location) const;
+	FString GetZoneOfCell(const FIntPoint& Cell) const;
+
+	/** Narrative cells: d (document + id), o (morgue slab), e/k/j (Punitive explosives, charges, detonator). */
+	struct FStoryCell
+	{
+		TCHAR Char = 0;
+		FIntPoint Cell = FIntPoint::ZeroValue;
+		FString DocId;
+	};
+	const TArray<FStoryCell>& GetStoryCells() const { return StoryCells; }
+	/** Yaw a device on Cell should face (towards its first walkable neighbour). */
+	float FacingYawForDevice(const FIntPoint& Cell) const;
+	/** Cell by local floor coordinates. */
+	FIntPoint MakeCell(int32 Floor, int32 X, int32 Y) const { return FIntPoint(Floor * Stride + X, Y); }
+
 	/** 0 = darkness, 1 = standing under a working lamp. */
 	float GetLightLevelAt(const FVector& Location, const AActor* IgnoreActor = nullptr) const;
 
@@ -158,6 +175,7 @@ private:
 	TSet<FIntPoint> GlassCells;
 	TMap<int32, FIntPoint> CompanionStarts;
 	TArray<FString> SecurityCameraNames;
+	TArray<FStoryCell> StoryCells;
 	TSet<int32> BrokenCameras;
 	int32 LastCullFloor = -1;
 	float CullTimer = 0.f;

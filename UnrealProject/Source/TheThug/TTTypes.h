@@ -44,7 +44,13 @@ enum class ETTStation : uint8
 	Radio,
 	Interference,
 	Helipad,
-	TunnelExit
+	TunnelExit,
+	// Narrative (M07)
+	Document,
+	ThomasBody,
+	Explosives,
+	Charge,
+	Detonator
 };
 
 /** Items Joe can carry (ids match the SurvivalCore inventory catalog). */

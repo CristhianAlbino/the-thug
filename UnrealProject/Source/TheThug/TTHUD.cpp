@@ -9,6 +9,7 @@
 #include "TTHospital.h"
 #include "TTHunter.h"
 #include "TTInteractables.h"
+#include "TTNarrative.h"
 #include "TTPlayerCharacter.h"
 #include "TTPlayerController.h"
 
@@ -17,6 +18,11 @@ namespace
 	ATTGameMode* GetGM(const AActor* Context)
 	{
 		return Context->GetWorld()->GetAuthGameMode<ATTGameMode>();
+	}
+
+	const ATTGameMode* GetWM(const AActor* Context)
+	{
+		return GetGM(Context);
 	}
 
 	const FLinearColor Pale(0.85f, 0.86f, 0.82f);
@@ -43,6 +49,145 @@ void ATTHUD::DrawCentered(const FString& Text, float Y, UFont* Font, float Scale
 	DrawText(Text, Color, (Canvas->ClipX - W) * 0.5f, Y, Font, Scale);
 }
 
+float ATTHUD::DrawWrapped(const FString& Text, float X, float Y, float MaxWidth, UFont* Font, float Scale, const FLinearColor& Color)
+{
+	TArray<FString> Paragraphs;
+	Text.ParseIntoArray(Paragraphs, TEXT("\n"), false);
+	float LineH = 0.f;
+	float Tmp = 0.f;
+	GetTextSize(TEXT("Ag"), Tmp, LineH, Font, Scale);
+	for (const FString& Paragraph : Paragraphs)
+	{
+		TArray<FString> Words;
+		Paragraph.ParseIntoArrayWS(Words);
+		FString Line;
+		for (const FString& Word : Words)
+		{
+			const FString Candidate = Line.IsEmpty() ? Word : Line + TEXT(" ") + Word;
+			float W = 0.f;
+			float Hh = 0.f;
+			GetTextSize(Candidate, W, Hh, Font, Scale);
+			if (W > MaxWidth && !Line.IsEmpty())
+			{
+				DrawText(Line, Color, X, Y, Font, Scale);
+				Y += LineH * 1.15f;
+				Line = Word;
+			}
+			else
+			{
+				Line = Candidate;
+			}
+		}
+		DrawText(Line, Color, X, Y, Font, Scale);
+		Y += LineH * 1.15f;
+	}
+	return Y;
+}
+
+void ATTHUD::DrawNarrative()
+{
+	const ATTGameMode* GM = GetWM(this);
+	ATTNarrative* Story = GM ? GM->GetNarrative() : nullptr;
+	if (!Story)
+	{
+		return;
+	}
+	const float W = Canvas->ClipX;
+	const float H = Canvas->ClipY;
+	UFont* Large = GEngine->GetLargeFont();
+	UFont* Medium = GEngine->GetMediumFont();
+
+	FString Title;
+	float CardAlpha = 0.f;
+	if (Story->GetChapterCard(Title, CardAlpha))
+	{
+		DrawCentered(Title, H * 0.16f, Large, 1.4f * UI, FLinearColor(Pale.R, Pale.G, Pale.B, CardAlpha * 0.85f));
+	}
+
+	FString Speaker;
+	FString Text;
+	float Alpha = 0.f;
+	if (Story->GetCurrentLine(Speaker, Text, Alpha))
+	{
+		FLinearColor Who(0.75f, 0.8f, 0.9f);
+		if (Speaker == TEXT("Joe")) Who = FLinearColor(0.9f, 0.85f, 0.7f);
+		else if (Speaker == TEXT("Harley")) Who = FLinearColor(0.95f, 0.45f, 0.5f);
+		else if (Speaker == TEXT("Bartholomeu")) Who = FLinearColor(0.85f, 0.65f, 0.4f);
+		else if (Speaker == TEXT("Jack")) Who = FLinearColor(0.7f, 0.75f, 0.7f);
+		else if (Speaker == TEXT("Thomas")) Who = FLinearColor(0.55f, 0.8f, 0.55f);
+		else if (Speaker.StartsWith(TEXT("Rádio"))) Who = FLinearColor(0.6f, 0.8f, 0.6f);
+		else if (Speaker == TEXT("Robin")) Who = FLinearColor(0.9f, 0.3f, 0.25f);
+		const FString Shown = Speaker.IsEmpty() ? Text : FString::Printf(TEXT("%s:  %s"), *Speaker, *Text);
+		float TW = 0.f;
+		float TH = 0.f;
+		GetTextSize(Shown, TW, TH, Medium, 1.2f * UI);
+		const float X = (W - TW) * 0.5f;
+		const float Y = H * 0.85f;
+		const float Pad = 10.f * UI;
+		DrawRect(FLinearColor(0.f, 0.f, 0.f, 0.6f * Alpha), X - Pad, Y - Pad * 0.4f, TW + 2.f * Pad, TH + Pad * 0.8f);
+		if (Speaker.IsEmpty())
+		{
+			DrawText(Shown, FLinearColor(0.7f, 0.7f, 0.68f, Alpha), X, Y, Medium, 1.2f * UI);
+		}
+		else
+		{
+			const FString Prefix = Speaker + TEXT(":  ");
+			float PW = 0.f;
+			float PH = 0.f;
+			GetTextSize(Prefix, PW, PH, Medium, 1.2f * UI);
+			DrawText(Prefix, FLinearColor(Who.R, Who.G, Who.B, Alpha), X, Y, Medium, 1.2f * UI);
+			DrawText(Text, FLinearColor(0.92f, 0.92f, 0.9f, Alpha), X + PW, Y, Medium, 1.2f * UI);
+		}
+	}
+
+	if (Story->IsIntroRunning())
+	{
+		DrawText(TEXT("[Enter] pular introdução"), FLinearColor(0.45f, 0.45f, 0.43f), W - 300.f * UI, H - 50.f * UI, Medium, 0.9f * UI);
+	}
+
+	if (Story->IsReading())
+	{
+		// A sheet of paper under the flashlight; the world keeps going behind it.
+		const float PW = FMath::Min(W * 0.52f, 1000.f * UI);
+		const float PH = H * 0.5f;
+		const float PX = (W - PW) * 0.5f;
+		const float PY = (H - PH) * 0.42f;
+		DrawRect(FLinearColor(0.f, 0.f, 0.f, 0.45f), 0.f, 0.f, W, H);
+		DrawRect(FLinearColor(0.72f, 0.69f, 0.6f, 0.97f), PX, PY, PW, PH);
+		DrawRect(FLinearColor(0.55f, 0.5f, 0.42f, 0.6f), PX, PY, PW, 6.f * UI);
+		const FLinearColor Ink(0.1f, 0.09f, 0.08f);
+		float Y = PY + 36.f * UI;
+		Y = DrawWrapped(Story->GetReadingTitle(), PX + 44.f * UI, Y, PW - 88.f * UI, Medium, 1.9f * UI, Ink);
+		Y += 24.f * UI;
+		DrawWrapped(Story->GetReadingBody(), PX + 44.f * UI, Y, PW - 88.f * UI, Medium, 1.55f * UI, Ink);
+		DrawCentered(TEXT("[E] guardar"), PY + PH - 46.f * UI, Medium, 1.f * UI, FLinearColor(0.3f, 0.28f, 0.25f));
+	}
+}
+
+void ATTHUD::DrawEpilogue(float Top)
+{
+	const ATTGameMode* GM = GetWM(this);
+	ATTNarrative* Story = GM ? GM->GetNarrative() : nullptr;
+	if (!Story || Story->GetEpilogue().Num() == 0)
+	{
+		return;
+	}
+	const float W = Canvas->ClipX;
+	UFont* Medium = GEngine->GetMediumFont();
+	const float ColW = FMath::Min(W * 0.62f, 1200.f * UI);
+	const float X = (W - ColW) * 0.5f;
+	float Y = Top;
+	for (const FTTEpilogueBlock& Block : Story->GetEpilogue())
+	{
+		if (!Block.Title.IsEmpty())
+		{
+			DrawText(Block.Title, Block.bCoda ? FLinearColor(0.85f, 0.2f, 0.15f) : FLinearColor(0.8f, 0.78f, 0.7f), X, Y, Medium, 0.95f * UI);
+			Y += 26.f * UI;
+		}
+		Y = DrawWrapped(Block.Text, X, Y, ColW, Medium, 1.f * UI, Block.bCoda ? FLinearColor(0.85f, 0.7f, 0.65f) : Dim) + 14.f * UI;
+	}
+}
+
 void ATTHUD::DrawHUD()
 {
 	Super::DrawHUD();
@@ -61,8 +206,8 @@ void ATTHUD::DrawHUD()
 	switch (GM->GetPhase())
 	{
 	case ETTGamePhase::Title: DrawTitle(); break;
-	case ETTGamePhase::Playing: DrawPlaying(); break;
-	case ETTGamePhase::Paused: DrawPlaying(); DrawPause(); break;
+	case ETTGamePhase::Playing: DrawPlaying(); DrawNarrative(); break;
+	case ETTGamePhase::Paused: DrawPlaying(); DrawNarrative(); DrawPause(); break;
 	case ETTGamePhase::Captured: DrawCaptured(); break;
 	case ETTGamePhase::Escaped: DrawEscaped(); break;
 	}
@@ -100,7 +245,7 @@ void ATTHUD::DrawTitle()
 
 	const float Pulse = 0.55f + 0.45f * FMath::Sin(GetWorld()->GetRealTimeSeconds() * 2.5f);
 	DrawCentered(TEXT("ENTER para começar        ESC para sair"), H * 0.80f, Medium, 1.2f * UI, FLinearColor(Pale.R, Pale.G, Pale.B, Pulse));
-	DrawCentered(TEXT("Protótipo M01"), H * 0.94f, Medium, 0.8f * UI, FLinearColor(0.3f, 0.3f, 0.3f));
+	DrawCentered(TEXT("Protótipo · M07 narrativa"), H * 0.94f, Medium, 0.8f * UI, FLinearColor(0.3f, 0.3f, 0.3f));
 }
 
 void ATTHUD::DrawPlaying()
@@ -384,10 +529,14 @@ void ATTHUD::DrawCaptured()
 	{
 		UFont* Large = GEngine->GetLargeFont();
 		UFont* Medium = GEngine->GetMediumFont();
-		DrawCentered(GM->GetEndTitle(), H * 0.36f, Large, 2.4f * UI, FLinearColor(0.8f, 0.1f, 0.08f));
-		DrawCentered(GM->GetEndSubtitle(), H * 0.47f, Medium, 1.1f * UI, Dim);
-		DrawCentered(FString::Printf(TEXT("Tempo sobrevivido: %s"), *FormatTime(GM->GetRunTime())), H * 0.53f, Medium, 1.f * UI, Dim);
-		DrawCentered(TEXT("R / ENTER  tentar de novo        ESC  sair"), H * 0.66f, Medium, 1.1f * UI, Pale);
+		DrawCentered(GM->GetEndTitle(), H * 0.12f, Large, 2.4f * UI, FLinearColor(0.8f, 0.1f, 0.08f));
+		DrawCentered(GM->GetEndSubtitle(), H * 0.23f, Medium, 1.1f * UI, Dim);
+		DrawCentered(FString::Printf(TEXT("Tempo sobrevivido: %s"), *FormatTime(GM->GetRunTime())), H * 0.28f, Medium, 1.f * UI, Dim);
+		if (T > 2.5f)
+		{
+			DrawEpilogue(H * 0.35f);
+		}
+		DrawCentered(TEXT("R / ENTER  tentar de novo        ESC  sair"), H * 0.92f, Medium, 1.1f * UI, Pale);
 	}
 }
 
@@ -403,9 +552,13 @@ void ATTHUD::DrawEscaped()
 	{
 		UFont* Large = GEngine->GetLargeFont();
 		UFont* Medium = GEngine->GetMediumFont();
-		DrawCentered(TEXT("VOCÊ ESCAPOU"), H * 0.36f, Large, 2.4f * UI, Pale);
-		DrawCentered(GM->GetEndSubtitle(), H * 0.47f, Medium, 1.1f * UI, Dim);
-		DrawCentered(FString::Printf(TEXT("Tempo: %s"), *FormatTime(GM->GetRunTime())), H * 0.53f, Medium, 1.f * UI, Dim);
-		DrawCentered(TEXT("R / ENTER  jogar de novo        ESC  sair"), H * 0.66f, Medium, 1.1f * UI, Pale);
+		DrawCentered(GM->GetEndTitle().IsEmpty() ? FString(TEXT("VOCÊ ESCAPOU")) : GM->GetEndTitle(), H * 0.12f, Large, 2.4f * UI, Pale);
+		DrawCentered(GM->GetEndSubtitle(), H * 0.23f, Medium, 1.1f * UI, Dim);
+		DrawCentered(FString::Printf(TEXT("Tempo: %s"), *FormatTime(GM->GetRunTime())), H * 0.28f, Medium, 1.f * UI, Dim);
+		if (T > 2.5f)
+		{
+			DrawEpilogue(H * 0.35f);
+		}
+		DrawCentered(TEXT("R / ENTER  jogar de novo        ESC  sair"), H * 0.92f, Medium, 1.1f * UI, Pale);
 	}
 }

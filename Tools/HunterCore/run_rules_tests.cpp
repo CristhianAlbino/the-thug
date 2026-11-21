@@ -107,6 +107,36 @@ void ClockValidationAndFailure() {
         "Defeat cannot be replaced by escape");
 }
 
+void RareEndings() {
+  for (Difficulty d : {Difficulty::Normal, Difficulty::Hard, Difficulty::Punitive}) {
+    RunRules run(d);
+    Check(!run.Apply(Event::CoordinatedConfrontation, 1),
+          "Confrontation is an Easy-only exception");
+    Check(run.Result() == Ending::None, "Rejected confrontation changes nothing");
+  }
+  RunRules easy(Difficulty::Easy);
+  Check(easy.Apply(Event::CoordinatedConfrontation, 2), "Easy confrontation");
+  Check(easy.Result() == Ending::Confrontation, "Confrontation ending");
+  Check(!easy.Apply(Event::HospitalDestroyed, 3), "Ending is terminal");
+
+  for (Difficulty d : {Difficulty::Easy, Difficulty::Normal, Difficulty::Hard}) {
+    RunRules run(d);
+    Check(!run.Apply(Event::HospitalDestroyed, 1),
+          "Destruction is a Punitive-only exception");
+  }
+  RunRules punitive(Difficulty::Punitive);
+  Check(punitive.Apply(Event::HospitalDestroyed, 4), "Punitive destruction");
+  Check(punitive.Result() == Ending::Destruction, "Destruction ending");
+
+  RunRules restored(Difficulty::Punitive);
+  Check(restored.RestoreSnapshot(punitive.CaptureSnapshot()),
+        "Destruction survives a snapshot");
+  RunRules wrong(Difficulty::Easy);
+  RunSnapshot forged = punitive.CaptureSnapshot();
+  forged.difficulty = Difficulty::Easy;
+  Check(!wrong.RestoreSnapshot(forged), "Destruction cannot be restored in Easy");
+}
+
 } // namespace
 
 int main() {
@@ -115,6 +145,7 @@ int main() {
     HelicopterDeadline();
     WindowAndDawn();
     ClockValidationAndFailure();
+    RareEndings();
     std::cout << "RunRules: " << assertions << " checks passed\n";
   } catch (const std::exception& error) {
     std::cerr << "RunRules test failed after " << assertions

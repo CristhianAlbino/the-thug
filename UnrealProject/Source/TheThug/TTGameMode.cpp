@@ -27,6 +27,7 @@ struct FTTRunState
 	explicit FTTRunState(tr::Difficulty D) : Rules(D) {}
 };
 #include "TTHospital.h"
+#include "TTNarrative.h"
 #include "TTHunter.h"
 #include "TTInteractables.h"
 #include "TTPlayerCharacter.h"
@@ -46,6 +47,7 @@ void ATTGameMode::InitGame(const FString& MapName, const FString& Options, FStri
 {
 	Super::InitGame(MapName, Options, ErrorMessage);
 	bSkipTitle = UGameplayStatics::HasOption(Options, TEXT("skiptitle"));
+	bNoIntro = UGameplayStatics::HasOption(Options, TEXT("nointro"));
 	Difficulty = static_cast<ETTDifficulty>(FMath::Clamp(UGameplayStatics::GetIntOption(Options, TEXT("diff"), 1), 0, 3));
 	int32 CommandLineDifficulty = -1;
 	if (FParse::Value(FCommandLine::Get(), TEXT("ttdiff="), CommandLineDifficulty))
@@ -60,6 +62,7 @@ void ATTGameMode::InitGame(const FString& MapName, const FString& Options, FStri
 	bCompanionTest = FParse::Param(FCommandLine::Get(), TEXT("ttcomp"));
 	bFloorsTest = FParse::Param(FCommandLine::Get(), TEXT("ttfloors"));
 	bRouteTest = FParse::Value(FCommandLine::Get(), TEXT("ttroute="), RouteTest);
+	FParse::Value(FCommandLine::Get(), TEXT("ttstory="), StoryTest);
 }
 
 void ATTGameMode::EnsureWorld()
@@ -72,6 +75,8 @@ void ATTGameMode::EnsureWorld()
 	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	Hospital = GetWorld()->SpawnActor<ATTHospital>(ATTHospital::StaticClass(), FVector::ZeroVector, FRotator::ZeroRotator, Params);
 	Hospital->Build();
+
+	Narrative = GetWorld()->SpawnActor<ATTNarrative>(ATTNarrative::StaticClass(), FVector::ZeroVector, FRotator::ZeroRotator, Params);
 
 	const FVector HunterLoc = Hospital->CellToWorld(Hospital->GetHunterStartCell(), 102.f);
 	Hunter = GetWorld()->SpawnActor<ATTHunter>(ATTHunter::StaticClass(), HunterLoc, FRotator(0.f, 180.f, 0.f), Params);
@@ -116,7 +121,7 @@ void ATTGameMode::BeginPlay()
 	AmbientComponent = UGameplayStatics::SpawnSound2D(this, AmbientWave, 0.55f, 1.f, 0.f, nullptr, false, false);
 
 	SetPhase(ETTGamePhase::Title);
-	if (bSkipTitle || bAutomation || bAITest || bLearnTest || bSurviveTest || bCompanionTest || bFloorsTest || bRouteTest)
+	if (bSkipTitle || bAutomation || bAITest || bLearnTest || bSurviveTest || bCompanionTest || bFloorsTest || bRouteTest || !StoryTest.IsEmpty())
 	{
 		StartGame();
 	}
@@ -169,6 +174,9 @@ void ATTGameMode::StartGame()
 	}
 	SetPhase(ETTGamePhase::Playing);
 	RunTime = 0.f;
+	// The opening (N01-N03) plays unless a test runs or the player retries after a defeat.
+	const bool bTests = bAutomation || bAITest || bLearnTest || bSurviveTest || bCompanionTest || bFloorsTest || bRouteTest;
+	const bool bIntro = !bTests && !bNoIntro && (StoryTest.IsEmpty() || StoryTest == TEXT("intro"));
 	if (ATTPlayerCharacter* Player = GetPlayer())
 	{
 		Player->ApplyLoadout(Difficulty);
@@ -176,20 +184,33 @@ void ATTGameMode::StartGame()
 	if (Hunter)
 	{
 		Hunter->Configure(Difficulty);
-		Hunter->Activate();
+		if (!bIntro)
+		{
+			Hunter->Activate();
+		}
 	}
 	for (ATTCompanion* Companion : Companions)
 	{
 		if (Companion)
 		{
 			Companion->Setup(Companion->GetId(), Difficulty);
-			Companion->Activate();
+			if (!bIntro)
+			{
+				Companion->Activate();
+			}
 		}
 	}
 	InitRun();
-	UE_LOG(LogTemp, Log, TEXT("[TT] Run started. Difficulty=%s"), *TTDifficultyName(Difficulty));
-	SetObjective(TEXT("Saia do hospital. Algo está caçando você. [Tab] anotações"));
-	ShowMessage(TEXT("Thomas sumiu. Os outros correram. Você está sozinho."), 5.f);
+	UE_LOG(LogTemp, Log, TEXT("[TT] Run started. Difficulty=%s intro=%d"), *TTDifficultyName(Difficulty), bIntro ? 1 : 0);
+	if (Narrative)
+	{
+		Narrative->Begin(bIntro ? ATTNarrative::EIntro::Play : (bTests ? ATTNarrative::EIntro::SkipInPlace : ATTNarrative::EIntro::SkipScattered));
+	}
+	if (!bIntro)
+	{
+		SetObjective(TEXT("Saia do hospital. Algo está caçando você. [Tab] anotações"));
+		ShowMessage(TEXT("Thomas sumiu. Os outros correram. Você está sozinho."), 5.f);
+	}
 }
 
 void ATTGameMode::TogglePause()
@@ -206,7 +227,7 @@ void ATTGameMode::TogglePause()
 
 void ATTGameMode::RestartRun()
 {
-	const FString Options = FString::Printf(TEXT("skiptitle?diff=%d"), static_cast<int32>(Difficulty));
+	const FString Options = FString::Printf(TEXT("skiptitle?nointro?diff=%d"), static_cast<int32>(Difficulty));
 	UGameplayStatics::OpenLevel(this, FName(*UGameplayStatics::GetCurrentLevelName(this)), true, Options);
 }
 
@@ -224,6 +245,10 @@ void ATTGameMode::PlayerCaptured(ATTHunter* By)
 	ATTPlayerCharacter* Player = GetPlayer();
 	bCapturedInLocker = Player && Player->IsHidden();
 	ApplyRunEvent(static_cast<int32>(tr::Event::CapturedByHunter));
+	if (Narrative)
+	{
+		Narrative->OnRunEnded(static_cast<int32>(tr::Ending::Captured), false);
+	}
 	EndTitle = TEXT("VOCÊ FOI PEGO");
 	EndSubtitle = bCapturedInLocker ? TEXT("Ele sabia exatamente onde procurar.") : TEXT("Ele estava mais perto do que parecia.");
 	SetPhase(ETTGamePhase::Captured);
@@ -242,6 +267,10 @@ void ATTGameMode::PlayerDied(const FString& Reason)
 		return;
 	}
 	ApplyRunEvent(static_cast<int32>(tr::Event::JoeDied));
+	if (Narrative)
+	{
+		Narrative->OnRunEnded(static_cast<int32>(tr::Ending::Died), false);
+	}
 	EndTitle = TEXT("VOCÊ MORREU");
 	EndSubtitle = Reason;
 	bCapturedInLocker = false;
@@ -282,9 +311,14 @@ void ATTGameMode::OnCompanionTaken(ATTCompanion* Taken)
 	}
 	if (ATTPlayerCharacter* Joe = GetPlayer())
 	{
-		if (Taken && FVector::Dist(Joe->GetActorLocation(), Taken->GetActorLocation()) < 3000.f)
+		const bool bHeard = Taken && FVector::Dist(Joe->GetActorLocation(), Taken->GetActorLocation()) < 3000.f;
+		if (bHeard)
 		{
 			ShowMessage(FString::Printf(TEXT("Um grito no escuro. Era %s."), *Taken->GetDisplayName()), 5.f);
+		}
+		if (Narrative)
+		{
+			Narrative->OnCompanionTaken(Taken, bHeard);
 		}
 	}
 }
@@ -296,6 +330,10 @@ void ATTGameMode::PlayerEscaped(const FString& How)
 		return;
 	}
 	EndSubtitle = How.IsEmpty() ? TEXT("Pelo portão de serviço. Por enquanto.") : How;
+	if (EndTitle.IsEmpty() || EndTitle.StartsWith(TEXT("VOCÊ FOI")) || EndTitle.StartsWith(TEXT("VOCÊ MORREU")))
+	{
+		EndTitle = TEXT("VOCÊ ESCAPOU");
+	}
 	SetPhase(ETTGamePhase::Escaped);
 	if (Hunter)
 	{
@@ -398,6 +436,11 @@ void ATTGameMode::Tick(float DeltaSeconds)
 	{
 		AutoTime += RealDelta;
 		UpdateRouteTest();
+	}
+	if (!StoryTest.IsEmpty())
+	{
+		AutoTime += RealDelta;
+		UpdateStoryTest();
 	}
 	if (bAutomation)
 	{
@@ -542,8 +585,21 @@ void ATTGameMode::FinishIfEnded()
 	{
 		return;
 	}
-	switch (Run->Rules.Result())
+	const tr::Ending Result = Run->Rules.Result();
+	if (Result == tr::Ending::None)
 	{
+		return;
+	}
+	if (Narrative)
+	{
+		Narrative->OnRunEnded(static_cast<int32>(Result), true);
+	}
+	EndTitle = (Result == tr::Ending::SurvivedDawn || Result == tr::Ending::HunterAbandoned || Result == tr::Ending::Destruction)
+		? TEXT("VOCÊ SOBREVIVEU") : TEXT("VOCÊ ESCAPOU");
+	switch (Result)
+	{
+	case tr::Ending::Confrontation: PlayerEscaped(TEXT("Confronto. Por alguns segundos, ele ficou no chão.")); break;
+	case tr::Ending::Destruction: PlayerEscaped(TEXT("Destruição. O hospital inteiro veio abaixo.")); break;
 	case tr::Ending::GarageEscape: PlayerEscaped(TEXT("Pelo portão da garagem, para a rua.")); break;
 	case tr::Ending::RoofEscape: PlayerEscaped(TEXT("No helicóptero do chefe. A cidade vai ficando pequena lá embaixo.")); break;
 	case tr::Ending::TunnelEscape: PlayerEscaped(TEXT("Pela galeria pluvial, longe do hospital.")); break;
@@ -552,6 +608,31 @@ void ATTGameMode::FinishIfEnded()
 	case tr::Ending::HunterAbandoned: PlayerEscaped(TEXT("Ele parou de procurar. Por esta noite.")); break;
 	default: break;
 	}
+}
+
+bool ATTGameMode::IsRouteFailed(int32 Route) const
+{
+	return Run && Route >= 0 && Route <= 3 && Run->Rules.Status(static_cast<tr::Route>(Route)).failed;
+}
+
+void ATTGameMode::OnHunterStunned()
+{
+	if (Narrative && Phase == ETTGamePhase::Playing)
+	{
+		Narrative->OnHunterStunned();
+	}
+}
+
+ATTStation* ATTGameMode::FindStationTag(ETTStation Kind, const FString& Tag) const
+{
+	for (TActorIterator<ATTStation> It(GetWorld()); It; ++It)
+	{
+		if (It->GetKind() == Kind && (Tag.IsEmpty() || It->GetTag() == Tag))
+		{
+			return *It;
+		}
+	}
+	return nullptr;
 }
 
 ATTStation* ATTGameMode::FindStation(ETTStation Kind) const
@@ -595,6 +676,15 @@ void ATTGameMode::UseStation(ATTStation* Station, ATTPlayerCharacter* Joe)
 {
 	if (!Station || Phase != ETTGamePhase::Playing)
 	{
+		return;
+	}
+	if (Station->GetKind() >= ETTStation::Document)
+	{
+		if (Narrative)
+		{
+			Narrative->UseStation(Station, Joe);
+		}
+		FinishIfEnded();
 		return;
 	}
 	auto Part = [this](int32 Index) { return FString::Printf(TEXT("%c %c"), SafeCode[Index * 2], SafeCode[Index * 2 + 1]); };
@@ -720,7 +810,10 @@ void ATTGameMode::UseStation(ATTStation* Station, ATTPlayerCharacter* Joe)
 			{
 				SetFlag(TEXT("helicopter_confirmed"));
 				HeliConfirmedAt = GetWorld()->GetTimeSeconds();
-				ShowSubtitle(TEXT("CHEFE: Joe? ...Tá. Fica vivo. Mando o helicóptero. Telhado. Cinco minutos, nem um a mais."), 7.f);
+				if (Narrative)
+				{
+					Narrative->OnRadioContact();
+				}
 				SetObjective(TEXT("Suba ao telhado. O helicóptero não espera."));
 			}
 		}
@@ -1006,6 +1099,241 @@ void ATTGameMode::UpdateRun(float DeltaSeconds)
 	}
 
 	FinishIfEnded();
+}
+
+void ATTGameMode::UpdateStoryTest()
+{
+	ATTPlayerCharacter* Joe = GetPlayer();
+	if (!Joe || !Hunter || !Hospital || !Narrative || Phase == ETTGamePhase::Title)
+	{
+		return;
+	}
+	auto Shot = [](const TCHAR* Name)
+	{
+		FScreenshotRequest::RequestScreenshot(FPaths::ProjectSavedDir() / TEXT("Screenshots") / FString(Name) + TEXT(".png"), false, false);
+	};
+	auto UseAt = [this, Joe](ATTStation* S)
+	{
+		if (S)
+		{
+			Joe->TeleportForTest(S->GetActorLocation() + S->GetActorForwardVector() * 140.f, (-S->GetActorForwardVector()).Rotation().Yaw);
+			UseStation(S, Joe);
+		}
+		UE_LOG(LogTemp, Log, TEXT("[TT] Story test: station %s"), S ? *S->GetTag() : TEXT("MISSING"));
+	};
+	auto Comp = [this](ETTCompanionId Id) -> ATTCompanion*
+	{
+		for (ATTCompanion* C : Companions)
+		{
+			if (C && C->GetId() == Id) return C;
+		}
+		return nullptr;
+	};
+
+	if (Phase != ETTGamePhase::Playing)
+	{
+		if (PhaseTime > 4.f && AutoStep < 900)
+		{
+			Shot(*FString::Printf(TEXT("TT_4%d_epilogue_%s"), static_cast<int32>(Difficulty), *StoryTest));
+			AutoStep = 900;
+		}
+		if (PhaseTime > 6.f)
+		{
+			for (const FTTEpilogueBlock& B : Narrative->GetEpilogue())
+			{
+				UE_LOG(LogTemp, Log, TEXT("[TT] Epilogue block [%s] %s"), *B.Title, *B.Text);
+			}
+			UE_LOG(LogTemp, Log, TEXT("[TT] Story test '%s' end: phase=%d title=%s subtitle=%s"), *StoryTest, static_cast<int32>(Phase), *EndTitle, *EndSubtitle);
+			FPlatformMisc::RequestExit(false);
+			StoryTest.Reset();
+		}
+		return;
+	}
+	const float T = AutoTime;
+	// Each entry: time, action. AutoStep is the next index.
+	auto Due = [this, T](float At) { return T >= At; };
+
+	if (StoryTest == TEXT("intro"))
+	{
+		switch (AutoStep)
+		{
+		case 0: if (Due(3.f)) { Shot(TEXT("TT_30_siege")); ++AutoStep; } break;
+		case 1: if (Due(24.f)) { Joe->TeleportForTest(Hospital->CellToWorld(FC(5, 21, 7)), 0.f); ++AutoStep; } break;
+		case 2: if (Due(27.f)) { Joe->LookAtPoint(Joe->GetActorLocation() + FVector(9600.f, 700.f, 1200.f)); Shot(TEXT("TT_31_signal")); ++AutoStep; } break;
+		case 3: if (Due(44.f)) { Joe->TeleportForTest(Hospital->CellToWorld(FC(5, 15, 7)), 180.f); ++AutoStep; } break;
+		case 4: if (Narrative->HasSeen(TEXT("N03"))) { ++AutoStep; AutoTime = 100.f; } else if (Due(90.f)) { UE_LOG(LogTemp, Warning, TEXT("[TT] Story test: N03 never played")); ++AutoStep; AutoTime = 100.f; } break;
+		case 5: if (Due(100.6f)) { Shot(TEXT("TT_32_rupture")); ++AutoStep; } break;
+		case 6: if (Due(115.f)) { UseAt(FindStationTag(ETTStation::Document, TEXT("DOC12"))); ++AutoStep; } break;
+		case 7: if (Due(116.f)) { Shot(TEXT("TT_33_document")); ++AutoStep; } break;
+		case 8:
+			if (Due(118.f))
+			{
+				Narrative->CloseDocument();
+				UE_LOG(LogTemp, Log, TEXT("[TT] Story test: N01=%d N02=%d N03=%d hunter=%s act=%d"), Narrative->HasSeen(TEXT("N01")), Narrative->HasSeen(TEXT("N02")),
+					Narrative->HasSeen(TEXT("N03")), *Hunter->GetStateName(), Narrative->GetAct());
+				ApplyRunEvent(static_cast<int32>(tr::Event::SafeOpened));
+				ApplyRunEvent(static_cast<int32>(tr::Event::GarageKeyTaken));
+				ApplyRunEvent(static_cast<int32>(tr::Event::GarageGateReleased));
+				ApplyRunEvent(static_cast<int32>(tr::Event::GarageExitReached));
+				FinishIfEnded();
+				++AutoStep;
+			}
+			break;
+		default: break;
+		}
+	}
+	else if (StoryTest == TEXT("thomas"))
+	{
+		switch (AutoStep)
+		{
+		case 0:
+			if (Due(2.f))
+			{
+				Hunter->Freeze();
+				UE_LOG(LogTemp, Log, TEXT("[TT] Story test: difficulty %s body=%d tape=%d"), *TTDifficultyName(Difficulty),
+					FindStationTag(ETTStation::ThomasBody, FString()) ? 1 : 0, FindStationTag(ETTStation::Document, TEXT("DOC16")) ? 1 : 0);
+				UseAt(FindStationTag(ETTStation::ThomasBody, FString()));
+				++AutoStep;
+			}
+			break;
+		case 1: if (Due(3.f)) { Shot(TEXT("TT_35_morgue")); ++AutoStep; } break;
+		case 2: if (Due(9.f)) { UseAt(FindStationTag(ETTStation::Document, TEXT("DOC16"))); ++AutoStep; } break;
+		case 3: if (Due(10.f)) { Shot(TEXT("TT_36_tape")); ++AutoStep; } break;
+		case 4: if (Due(12.f)) { Narrative->CloseDocument(); ++AutoStep; } break;
+		case 5:
+			if (Due(26.f))
+			{
+				UE_LOG(LogTemp, Log, TEXT("[TT] Story test: N34=%d"), Narrative->HasSeen(TEXT("N34")));
+				PlayerCaptured(Hunter);
+				++AutoStep;
+			}
+			break;
+		default: break;
+		}
+	}
+	else if (StoryTest == TEXT("jack"))
+	{
+		ATTCompanion* Jack = Comp(ETTCompanionId::Jack);
+		auto TalkToJack = [this, Joe, Jack]()
+		{
+			Joe->TeleportForTest(Hospital->CellToWorld(FC(4, 5, 5)), 0.f);
+			Narrative->DebugTeleportCompanionToJoe(Jack, 170.f);
+			Jack->Talk(Joe);
+		};
+		switch (AutoStep)
+		{
+		case 0: if (Due(2.f)) { Hunter->Freeze(); TalkToJack(); ++AutoStep; } break;
+		case 1: if (Due(12.f)) { Joe->LookAtPoint(Jack->GetActorLocation() + FVector(0.f, 0.f, 50.f)); Shot(TEXT("TT_37_jack_j1")); ++AutoStep; } break;
+		case 2: if (Due(24.f)) { SetFlag(TEXT("key_known")); Narrative->DebugSetFact(TEXT("jack_heard_thomas")); ++AutoStep; } break;
+		case 3: if (Due(27.f)) { TalkToJack(); ++AutoStep; } break;
+		case 4: if (Due(40.f)) { SetFlag(TEXT("safe_known")); SetFlag(TEXT("radio_found")); Narrative->OnCompanionTaken(Comp(ETTCompanionId::Harley), false); ++AutoStep; } break;
+		case 5: if (Due(43.f)) { TalkToJack(); ++AutoStep; } break;
+		case 6: if (Due(56.f)) { Joe->LookAtPoint(Jack->GetActorLocation() + FVector(0.f, 0.f, 50.f)); Shot(TEXT("TT_38_jack_j3")); SetFlag(TEXT("gate_released")); ++AutoStep; } break;
+		case 7: if (Due(72.f)) { TalkToJack(); ++AutoStep; } break;
+		case 8:
+			if (Due(100.f))
+			{
+				UE_LOG(LogTemp, Log, TEXT("[TT] Story test: N08=%d J1=%d J2=%d N25=%d J3=%d J4=%d act=%d"), Narrative->HasSeen(TEXT("N08")), Narrative->HasSeen(TEXT("J1")),
+					Narrative->HasSeen(TEXT("J2")), Narrative->HasSeen(TEXT("N25")), Narrative->HasSeen(TEXT("J3")), Narrative->HasSeen(TEXT("J4")), Narrative->GetAct());
+				PlayerCaptured(Hunter);
+				++AutoStep;
+			}
+			break;
+		default: break;
+		}
+	}
+	else if (StoryTest == TEXT("destroy"))
+	{
+		switch (AutoStep)
+		{
+		case 0: if (Due(2.f)) { Hunter->Freeze(); UseAt(FindStationTag(ETTStation::Explosives, FString())); ++AutoStep; } break;
+		case 1:
+			if (Due(4.f))
+			{
+				for (TActorIterator<ATTStation> It(GetWorld()); It; ++It)
+				{
+					if (It->GetKind() == ETTStation::Charge)
+					{
+						UseAt(*It);
+					}
+				}
+				++AutoStep;
+			}
+			break;
+		case 2: if (Due(6.f)) { UseAt(FindStationTag(ETTStation::Detonator, FString())); ++AutoStep; } break;
+		default: break;
+		}
+	}
+	else if (StoryTest == TEXT("confront"))
+	{
+		switch (AutoStep)
+		{
+		case 0:
+			if (Due(2.f))
+			{
+				Joe->TeleportForTest(Hospital->CellToWorld(FC(5, 11, 7)), 0.f);
+				int32 n = 0;
+				for (ATTCompanion* C : Companions)
+				{
+					if (C && n < 2)
+					{
+						Narrative->DebugTeleportCompanionToJoe(C, 150.f + 120.f * n++);
+						C->DebugFollow();
+					}
+				}
+				Hunter->Freeze();
+				++AutoStep;
+			}
+			break;
+		case 1: if (Due(7.f)) { Shot(TEXT("TT_39_confront")); ++AutoStep; } break;
+		case 2:
+			if (Due(8.f))
+			{
+				Hunter->Activate();
+				Hunter->SetActorLocation(Joe->GetActorLocation() + FVector(600.f, 0.f, 10.f));
+				Hunter->Stun(4.f, false);
+				++AutoStep;
+			}
+			break;
+		case 3: if (Due(20.f)) { UE_LOG(LogTemp, Warning, TEXT("[TT] Story test: no confrontation")); PlayerCaptured(Hunter); ++AutoStep; } break;
+		default: break;
+		}
+	}
+	else if (StoryTest == TEXT("robin"))
+	{
+		switch (AutoStep)
+		{
+		case 0:
+			if (Due(2.f))
+			{
+				Hunter->Freeze();
+				Joe->TeleportForTest(Hospital->CellToWorld(FC(7, 21, 5)), 90.f);
+				++AutoStep;
+			}
+			break;
+		case 1:
+			if (ATTStoryFigure* R = Narrative->GetRobin())
+			{
+				if (FVector::Dist(R->GetActorLocation(), Joe->GetActorLocation()) < 1400.f)
+				{
+					Joe->LookAtPoint(R->GetActorLocation() + FVector(0.f, 0.f, 60.f));
+					Shot(TEXT("TT_40_robin"));
+					++AutoStep;
+				}
+			}
+			if (Due(70.f)) { ++AutoStep; }
+			break;
+		case 2:
+			if (Narrative->HasFact(TEXT("robin_reported")) || Due(75.f))
+			{
+				UE_LOG(LogTemp, Log, TEXT("[TT] Story test: robin reported=%d hunter=%s"), Narrative->HasFact(TEXT("robin_reported")), *Hunter->GetStateName());
+				PlayerCaptured(Hunter);
+				++AutoStep;
+			}
+			break;
+		default: break;
+		}
+	}
 }
 
 void ATTGameMode::UpdateRouteTest()

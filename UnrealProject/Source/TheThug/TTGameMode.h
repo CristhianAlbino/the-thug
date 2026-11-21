@@ -17,6 +17,7 @@ class ATTHatch;
 class ATTHelicopter;
 class ATTStation;
 class ATTWindow;
+class ATTNarrative;
 struct FTTRunState;
 
 UENUM()
@@ -108,6 +109,14 @@ public:
 	const FString& DebugGetSafeCode() const { return SafeCode; }
 
 	ATTHospital* GetHospital() const { return Hospital; }
+	ATTNarrative* GetNarrative() const { return Narrative; }
+	/** RunRules route status (0 garage, 1 roof, 2 tunnel, 3 window). */
+	bool IsRouteFailed(int32 Route) const;
+	bool ApplyRunEvent(int32 Event);
+	void FinishIfEnded();
+	void AddNote(const FString& Note);
+	void OnHunterStunned();
+	ATTStation* FindStationTag(ETTStation Kind, const FString& Tag) const;
 	const TArray<TObjectPtr<class ATTCompanion>>& GetCompanions() const { return Companions; }
 	void OnCompanionTaken(class ATTCompanion* Companion);
 	ATTHunter* GetHunter() const { return Hunter; }
@@ -124,6 +133,12 @@ private:
 
 	UPROPERTY()
 	TObjectPtr<ATTHunter> Hunter;
+
+	UPROPERTY()
+	TObjectPtr<ATTNarrative> Narrative;
+	bool bNoIntro = false;
+	FString StoryTest;
+	void UpdateStoryTest();
 
 	UPROPERTY()
 	TArray<TObjectPtr<class ATTCompanion>> Companions;
@@ -155,9 +170,6 @@ private:
 
 	void InitRun();
 	void UpdateRun(float DeltaSeconds);
-	bool ApplyRunEvent(int32 Event);
-	void FinishIfEnded();
-	void AddNote(const FString& Note);
 	void SetFlag(const FString& Flag) { RunFlags.Add(Flag); }
 	ATTStation* FindStation(ETTStation Kind) const;
 

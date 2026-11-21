@@ -52,6 +52,9 @@ namespace
 		case ETTSfx::Breath: Duration = 1.0f; break;
 		case ETTSfx::Punch: Duration = 0.35f; break;
 		case ETTSfx::Hiss: Duration = 2.5f; break;
+		case ETTSfx::Laugh: Duration = 1.1f; break;
+		case ETTSfx::LaughLong: Duration = 3.4f; break;
+		case ETTSfx::LightStep: Duration = 0.1f; break;
 		}
 
 		const int32 N = static_cast<int32>(Duration * TTAudio::SampleRate);
@@ -202,6 +205,32 @@ namespace
 				Lp += 0.5f * (Noise - Lp);
 				const float Env = (1.f - FMath::Exp(-t * 12.f)) * FMath::Clamp((Duration - t) / 1.2f, 0.f, 1.f);
 				V = (Noise - Lp * 0.6f) * Env * 0.5f;
+				break;
+			}
+			case ETTSfx::Laugh:
+			case ETTSfx::LaughLong:
+			{
+				// "Ha" bursts: a voiced pulse train through two rough formants, plus breath.
+				const bool bLong = Sfx == ETTSfx::LaughLong;
+				const float Burst = bLong ? 0.2f : 0.17f;
+				const int32 Index = static_cast<int32>(t / Burst);
+				const float Local = t - Index * Burst;
+				// The long one climbs in pitch and speeds up a little: it should feel wrong.
+				const float F0 = (bLong ? 165.f + Index * 9.f : 175.f - Index * 6.f) * (1.f + 0.03f * FMath::Sin(TwoPi * 5.f * t));
+				Phase += F0 / TTAudio::SampleRate;
+				const float Saw = 2.f * static_cast<float>(Phase - FMath::FloorToDouble(Phase)) - 1.f;
+				Lp += 0.35f * (Saw - Lp);         // ~ first formant
+				Lp2 += 0.08f * (Saw - Lp2);       // body
+				const float Voice = (Lp - Lp2) * 1.6f + Lp2 * 0.6f;
+				const float Env = FMath::Sin(PI * FMath::Clamp(Local / (Burst * 0.75f), 0.f, 1.f));
+				const float Fade = FMath::Clamp((Duration - t) / 0.4f, 0.f, 1.f);
+				V = (Voice * 0.9f + Noise * 0.12f) * Env * Env * Fade;
+				break;
+			}
+			case ETTSfx::LightStep:
+			{
+				Lp += 0.35f * (Noise - Lp);
+				V = Lp * FMath::Exp(-t * 70.f) * 0.7f + FMath::Sin(TwoPi * (140.f + R * 30.f) * t) * FMath::Exp(-t * 80.f) * 0.2f;
 				break;
 			}
 			}

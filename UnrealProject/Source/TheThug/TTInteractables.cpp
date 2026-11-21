@@ -11,6 +11,7 @@
 #include "Materials/MaterialInstanceDynamic.h"
 #include "TTAudio.h"
 #include "TTGameMode.h"
+#include "TTNarrative.h"
 #include "TTHospital.h"
 #include "TTHunter.h"
 #include "EngineUtils.h"
@@ -679,9 +680,10 @@ void ATTSign::Interact(ATTPlayerCharacter* Player)
 // ---------------------------------------------------------------------------
 // Stations (escape routes)
 
-void ATTStation::Setup(ETTStation InKind)
+void ATTStation::Setup(ETTStation InKind, const FString& InTag)
 {
 	Kind = InKind;
+	Tag = InTag;
 	UStaticMesh* Cube = TTShapes::Cube();
 	const FLinearColor Desk(0.2f, 0.15f, 0.1f);
 	const FLinearColor Paper(0.8f, 0.78f, 0.7f);
@@ -737,6 +739,52 @@ void ATTStation::Setup(ETTStation InKind)
 		}
 		TTShapes::AddPart(this, Root, Cube, FVector(0.f, 0.f, 0.6f), FVector(25.f, 120.f, 1.f), FLinearColor(0.7f, 0.6f, 0.1f), FRotator::ZeroRotator, false);
 		break;
+	case ETTStation::Document:
+		if (Tag == TEXT("DOC16"))
+		{
+			// Archived tape: an old monitor and a VCR on a cart.
+			TTShapes::AddPart(this, Root, Cube, FVector(0.f, 0.f, 40.f), FVector(70.f, 90.f, 80.f), Steel * 0.6f);
+			TTShapes::AddPart(this, Root, Cube, FVector(-5.f, 0.f, 84.f), FVector(50.f, 70.f, 8.f), FLinearColor(0.05f, 0.05f, 0.05f));
+			TTShapes::AddPart(this, Root, Cube, FVector(-8.f, 0.f, 118.f), FVector(55.f, 60.f, 50.f), FLinearColor(0.07f, 0.07f, 0.07f));
+			Glow(FVector(21.f, 0.f, 120.f), FVector(1.f, 46.f, 36.f), FLinearColor(0.35f, 0.4f, 0.45f), 0.6f);
+		}
+		else if (Tag == TEXT("DOC14"))
+		{
+			// The re-used sign: an old plate leaning against the wall.
+			TTShapes::AddPart(this, Root, Cube, FVector(-30.f, 0.f, 90.f), FVector(6.f, 120.f, 60.f), FLinearColor(0.45f, 0.45f, 0.4f), FRotator(-8.f, 0.f, 0.f));
+		}
+		else
+		{
+			TTShapes::AddPart(this, Root, Cube, FVector(0.f, 0.f, 38.f), FVector(70.f, 110.f, 76.f), Desk * 0.9f);
+			TTShapes::AddPart(this, Root, Cube, FVector(0.f, 0.f, 77.f), FVector(28.f, 21.f, 1.f), Paper, FRotator(0.f, 8.f, 0.f), false);
+		}
+		break;
+	case ETTStation::ThomasBody:
+	{
+		// A sheet over someone on the slab; one arm, a scratched watch.
+		const FLinearColor Sheet(0.62f, 0.62f, 0.58f);
+		TTShapes::AddPart(this, Root, TTShapes::Cylinder(), FVector(0.f, 0.f, 98.f), FVector(48.f, 170.f, 30.f), Sheet, FRotator(0.f, 0.f, 90.f), false);
+		TTShapes::AddPart(this, Root, TTShapes::Sphere(), FVector(0.f, 82.f, 104.f), FVector(30.f, 30.f, 26.f), Sheet, FRotator::ZeroRotator, false);
+		TTShapes::AddPart(this, Root, TTShapes::Cylinder(), FVector(38.f, 10.f, 70.f), FVector(9.f, 9.f, 50.f), FLinearColor(0.45f, 0.36f, 0.3f), FRotator(0.f, 0.f, 0.f), false);
+		Glow(FVector(38.f, 10.f, 52.f), FVector(11.f, 11.f, 4.f), FLinearColor(0.7f, 0.65f, 0.5f), 0.4f);
+		break;
+	}
+	case ETTStation::Explosives:
+		TTShapes::AddPart(this, Root, Cube, FVector(0.f, 0.f, 30.f), FVector(80.f, 110.f, 60.f), FLinearColor(0.22f, 0.25f, 0.12f));
+		TTShapes::AddPart(this, Root, Cube, FVector(41.f, 0.f, 35.f), FVector(1.f, 60.f, 20.f), FLinearColor(0.6f, 0.45f, 0.05f), FRotator::ZeroRotator, false);
+		break;
+	case ETTStation::Charge:
+		// A structural pillar with a red mark; the charge appears when armed.
+		TTShapes::AddPart(this, Root, Cube, FVector(-40.f, 0.f, 190.f), FVector(70.f, 70.f, 380.f), FLinearColor(0.3f, 0.3f, 0.29f));
+		TTShapes::AddPart(this, Root, Cube, FVector(-4.f, 0.f, 150.f), FVector(1.f, 50.f, 50.f), FLinearColor(0.5f, 0.04f, 0.03f), FRotator(0.f, 0.f, 45.f), false);
+		Glow(FVector(-2.f, 0.f, 110.f), FVector(1.f, 8.f, 8.f), FLinearColor(0.1f, 0.1f, 0.1f), 0.1f);
+		break;
+	case ETTStation::Detonator:
+		TTShapes::AddPart(this, Root, Cube, FVector(0.f, 0.f, 20.f), FVector(50.f, 40.f, 40.f), FLinearColor(0.15f, 0.12f, 0.08f));
+		TTShapes::AddPart(this, Root, Cube, FVector(0.f, 0.f, 60.f), FVector(6.f, 6.f, 40.f), Steel, FRotator::ZeroRotator, false);
+		TTShapes::AddPart(this, Root, Cube, FVector(0.f, 0.f, 80.f), FVector(8.f, 36.f, 6.f), Steel, FRotator::ZeroRotator, false);
+		Glow(FVector(26.f, 0.f, 28.f), FVector(1.f, 8.f, 8.f), FLinearColor(1.f, 0.1f, 0.05f), 2.f);
+		break;
 	case ETTStation::TunnelExit:
 	{
 		TTShapes::AddPart(this, Root, Cube, FVector(0.f, 0.f, 0.6f), FVector(200.f, 200.f, 1.f), FLinearColor(0.05f, 0.06f, 0.07f), FRotator::ZeroRotator, false);
@@ -765,6 +813,10 @@ void ATTStation::SetStatus(const FLinearColor& Color)
 FString ATTStation::GetPrompt(const ATTPlayerCharacter* Player) const
 {
 	const ATTGameMode* GM = GetTTGameMode(this);
+	if (GM && Kind >= ETTStation::Document)
+	{
+		return GM->GetNarrative() ? GM->GetNarrative()->GetStationPrompt(this) : FString();
+	}
 	return GM ? GM->GetStationPrompt(Kind) : FString();
 }
 

@@ -25,3 +25,5 @@ jobs:
       - uses: actions/checkout@v6
       - name: Validate difficulty and epilogue contract
         run: python3 Tools/NarrativeCore/validate_variants.py
+      - name: C++ port of the narrative gates (used by the Unreal game)
+        run: bash Tools/NarrativeCore/run-tests.sh

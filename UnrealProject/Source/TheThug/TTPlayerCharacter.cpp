@@ -10,6 +10,7 @@
 #include "Misc/Parse.h"
 #include "TTAudio.h"
 #include "TTGameMode.h"
+#include "TTNarrative.h"
 #include "TTHospital.h"
 #include "TTHunter.h"
 #include "TTInteractables.h"
@@ -706,7 +707,7 @@ bool ATTPlayerCharacter::CanAct() const
 bool ATTPlayerCharacter::CanMove() const
 {
 	const ATTGameMode* GM = GetWorld()->GetAuthGameMode<ATTGameMode>();
-	if (GM && GM->IsKeypadActive())
+	if (GM && (GM->IsKeypadActive() || (GM->GetNarrative() && GM->GetNarrative()->IsReading())))
 	{
 		return false;
 	}

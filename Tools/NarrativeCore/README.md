@@ -10,7 +10,13 @@ O [roteiro dos atos 3–5](../../02_GAME_DESIGN/Narrative/ROTEIRO_ATOS_3_5_RASCU
 
 ```bash
 python3 Tools/NarrativeCore/validate_variants.py
+bash Tools/NarrativeCore/run-tests.sh   # C++ port usada pelo jogo
 ```
+
+**Port C++ (M07).** `NarrativeCore.h/.cpp` reproduz `scene_available`, `eligible`/`eligible_late`, `can_witness_*`, `can_close_route`,
+`derive_outcomes` e `resolve_epilogue`. Os dados vêm de `NarrativeData.inl`, gerado pelo `emit_cpp.py` a partir dos JSON (e dos papéis
+de nó do `hospital_graph.json`); `--check` falha se o arquivo estiver desatualizado. `narrative_tests.cpp` repete os casos do
+validador Python. A Unreal compila o port em `UnrealProject/Source/TheThug/Core/TTNarrativeCore.cpp`.
 
 - Fácil/Normal: destino de Thomas permanece não confirmado; nenhuma pista da variante Punitivo de Jack.
 - Difícil/Punitivo: morte de Thomas causada por Batman aparece em N34, ou em coda ao jogador caso Joe não a tenha descoberto. A coda não altera o conhecimento de Joe.

@@ -21,7 +21,10 @@ enum class ETTSfx : uint8
 	Explosion,
 	Breath,
 	Punch,
-	Hiss
+	Hiss,
+	Laugh,       // Jack (Punitive): short, wrong
+	LaughLong,   // Jack (Punitive): goes on too long
+	LightStep    // Robin in the tunnels: quick, light
 };
 
 namespace TTAudio

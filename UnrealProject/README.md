@@ -1,4 +1,4 @@
-# UnrealProject — The Thug (prototype: M01–M06)
+# UnrealProject — The Thug (prototype: M01–M07)
 
 Unreal Engine **5.8**, C++. The M01 slice (GDD §98, "10 excellent minutes") is fully code-driven:
 the hospital wing, the Hunter, the sounds and the HUD are generated at runtime, so the only
@@ -23,12 +23,18 @@ binary asset is the empty map `Content/Maps/Hospital_M01.umap` (Git LFS).
 | Doors (crouch = slow and quiet), lockers with slats, keycard, bottles, service gate | `TTInteractables` |
 | **Whole hospital (M05 blockout)**: garage, B1, floors 1-4 and roof stacked, two switchback stairwells (real ramps), service shaft hatches Joe can crawl through (the Hunter cannot), security camera room with night-vision feeds (some dead), heavy-door isolation room the Hunter only enters after seeing Joe there, elevator (no power yet), city skyline and moonlit roof, lights only on the floors around the view | `TTHospital` + `TTHospitalLayout.inl` |
 | **Escape routes (M06) from `/Tools/HunterCore/RunRules`**: every step is a RunRules event and the ending comes from it. **Garage**: three code clues (4th floor nurse, 2nd floor archive, B1) → safe on the 2nd floor (keypad, random code each run) → garage key → generator in B1 (power: garage lights, elevator) → gate control → gate. **Roof**: radio on the 1st floor needs batteries (2nd floor servers) → interference panel at the cameras → call the boss → helicopter arrives (countdown on screen), lands on the helipad, is loud and leaves if Joe takes too long. **Tunnels**: grate in B1 (or the garage) opens the storm drain maze one floor below, exit at the far end; the Hunter climbs the ladders after Joe. **Window**: crowbar and prying; if the Hunter sees it open he seals it. Night clock (00:00 → 03:30 dawn ends the run), hiding in the isolation room long enough also ends it, elevator rides when powered | `TTGameMode` (run section), `TTInteractables` (`ATTStation`, `ATTHelicopter`, `ATTExitGate`) |
+| **Narrative (M07) from `/Tools/NarrativeCore`** (C++ port of the JSON contract, `Core/TTNarrativeCore.cpp`): playable opening on the 4th floor (N01 siege, N02 Bat-Signal at the observation window, N03 Thomas taken from above, the group scatters; `Enter` skips it, retries after a defeat skip it), five acts as narrative milestones with chapter cards, place/world beats N04–N34 played only when `Eligible()` says so, subtitles with speaker that Joe only hears when close, readable documents DOC06–DOC16 (Arkham hints, rules, routes), companion scenes when talking (Harley N07/N23 with Punitive reciprocity, Bartholomeu N15/N24, Jack N08/N25), radio intercepts | `TTNarrative` |
+| Thomas (Hard/Punitive only): body in the B1 morgue + archived tape CAM_F4_WEST in the 2nd floor security room → N34; without them a coda shows the truth to the player only. Easy/Normal never spawn either | `TTNarrative` |
+| Jack in Punitive: clothes change after the opening, J1/J2/J3 laughs that run too long, J4 reveal in act 5 (needs J3 + another clue) | `TTNarrative`, `TTCompanion` |
+| Rare endings (GDD §59, RunRules): Easy **Confronto** (two following companions + the Hunter stunned), Punitive **Destruição** (explosives in the garage, three marked pillars, detonator in the tunnels). Robin's one-off episode in the Punitive tunnels (reports Joe, never captures) | `TTNarrative`, `RunRules` |
+| Epilogues per person from verified evidence only (together / escaped alone / captured / unknown), Thomas block by difficulty, Jack's secret | `TTNarrative::OnRunEnded`, HUD |
 | Procedural audio (Hunter steps, heartbeat, creaks, glass, drone) | `TTAudio` |
 | Title / pause / captured / escaped flow, noise routing | `TTGameMode`, `TTHUD`, `TTPlayerController` |
 
 The map is authored in `Tools/MapCore/blockout_floors.py` (legend at the top). Edit it, run
 `python Tools/MapCore/blockout_floors.py` to validate (widths, stairwells, hatch partners, every cell reachable from Joe's start),
-then `python Tools/MapCore/blockout_floors.py --emit` and paste the output into `Source/TheThug/TTHospitalLayout.inl`.
+then `python Tools/MapCore/blockout_floors.py --write` to regenerate `Source/TheThug/TTHospitalLayout.inl` and `TTHospitalZones.inl` (narrative zones and documents).
+Narrative data: edit the JSON in `Tools/NarrativeCore`, then `python Tools/NarrativeCore/emit_cpp.py` (CI checks it is current).
 Cells use one combined grid: floor N occupies columns `N*32 .. N*32+23`.
 
 Companion starting profiles (trust, fear, stress, loyalty, self-preservation, relationship) are **balance hypotheses**
@@ -39,7 +45,7 @@ their standalone tests still run outside Unreal). The module builds with excepti
 
 ## Controls
 
-WASD move · Shift sprint · C toggle crouch / Ctrl hold crouch · F flashlight · E interact / hide · Right mouse aim · Left mouse fire · R reload · G bottle · T smoke · Q grenade · H bandage/medkit · hold Tab inventory, notes and clock (+ 2-9 drop) · safe keypad: 0-9 type, Backspace erase, Enter confirm, E/Esc leave · looking at a companion: E talk, Z give magazine, X come with me / stay · Esc pause (mouse sensitivity with + / −).
+WASD move · Shift sprint · C toggle crouch / Ctrl hold crouch · F flashlight · E interact / hide · Right mouse aim · Left mouse fire · R reload · G bottle · T smoke · Q grenade · H bandage/medkit · hold Tab inventory, notes and clock (+ 2-9 drop) · safe keypad: 0-9 type, Backspace erase, Enter confirm, E/Esc leave · reading a document: E closes · Enter skips the opening · looking at a companion: E talk, Z give magazine, X come with me / stay · Esc pause (mouse sensitivity with + / −).
 
 ## Build
 
@@ -62,7 +68,8 @@ Debug flags: `-ttdebug` (Hunter state on screen), `-ttshots` (scripted screensho
 `-ttsurvive` (injury, bandage, shot, smoke, grenade; logs and screenshots),
 `-ttcomp` (talk, ammo handoff, Hunter takes a companion, Jack escapes through the window, Joe follows),
 `-ttfloors` (service hatch crawl, stairwell, camera monitors, garage; screenshots),
-`-ttroute=garage|roof|tunnel|window` (plays one escape route end to end and logs each RunRules event and the ending), `-ttfastheli=<s>` (helicopter delay), `-ttflash=<power>`, `-ttdiff=<0-3>`, `-ttev=<bias>` (exposure), `-ttsens=<x>` (mouse).
+`-ttroute=garage|roof|tunnel|window` (plays one escape route end to end and logs each RunRules event and the ending), `-ttfastheli=<s>` (helicopter delay),
+`-ttstory=intro|thomas|jack|destroy|confront|robin` (narrative: opening, N34, Jack J1–J4, rare endings, Robin; logs scenes and the epilogue, screenshots TT_30+), `-ttflash=<power>`, `-ttdiff=<0-3>`, `-ttev=<bias>` (exposure), `-ttsens=<x>` (mouse).
 
 ## Package the .exe
 

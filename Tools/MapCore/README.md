@@ -33,4 +33,6 @@ das rotas de fuga: pistas do código (`A/B/C`), registro do vigia (`N`), bilhete
 controle do portão (`q`), rádio (`R`), pilhas (`F`), painel de interferência (`Q`), heliponto (`T`), grades/escadas dos túneis (`%`)
 e saída pluvial (`!`). Os túneis não têm escada; só ficam ligados ao resto depois que o Joe encontra a grade.
 `python Tools/MapCore/blockout_floors.py` valida larguras, escadas, pares de escotilhas e de grades e o alcance de todas as
-células a partir do início; `--emit` gera a tabela C++. O anexo ainda não está no blockout.
+células a partir do início; `--write` regenera `TTHospitalLayout.inl` e `TTHospitalZones.inl`. Desde o M07 o blockout também tem
+`ZONES` (cada célula pertence a um nó do `hospital_graph.json`, usado pelas âncoras de cena), documentos `d` com id em `DOCS`,
+a maca do necrotério `o` e, só no Punitivo, explosivos `e`, pilares `k` e detonador `j`. O anexo ainda não está no blockout.

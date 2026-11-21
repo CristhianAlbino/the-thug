@@ -89,6 +89,22 @@ public:
 
 	/** Test hook. */
 	void DebugForceGoal(int32 Goal);
+	void DebugFollow();
+	void DebugRelease();
+	/** Stays put, facing Joe, while an authored conversation plays. */
+	void HoldForTalk(float Seconds) { TalkHold = FMath::Max(TalkHold, Seconds); }
+
+	// Narrative direction (M07)
+	/** Walk somewhere outside the AI (opening, scatter). Optionally wakes the AI on arrival. */
+	void ScriptMoveTo(const FVector& Goal, bool bRun, bool bActivateOnArrival);
+	void ScriptFace(const FVector& Point);
+	bool IsScripted() const { return bScripted; }
+	/** Jack in Punitive: 0 = as in the opening, 1-3 = more and more wrong. */
+	void SetCostumeStage(int32 Stage);
+	int32 GetHunterSightings() const { return HunterSightings; }
+	void ShareKnownRoute() { ShareRouteWithJoe(); }
+	/** After J4: he goes his own way. */
+	void LeaveForGood();
 
 private:
 	ATTHospital* GetHospital() const;
@@ -149,6 +165,13 @@ private:
 	bool bGaveAid = false;
 	float FollowRequestTime = -100.f;
 	float LastHelpShot = -100.f;
+
+	bool bScripted = false;
+	float TalkHold = 0.f;
+	bool bScriptRun = false;
+	bool bScriptActivate = false;
+	int32 HunterSightings = 0;
+	int32 CostumeStage = 0;
 
 	bool bChased = false;
 	bool bJoeWitnessedChase = false;

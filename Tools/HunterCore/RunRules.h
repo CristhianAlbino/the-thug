@@ -7,7 +7,9 @@ namespace thug::rules {
 enum class Difficulty { Easy, Normal, Hard, Punitive };
 enum class Ending {
   None, GarageEscape, RoofEscape, TunnelEscape, WindowEscape,
-  SurvivedDawn, HunterAbandoned, Captured, Died
+  SurvivedDawn, HunterAbandoned, Captured, Died,
+  // GDD §59: rare, costly exceptions. Never a boss fight or a menu option.
+  Confrontation, Destruction
 };
 enum class Route { Garage, Roof, Tunnel, Window };
 enum class Event {
@@ -17,7 +19,11 @@ enum class Event {
   TunnelFound, TunnelExitReached,
   WindowFound, WindowToolsFound, WindowUnblocked, WindowCrossed,
   GarageBlocked, TunnelIntercepted, WindowDiscovered,
-  DawnReached, HunterAbandonedSearch, CapturedByHunter, JoeDied
+  DawnReached, HunterAbandonedSearch, CapturedByHunter, JoeDied,
+  // Easy only: survivors coordinate and overpower the Hunter for a moment.
+  CoordinatedConfrontation,
+  // Punitive only: charges planted and the detonator used from safety.
+  HospitalDestroyed
 };
 
 struct RouteState {

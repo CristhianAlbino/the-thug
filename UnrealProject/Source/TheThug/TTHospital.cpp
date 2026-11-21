@@ -37,6 +37,22 @@ namespace
 #include "TTHospitalLayout.inl"
 	};
 
+	struct FZoneSource
+	{
+		const TCHAR* Floor;
+		const TCHAR* Node;
+		int32 X0, Y0, X1, Y1;
+	};
+
+	struct FDocSource
+	{
+		const TCHAR* Floor;
+		int32 X, Y;
+		const TCHAR* Id;
+	};
+
+#include "TTHospitalZones.inl"
+
 	/** Stairwells: (lane A column, top row). Two switchback lanes, four rows. */
 	const FIntPoint StairDefs[] = { FIntPoint(1, 1), FIntPoint(21, 1) };
 
@@ -344,11 +360,20 @@ void ATTHospital::Build()
 				{
 					// Sealed window: the city out there, unreachable.
 					Walls->AddInstance(FTransform(FRotator::ZeroRotator, Local + FVector(0.f, 0.f, 50.f), FVector(CellSize, CellSize, 100.f) / 100.f));
-					Walls->AddInstance(FTransform(FRotator::ZeroRotator, Local + FVector(0.f, 0.f, 310.f), FVector(CellSize, CellSize, 140.f) / 100.f));
-					if (UStaticMeshComponent* Glass = TTShapes::AddPart(this, RootComponent, Cube, Local + FVector(0.f, 0.f, 170.f), FVector(CellSize - 20.f, CellSize - 20.f, 140.f), FLinearColor::Black))
+					Walls->AddInstance(FTransform(FRotator::ZeroRotator, Local + FVector(0.f, 0.f, 360.f), FVector(CellSize, CellSize, 40.f) / 100.f));
+					if (UStaticMeshComponent* Glass = TTShapes::AddPart(this, RootComponent, Cube, Local + FVector(0.f, 0.f, 220.f), FVector(CellSize - 20.f, CellSize - 20.f, 240.f), FLinearColor::Black))
 					{
-						Glass->SetMaterial(0, TTShapes::MakeEmissive(Glass, FLinearColor(0.15f, 0.2f, 0.35f), 0.6f));
+						// Clear glass: it blocks, but the city and the sky show through.
+						Glass->SetHiddenInGame(true);
+						Glass->SetCastShadow(false);
 					}
+					// Window frame and mullions so the opening still reads as glass.
+					const FLinearColor Frame(0.1f, 0.11f, 0.1f);
+					const bool bWallAlongY = !IsWalkableChar(GetChar(Cell + FIntPoint(0, 1))) && !IsWalkableChar(GetChar(Cell + FIntPoint(0, -1)));
+					const FVector Mullion = bWallAlongY ? FVector(16.f, 8.f, 240.f) : FVector(8.f, 16.f, 240.f);
+					const FVector Transom = bWallAlongY ? FVector(16.f, CellSize - 20.f, 6.f) : FVector(CellSize - 20.f, 16.f, 6.f);
+					TTShapes::AddPart(this, RootComponent, Cube, Local + FVector(0.f, 0.f, 220.f), Mullion, Frame, FRotator::ZeroRotator, false);
+					TTShapes::AddPart(this, RootComponent, Cube, Local + FVector(0.f, 0.f, 270.f), Transom, Frame, FRotator::ZeroRotator, false);
 					break;
 				}
 
@@ -661,6 +686,36 @@ void ATTHospital::Build()
 					break;
 				}
 
+				case TEXT('d'): case TEXT('e'): case TEXT('k'): case TEXT('j'):
+				{
+					FStoryCell Story;
+					Story.Char = C;
+					Story.Cell = Cell;
+					for (const FDocSource& Doc : DocSources)
+					{
+						if (Floors[F].Id == Doc.Floor && Doc.X == X && Doc.Y == Y)
+						{
+							Story.DocId = Doc.Id;
+						}
+					}
+					StoryCells.Add(Story);
+					break;
+				}
+
+				case TEXT('o'):
+				{
+					// Morgue slab: steel table. Whether a body lies on it depends on the difficulty (narrative).
+					const FRotator Rot(0.f, FacingYawAwayFromWall(Cell) + 90.f, 0.f);
+					const FLinearColor Steel(0.32f, 0.34f, 0.35f);
+					TTShapes::AddPart(this, RootComponent, Cube, Local + FVector(0.f, 0.f, 80.f), FVector(200.f, 80.f, 8.f), Steel, Rot);
+					TTShapes::AddPart(this, RootComponent, Cube, Local + FVector(0.f, 0.f, 40.f), FVector(20.f, 20.f, 76.f), Steel * 0.7f, Rot);
+					FStoryCell Story;
+					Story.Char = C;
+					Story.Cell = Cell;
+					StoryCells.Add(Story);
+					break;
+				}
+
 				case TEXT('P'):
 					PlayerStart = Cell;
 					break;
@@ -719,6 +774,42 @@ void ATTHospital::Build()
 	SpawnCity();
 	UE_LOG(LogTemp, Log, TEXT("[TT] Hospital built: %d floors, %d doors, %d lockers, %d lamps, %d cameras, %d patrol points"),
 		Floors.Num(), Doors.Num(), Lockers.Num(), Lamps.Num(), SecurityCameras.Num(), PatrolPoints.Num());
+}
+
+FString ATTHospital::GetZoneOfCell(const FIntPoint& Cell) const
+{
+	if (Floors.Num() == 0)
+	{
+		return FString();
+	}
+	const int32 F = FloorOfCell(Cell);
+	const int32 X = Cell.X - F * Stride;
+	const int32 Y = Cell.Y;
+	for (const FZoneSource& Zone : ZoneSources)
+	{
+		if (Floors[F].Id == Zone.Floor && X >= Zone.X0 && X <= Zone.X1 && Y >= Zone.Y0 && Y <= Zone.Y1)
+		{
+			return Zone.Node;
+		}
+	}
+	return FString();
+}
+
+FString ATTHospital::GetZoneAt(const FVector& Location) const
+{
+	return GetZoneOfCell(WorldToCell(Location));
+}
+
+float ATTHospital::FacingYawForDevice(const FIntPoint& Cell) const
+{
+	for (const FIntPoint& D : Dirs)
+	{
+		if (IsWalkableChar(GetChar(Cell + D)))
+		{
+			return FVector(static_cast<float>(D.X), static_cast<float>(D.Y), 0.f).Rotation().Yaw;
+		}
+	}
+	return FacingYawAwayFromWall(Cell);
 }
 
 void ATTHospital::BuildStairs(int32 F)
@@ -876,7 +967,11 @@ void ATTHospital::SpawnCity()
 		const float Angle = Rng.FRandRange(0.f, 2.f * PI);
 		const float Dist = Rng.FRandRange(6500.f, 15000.f);
 		const FVector Pos = Center + FVector(FMath::Cos(Angle) * Dist, FMath::Sin(Angle) * Dist, 0.f);
-		const FVector Size(Rng.FRandRange(900.f, 2400.f), Rng.FRandRange(900.f, 2400.f), Rng.FRandRange(1800.f, 7000.f));
+		FVector Size(Rng.FRandRange(900.f, 2400.f), Rng.FRandRange(900.f, 2400.f), Rng.FRandRange(1800.f, 7000.f));
+		if (FMath::Abs(FMath::UnwindRadians(Angle)) < 0.35f)
+		{
+			Size.Z = FMath::Min(Size.Z, 1500.f);
+		}
 		TTShapes::AddPart(this, RootComponent, Cube, Pos + FVector(0.f, 0.f, FloorZ(0) + Size.Z * 0.5f - 400.f), Size, FLinearColor(0.012f, 0.013f, 0.016f), FRotator(0.f, Rng.FRandRange(0.f, 90.f), 0.f), false);
 		const int32 Lit = Rng.RandRange(2, 7);
 		for (int32 k = 0; k < Lit; ++k)
