@@ -115,6 +115,9 @@ public:
 	/** Cell by local floor coordinates. */
 	FIntPoint MakeCell(int32 Floor, int32 X, int32 Y) const { return FIntPoint(Floor * Stride + X, Y); }
 
+	/** Red emergency lights in the 4th floor corridors (on after Thomas is taken). */
+	void SetEmergency(bool bOn);
+
 	/** 0 = darkness, 1 = standing under a working lamp. */
 	float GetLightLevelAt(const FVector& Location, const AActor* IgnoreActor = nullptr) const;
 
@@ -156,6 +159,11 @@ private:
 	float FacingYawAwayFromWall(const FIntPoint& Cell) const;
 	void AddLink(const FIntPoint& A, const FIntPoint& B);
 	void UpdateLampCulling();
+	void UpdateGrading(float DeltaSeconds);
+	void AddPipes(int32 Floor);
+	void AddSigns(int32 Floor);
+	void AddRoomPlates();
+	void AddEmergencyLight(const FIntPoint& Cell);
 
 	TArray<FFloor> Floors;
 	int32 GridWidth = 0;
@@ -190,13 +198,23 @@ private:
 	TArray<TObjectPtr<ACameraActor>> SecurityCameras;
 
 	UPROPERTY()
-	TObjectPtr<UInstancedStaticMeshComponent> Slabs;
+	TArray<TObjectPtr<UInstancedStaticMeshComponent>> FloorIsms;
 
 	UPROPERTY()
-	TObjectPtr<UInstancedStaticMeshComponent> Walls;
+	TArray<TObjectPtr<UInstancedStaticMeshComponent>> WallIsms;
 
 	UPROPERTY()
-	TObjectPtr<UInstancedStaticMeshComponent> WallTrim;
+	TArray<TObjectPtr<UInstancedStaticMeshComponent>> TrimIsms;
+
+	UPROPERTY()
+	TArray<TObjectPtr<UInstancedStaticMeshComponent>> CeilingIsms;
+
+	UPROPERTY()
+	TArray<TObjectPtr<UPointLightComponent>> EmergencyLights;
+
+	UPROPERTY()
+	TObjectPtr<class APostProcessVolume> Grading;
+	FLinearColor GradeTint = FLinearColor::White;
 
 	bool bBuilt = false;
 };

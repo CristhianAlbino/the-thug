@@ -142,22 +142,40 @@ void ATTStoryFigure::Setup(ETTFigure InKind)
 	const FLinearColor Skin(0.55f, 0.42f, 0.34f);
 	if (Kind == ETTFigure::Thomas)
 	{
+		// Confirmed direction: very dark skin, muscular, 1.97 m, dreads and a big beard.
 		const FLinearColor Jacket(0.12f, 0.2f, 0.12f);
-		TTShapes::AddPart(this, Root, TTShapes::Cylinder(), FVector(0.f, -11.f, -48.f), FVector(18.f, 18.f, 86.f), FLinearColor(0.1f, 0.1f, 0.12f), FRotator::ZeroRotator, false);
-		TTShapes::AddPart(this, Root, TTShapes::Cylinder(), FVector(0.f, 11.f, -48.f), FVector(18.f, 18.f, 86.f), FLinearColor(0.1f, 0.1f, 0.12f), FRotator::ZeroRotator, false);
-		TTShapes::AddPart(this, Root, TTShapes::Cube(), FVector(0.f, 0.f, 28.f), FVector(32.f, 50.f, 70.f), Jacket, FRotator::ZeroRotator, false);
-		TTShapes::AddPart(this, Root, TTShapes::Sphere(), FVector(2.f, 0.f, 76.f), FVector(24.f, 22.f, 27.f), Skin, FRotator::ZeroRotator, false);
+		if (TTShapes::SetupMannequin(this, false, FLinearColor(0.035f, 0.02f, 0.014f), Jacket, 1.09f, 0.65f))
+		{
+			for (int32 i = 0; i < 7; ++i)
+			{
+				const float A = -60.f + i * 20.f;
+				const FVector Off(-8.f - FMath::Cos(FMath::DegreesToRadians(A)) * 6.f, FMath::Sin(FMath::DegreesToRadians(A)) * 10.f, 72.f);
+				TTShapes::AddPart(this, Root, TTShapes::Cylinder(), Off, FVector(4.f, 4.f, 30.f), FLinearColor(0.02f, 0.015f, 0.01f), FRotator(12.f, 0.f, 0.f), false);
+			}
+			TTShapes::AddPart(this, Root, TTShapes::Sphere(), FVector(9.f, 0.f, 70.f), FVector(14.f, 14.f, 16.f), FLinearColor(0.03f, 0.02f, 0.015f), FRotator::ZeroRotator, false);
+		}
+		else
+		{
+			TTShapes::AddPart(this, Root, TTShapes::Cylinder(), FVector(0.f, -11.f, -48.f), FVector(18.f, 18.f, 86.f), FLinearColor(0.1f, 0.1f, 0.12f), FRotator::ZeroRotator, false);
+			TTShapes::AddPart(this, Root, TTShapes::Cylinder(), FVector(0.f, 11.f, -48.f), FVector(18.f, 18.f, 86.f), FLinearColor(0.1f, 0.1f, 0.12f), FRotator::ZeroRotator, false);
+			TTShapes::AddPart(this, Root, TTShapes::Cube(), FVector(0.f, 0.f, 28.f), FVector(32.f, 50.f, 70.f), Jacket, FRotator::ZeroRotator, false);
+			TTShapes::AddPart(this, Root, TTShapes::Sphere(), FVector(2.f, 0.f, 76.f), FVector(24.f, 22.f, 27.f), Skin, FRotator::ZeroRotator, false);
+		}
 		// The scratched watch the morgue scene will recognise.
 		TTShapes::AddPart(this, Root, TTShapes::Cylinder(), FVector(10.f, 30.f, 8.f), FVector(7.f, 7.f, 3.f), FLinearColor(0.7f, 0.65f, 0.5f), FRotator(90.f, 0.f, 0.f), false);
 	}
 	else
 	{
 		GetCharacterMovement()->MaxWalkSpeed = 300.f;
-		TTShapes::AddPart(this, Root, TTShapes::Cylinder(), FVector(0.f, -10.f, -50.f), FVector(16.f, 16.f, 82.f), FLinearColor(0.05f, 0.15f, 0.05f), FRotator::ZeroRotator, false);
-		TTShapes::AddPart(this, Root, TTShapes::Cylinder(), FVector(0.f, 10.f, -50.f), FVector(16.f, 16.f, 82.f), FLinearColor(0.05f, 0.15f, 0.05f), FRotator::ZeroRotator, false);
-		TTShapes::AddPart(this, Root, TTShapes::Cube(), FVector(0.f, 0.f, 24.f), FVector(28.f, 44.f, 64.f), FLinearColor(0.45f, 0.05f, 0.04f), FRotator::ZeroRotator, false);
-		TTShapes::AddPart(this, Root, TTShapes::Cube(), FVector(-10.f, 0.f, 30.f), FVector(8.f, 52.f, 80.f), FLinearColor(0.02f, 0.02f, 0.02f), FRotator::ZeroRotator, false);
-		TTShapes::AddPart(this, Root, TTShapes::Sphere(), FVector(2.f, 0.f, 70.f), FVector(22.f, 20.f, 25.f), Skin, FRotator::ZeroRotator, false);
+		if (!TTShapes::SetupMannequin(this, false, FLinearColor(0.04f, 0.14f, 0.05f), FLinearColor(0.45f, 0.05f, 0.04f), 0.95f, 0.5f))
+		{
+			TTShapes::AddPart(this, Root, TTShapes::Cylinder(), FVector(0.f, -10.f, -50.f), FVector(16.f, 16.f, 82.f), FLinearColor(0.05f, 0.15f, 0.05f), FRotator::ZeroRotator, false);
+			TTShapes::AddPart(this, Root, TTShapes::Cylinder(), FVector(0.f, 10.f, -50.f), FVector(16.f, 16.f, 82.f), FLinearColor(0.05f, 0.15f, 0.05f), FRotator::ZeroRotator, false);
+			TTShapes::AddPart(this, Root, TTShapes::Cube(), FVector(0.f, 0.f, 24.f), FVector(28.f, 44.f, 64.f), FLinearColor(0.45f, 0.05f, 0.04f), FRotator::ZeroRotator, false);
+			TTShapes::AddPart(this, Root, TTShapes::Sphere(), FVector(2.f, 0.f, 70.f), FVector(22.f, 20.f, 25.f), Skin, FRotator::ZeroRotator, false);
+		}
+		// Short cape.
+		TTShapes::AddPart(this, Root, TTShapes::Cube(), FVector(-14.f, 0.f, 22.f), FVector(4.f, 54.f, 84.f), FLinearColor(0.02f, 0.02f, 0.02f), FRotator(-6.f, 0.f, 0.f), false);
 		Torch = NewObject<USpotLightComponent>(this);
 		Torch->SetupAttachment(Root);
 		Torch->SetRelativeLocation(FVector(20.f, 15.f, 50.f));
@@ -498,6 +516,7 @@ void ATTNarrative::Begin(EIntro Mode)
 		MarkSeen(TEXT("N03"));
 		Stage = EStage::Free;
 		ShowBatSignal(false);
+		H->SetEmergency(true);
 		if (Mode == EIntro::SkipScattered)
 		{
 			Scatter(true);
@@ -712,6 +731,10 @@ void ATTNarrative::SkipIntro()
 	MarkSeen(TEXT("N03"));
 	ShowBatSignal(false);
 	Scatter(true);
+	if (ATTHospital* H = Hospital())
+	{
+		H->SetEmergency(true);
+	}
 	Stage = EStage::Free;
 	HunterWake = 8.f;
 	GM()->ShowMessage(TEXT("Thomas sumiu. Os outros correram. Você está sozinho."), 5.f);
@@ -797,6 +820,7 @@ void ATTNarrative::UpdateIntro(float DeltaSeconds)
 			// N03: the premise. Lights die, a shape from above, Thomas is gone.
 			MarkSeen(TEXT("N03"));
 			H->SetLampsNear(P->GetActorLocation(), 2500.f, false);
+			H->SetEmergency(true);
 			TTAudio::Play2D(this, ETTSfx::Sting, 1.f);
 			if (Thomas)
 			{

@@ -1,4 +1,4 @@
-# UnrealProject — The Thug (prototype: M01–M07)
+# UnrealProject — The Thug (prototype: M01–M08)
 
 Unreal Engine **5.8**, C++. The M01 slice (GDD §98, "10 excellent minutes") is fully code-driven:
 the hospital wing, the Hunter, the sounds and the HUD are generated at runtime, so the only
@@ -28,6 +28,9 @@ binary asset is the empty map `Content/Maps/Hospital_M01.umap` (Git LFS).
 | Jack in Punitive: clothes change after the opening, J1/J2/J3 laughs that run too long, J4 reveal in act 5 (needs J3 + another clue) | `TTNarrative`, `TTCompanion` |
 | Rare endings (GDD §59, RunRules): Easy **Confronto** (two following companions + the Hunter stunned), Punitive **Destruição** (explosives in the garage, three marked pillars, detonator in the tunnels). Robin's one-off episode in the Punitive tunnels (reports Joe, never captures) | `TTNarrative`, `RunRules` |
 | Epilogues per person from verified evidence only (together / escaped alone / captured / unknown), Thomas block by difficulty, Jack's secret | `TTNarrative::OnRunEnded`, HUD |
+| **Art (M08)**: procedural master material `M_TTSurface` (world-space tiles, grime, wet puddles; every block uses it) and a look per floor from the visual bible (linoleum 4th, white tile 3rd, carpet 2nd, terrazzo 1st, wet concrete B1, oily garage, rusty tunnels), lamp colours and colour grading per floor, red emergency lights on the 4th after N03, ceiling tiles, pipes/valves/cable trays on service floors, floor plates "4º ANDAR · SAÍDA" at every stairwell, room plates beside doors, clear windows (Bat-Signal visible) | `TTShapes`, `TTHospital`, `Scripts/create_surface_material.py` |
+| Characters on the **UE5 Mannequin** with idle/walk/jog (`ABP_Unarmed`): the Hunter (2 m, charcoal suit, cape that trails with speed, cowl ears, belt, glowing eyes), Harley, Bartholomeu, Jack (outfit changes in Punitive), Thomas, Robin | `TTShapes::SetupMannequin` |
+| **Horror Hospital kit** (Fab, free; not in the repo): the pack's floor/wall/ceiling materials on the hospital blocks, real beds with bedside tables, IV stands and clinic curtains, desks/shelves/cabinets/fridges/surgery machines by floor, double metal doors, notice boards/radiators/clocks/vents on walls, papers and rags on floors. Collision, navigation and the Hunter's sight stay on the code geometry | `TTKit`, `Scripts/build_kit.py` |
 | Procedural audio (Hunter steps, heartbeat, creaks, glass, drone) | `TTAudio` |
 | Title / pause / captured / escaped flow, noise routing | `TTGameMode`, `TTHUD`, `TTPlayerController` |
 
@@ -46,6 +49,15 @@ their standalone tests still run outside Unreal). The module builds with excepti
 ## Controls
 
 WASD move · Shift sprint · C toggle crouch / Ctrl hold crouch · F flashlight · E interact / hide · Right mouse aim · Left mouse fire · R reload · G bottle · T smoke · Q grenade · H bandage/medkit · hold Tab inventory, notes and clock (+ 2-9 drop) · safe keypad: 0-9 type, Backspace erase, Enter confirm, E/Esc leave · reading a document: E closes · Enter skips the opening · looking at a companion: E talk, Z give magazine, X come with me / stay · Esc pause (mouse sensitivity with + / −).
+
+## Third-party art (local only)
+
+The Mannequin and the Horror Hospital pack are **not committed** (licences, size): see `05_ART/ASSETS.md`.
+Install "Templates and Feature Packs" and add *Horror Hospital* from Fab to the project in the Epic Launcher, then run
+`powershell -ExecutionPolicy Bypass -File UnrealProject/Scripts/setup_art.ps1` (copies the Mannequin, runs `build_kit.py`,
+which writes `Source/TheThug/TTKitAssets.inl` and the cook label). `build_kit.py --textures` (via `-run=pythonscript`
+with `-script="build_kit.py --textures"`) caps the used textures at 2K, 40 per run on 8 GB RAM; repeat until 0 remain.
+Without the assets the game builds and runs with the procedural art.
 
 ## Build
 
@@ -69,7 +81,7 @@ Debug flags: `-ttdebug` (Hunter state on screen), `-ttshots` (scripted screensho
 `-ttcomp` (talk, ammo handoff, Hunter takes a companion, Jack escapes through the window, Joe follows),
 `-ttfloors` (service hatch crawl, stairwell, camera monitors, garage; screenshots),
 `-ttroute=garage|roof|tunnel|window` (plays one escape route end to end and logs each RunRules event and the ending), `-ttfastheli=<s>` (helicopter delay),
-`-ttstory=intro|thomas|jack|destroy|confront|robin` (narrative: opening, N34, Jack J1–J4, rare endings, Robin; logs scenes and the epilogue, screenshots TT_30+), `-ttflash=<power>`, `-ttdiff=<0-3>`, `-ttev=<bias>` (exposure), `-ttsens=<x>` (mouse).
+`-ttstory=intro|thomas|jack|destroy|confront|robin|art` (narrative: opening, N34, Jack J1–J4, rare endings, Robin; logs scenes and the epilogue, screenshots TT_30+), `-ttflash=<power>`, `-ttdiff=<0-3>`, `-ttev=<bias>` (exposure), `-ttsens=<x>` (mouse).
 
 ## Package the .exe
 

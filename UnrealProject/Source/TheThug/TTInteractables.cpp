@@ -3,6 +3,7 @@
 #include "Components/PointLightComponent.h"
 #include "Components/SpotLightComponent.h"
 #include "TTHospital.h"
+#include "TTKit.h"
 #include "Components/SphereComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/World.h"
@@ -68,6 +69,30 @@ void ATTDoor::Setup(float CellSize, float WallHeight, const FString& InId)
 	// Small window and handle so the door reads as a door in the dark.
 	TTShapes::AddPart(this, Hinge, TTShapes::Cube(), FVector(Length * 0.5f, 0.f, 185.f), FVector(60.f, 8.f, 45.f), FLinearColor(0.05f, 0.06f, 0.06f), FRotator::ZeroRotator, false);
 	TTShapes::AddPart(this, Hinge, TTShapes::Cube(), FVector(Length - 25.f, 0.f, 100.f), FVector(14.f, 14.f, 4.f), FLinearColor(0.5f, 0.5f, 0.48f), FRotator::ZeroRotator, false);
+
+	// Kit look: a pair of real hospital door leaves on the same hinge; the block leaf stays as the
+	// (now invisible) collision, so doors, locks, the Hunter's door memory and noise are unchanged.
+	if (UStaticMesh* Leaf = TTKit::Mesh(TEXT("doorleaf"), 0))
+	{
+		TArray<USceneComponent*> Parts;
+		Hinge->GetChildrenComponents(false, Parts);
+		for (USceneComponent* Part : Parts)
+		{
+			Part->SetVisibility(false);
+		}
+		const FBoxSphereBounds B = Leaf->GetBounds();
+		const float LeafW = FMath::Max(1.f, B.BoxExtent.X * 2.f);
+		const float LeafH = FMath::Max(1.f, B.BoxExtent.Z * 2.f);
+		for (int32 i = 0; i < 2; ++i)
+		{
+			if (UStaticMeshComponent* Comp = TTKit::Place(this, Hinge, Leaf, FVector(Length * 0.25f + i * Length * 0.5f, 0.f, 0.f), 0.f, false, 0.f, false))
+			{
+				Comp->SetRelativeScale3D(FVector((Length * 0.5f) / LeafW, 1.f, DoorHeight / LeafH));
+				const FVector Org = B.Origin * Comp->GetRelativeScale3D();
+				Comp->SetRelativeLocation(FVector(Length * 0.25f + i * Length * 0.5f - Org.X, -Org.Y, -(B.Origin.Z - B.BoxExtent.Z) * Comp->GetRelativeScale3D().Z));
+			}
+		}
+	}
 
 	// Lintel above the door fills the wall cell.
 	TTShapes::AddPart(this, Root, TTShapes::Cube(), FVector(0.f, 0.f, DoorHeight + (WallHeight - DoorHeight) * 0.5f), FVector(CellSize, CellSize, WallHeight - DoorHeight), FrameColor);

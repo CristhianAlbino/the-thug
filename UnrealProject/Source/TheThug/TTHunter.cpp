@@ -203,18 +203,42 @@ void ATTHunter::BuildVisual()
 {
 	USceneComponent* Root = GetCapsuleComponent();
 	const FLinearColor Black(0.004f, 0.004f, 0.005f);
-	const FLinearColor Suit(0.008f, 0.008f, 0.01f);
+	const FLinearColor Suit(0.018f, 0.018f, 0.022f);
 
-	TTShapes::AddPart(this, Root, TTShapes::Cylinder(), FVector(0.f, -13.f, -52.f), FVector(22.f, 22.f, 96.f), Suit, FRotator::ZeroRotator, false);
-	TTShapes::AddPart(this, Root, TTShapes::Cylinder(), FVector(0.f, 13.f, -52.f), FVector(22.f, 22.f, 96.f), Suit, FRotator::ZeroRotator, false);
-	TTShapes::AddPart(this, Root, TTShapes::Cube(), FVector(0.f, 0.f, 32.f), FVector(40.f, 62.f, 82.f), Suit, FRotator::ZeroRotator, false);
-	TTShapes::AddPart(this, Root, TTShapes::Cube(), FVector(-27.f, 0.f, -4.f), FVector(8.f, 100.f, 158.f), Black, FRotator(-5.f, 0.f, 0.f), false);
-	TTShapes::AddPart(this, Root, TTShapes::Sphere(), FVector(2.f, 0.f, 88.f), FVector(30.f, 28.f, 32.f), Black, FRotator::ZeroRotator, false);
-	TTShapes::AddPart(this, Root, TTShapes::Cone(), FVector(0.f, -9.f, 108.f), FVector(8.f, 8.f, 16.f), Black, FRotator::ZeroRotator, false);
-	TTShapes::AddPart(this, Root, TTShapes::Cone(), FVector(0.f, 9.f, 108.f), FVector(8.f, 8.f, 16.f), Black, FRotator::ZeroRotator, false);
-	for (const float Side : { -6.f, 6.f })
+	// 2 m tall: the Mannequin (180 cm) scaled up, charcoal suit, darker cowl and boots.
+	const bool bBody = TTShapes::SetupMannequin(this, false, FLinearColor(0.008f, 0.008f, 0.01f), Suit, 1.11f, 0.5f) != nullptr;
+	if (!bBody)
 	{
-		if (UStaticMeshComponent* Eye = TTShapes::AddPart(this, Root, TTShapes::Sphere(), FVector(14.f, Side, 90.f), FVector(4.f, 5.f, 2.5f), FLinearColor(0.8f, 0.85f, 0.9f), FRotator::ZeroRotator, false))
+		TTShapes::AddPart(this, Root, TTShapes::Cylinder(), FVector(0.f, -13.f, -52.f), FVector(22.f, 22.f, 96.f), Suit, FRotator::ZeroRotator, false);
+		TTShapes::AddPart(this, Root, TTShapes::Cylinder(), FVector(0.f, 13.f, -52.f), FVector(22.f, 22.f, 96.f), Suit, FRotator::ZeroRotator, false);
+		TTShapes::AddPart(this, Root, TTShapes::Cube(), FVector(0.f, 0.f, 32.f), FVector(40.f, 62.f, 82.f), Suit, FRotator::ZeroRotator, false);
+		TTShapes::AddPart(this, Root, TTShapes::Sphere(), FVector(2.f, 0.f, 88.f), FVector(30.f, 28.f, 32.f), Black, FRotator::ZeroRotator, false);
+	}
+	// Cape from the shoulders; it swings back with speed (see Tick).
+	CapePivot = NewObject<USceneComponent>(this, TEXT("CapePivot"));
+	CapePivot->SetupAttachment(Root);
+	CapePivot->SetRelativeLocation(FVector(-14.f, 0.f, 64.f));
+	CapePivot->RegisterComponent();
+	FTTSurface CapeCloth = TTShapes::Worn(FLinearColor(0.006f, 0.006f, 0.007f), 0.97f, 0.15f);
+	for (int32 Panel = -1; Panel <= 1; ++Panel)
+	{
+		// Three panels fanning out a little: reads as cloth, not a board.
+		if (UStaticMeshComponent* Cloth = TTShapes::AddPart(this, CapePivot, TTShapes::Cube(), FVector(-4.f - FMath::Abs(Panel) * 3.f, Panel * 19.f, -76.f), FVector(3.f, 24.f, 150.f), Black, FRotator(0.f, Panel * 10.f, Panel * 4.f), false))
+		{
+			Cloth->SetMaterial(0, TTShapes::MakeSurface(Cloth, CapeCloth));
+		}
+	}
+	if (UStaticMeshComponent* Collar = TTShapes::AddPart(this, CapePivot, TTShapes::Cube(), FVector(-2.f, 0.f, -2.f), FVector(14.f, 50.f, 7.f), Black, FRotator::ZeroRotator, false))
+	{
+		Collar->SetMaterial(0, TTShapes::MakeSurface(Collar, CapeCloth));
+	}
+	// Cowl ears, belt.
+	TTShapes::AddPart(this, Root, TTShapes::Cone(), FVector(-1.f, -6.5f, 104.f), FVector(6.5f, 6.5f, 17.f), Black, FRotator(0.f, 0.f, -6.f), false);
+	TTShapes::AddPart(this, Root, TTShapes::Cone(), FVector(-1.f, 6.5f, 104.f), FVector(6.5f, 6.5f, 17.f), Black, FRotator(0.f, 0.f, 6.f), false);
+	TTShapes::AddPart(this, Root, TTShapes::Cylinder(), FVector(1.f, 0.f, 8.f), FVector(30.f, 38.f, 7.f), FLinearColor(0.32f, 0.26f, 0.06f), FRotator::ZeroRotator, false);
+	for (const float Side : { -4.f, 4.f })
+	{
+		if (UStaticMeshComponent* Eye = TTShapes::AddPart(this, Root, TTShapes::Sphere(), FVector(11.f, Side, 85.f), FVector(3.f, 4.f, 1.6f), FLinearColor(0.8f, 0.85f, 0.9f), FRotator::ZeroRotator, false))
 		{
 			Eye->SetMaterial(0, TTShapes::MakeEmissive(Eye, FLinearColor(0.75f, 0.85f, 1.f), 3.f));
 		}
@@ -222,7 +246,7 @@ void ATTHunter::BuildVisual()
 
 	UPointLightComponent* EyeGlow = NewObject<UPointLightComponent>(this);
 	EyeGlow->SetupAttachment(Root);
-	EyeGlow->SetRelativeLocation(FVector(24.f, 0.f, 90.f));
+	EyeGlow->SetRelativeLocation(FVector(20.f, 0.f, 85.f));
 	EyeGlow->SetIntensityUnits(ELightUnits::Lumens);
 	EyeGlow->SetIntensity(2.5f);
 	EyeGlow->SetAttenuationRadius(60.f);
@@ -1455,6 +1479,14 @@ void ATTHunter::Capture()
 void ATTHunter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+	if (CapePivot)
+	{
+		// The cape trails behind at speed and settles when he stops.
+		const float Speed = GetVelocity().Size2D();
+		const float Target = -FMath::Clamp(Speed / 520.f, 0.f, 1.f) * 38.f - 3.f;
+		CapePitch = FMath::FInterpTo(CapePitch, Target + FMath::Sin(GetWorld()->GetTimeSeconds() * 7.f) * Speed * 0.006f, DeltaSeconds, 5.f);
+		CapePivot->SetRelativeRotation(FRotator(CapePitch, 0.f, 0.f));
+	}
 	if (State == ETTHunterState::Dormant)
 	{
 		return;

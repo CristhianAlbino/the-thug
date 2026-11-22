@@ -75,6 +75,10 @@ public:
 	void DebugSetAggression(float Value) { Aggression = Value; }
 
 private:
+	UPROPERTY()
+	TObjectPtr<USceneComponent> CapePivot;
+	float CapePitch = 0.f;
+
 	struct FSearchTarget
 	{
 		FVector Location = FVector::ZeroVector;

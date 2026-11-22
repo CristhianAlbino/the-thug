@@ -135,6 +135,7 @@ private:
 
 	UPROPERTY()
 	TObjectPtr<UStaticMeshComponent> Body;
+	bool bVisualBuilt = false;
 
 	TSharedPtr<FTTCompanionMind> Mind;
 	ETTCompanionId Id = ETTCompanionId::Harley;

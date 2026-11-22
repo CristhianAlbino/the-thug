@@ -17,8 +17,11 @@
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Misc/CommandLine.h"
 #include "Misc/Parse.h"
+#include "Components/TextRenderComponent.h"
+#include "Materials/MaterialInstanceDynamic.h"
 #include "TTAudio.h"
 #include "TTInteractables.h"
+#include "TTKit.h"
 #include "TTShapes.h"
 
 namespace
@@ -55,6 +58,157 @@ namespace
 
 	/** Stairwells: (lane A column, top row). Two switchback lanes, four rows. */
 	const FIntPoint StairDefs[] = { FIntPoint(1, 1), FIntPoint(21, 1) };
+
+	/** Identity per area (02_GAME_DESIGN/Visual/BIBLIA_VISUAL_HOSPITAL.md). */
+	struct FFloorStyle
+	{
+		FTTSurface Floor;
+		FTTSurface Wall;
+		FTTSurface Trim;
+		FTTSurface Ceiling;
+		FLinearColor Lamp = FLinearColor(1.f, 0.93f, 0.8f);
+		FLinearColor Tint = FLinearColor::White;
+		bool bTrim = true;
+	};
+
+	FTTSurface Surf(const FLinearColor& Color, const FLinearColor& Grime, float Tile, float GrimeAmount, float Wet, float Rough, float Speckle, float Seed)
+	{
+		FTTSurface S;
+		S.Color = Color;
+		S.Grime = Grime;
+		S.TileSize = Tile;
+		S.Grout = Tile > 0.f ? 0.35f : 0.f;
+		S.GrimeAmount = GrimeAmount;
+		S.Wet = Wet;
+		S.Roughness = Rough;
+		S.Speckle = Speckle;
+		S.Seed = Seed;
+		return S;
+	}
+
+	FFloorStyle StyleFor(const FString& Id)
+	{
+		FFloorStyle St;
+		const FLinearColor Dirt(0.07f, 0.06f, 0.045f);
+		// Hospital floors: stained acoustic ceiling tiles. Service levels: bare concrete.
+		St.Ceiling = Surf(FLinearColor(0.5f, 0.5f, 0.47f), FLinearColor(0.28f, 0.22f, 0.12f), 60.f, 0.4f, 0.f, 0.9f, 0.25f, 30.f);
+		if (Id == TEXT("G") || Id == TEXT("B1") || Id == TEXT("T"))
+		{
+			St.Ceiling = Surf(FLinearColor(0.2f, 0.2f, 0.19f), Dirt, 0.f, 0.55f, 0.f, 0.9f, 0.5f, 31.f);
+		}
+		const FLinearColor Mold(0.05f, 0.08f, 0.05f);
+		const FLinearColor Rust(0.16f, 0.07f, 0.03f);
+		if (Id == TEXT("G"))
+		{
+			// Garage: oily asphalt, raw concrete, sodium light between the grilles.
+			St.Floor = Surf(FLinearColor(0.07f, 0.07f, 0.07f), FLinearColor(0.02f, 0.02f, 0.018f), 0.f, 0.6f, 0.35f, 0.7f, 0.5f, 1.f);
+			St.Wall = Surf(FLinearColor(0.24f, 0.24f, 0.23f), Dirt, 0.f, 0.5f, 0.05f, 0.9f, 0.45f, 2.f);
+			St.Lamp = FLinearColor(1.f, 0.62f, 0.28f);
+			St.Tint = FLinearColor(1.f, 0.93f, 0.82f);
+			St.bTrim = false;
+		}
+		else if (Id == TEXT("B1"))
+		{
+			// Technical basement: saturated concrete, cold green, amber lamps, water on the floor.
+			St.Floor = Surf(FLinearColor(0.13f, 0.15f, 0.13f), Mold, 0.f, 0.65f, 0.55f, 0.75f, 0.5f, 3.f);
+			St.Wall = Surf(FLinearColor(0.2f, 0.24f, 0.21f), Mold, 0.f, 0.6f, 0.25f, 0.85f, 0.4f, 4.f);
+			St.Lamp = FLinearColor(1.f, 0.72f, 0.38f);
+			St.Tint = FLinearColor(0.86f, 1.f, 0.88f);
+			St.bTrim = false;
+		}
+		else if (Id == TEXT("F1"))
+		{
+			// Emergency: terrazzo, washable blue-grey paint, bluish entrance glare.
+			St.Floor = Surf(FLinearColor(0.34f, 0.33f, 0.31f), Dirt, 0.f, 0.35f, 0.15f, 0.45f, 0.9f, 5.f);
+			St.Wall = Surf(FLinearColor(0.4f, 0.45f, 0.48f), Dirt, 0.f, 0.35f, 0.f, 0.7f, 0.1f, 6.f);
+			St.Trim = Surf(FLinearColor(0.08f, 0.17f, 0.26f), Dirt, 0.f, 0.3f, 0.f, 0.5f, 0.05f, 7.f);
+			St.Lamp = FLinearColor(0.85f, 0.93f, 1.f);
+			St.Tint = FLinearColor(0.9f, 0.96f, 1.05f);
+		}
+		else if (Id == TEXT("F2"))
+		{
+			// Administration: carpet tiles, beige painted concrete, damp paper.
+			St.Floor = Surf(FLinearColor(0.16f, 0.15f, 0.14f), Dirt, 60.f, 0.45f, 0.f, 0.95f, 0.6f, 8.f);
+			St.Wall = Surf(FLinearColor(0.45f, 0.41f, 0.34f), FLinearColor(0.16f, 0.13f, 0.08f), 0.f, 0.45f, 0.f, 0.8f, 0.2f, 9.f);
+			St.Trim = Surf(FLinearColor(0.2f, 0.13f, 0.08f), Dirt, 0.f, 0.3f, 0.f, 0.55f, 0.1f, 10.f);
+			St.Lamp = FLinearColor(1.f, 0.95f, 0.85f);
+			St.Tint = FLinearColor(1.f, 0.97f, 0.9f);
+		}
+		else if (Id == TEXT("F3"))
+		{
+			// Clinic: white tiles everywhere, teal trim, cold white light.
+			St.Floor = Surf(FLinearColor(0.42f, 0.43f, 0.42f), Dirt, 40.f, 0.3f, 0.05f, 0.35f, 0.1f, 11.f);
+			St.Wall = Surf(FLinearColor(0.55f, 0.57f, 0.56f), FLinearColor(0.2f, 0.19f, 0.15f), 20.f, 0.3f, 0.f, 0.3f, 0.05f, 12.f);
+			St.Trim = Surf(FLinearColor(0.05f, 0.24f, 0.22f), Dirt, 0.f, 0.25f, 0.f, 0.45f, 0.05f, 13.f);
+			St.Lamp = FLinearColor(0.88f, 0.95f, 1.f);
+			St.Tint = FLinearColor(0.93f, 0.97f, 1.02f);
+		}
+		else if (Id == TEXT("F4"))
+		{
+			// Wards: worn green linoleum, old mint paint, frosted glass.
+			St.Floor = Surf(FLinearColor(0.16f, 0.22f, 0.18f), Dirt, 0.f, 0.5f, 0.05f, 0.5f, 0.25f, 14.f);
+			St.Wall = Surf(FLinearColor(0.36f, 0.42f, 0.37f), FLinearColor(0.14f, 0.13f, 0.09f), 0.f, 0.5f, 0.f, 0.75f, 0.15f, 15.f);
+			St.Trim = Surf(FLinearColor(0.1f, 0.16f, 0.13f), Dirt, 0.f, 0.35f, 0.f, 0.5f, 0.05f, 16.f);
+			St.Lamp = FLinearColor(0.95f, 1.f, 0.92f);
+			St.Tint = FLinearColor(0.96f, 1.f, 0.96f);
+		}
+		else if (Id == TEXT("R"))
+		{
+			// Roof: rain-soaked concrete under the moon.
+			St.Floor = Surf(FLinearColor(0.18f, 0.18f, 0.19f), Dirt, 0.f, 0.45f, 0.6f, 0.8f, 0.5f, 17.f);
+			St.Wall = Surf(FLinearColor(0.22f, 0.22f, 0.23f), Dirt, 0.f, 0.5f, 0.3f, 0.85f, 0.4f, 18.f);
+			St.Tint = FLinearColor(0.88f, 0.92f, 1.08f);
+			St.bTrim = false;
+		}
+		else
+		{
+			// Storm drains: rust, shallow water.
+			St.Floor = Surf(FLinearColor(0.1f, 0.09f, 0.08f), Rust, 0.f, 0.6f, 0.75f, 0.8f, 0.5f, 19.f);
+			St.Wall = Surf(FLinearColor(0.15f, 0.13f, 0.11f), Rust, 0.f, 0.7f, 0.35f, 0.85f, 0.5f, 20.f);
+			St.Lamp = FLinearColor(1.f, 0.68f, 0.35f);
+			St.Tint = FLinearColor(0.97f, 0.9f, 0.8f);
+			St.bTrim = false;
+		}
+		return St;
+	}
+
+	/** Horror Hospital materials per floor: floor, walls, ceiling (empty = keep the procedural surface). */
+	void KitKeysFor(const FString& Id, const TCHAR*& Floor, const TCHAR*& Wall, const TCHAR*& Ceiling)
+	{
+		Ceiling = TEXT("ceiling");
+		Wall = TEXT("wall_paint");
+		Floor = TEXT("floor_1");
+		if (Id == TEXT("F2")) Floor = TEXT("floor_2");
+		else if (Id == TEXT("F3")) Floor = TEXT("floor_or");
+		else if (Id == TEXT("F1")) Floor = TEXT("floor_toilet");
+		if (Id == TEXT("G") || Id == TEXT("B1") || Id == TEXT("T") || Id == TEXT("R"))
+		{
+			// Service levels keep the procedural concrete walls (closer to the bible than the pack's paint).
+			Floor = TEXT("floor_out");
+			Wall = nullptr;
+			Ceiling = nullptr;
+		}
+	}
+
+	/** Door plates: what a room is called on the corridor side (MapCore node -> sign). */
+	const TCHAR* PlateFor(const FString& Node)
+	{
+		static const TMap<FString, const TCHAR*> Plates = {
+			{ TEXT("F4_START"), TEXT("ENFERMARIA 4B") }, { TEXT("F4_NURSE"), TEXT("POSTO DE ENFERMAGEM") },
+			{ TEXT("F4_WARD_W"), TEXT("ENFERMARIA 4A") }, { TEXT("F4_WARD_E"), TEXT("ENFERMARIA 4C") },
+			{ TEXT("F3_EXAMS"), TEXT("EXAMES") }, { TEXT("F3_ICU"), TEXT("UTI") }, { TEXT("F3_UTILITY"), TEXT("UTILIDADES") },
+			{ TEXT("F3_SURGERY"), TEXT("CENTRO CIRÚRGICO") }, { TEXT("F2_ARCHIVE"), TEXT("ARQUIVO") },
+			{ TEXT("F2_CAMERAS"), TEXT("SEGURANÇA / CFTV") }, { TEXT("F2_SECURITY"), TEXT("SEGURANÇA / CFTV") },
+			{ TEXT("F2_SERVER"), TEXT("SERVIDORES") }, { TEXT("F2_SUPPLY"), TEXT("ALMOXARIFADO") }, { TEXT("F2_SAFE"), TEXT("ADMINISTRAÇÃO") },
+			{ TEXT("F1_PHARMACY"), TEXT("FARMÁCIA") }, { TEXT("F1_SECURITY"), TEXT("VIGILÂNCIA") },
+			{ TEXT("F1_TREATMENT"), TEXT("SALA DE TRATAMENTO") }, { TEXT("F1_RADIO"), TEXT("COMUNICAÇÃO") },
+			{ TEXT("B1_GENERATOR"), TEXT("GERADORES") }, { TEXT("B1_STORAGE"), TEXT("ALMOXARIFADO") },
+			{ TEXT("B1_MORGUE"), TEXT("NECROTÉRIO") }, { TEXT("B1_PUMP"), TEXT("CASA DE BOMBAS") },
+			{ TEXT("G_MAINT"), TEXT("MANUTENÇÃO") }, { TEXT("G_CONTROL"), TEXT("CONTROLE") },
+		};
+		const TCHAR* const* Found = Plates.Find(Node);
+		return Found ? *Found : nullptr;
+	}
 
 	const FLinearColor WallColor(0.34f, 0.37f, 0.33f);
 	const FLinearColor TrimColor(0.12f, 0.17f, 0.15f);
@@ -290,12 +444,21 @@ void ATTHospital::Build()
 	UWorld* World = GetWorld();
 	UStaticMesh* Cube = TTShapes::Cube();
 
-	auto MakeIsm = [this, Cube](const TCHAR* Name, const FLinearColor& Color, float Roughness, bool bCollide)
+	const bool bKit = TTKit::IsAvailable();
+	auto MakeIsm = [this, Cube](const FString& Name, const FTTSurface& Surface, bool bCollide, const TCHAR* KitMaterial = nullptr)
 	{
-		UInstancedStaticMeshComponent* Ism = NewObject<UInstancedStaticMeshComponent>(this, Name);
+		UInstancedStaticMeshComponent* Ism = NewObject<UInstancedStaticMeshComponent>(this, *Name);
 		Ism->SetStaticMesh(Cube);
 		Ism->SetupAttachment(RootComponent);
-		Ism->SetMaterial(0, TTShapes::MakeColor(Ism, Color, Roughness));
+		UMaterialInterface* Kit = KitMaterial ? TTKit::Material(KitMaterial) : nullptr;
+		if (Kit)
+		{
+			Ism->SetMaterial(0, Kit);
+		}
+		else
+		{
+			Ism->SetMaterial(0, TTShapes::MakeSurface(Ism, Surface));
+		}
 		if (!bCollide)
 		{
 			Ism->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -303,10 +466,21 @@ void ATTHospital::Build()
 		Ism->RegisterComponent();
 		return Ism;
 	};
-	Slabs = MakeIsm(TEXT("Slabs"), FloorColor, 0.85f, true);
-	Walls = MakeIsm(TEXT("Walls"), WallColor, 0.9f, true);
-	WallTrim = MakeIsm(TEXT("WallTrim"), TrimColor, 0.5f, false);
-	UInstancedStaticMeshComponent* Concrete = MakeIsm(TEXT("Concrete"), ConcreteColor, 0.95f, true);
+	for (int32 F = 0; F < Floors.Num(); ++F)
+	{
+		const FFloorStyle Style = StyleFor(Floors[F].Id);
+		const TCHAR* KitFloor = nullptr;
+		const TCHAR* KitWall = nullptr;
+		const TCHAR* KitCeiling = nullptr;
+		if (bKit)
+		{
+			KitKeysFor(Floors[F].Id, KitFloor, KitWall, KitCeiling);
+		}
+		FloorIsms.Add(MakeIsm(FString::Printf(TEXT("Floor_%s"), *Floors[F].Id), Style.Floor, true, KitFloor));
+		WallIsms.Add(MakeIsm(FString::Printf(TEXT("Walls_%s"), *Floors[F].Id), Style.Wall, true, KitWall));
+		TrimIsms.Add(MakeIsm(FString::Printf(TEXT("Trim_%s"), *Floors[F].Id), Style.Trim, false));
+		CeilingIsms.Add(MakeIsm(FString::Printf(TEXT("Ceiling_%s"), *Floors[F].Id), Style.Ceiling, false, KitCeiling));
+	}
 
 	FRandomStream Rng(4242);
 	FActorSpawnParameters Params;
@@ -332,8 +506,51 @@ void ATTHospital::Build()
 				// Floor slab (holes where a staircase climbs through).
 				if (Stair != EStairCell::Void)
 				{
-					(bUnderground || bOutdoor ? Concrete : Slabs.Get())->AddInstance(FTransform(FRotator::ZeroRotator, Local - FVector(0.f, 0.f, SlabThickness * 0.5f),
+					FloorIsms[F]->AddInstance(FTransform(FRotator::ZeroRotator, Local - FVector(0.f, 0.f, SlabThickness * 0.5f),
 						FVector(CellSize, CellSize, SlabThickness) / 100.f));
+				}
+				if (bKit && Stair == EStairCell::None && (C == TEXT('.') || C == TEXT('*') || C == TEXT('~')))
+				{
+					const bool bService = Floors[F].Id == TEXT("B1") || Floors[F].Id == TEXT("G") || Floors[F].Id == TEXT("T");
+					if (Rng.FRand() < (bService ? 0.18f : 0.12f))
+					{
+						if (UStaticMesh* Junk = TTKit::Mesh(TEXT("clutter"), Rng.RandRange(0, 99)))
+						{
+							if (Junk->GetBounds().BoxExtent.Z < 8.f)
+							{
+								const FVector Off(Rng.FRandRange(-100.f, 100.f), Rng.FRandRange(-100.f, 100.f), 0.f);
+								TTKit::Place(this, RootComponent, Junk, Local + Off, Rng.FRandRange(0.f, 360.f), false, 0.f, false);
+							}
+						}
+					}
+				}
+				if (bKit && C == TEXT('#') && !bOutdoor && !Floors[F].bOutdoor)
+				{
+					// Something on the wall facing a corridor or room: a notice board, a radiator, a clock.
+					for (const FIntPoint& D : Dirs)
+					{
+						const TCHAR N = GetLocalChar(F, X + D.X, Y + D.Y);
+						if (!(N == TEXT('.') || N == TEXT('*') || N == TEXT('~')) || Rng.FRand() > 0.06f)
+						{
+							continue;
+						}
+						const FVector Face = FVector(static_cast<float>(D.X), static_cast<float>(D.Y), 0.f);
+						const float Yaw = Face.Rotation().Yaw + 90.f;
+						const float Pick = Rng.FRand();
+						const bool bService = Floors[F].Id == TEXT("B1") || Floors[F].Id == TEXT("G") || Floors[F].Id == TEXT("T");
+						const TCHAR* Cat = bService ? (Pick < 0.6f ? TEXT("vent") : TEXT("board")) : (Pick < 0.55f ? TEXT("board") : (Pick < 0.85f ? TEXT("radiator") : TEXT("clock")));
+						const float Height = FCString::Strcmp(Cat, TEXT("radiator")) == 0 ? 15.f : (FCString::Strcmp(Cat, TEXT("clock")) == 0 ? 250.f : 140.f);
+						if (UStaticMesh* Decor = TTKit::Mesh(Cat, Rng.RandRange(0, 99)))
+						{
+							const float Depth = Decor->GetBounds().BoxExtent.GetMin();
+							TTKit::Place(this, RootComponent, Decor, Local + Face * (CellSize * 0.5f + Depth + 1.f) + FVector(0.f, 0.f, Height), Yaw, false, 200.f);
+						}
+						break;
+					}
+				}
+				if (!bOutdoor && Stair == EStairCell::None && C != TEXT('#'))
+				{
+					CeilingIsms[F]->AddInstance(FTransform(FRotator::ZeroRotator, Local + FVector(0.f, 0.f, WallHeight - 1.f), FVector(CellSize, CellSize, 2.f) / 100.f));
 				}
 				Walkable[Y * GridWidth + Cell.X] = Stair == EStairCell::Walk || Stair == EStairCell::Ramp || (Stair == EStairCell::None && IsWalkableChar(C));
 				if (Stair != EStairCell::None && Stair != EStairCell::Wall)
@@ -347,11 +564,11 @@ void ATTHospital::Build()
 				{
 					const bool bBorder = X == 0 || Y == 0 || X == FloorW - 1 || Y == FloorH - 1;
 					const float Height = (bOutdoor && bBorder) ? ParapetHeight : WallHeight;
-					(bUnderground ? Concrete : Walls.Get())->AddInstance(FTransform(FRotator::ZeroRotator, Local + FVector(0.f, 0.f, Height * 0.5f),
+					WallIsms[F]->AddInstance(FTransform(FRotator::ZeroRotator, Local + FVector(0.f, 0.f, Height * 0.5f),
 						FVector(CellSize, CellSize, Height) / 100.f));
-					if (!bOutdoor && !bUnderground)
+					if (!bOutdoor && !bUnderground && StyleFor(Floors[F].Id).bTrim)
 					{
-						WallTrim->AddInstance(FTransform(FRotator::ZeroRotator, Local + FVector(0.f, 0.f, 55.f), FVector(CellSize + 4.f, CellSize + 4.f, 110.f) / 100.f));
+						TrimIsms[F]->AddInstance(FTransform(FRotator::ZeroRotator, Local + FVector(0.f, 0.f, 55.f), FVector(CellSize + 4.f, CellSize + 4.f, 110.f) / 100.f));
 					}
 					break;
 				}
@@ -359,8 +576,8 @@ void ATTHospital::Build()
 				case TEXT('w'):
 				{
 					// Sealed window: the city out there, unreachable.
-					Walls->AddInstance(FTransform(FRotator::ZeroRotator, Local + FVector(0.f, 0.f, 50.f), FVector(CellSize, CellSize, 100.f) / 100.f));
-					Walls->AddInstance(FTransform(FRotator::ZeroRotator, Local + FVector(0.f, 0.f, 360.f), FVector(CellSize, CellSize, 40.f) / 100.f));
+					WallIsms[F]->AddInstance(FTransform(FRotator::ZeroRotator, Local + FVector(0.f, 0.f, 50.f), FVector(CellSize, CellSize, 100.f) / 100.f));
+					WallIsms[F]->AddInstance(FTransform(FRotator::ZeroRotator, Local + FVector(0.f, 0.f, 360.f), FVector(CellSize, CellSize, 40.f) / 100.f));
 					if (UStaticMeshComponent* Glass = TTShapes::AddPart(this, RootComponent, Cube, Local + FVector(0.f, 0.f, 220.f), FVector(CellSize - 20.f, CellSize - 20.f, 240.f), FLinearColor::Black))
 					{
 						// Clear glass: it blocks, but the city and the sky show through.
@@ -511,7 +728,7 @@ void ATTHospital::Build()
 					}
 					else if (C == TEXT('E'))
 					{
-						Walls->AddInstance(FTransform(FRotator::ZeroRotator, Local + FVector(0.f, 0.f, WallHeight * 0.5f), FVector(CellSize, CellSize, WallHeight) / 100.f));
+						WallIsms[F]->AddInstance(FTransform(FRotator::ZeroRotator, Local + FVector(0.f, 0.f, WallHeight * 0.5f), FVector(CellSize, CellSize, WallHeight) / 100.f));
 						if (ATTSign* Lift = World->SpawnActor<ATTSign>(ATTSign::StaticClass(), WorldLoc + Rot.Vector() * (CellSize * 0.5f + 2.f), Rot, Params))
 						{
 							Lift->SetupElevator();
@@ -638,6 +855,26 @@ void ATTHospital::Build()
 
 				case TEXT('m'):
 				{
+					if (UStaticMesh* KitBed = TTKit::Mesh(TEXT("bed"), Rng.RandRange(0, 99)))
+					{
+						const float BedYaw = FacingYawAwayFromWall(Cell) + (Rng.FRand() < 0.5f ? 0.f : 180.f);
+						TTKit::Place(this, RootComponent, KitBed, Local, BedYaw + Rng.FRandRange(-6.f, 6.f), true, 280.f);
+						const FRotator Rot(0.f, BedYaw, 0.f);
+						const FVector Right = FRotationMatrix(Rot).GetUnitAxis(EAxis::Y);
+						if (Rng.FRand() < 0.6f)
+						{
+							TTKit::Place(this, RootComponent, TTKit::Mesh(TEXT("bedside"), Rng.RandRange(0, 99)), Local + Right * 105.f, BedYaw, true, 90.f);
+						}
+						if (Floors[F].Id == TEXT("F3") && Rng.FRand() < 0.75f)
+						{
+							TTKit::Place(this, RootComponent, TTKit::Mesh(TEXT("curtain"), Rng.RandRange(0, 99)), Local - Right * 135.f + FVector(0.f, 0.f, 255.f), BedYaw, false, 290.f, true, true);
+						}
+						else if (Rng.FRand() < 0.35f)
+						{
+							TTKit::Place(this, RootComponent, TTKit::Mesh(TEXT("ivstand"), 0), Local - Right * 110.f, BedYaw, false, 110.f);
+						}
+						break;
+					}
 					const float Yaw = FacingYawAwayFromWall(Cell) + 90.f;
 					const FRotator Rot(0.f, Yaw, 0.f);
 					const FVector Fwd = Rot.Vector();
@@ -651,11 +888,48 @@ void ATTHospital::Build()
 						const FVector Leg = Base + Fwd * ((i < 2) ? 92.f : -92.f) + Right * ((i % 2) ? 40.f : -40.f) + FVector(0.f, 0.f, 25.f);
 						TTShapes::AddPart(this, RootComponent, Cube, Leg, FVector(5.f, 5.f, 50.f), BedColor, Rot, false);
 					}
+					const FString& FloorId = Floors[F].Id;
+					if ((FloorId == TEXT("F3") || FloorId == TEXT("F4") || FloorId == TEXT("F1")) && Rng.FRand() < 0.55f)
+					{
+						// IV stand at the head of the bed.
+						const FVector Pole = Base + Fwd * 80.f + Right * 70.f;
+						TTShapes::AddPart(this, RootComponent, TTShapes::Cylinder(), Pole + FVector(0.f, 0.f, 95.f), FVector(3.f, 3.f, 190.f), FLinearColor(0.55f, 0.56f, 0.55f), Rot, false);
+						TTShapes::AddPart(this, RootComponent, TTShapes::Cylinder(), Pole + FVector(0.f, 0.f, 3.f), FVector(45.f, 45.f, 4.f), FLinearColor(0.3f, 0.3f, 0.3f), Rot, false);
+						TTShapes::AddPart(this, RootComponent, Cube, Pole + FVector(0.f, 8.f, 170.f), FVector(4.f, 12.f, 22.f), FLinearColor(0.6f, 0.65f, 0.6f), Rot, false);
+					}
+					if (FloorId == TEXT("F3") && Rng.FRand() < 0.7f)
+					{
+						// Privacy curtain on a rail: cover with a partial view (bible: clinic of shadows).
+						const FVector Rail = Base - Right * 75.f + FVector(0.f, 0.f, 0.f);
+						TTShapes::AddPart(this, RootComponent, Cube, Rail + FVector(0.f, 0.f, 255.f), FVector(220.f, 4.f, 4.f), FLinearColor(0.5f, 0.5f, 0.5f), Rot, false);
+						for (int32 k = 0; k < 5; ++k)
+						{
+							const float Along = -90.f + k * 40.f + Rng.FRandRange(-6.f, 6.f);
+							TTShapes::AddPart(this, RootComponent, Cube, Rail + Fwd * Along + Right * ((k % 2) ? 5.f : -5.f) + FVector(0.f, 0.f, 150.f),
+								FVector(44.f, 3.f, 200.f), FLinearColor(0.32f, 0.45f, 0.44f), Rot + FRotator(0.f, (k % 2) ? 12.f : -12.f, 0.f), false);
+						}
+					}
 					break;
 				}
 
 				case TEXT('t'):
 				{
+					if (bKit)
+					{
+						const FString& Id = Floors[F].Id;
+						const TCHAR* Cat = TEXT("rack");
+						const float R = Rng.FRand();
+						if (Id == TEXT("F2")) Cat = R < 0.5f ? TEXT("desk") : (R < 0.8f ? TEXT("rack") : TEXT("cabinet"));
+						else if (Id == TEXT("F1")) Cat = R < 0.4f ? TEXT("desk") : (R < 0.7f ? TEXT("fridge") : TEXT("rack"));
+						else if (Id == TEXT("F3")) Cat = R < 0.45f ? TEXT("surgery") : (R < 0.75f ? TEXT("rack") : TEXT("fridge"));
+						else if (Id == TEXT("F4")) Cat = R < 0.5f ? TEXT("bedside") : (R < 0.8f ? TEXT("rack") : TEXT("fridge"));
+						else if (Id == TEXT("B1")) Cat = R < 0.6f ? TEXT("rack") : TEXT("cabinet");
+						if (UStaticMesh* Prop = TTKit::Mesh(Cat, Rng.RandRange(0, 99)))
+						{
+							TTKit::Place(this, RootComponent, Prop, Local, FacingYawAwayFromWall(Cell) + 90.f, true, 280.f);
+							break;
+						}
+					}
 					const float Yaw = FacingYawAwayFromWall(Cell);
 					const FRotator Rot(0.f, Yaw + 90.f, 0.f);
 					if (Rng.FRand() < 0.4f)
@@ -743,6 +1017,16 @@ void ATTHospital::Build()
 		}
 
 		BuildStairs(F);
+		AddPipes(F);
+		AddSigns(F);
+	}
+	AddRoomPlates();
+	if (const int32 F4 = FloorById(TEXT("F4")); F4 >= 0)
+	{
+		for (const FIntPoint& P : { FIntPoint(12, 7), FIntPoint(17, 7), FIntPoint(6, 7), FIntPoint(11, 2), FIntPoint(11, 12) })
+		{
+			AddEmergencyLight(MakeCell(F4, P.X, P.Y));
+		}
 	}
 
 	// A couple of security cameras show nothing but noise (GDD §26).
@@ -880,7 +1164,7 @@ void ATTHospital::AddLamp(const FIntPoint& Cell, bool bFlicker)
 	Lamp.Fixture = TTShapes::AddPart(this, RootComponent, TTShapes::Cube(), Local + FVector(0.f, 0.f, WallHeight - 3.f), FVector(130.f, 32.f, 6.f), FLinearColor(0.9f, 0.9f, 0.85f), FRotator::ZeroRotator, false);
 	if (Lamp.Fixture)
 	{
-		Lamp.Glow = TTShapes::MakeEmissive(Lamp.Fixture, bFlicker ? FLinearColor(0.8f, 0.92f, 1.f) : FLinearColor(1.f, 0.93f, 0.8f), 6.f);
+		Lamp.Glow = TTShapes::MakeEmissive(Lamp.Fixture, bFlicker ? FLinearColor(0.8f, 0.92f, 1.f) : StyleFor(Floors[Floor].Id).Lamp, 6.f);
 		Lamp.Fixture->SetMaterial(0, Lamp.Glow);
 	}
 
@@ -892,7 +1176,8 @@ void ATTHospital::AddLamp(const FIntPoint& Cell, bool bFlicker)
 	Light->SetIntensity(Lamp.BaseIntensity);
 	Light->SetAttenuationRadius(820.f);
 	Light->SetSourceRadius(20.f);
-	Light->SetLightColor(bFlicker ? FLinearColor(0.85f, 0.95f, 1.f) : FLinearColor(1.f, 0.93f, 0.8f));
+	const FLinearColor LampColor = StyleFor(Floors[Floor].Id).Lamp;
+	Light->SetLightColor(bFlicker ? FLinearColor(0.85f, 0.95f, 1.f) : LampColor);
 	Light->SetVolumetricScatteringIntensity(1.5f);
 	Light->SetCastShadows(true);
 	Light->RegisterComponent();
@@ -933,6 +1218,7 @@ void ATTHospital::SpawnAtmosphere()
 
 	if (APostProcessVolume* Post = World->SpawnActor<APostProcessVolume>(APostProcessVolume::StaticClass(), GetActorLocation(), FRotator::ZeroRotator, Params))
 	{
+		Grading = Post;
 		Post->bUnbound = true;
 		FPostProcessSettings& S = Post->Settings;
 		S.bOverride_AutoExposureMethod = true;
@@ -1022,6 +1308,7 @@ void ATTHospital::Tick(float DeltaSeconds)
 		CullTimer = 0.4f;
 		UpdateLampCulling();
 	}
+	UpdateGrading(DeltaSeconds);
 	for (FLamp& Lamp : Lamps)
 	{
 		if (!Lamp.bFlicker || !Lamp.Light || Lamp.bKilled || !Lamp.bActive || (Lamp.bNeedsPower && !bPowered))
@@ -1038,6 +1325,252 @@ void ATTHospital::Tick(float DeltaSeconds)
 			{
 				Lamp.Glow->SetScalarParameterValue(TEXT("Intensity"), Lamp.bOn ? 6.f : 0.05f);
 			}
+		}
+	}
+}
+
+void ATTHospital::UpdateGrading(float DeltaSeconds)
+{
+	if (!Grading)
+	{
+		return;
+	}
+	const APlayerCameraManager* View = UGameplayStatics::GetPlayerCameraManager(this, 0);
+	if (!View)
+	{
+		return;
+	}
+	const int32 F = FloorOfLocation(View->GetCameraLocation());
+	const FLinearColor Target = Floors.IsValidIndex(F) ? StyleFor(Floors[F].Id).Tint : FLinearColor::White;
+	GradeTint = FMath::Lerp(GradeTint, Target, FMath::Clamp(DeltaSeconds * 1.5f, 0.f, 1.f));
+	Grading->Settings.bOverride_SceneColorTint = true;
+	Grading->Settings.SceneColorTint = GradeTint;
+}
+
+void ATTHospital::AddEmergencyLight(const FIntPoint& Cell)
+{
+	const FVector Local = CellToWorld(Cell) - GetActorLocation();
+	UStaticMeshComponent* Box = TTShapes::AddPart(this, RootComponent, TTShapes::Cube(), Local + FVector(0.f, 0.f, WallHeight - 12.f), FVector(30.f, 30.f, 14.f), FLinearColor::Black, FRotator::ZeroRotator, false);
+	UPointLightComponent* Light = NewObject<UPointLightComponent>(this);
+	Light->SetupAttachment(RootComponent);
+	Light->SetRelativeLocation(Local + FVector(0.f, 0.f, WallHeight - 40.f));
+	Light->SetIntensityUnits(ELightUnits::Lumens);
+	Light->SetIntensity(0.f);
+	Light->SetAttenuationRadius(520.f);
+	Light->SetLightColor(FLinearColor(1.f, 0.06f, 0.03f));
+	Light->SetVolumetricScatteringIntensity(2.f);
+	Light->SetCastShadows(false);
+	Light->RegisterComponent();
+	if (Box)
+	{
+		Box->SetMaterial(0, TTShapes::MakeEmissive(Box, FLinearColor(1.f, 0.05f, 0.02f), 0.2f));
+		Light->ComponentTags.Add(TEXT("EmergencyGlow"));
+		Box->ComponentTags.Add(TEXT("EmergencyBox"));
+	}
+	EmergencyLights.Add(Light);
+}
+
+void ATTHospital::SetEmergency(bool bOn)
+{
+	for (UPointLightComponent* Light : EmergencyLights)
+	{
+		if (Light)
+		{
+			Light->SetIntensity(bOn ? 130.f : 0.f);
+		}
+	}
+	for (UActorComponent* Comp : GetComponentsByTag(UStaticMeshComponent::StaticClass(), TEXT("EmergencyBox")))
+	{
+		if (UStaticMeshComponent* Box = Cast<UStaticMeshComponent>(Comp))
+		{
+			if (UMaterialInstanceDynamic* Mid = Cast<UMaterialInstanceDynamic>(Box->GetMaterial(0)))
+			{
+				Mid->SetScalarParameterValue(TEXT("Intensity"), bOn ? 8.f : 0.2f);
+			}
+		}
+	}
+}
+
+void ATTHospital::AddPipes(int32 F)
+{
+	// Service floors only: water mains, steam lines and cable trays along the walls (bible: pipes as a spatial system).
+	const FString& Id = Floors[F].Id;
+	if (Id != TEXT("B1") && Id != TEXT("G") && Id != TEXT("T"))
+	{
+		return;
+	}
+	FRandomStream Rng(9100 + F);
+	UStaticMesh* Cube = TTShapes::Cube();
+	UStaticMesh* Cyl = TTShapes::Cylinder();
+	const float Z0 = FloorZ(F);
+	const float Top = Id == TEXT("T") ? 300.f : 330.f;
+	auto Walk = [this, F](int32 X, int32 Y)
+	{
+		return X >= 0 && Y >= 0 && X < FloorW && Y < FloorH && IsWalkableChar(GetLocalChar(F, X, Y)) && StairCellAt(F, X, Y) == EStairCell::None;
+	};
+	auto Solid = [this, F](int32 X, int32 Y)
+	{
+		return X < 0 || Y < 0 || X >= FloorW || Y >= FloorH || GetLocalChar(F, X, Y) == TEXT('#');
+	};
+	struct FFamily { FTTSurface Surface; float Radius; float Drop; };
+	FTTSurface Fire = TTShapes::Metal(FLinearColor(0.45f, 0.04f, 0.03f), 0.35f);
+	Fire.Metallic = 0.3f;
+	FTTSurface Steam = TTShapes::Worn(FLinearColor(0.55f, 0.55f, 0.52f), 0.85f, 0.55f);
+	FTTSurface Tray = TTShapes::Metal(FLinearColor(0.35f, 0.36f, 0.37f), 0.25f);
+	const FFamily Families[] = { { Fire, 9.f, 0.f }, { Steam, 14.f, 34.f }, { Tray, 0.f, 64.f } };
+	int32 Runs = 0;
+
+	// Horizontal (along X) and vertical (along Y) runs hugging a wall.
+	for (int32 Axis = 0; Axis < 2; ++Axis)
+	{
+		const int32 Outer = Axis == 0 ? FloorH : FloorW;
+		const int32 Inner = Axis == 0 ? FloorW : FloorH;
+		for (int32 A = 0; A < Outer; ++A)
+		{
+			for (int32 Side = -1; Side <= 1; Side += 2)
+			{
+				int32 Start = -1;
+				for (int32 B = 0; B <= Inner; ++B)
+				{
+					const int32 X = Axis == 0 ? B : A;
+					const int32 Y = Axis == 0 ? A : B;
+					const int32 WX = Axis == 0 ? X : X + Side;
+					const int32 WY = Axis == 0 ? Y + Side : Y;
+					const bool bOk = B < Inner && Walk(X, Y) && Solid(WX, WY);
+					if (bOk && Start < 0)
+					{
+						Start = B;
+					}
+					if ((!bOk || B == Inner) && Start >= 0)
+					{
+						const int32 Len = B - Start;
+						if (Len >= 4 && Rng.FRand() < 0.75f)
+						{
+							++Runs;
+							const float Mid = (Start + B - 1) * 0.5f;
+							const FVector Center = Axis == 0 ? FVector(Mid * CellSize, A * CellSize, Z0) : FVector(A * CellSize, Mid * CellSize, Z0);
+							const FVector Toward = Axis == 0 ? FVector(0.f, Side, 0.f) : FVector(Side, 0.f, 0.f);
+							const float Length = Len * CellSize;
+							const FRotator Along = Axis == 0 ? FRotator(90.f, 0.f, 0.f) : FRotator(90.f, 90.f, 0.f);
+							const int32 Count = 1 + Rng.RandRange(0, 2);
+							for (int32 k = 0; k < Count; ++k)
+							{
+								const FFamily& Fam = Families[(k + Runs) % 3];
+								const FVector Pos = Center + Toward * (115.f - k * 6.f) + FVector(0.f, 0.f, Top - Fam.Drop);
+								UStaticMeshComponent* Part = Fam.Radius > 0.f
+									? TTShapes::AddPart(this, RootComponent, Cyl, Pos, FVector(Fam.Radius * 2.f, Fam.Radius * 2.f, Length), FLinearColor::Black, Along, false)
+									: TTShapes::AddPart(this, RootComponent, Cube, Pos, Axis == 0 ? FVector(Length, 40.f, 6.f) : FVector(40.f, Length, 6.f), FLinearColor::Black, FRotator::ZeroRotator, false);
+								if (Part)
+								{
+									Part->SetMaterial(0, TTShapes::MakeSurface(Part, Fam.Surface));
+								}
+								// Brackets every two cells; a valve wheel now and then on the water main.
+								for (int32 c = Start; c < B; c += 2)
+								{
+									const FVector At = (Axis == 0 ? FVector(c * CellSize, A * CellSize, Z0) : FVector(A * CellSize, c * CellSize, Z0)) + Toward * 135.f + FVector(0.f, 0.f, Top - Fam.Drop);
+									TTShapes::AddPart(this, RootComponent, Cube, At, Axis == 0 ? FVector(6.f, 50.f, 6.f) : FVector(50.f, 6.f, 6.f), FLinearColor(0.2f, 0.2f, 0.2f), FRotator::ZeroRotator, false);
+								}
+								if (Fam.Radius > 0.f && Fam.Drop == 0.f && Len >= 5)
+								{
+									const float At = Start + Rng.RandRange(1, Len - 2);
+									const FVector V = (Axis == 0 ? FVector(At * CellSize, A * CellSize, Z0) : FVector(A * CellSize, At * CellSize, Z0)) + Toward * (115.f - 22.f) + FVector(0.f, 0.f, Top);
+									const FRotator Face = Axis == 0 ? FRotator(0.f, 0.f, 90.f) : FRotator(90.f, 0.f, 0.f);
+									TTShapes::AddPart(this, RootComponent, Cyl, V, FVector(34.f, 34.f, 3.f), FLinearColor(0.6f, 0.45f, 0.05f), Face, false);
+									TTShapes::AddPart(this, RootComponent, Cyl, V - Toward * 0.f, FVector(5.f, 5.f, 26.f), FLinearColor(0.2f, 0.2f, 0.2f), Axis == 0 ? FRotator(0.f, 0.f, 90.f) : FRotator(90.f, 0.f, 0.f), false);
+								}
+							}
+						}
+						Start = -1;
+					}
+				}
+			}
+		}
+	}
+}
+
+void ATTHospital::AddSigns(int32 F)
+{
+	// A hanging plate at the mouth of every stairwell: which floor this is, and the green exit strip.
+	if (!Floors[F].bStairs)
+	{
+		return;
+	}
+	const FString& Id = Floors[F].Id;
+	const FString Label = Id == TEXT("F1") ? TEXT("1º ANDAR") : Id == TEXT("F2") ? TEXT("2º ANDAR") : Id == TEXT("F3") ? TEXT("3º ANDAR")
+		: Id == TEXT("F4") ? TEXT("4º ANDAR") : Id == TEXT("R") ? TEXT("COBERTURA") : Id == TEXT("B1") ? TEXT("SUBSOLO") : TEXT("GARAGEM");
+	const float Z0 = FloorZ(F);
+	const bool bEven = F % 2 == 0;
+	auto AddText = [this](const FVector& Pos, float Yaw, const FString& Text, float Size, const FColor& Color)
+	{
+		UTextRenderComponent* T = NewObject<UTextRenderComponent>(this);
+		T->SetupAttachment(RootComponent);
+		T->SetRelativeLocation(Pos);
+		T->SetRelativeRotation(FRotator(0.f, Yaw, 0.f));
+		T->SetText(FText::FromString(Text));
+		T->SetWorldSize(Size);
+		T->SetHorizontalAlignment(EHTA_Center);
+		T->SetVerticalAlignment(EVRTA_TextCenter);
+		T->SetTextRenderColor(Color);
+		T->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		T->RegisterComponent();
+		AddInstanceComponent(T);
+	};
+	for (const FIntPoint& Def : StairDefs)
+	{
+		const bool bWest = Def.X < FloorW / 2;
+		const int32 ExitRow = bEven ? Def.Y + 3 : Def.Y;
+		// Between the stair lane and the corridor, near the ceiling.
+		const FVector Pos((bWest ? Def.X + 1.5f : Def.X - 0.5f) * CellSize, ExitRow * CellSize, Z0 + 315.f);
+		const float Out = bWest ? 0.f : 180.f;
+		const FVector OutDir = FRotator(0.f, Out, 0.f).Vector();
+		TTShapes::AddPart(this, RootComponent, TTShapes::Cube(), Pos, FVector(4.f, 200.f, 60.f), FLinearColor(0.04f, 0.12f, 0.08f), FRotator::ZeroRotator, false);
+		if (UStaticMeshComponent* Strip = TTShapes::AddPart(this, RootComponent, TTShapes::Cube(), Pos - FVector(0.f, 0.f, 42.f), FVector(4.f, 90.f, 20.f), FLinearColor::Black, FRotator::ZeroRotator, false))
+		{
+			Strip->SetMaterial(0, TTShapes::MakeEmissive(Strip, FLinearColor(0.1f, 1.f, 0.25f), 2.5f));
+		}
+		for (const float Side : { 1.f, -1.f })
+		{
+			const float Yaw = Side > 0.f ? Out : Out + 180.f;
+			const FVector Face = OutDir * Side;
+			AddText(Pos + Face * 3.f + FVector(0.f, 0.f, 4.f), Yaw, Label, Label.Len() > 8 ? 30.f : 36.f, FColor(225, 222, 200));
+			AddText(Pos + Face * 3.f - FVector(0.f, 0.f, 42.f), Yaw, TEXT("SAÍDA"), 15.f, FColor(8, 40, 14));
+		}
+	}
+}
+
+void ATTHospital::AddRoomPlates()
+{
+	// A plate beside each door, on the corridor side, naming the room behind it.
+	for (const TPair<FIntPoint, TObjectPtr<ATTDoor>>& Pair : Doors)
+	{
+		const FIntPoint Door = Pair.Key;
+		for (const FIntPoint& D : Dirs)
+		{
+			const TCHAR* Name = PlateFor(GetZoneOfCell(Door + D));
+			if (!Name || !IsWalkableChar(GetChar(Door - D)) || PlateFor(GetZoneOfCell(Door - D)))
+			{
+				continue;
+			}
+			const FVector Out(static_cast<float>(-D.X), static_cast<float>(-D.Y), 0.f);
+			const FVector Side(Out.Y, -Out.X, 0.f);
+			const FVector Center = CellToWorld(Door) - GetActorLocation();
+			// The wall next to the door frame, on the corridor face.
+			const FVector Pos = Center + Out * (CellSize * 0.5f + 3.f) + Side * (CellSize * 0.5f + 40.f) + FVector(0.f, 0.f, 175.f);
+			const FRotator Face = Out.Rotation();
+			TTShapes::AddPart(this, RootComponent, TTShapes::Cube(), Pos - Out * 1.f, FVector(2.f, 70.f, 20.f), FLinearColor(0.75f, 0.74f, 0.68f), Face, false);
+			UTextRenderComponent* Text = NewObject<UTextRenderComponent>(this);
+			Text->SetupAttachment(RootComponent);
+			Text->SetRelativeLocation(Pos + Out * 0.5f);
+			Text->SetRelativeRotation(Face);
+			Text->SetText(FText::FromString(Name));
+			Text->SetWorldSize(FCString::Strlen(Name) > 14 ? 5.f : 7.f);
+			Text->SetHorizontalAlignment(EHTA_Center);
+			Text->SetVerticalAlignment(EVRTA_TextCenter);
+			Text->SetTextRenderColor(FColor(30, 32, 34));
+			Text->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			Text->RegisterComponent();
+			AddInstanceComponent(Text);
+			break;
 		}
 	}
 }

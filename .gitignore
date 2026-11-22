@@ -44,3 +44,8 @@ Desktop.ini
 .env
 .env.*
 !.env.example
+
+# Third-party art (licences forbid redistribution; reinstall locally, see 05_ART/ASSETS.md)
+UnrealProject/Content/Horror_Hospital/
+UnrealProject/Content/Characters/Mannequins/
+UnrealProject/Content/Kit/

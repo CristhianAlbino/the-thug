@@ -114,8 +114,9 @@ void ATTCompanion::Setup(ETTCompanionId InId, ETTDifficulty InDifficulty)
 		bHasCrowbar = true;
 		break;
 	}
-	if (!Body)
+	if (!bVisualBuilt)
 	{
+		bVisualBuilt = true;
 		BuildVisual();
 	}
 }
@@ -135,25 +136,45 @@ void ATTCompanion::BuildVisual()
 	FLinearColor Coat(0.2f, 0.2f, 0.2f);
 	FLinearColor Legs(0.08f, 0.08f, 0.1f);
 	const FLinearColor Skin(0.55f, 0.42f, 0.34f);
+	bool bQuinn = false;
+	float Scale = 1.f;
 	switch (Id)
 	{
-	case ETTCompanionId::Harley: Coat = FLinearColor(0.45f, 0.04f, 0.05f); Legs = FLinearColor(0.05f, 0.06f, 0.18f); break;
-	case ETTCompanionId::Bartholomeu: Coat = FLinearColor(0.28f, 0.18f, 0.1f); break;
-	case ETTCompanionId::Jack: Coat = FLinearColor(0.32f, 0.33f, 0.33f); break;
+	// Character direction confirmed by the author (05_ART/DIRECAO_PERSONAGENS_CONFIRMADA.md).
+	case ETTCompanionId::Harley: Coat = FLinearColor(0.2f, 0.02f, 0.045f); Legs = FLinearColor(0.02f, 0.02f, 0.022f); bQuinn = true; Scale = 0.94f; break;
+	case ETTCompanionId::Bartholomeu: Coat = FLinearColor(0.14f, 0.16f, 0.11f); Legs = FLinearColor(0.07f, 0.08f, 0.13f); Scale = 0.96f; break;
+	case ETTCompanionId::Jack: Coat = FLinearColor(0.05f, 0.05f, 0.06f); Legs = FLinearColor(0.035f, 0.035f, 0.04f); break;
 	}
-	TTShapes::AddPart(this, Root, TTShapes::Cylinder(), FVector(0.f, -11.f, -48.f), FVector(18.f, 18.f, 86.f), Legs, FRotator::ZeroRotator, false);
-	TTShapes::AddPart(this, Root, TTShapes::Cylinder(), FVector(0.f, 11.f, -48.f), FVector(18.f, 18.f, 86.f), Legs, FRotator::ZeroRotator, false);
-	Body = TTShapes::AddPart(this, Root, TTShapes::Cube(), FVector(0.f, 0.f, 28.f), FVector(30.f, 48.f, 70.f), Coat, FRotator::ZeroRotator, false);
-	TTShapes::AddPart(this, Root, TTShapes::Sphere(), FVector(2.f, 0.f, 76.f), FVector(24.f, 22.f, 27.f), Skin, FRotator::ZeroRotator, false);
+	const bool bBody = TTShapes::SetupMannequin(this, bQuinn, Legs, Coat, Scale, 0.65f) != nullptr;
+	if (!bBody)
+	{
+		TTShapes::AddPart(this, Root, TTShapes::Cylinder(), FVector(0.f, -11.f, -48.f), FVector(18.f, 18.f, 86.f), Legs, FRotator::ZeroRotator, false);
+		TTShapes::AddPart(this, Root, TTShapes::Cylinder(), FVector(0.f, 11.f, -48.f), FVector(18.f, 18.f, 86.f), Legs, FRotator::ZeroRotator, false);
+		Body = TTShapes::AddPart(this, Root, TTShapes::Cube(), FVector(0.f, 0.f, 28.f), FVector(30.f, 48.f, 70.f), Coat, FRotator::ZeroRotator, false);
+		TTShapes::AddPart(this, Root, TTShapes::Sphere(), FVector(2.f, 0.f, 76.f), FVector(24.f, 22.f, 27.f), Skin, FRotator::ZeroRotator, false);
+	}
+	const float Top = 90.f * Scale - 6.f;
 	if (Id == ETTCompanionId::Harley)
 	{
-		TTShapes::AddPart(this, Root, TTShapes::Cylinder(), FVector(-6.f, -15.f, 72.f), FVector(7.f, 7.f, 26.f), FLinearColor(0.85f, 0.75f, 0.4f), FRotator(0.f, 0.f, -25.f), false);
-		TTShapes::AddPart(this, Root, TTShapes::Cylinder(), FVector(-6.f, 15.f, 72.f), FVector(7.f, 7.f, 26.f), FLinearColor(0.85f, 0.75f, 0.4f), FRotator(0.f, 0.f, 25.f), false);
+		// Blonde with dark roots, pink tips; a choker.
+		TTShapes::AddPart(this, Root, TTShapes::Sphere(), FVector(-2.f, 0.f, Top - 4.f), FVector(22.f, 21.f, 14.f), FLinearColor(0.62f, 0.52f, 0.3f), FRotator::ZeroRotator, false);
+		for (const float Side : { -1.f, 1.f })
+		{
+			TTShapes::AddPart(this, Root, TTShapes::Cylinder(), FVector(-5.f, Side * 8.f, Top - 22.f), FVector(6.f, 6.f, 22.f), FLinearColor(0.62f, 0.52f, 0.3f), FRotator(0.f, 0.f, Side * 10.f), false);
+			TTShapes::AddPart(this, Root, TTShapes::Cylinder(), FVector(-5.f, Side * 10.f, Top - 37.f), FVector(5.f, 5.f, 9.f), FLinearColor(0.7f, 0.2f, 0.4f), FRotator(0.f, 0.f, Side * 10.f), false);
+		}
+		TTShapes::AddPart(this, Root, TTShapes::Cylinder(), FVector(0.f, 0.f, Top - 31.f), FVector(12.f, 12.f, 2.f), FLinearColor(0.02f, 0.02f, 0.02f), FRotator::ZeroRotator, false);
 	}
 	else if (Id == ETTCompanionId::Jack)
 	{
-		TTShapes::AddPart(this, Root, TTShapes::Cylinder(), FVector(0.f, 0.f, 93.f), FVector(30.f, 30.f, 5.f), FLinearColor(0.1f, 0.1f, 0.1f), FRotator::ZeroRotator, false);
-		TTShapes::AddPart(this, Root, TTShapes::Cylinder(), FVector(0.f, 0.f, 101.f), FVector(20.f, 20.f, 14.f), FLinearColor(0.1f, 0.1f, 0.1f), FRotator::ZeroRotator, false);
+		// Wavy dark hair.
+		TTShapes::AddPart(this, Root, TTShapes::Sphere(), FVector(-2.f, 0.f, Top - 4.f), FVector(23.f, 21.f, 13.f), FLinearColor(0.025f, 0.02f, 0.018f), FRotator::ZeroRotator, false);
+	}
+	else if (Id == ETTCompanionId::Bartholomeu)
+	{
+		// Red hair, glasses.
+		TTShapes::AddPart(this, Root, TTShapes::Sphere(), FVector(-2.f, 0.f, Top - 4.f), FVector(22.f, 20.f, 12.f), FLinearColor(0.42f, 0.12f, 0.03f), FRotator::ZeroRotator, false);
+		TTShapes::AddPart(this, Root, TTShapes::Cube(), FVector(10.f, 0.f, Top - 15.f), FVector(2.f, 16.f, 4.f), FLinearColor(0.02f, 0.02f, 0.02f), FRotator::ZeroRotator, false);
 	}
 }
 
@@ -898,22 +919,28 @@ void ATTCompanion::ScriptFace(const FVector& Point)
 
 void ATTCompanion::SetCostumeStage(int32 Stage)
 {
-	if (Id != ETTCompanionId::Jack || Stage <= CostumeStage || !Body)
+	if (Id != ETTCompanionId::Jack || Stage <= CostumeStage)
 	{
 		return;
 	}
+	const int32 From = CostumeStage;
 	CostumeStage = Stage;
 	USceneComponent* Root = GetCapsuleComponent();
-	// Same silhouette, different clothes: a purple coat, then green, then a pale, fixed grin of a collar.
-	const FLinearColor Coat = Stage >= 3 ? FLinearColor(0.3f, 0.06f, 0.36f) : FLinearColor(0.2f, 0.07f, 0.24f);
-	Body->SetMaterial(0, TTShapes::MakeColor(Body, Coat, 0.6f));
-	if (Stage == 2 || (Stage == 3 && CostumeStage == 3))
+	// Punitive Jack (confirmed direction): same face and body; a worn light lab coat, then a green tie, then the wine vest.
+	const FLinearColor Coat(0.62f, 0.6f, 0.53f);
+	if (Body)
 	{
-		TTShapes::AddPart(this, Root, TTShapes::Cylinder(), FVector(0.f, 0.f, 60.f), FVector(34.f, 34.f, 8.f), FLinearColor(0.08f, 0.35f, 0.08f), FRotator::ZeroRotator, false);
+		Body->SetMaterial(0, TTShapes::MakeColor(Body, Coat, 0.7f));
 	}
-	if (Stage >= 3)
+	TTShapes::TintMannequin(this, 1, Coat);
+	if (From < 2 && Stage >= 2)
 	{
-		TTShapes::AddPart(this, Root, TTShapes::Cube(), FVector(14.f, 0.f, 66.f), FVector(2.f, 14.f, 3.f), FLinearColor(0.6f, 0.05f, 0.08f), FRotator::ZeroRotator, false);
+		TTShapes::AddPart(this, Root, TTShapes::Cube(), FVector(12.f, 0.f, 40.f), FVector(2.f, 5.f, 30.f), FLinearColor(0.05f, 0.3f, 0.08f), FRotator::ZeroRotator, false);
+	}
+	if (From < 3 && Stage >= 3)
+	{
+		TTShapes::AddPart(this, Root, TTShapes::Cube(), FVector(9.f, 0.f, 36.f), FVector(4.f, 30.f, 34.f), FLinearColor(0.25f, 0.02f, 0.05f), FRotator::ZeroRotator, false);
+		TTShapes::AddPart(this, Root, TTShapes::Cube(), FVector(13.f, 0.f, 40.f), FVector(2.f, 5.f, 30.f), FLinearColor(0.05f, 0.3f, 0.08f), FRotator::ZeroRotator, false);
 	}
 	UE_LOG(LogTemp, Log, TEXT("[TT] Jack costume stage %d"), Stage);
 }

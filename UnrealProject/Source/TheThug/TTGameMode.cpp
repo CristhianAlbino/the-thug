@@ -503,6 +503,12 @@ void ATTGameMode::Tick(float DeltaSeconds)
 			GetPlayer()->TeleportForTest(Hospital->CellToWorld(FC(5, 11, 5)), 90.f);
 			AutoStep = 1;
 		}
+		if (FMath::Fmod(AutoTime, 5.f) < RealDelta && Hunter && Hospital && GetPlayer())
+		{
+			UE_LOG(LogTemp, Log, TEXT("[TT] t=%.0f sense: dist %.0f dz %.0f awareness %.2f joe vis %.2f light %.2f"), AutoTime,
+				FVector::Dist(Hunter->GetActorLocation(), GetPlayer()->GetActorLocation()), Hunter->GetActorLocation().Z - GetPlayer()->GetActorLocation().Z,
+				Hunter->GetAwareness(), GetPlayer()->GetVisibility(), GetPlayer()->GetLightLevel());
+		}
 		if (FMath::Fmod(AutoTime, 10.f) < RealDelta && Hunter && Hospital)
 		{
 			UE_LOG(LogTemp, Log, TEXT("[TT] t=%.0f Hunter floor %d (%s) state %s"), AutoTime, Hospital->FloorOfLocation(Hunter->GetActorLocation()),
@@ -1297,6 +1303,71 @@ void ATTGameMode::UpdateStoryTest()
 			break;
 		case 3: if (Due(20.f)) { UE_LOG(LogTemp, Warning, TEXT("[TT] Story test: no confrontation")); PlayerCaptured(Hunter); ++AutoStep; } break;
 		default: break;
+		}
+	}
+	else if (StoryTest == TEXT("art"))
+	{
+		// Visual tour (M08 art): one screenshot per area.
+		struct FView { int32 Floor; int32 X; int32 Y; float Yaw; float Pitch; const TCHAR* Name; };
+		static const FView Views[] = {
+			{ 4, 13, 4, 0.f, -8.f, TEXT("TT_50_icu") }, { 4, 11, 9, -90.f, -5.f, TEXT("TT_51_clinic") },
+			{ 2, 11, 11, -90.f, -5.f, TEXT("TT_52_lobby") }, { 3, 12, 7, 0.f, -5.f, TEXT("TT_53_admin") },
+			{ 1, 4, 13, 0.f, 5.f, TEXT("TT_54_b1") }, { 1, 13, 7, 180.f, 5.f, TEXT("TT_55_b1_hall") },
+			{ 0, 5, 9, 0.f, 0.f, TEXT("TT_56_garage") }, { 7, 9, 13, 0.f, 5.f, TEXT("TT_57_tunnel") },
+			{ 5, 6, 1, 180.f, 10.f, TEXT("TT_58_stairs") }, { 5, 11, 10, 0.f, 0.f, TEXT("TT_59_plate") },
+		};
+		if (AutoStep == 0 && Due(1.f))
+		{
+			Hunter->Freeze();
+			++AutoStep;
+		}
+		const int32 Index = (AutoStep - 1) / 2;
+		if (AutoStep >= 1 && Index < UE_ARRAY_COUNT(Views) && Due(2.f + AutoStep * 1.5f))
+		{
+			const FView& V = Views[Index];
+			if (AutoStep % 2 == 1)
+			{
+				Joe->TeleportForTest(Hospital->CellToWorld(FC(V.Floor, V.X, V.Y)), V.Yaw);
+				const FVector Fwd = FRotator(V.Pitch, V.Yaw, 0.f).Vector();
+				Joe->LookAtPoint(Joe->GetActorLocation() + FVector(0.f, 0.f, 60.f) + Fwd * 1000.f);
+			}
+			else
+			{
+				Shot(V.Name);
+			}
+			++AutoStep;
+		}
+		else if (Index >= UE_ARRAY_COUNT(Views) && AutoStep < 400 && Due(2.f + AutoStep * 1.5f + 1.f))
+		{
+			// The cast, lined up in the 4th floor corridor, the Hunter behind them.
+			Joe->TeleportForTest(Hospital->CellToWorld(FC(5, 12, 7)), 0.f);
+			const FVector Fwd(1.f, 0.f, 0.f);
+			const FVector Right(0.f, 1.f, 0.f);
+			int32 n = 0;
+			for (ATTCompanion* C : Companions)
+			{
+				if (C)
+				{
+					Narrative->DebugTeleportCompanionToJoe(C, 320.f);
+					C->SetActorLocation(C->GetActorLocation() + Right * (n++ - 1) * 110.f);
+					C->HoldForTalk(10.f);
+				}
+			}
+			Hunter->SetActorLocation(Joe->GetActorLocation() + Fwd * 620.f + FVector(0.f, 0.f, 10.f));
+			Hunter->SetActorRotation(FRotator(0.f, 180.f, 0.f));
+			Joe->LookAtPoint(Joe->GetActorLocation() + Fwd * 1000.f + FVector(0.f, 0.f, 60.f));
+			AutoStep = 400;
+			AutoTime = 1000.f;
+		}
+		else if (AutoStep == 400 && Due(1002.f))
+		{
+			Shot(TEXT("TT_60_cast"));
+			AutoStep = 401;
+		}
+		else if (AutoStep == 401 && Due(1004.f))
+		{
+			PlayerCaptured(Hunter);
+			AutoStep = 500;
 		}
 	}
 	else if (StoryTest == TEXT("robin"))
