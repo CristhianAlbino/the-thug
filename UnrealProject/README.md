@@ -9,7 +9,7 @@ binary asset is the empty map `Content/Maps/Hospital_M01.umap` (Git LFS).
 | System | Where |
 |---|---|
 | Joe: first person, sprint + stamina, crouch, flashlight, footstep noise, head bob | `TTPlayerCharacter` |
-| Hunter: patrol, suspicion, investigate, search, pursue, capture, opens and closes doors | `TTHunter` |
+| Hunter: patrol, suspicion, investigate, search, pursue, capture, opens and closes doors. With no lead he sweeps the whole hospital: each patrol leg stays on one floor, he finishes it before moving on and then goes to the floor he has neglected longest (a run down the stairwell does not count as searching a floor) | `TTHunter` |
 | Hunter memory and hearing **from `/Tools`**: `HunterCore` (observed routes, observed hiding spots 10/30/60/90, decay, difficulty tuning, weighted patrol choice), `PerceptionCore` (approximate hearing with uncertainty radius, occlusion), `EvidenceMemory` (doors he saw closed and later finds open) | `TTHunter` + `Core/` |
 | Hunter adaptation (GDD §14, §15, §18): aggression rises when Joe escapes or fools him; blocks a door Joe keeps using (never one that would trap him), ambushes beside a learned doorway and kills the lights there | `TTHunter` |
 | Difficulties Easy / Normal / Hard / Punitive (title screen 1-4) | `TTGameMode` |

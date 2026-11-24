@@ -350,6 +350,12 @@ TCHAR ATTHospital::GetChar(const FIntPoint& Cell) const
 	return GetLocalChar(Floor, Cell.X - Floor * Stride, Cell.Y);
 }
 
+bool ATTHospital::IsStairwellCell(const FIntPoint& Cell) const
+{
+	const int32 Floor = FloorOfCell(Cell);
+	return StairCellAt(Floor, Cell.X - Floor * Stride, Cell.Y) != EStairCell::None;
+}
+
 ATTHospital::EStairCell ATTHospital::StairCellAt(int32 Floor, int32 X, int32 Y) const
 {
 	if (!Floors.IsValidIndex(Floor) || !Floors[Floor].bStairs)

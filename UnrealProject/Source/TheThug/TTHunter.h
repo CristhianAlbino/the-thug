@@ -162,6 +162,12 @@ private:
 	float RepathTimer = 0.f;
 	bool bSawPlayerThisFrame = false;
 	float TimeSinceSeen = 1000.f;
+	/** World time he last stood on each floor: with no lead he sweeps the floor he has neglected longest. */
+	TArray<float> FloorSwept;
+	int32 DwellFloor = -1;
+	float DwellTime = 0.f;
+	/** Floor the next patrol leg should cover; OutSpan is how many floors around it are fine. */
+	int32 PickFocusFloor(const class ATTHospital* Hospital, const TArray<FIntPoint>& Points, int32& OutSpan) const;
 	float VisualReportTimer = 0.f;
 	float DoorInspectTimer = 0.f;
 	TMap<FIntPoint, double> RouteObservedAt;

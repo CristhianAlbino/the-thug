@@ -63,6 +63,10 @@ public:
 	bool IsPowered() const { return bPowered; }
 	/** Once Joe has found the tunnel grates, the Hunter can follow him down there. */
 	void EnableTunnelLinks();
+	/** Tunnel grate / ladder cell ('%'): the only place anyone moves straight up or down. */
+	bool IsTunnelLadder(const FIntPoint& Cell) const { return TunnelLadders.Contains(Cell); }
+	/** Any cell of a stairwell (landing, flight, shaft). */
+	bool IsStairwellCell(const FIntPoint& Cell) const;
 	void BreakAllCameras();
 	/** The old isolation room on 3: the Hunter only goes in once he saw Joe use it. */
 	bool IsIsolationCell(const FIntPoint& Cell) const { return IsolationCells.Contains(Cell); }

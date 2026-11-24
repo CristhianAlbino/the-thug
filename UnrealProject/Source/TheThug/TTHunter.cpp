@@ -863,8 +863,13 @@ bool ATTHunter::FollowPath(float DeltaSeconds, float MoveSpeed)
 
 	const FVector Loc = GetActorLocation();
 	FVector To = Path[PathIndex] - Loc;
-	// Ladder down into the tunnels (or back up): no stairs, he climbs.
-	if (FMath::Abs(To.Z) > 250.f && To.Size2D() < 160.f)
+	// Ladder down into the tunnels (or back up): no stairs, he climbs. Only on the tunnel ladders:
+	// stair waypoints sit at floor height under the ramps, and climbing to them would drop him
+	// underneath the flight (he got stuck under the B1 ramp before this check).
+	ATTHospital* LadderHospital = GetHospital();
+	const bool bLadder = LadderHospital && LadderHospital->IsTunnelLadder(LadderHospital->WorldToCell(Path[PathIndex] + FVector(0.f, 0.f, -100.f)))
+		&& LadderHospital->IsTunnelLadder(LadderHospital->WorldToCell(Loc));
+	if (bLadder && FMath::Abs(To.Z) > 250.f && To.Size2D() < 160.f)
 	{
 		SetActorLocation(FVector(Path[PathIndex].X, Path[PathIndex].Y, Path[PathIndex].Z), false, nullptr, ETeleportType::TeleportPhysics);
 		TTAudio::PlayAt(this, ETTSfx::Clank, GetActorLocation(), 1.f);
@@ -1040,6 +1045,26 @@ void ATTHunter::StartPatrol()
 		return;
 	}
 
+	// Keep the leg on the focus floor(s); now and then he roams anywhere.
+	int32 Span = 1;
+	const int32 FocusFloor = PickFocusFloor(Hospital, Points, Span);
+	if (FMath::FRand() > 0.12f)
+	{
+		std::vector<std::string> Near;
+		for (const std::string& R : Routes)
+		{
+			const FIntPoint* C = RouteCells.Find(UTF8_TO_TCHAR(R.c_str()));
+			if (C && FMath::Abs(Hospital->FloorOfCell(*C) - FocusFloor) <= Span)
+			{
+				Near.push_back(R);
+			}
+		}
+		if (!Near.empty())
+		{
+			Routes = Near;
+		}
+	}
+
 	FIntPoint TargetCell = Points.Num() > 0 ? Points[0] : Hospital->GetHunterStartCell();
 	for (int32 Attempt = 0; Attempt < 8; ++Attempt)
 	{
@@ -1058,11 +1083,6 @@ void ATTHunter::StartPatrol()
 			continue;
 		}
 		TargetCell = *Cell;
-		const FVector Focus = TimeSinceSeen < 240.f ? LastKnown : GetActorLocation();
-		if (FMath::Abs(Hospital->FloorOfCell(TargetCell) - Hospital->FloorOfLocation(Focus)) > 1 && FMath::FRand() > 0.2f && Attempt < 5)
-		{
-			continue;
-		}
 		if (Hospital->GetDoorAt(TargetCell))
 		{
 			// Stand beside the doorway, not inside it.
@@ -1090,6 +1110,50 @@ void ATTHunter::StartPatrol()
 	PatrolTarget = Hospital->CellToWorld(TargetCell);
 	MoveTo(PatrolTarget);
 	SetState(ETTHunterState::Patrol);
+}
+
+int32 ATTHunter::PickFocusFloor(const ATTHospital* Hospital, const TArray<FIntPoint>& Points, int32& OutSpan) const
+{
+	OutSpan = 1;
+	if (TimeSinceSeen < 240.f)
+	{
+		return Hospital->FloorOfLocation(LastKnown);
+	}
+	const int32 Here = Hospital->FloorOfLocation(GetActorLocation());
+	if (FloorSwept.Num() == 0)
+	{
+		return Here;
+	}
+	OutSpan = 0;
+	// Finish the floor he is on before moving on.
+	if (DwellFloor == Here && DwellTime < 40.f && FMath::FRand() < 0.6f)
+	{
+		return Here;
+	}
+	// No lead: sweep. The floor (with patrol points) he has neglected longest; ties go to the nearest.
+	int32 Best = Here;
+	float BestTime = TNumericLimits<float>::Max();
+	TSet<int32> Checked;
+	const FIntPoint From = Hospital->WorldToCell(GetActorLocation());
+	for (const FIntPoint& P : Points)
+	{
+		const int32 F = Hospital->FloorOfCell(P);
+		if (!FloorSwept.IsValidIndex(F) || F == Here || Checked.Contains(F))
+		{
+			continue;
+		}
+		Checked.Add(F);
+		// Floor gaps in Z, not in index (the tunnels are the last index but sit under G).
+		const float Gap = FMath::Abs(Hospital->FloorZ(F) - Hospital->FloorZ(Here)) / 400.f;
+		const float T = FloorSwept[F] + Gap * 15.f;
+		TArray<FIntPoint> Probe;
+		if (T < BestTime && Hospital->FindPath(From, P, Probe, true))
+		{
+			BestTime = T;
+			Best = F;
+		}
+	}
+	return Best;
 }
 
 void ATTHunter::ResumePatrol()
@@ -1517,6 +1581,30 @@ void ATTHunter::Tick(float DeltaSeconds)
 
 	ATTPlayerCharacter* Player = GetPlayer();
 	ATTHospital* Hospital = GetHospital();
+	if (Hospital)
+	{
+		// A floor counts as swept only after he has walked it for a while: running
+		// down the stairwell past a landing is not searching it.
+		const FIntPoint HereCell = Hospital->WorldToCell(GetActorLocation());
+		const int32 Here = Hospital->FloorOfCell(HereCell);
+		if (FloorSwept.Num() < Hospital->GetFloorCount())
+		{
+			FloorSwept.Init(-1.e6f, Hospital->GetFloorCount());
+		}
+		if (Here != DwellFloor)
+		{
+			DwellFloor = Here;
+			DwellTime = 0.f;
+		}
+		if (!Hospital->IsStairwellCell(HereCell))
+		{
+			DwellTime += DeltaSeconds;
+		}
+		if (DwellTime > 25.f)
+		{
+			FloorSwept[Here] = GetWorld()->GetTimeSeconds();
+		}
+	}
 
 	switch (State)
 	{

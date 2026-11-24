@@ -505,9 +505,13 @@ void ATTGameMode::Tick(float DeltaSeconds)
 		}
 		if (FMath::Fmod(AutoTime, 5.f) < RealDelta && Hunter && Hospital && GetPlayer())
 		{
-			UE_LOG(LogTemp, Log, TEXT("[TT] t=%.0f sense: dist %.0f dz %.0f awareness %.2f joe vis %.2f light %.2f"), AutoTime,
-				FVector::Dist(Hunter->GetActorLocation(), GetPlayer()->GetActorLocation()), Hunter->GetActorLocation().Z - GetPlayer()->GetActorLocation().Z,
-				Hunter->GetAwareness(), GetPlayer()->GetVisibility(), GetPlayer()->GetLightLevel());
+			const FVector HL = Hunter->GetActorLocation() - Hospital->GetActorLocation();
+			const FVector JL = GetPlayer()->GetActorLocation() - Hospital->GetActorLocation();
+			const FIntPoint HC = Hospital->WorldToCell(Hunter->GetActorLocation());
+			UE_LOG(LogTemp, Log, TEXT("[TT] t=%.0f sense: dist %.0f awareness %.2f joe vis %.2f | hunter (%.0f,%.0f,%.0f) cell F%d (%d,%d) %s | joe (%.0f,%.0f,%.0f) %s"), AutoTime,
+				FVector::Dist(Hunter->GetActorLocation(), GetPlayer()->GetActorLocation()), Hunter->GetAwareness(), GetPlayer()->GetVisibility(),
+				HL.X, HL.Y, HL.Z, Hospital->FloorOfCell(HC), HC.X - Hospital->FloorOfCell(HC) * ATTHospital::Stride, HC.Y, *Hospital->GetZoneAt(Hunter->GetActorLocation()),
+				JL.X, JL.Y, JL.Z, *Hospital->GetZoneAt(GetPlayer()->GetActorLocation()));
 		}
 		if (FMath::Fmod(AutoTime, 10.f) < RealDelta && Hunter && Hospital)
 		{
